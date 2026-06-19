@@ -39,6 +39,7 @@ export async function atualizarPagamento(
 
 export async function criarVoucher(dados: {
   tipo: "digital" | "fisico"
+  codigo?: string
   compradorNome: string
   compradorTelefone?: string
   compradorEmail?: string
@@ -52,16 +53,22 @@ export async function criarVoucher(dados: {
 }): Promise<{ codigo: string }> {
   await verificarSessao()
 
-  const ano = new Date(dados.dataCompra).getFullYear()
-  // Digital: EWD2026-XXXX | Físico: EW2026-XXXX
-  const prefixo = dados.tipo === "digital" ? `EWD${ano}` : `EW${ano}`
+  let codigo = dados.codigo?.trim() || ""
 
-  // Próximo número de sequência para este prefixo/ano
-  const existentes = await prisma.giftCard.count({
-    where: { codigo: { startsWith: prefixo } },
-  })
-  const seq = String(existentes + 1).padStart(4, "0")
-  const codigo = `${prefixo}-${seq}`
+  if (!codigo) {
+    const ano = new Date(dados.dataCompra).getFullYear()
+    // Digital: EWD2026-XXXX | Físico: EW2026-XXXX
+    const prefixo = dados.tipo === "digital" ? `EWD${ano}` : `EW${ano}`
+    const existentes = await prisma.giftCard.count({
+      where: { codigo: { startsWith: prefixo } },
+    })
+    const seq = String(existentes + 1).padStart(4, "0")
+    codigo = `${prefixo}-${seq}`
+  }
+
+  // Verificar se o código já existe
+  const jaExiste = await prisma.giftCard.findUnique({ where: { codigo } })
+  if (jaExiste) throw new Error(`O código "${codigo}" já está em uso.`)
 
   await prisma.giftCard.create({
     data: {

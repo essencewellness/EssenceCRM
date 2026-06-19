@@ -122,6 +122,7 @@ function CriarVoucherModal({
 }) {
   const [pending, startTransition] = useTransition()
   const [tipo, setTipo] = useState<"digital" | "fisico">("digital")
+  const [codigoManual, setCodigoManual] = useState("")
   const [compradorNome, setCompradorNome] = useState("")
   const [compradorTelefone, setCompradorTelefone] = useState("")
   const [compradorEmail, setCompradorEmail] = useState("")
@@ -156,6 +157,7 @@ function CriarVoucherModal({
       try {
         const { codigo } = await criarVoucher({
           tipo,
+          codigo: codigoManual.trim() || undefined,
           compradorNome: compradorNome.trim(),
           compradorTelefone: compradorTelefone.trim() || undefined,
           compradorEmail: compradorEmail.trim() || undefined,
@@ -307,7 +309,7 @@ function CriarVoucherModal({
             </div>
           </div>
 
-          {/* Datas */}
+          {/* Datas + Nº voucher */}
           <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <Grupo label="Data de compra *">
@@ -316,6 +318,18 @@ function CriarVoucherModal({
               <Grupo label="Validade">
                 <input value={validade} onChange={e => setValidade(e.target.value)} style={inputStyle} type="date" />
               </Grupo>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <Grupo label="Nº do Voucher">
+                  <input
+                    value={codigoManual}
+                    onChange={e => setCodigoManual(e.target.value.toUpperCase())}
+                    style={{ ...inputStyle, fontFamily: "monospace", letterSpacing: "0.08em" }}
+                    placeholder={tipo === "digital"
+                      ? `EWD${new Date(dataCompra).getFullYear()}-XXXX (auto-gerado se deixares vazio)`
+                      : `EW${new Date(dataCompra).getFullYear()}-XXXX (auto-gerado se deixares vazio)`}
+                  />
+                </Grupo>
+              </div>
             </div>
           </div>
 
