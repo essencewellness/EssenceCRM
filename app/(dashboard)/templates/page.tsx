@@ -4,6 +4,11 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
+const GOLD = "#d4b886"
+const CREAM = "#ece6d6"
+const CARD_BG = "#1f2433"
+const BORDER = "rgba(212,184,134,0.15)"
+
 export default async function TemplatesPage() {
   const session = await auth()
   if (!session) redirect("/login")
@@ -21,39 +26,101 @@ export default async function TemplatesPage() {
   )
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
-      <h1 className="text-2xl font-semibold text-stone-800">Templates de Mensagem</h1>
+    <div style={{ padding: "32px", maxWidth: "960px", margin: "0 auto" }} className="space-y-8">
+      {/* Cabeçalho */}
+      <div>
+        <h1 style={{
+          fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
+          color: CREAM, fontSize: "26px", fontWeight: 400, letterSpacing: "0.02em",
+        }}>
+          Templates de Mensagem
+        </h1>
+        <p style={{
+          fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+          color: `rgba(212,184,134,0.55)`, fontSize: "13px", marginTop: "4px",
+        }}>
+          {templates.length} template{templates.length !== 1 ? "s" : ""} configurados
+        </p>
+      </div>
+
+      {templates.length === 0 && (
+        <div style={{
+          backgroundColor: CARD_BG,
+          border: `1px solid ${BORDER}`,
+          borderRadius: "12px",
+          padding: "40px",
+          textAlign: "center",
+        }}>
+          <p style={{
+            fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+            color: `rgba(237,231,227,0.3)`, fontSize: "13px",
+          }}>
+            Nenhum template criado. Use a API para criar templates.
+          </p>
+        </div>
+      )}
 
       {Object.entries(porTipo).map(([tipo, lista]) => (
         <section key={tipo}>
-          <h2 className="text-sm font-medium text-stone-500 uppercase tracking-wide mb-3">
+          <h2 style={{
+            fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+            color: `rgba(212,184,134,0.55)`, fontSize: "10px",
+            fontWeight: 700, letterSpacing: "0.22em",
+            textTransform: "uppercase", marginBottom: "12px",
+          }}>
             {tipo}
           </h2>
           <div className="grid gap-3">
             {lista.map((t) => (
               <div
                 key={t.id}
-                className="bg-white border border-stone-200 rounded-xl p-5 space-y-2"
+                style={{
+                  backgroundColor: CARD_BG,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: "10px",
+                  padding: "20px",
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-stone-800">{t.nome}</span>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      t.ativo
-                        ? "bg-green-100 text-green-700"
-                        : "bg-stone-100 text-stone-500"
-                    }`}
-                  >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
+                  <span style={{
+                    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                    fontWeight: 600, fontSize: "14px", color: CREAM,
+                  }}>
+                    {t.nome}
+                  </span>
+                  <span style={{
+                    display: "inline-flex",
+                    padding: "2px 8px", borderRadius: "4px",
+                    backgroundColor: t.ativo ? "rgba(80,200,120,0.12)" : "rgba(237,231,227,0.06)",
+                    color: t.ativo ? "#6fcf97" : "rgba(237,231,227,0.3)",
+                    fontSize: "11px", fontWeight: 600,
+                    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                    letterSpacing: "0.04em",
+                  }}>
                     {t.ativo ? "ativo" : "inativo"}
                   </span>
                 </div>
-                <p className="text-sm text-stone-600 whitespace-pre-wrap">{t.texto}</p>
+                <p style={{
+                  fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                  fontSize: "13px", color: `rgba(237,231,227,0.55)`,
+                  whiteSpace: "pre-wrap", lineHeight: 1.6,
+                }}>
+                  {t.texto}
+                </p>
                 {t.variaveis.length > 0 && (
-                  <div className="flex flex-wrap gap-1 pt-1">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "12px" }}>
                     {t.variaveis.map((v) => (
                       <span
                         key={v}
-                        className="text-xs bg-stone-100 text-stone-600 px-2 py-0.5 rounded font-mono"
+                        style={{
+                          fontFamily: "monospace",
+                          fontSize: "11px",
+                          backgroundColor: "rgba(212,184,134,0.08)",
+                          color: GOLD,
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          border: `1px solid rgba(212,184,134,0.18)`,
+                        }}
                       >
                         {`{{${v}}}`}
                       </span>
@@ -65,12 +132,6 @@ export default async function TemplatesPage() {
           </div>
         </section>
       ))}
-
-      {templates.length === 0 && (
-        <p className="text-stone-400 text-sm">
-          Nenhum template criado. Use a API para criar templates.
-        </p>
-      )}
     </div>
   )
 }

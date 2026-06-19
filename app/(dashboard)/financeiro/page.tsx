@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
 
+const GOLD = "#d4b886"
+const CREAM = "#ece6d6"
+const CARD_BG = "#1f2433"
+const BORDER = "rgba(212,184,134,0.15)"
+
 function mesAtual(): { inicio: Date; fim: Date; label: string } {
   const now = new Date()
   const inicio = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -50,25 +55,63 @@ export default async function FinanceiroPage() {
   )
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Financeiro — {label}</h1>
+    <div style={{ padding: "32px", maxWidth: "960px", margin: "0 auto" }} className="space-y-8">
+      {/* Cabeçalho */}
+      <div>
+        <h1 style={{
+          fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
+          color: CREAM, fontSize: "26px", fontWeight: 400, letterSpacing: "0.02em",
+        }}>
+          Financeiro
+        </h1>
+        <p style={{
+          fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+          color: `rgba(212,184,134,0.55)`, fontSize: "13px", marginTop: "4px",
+          textTransform: "capitalize",
+        }}>
+          {label}
+        </p>
+      </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard label="Receita cobrada" valor={`€${receitaTotal.toFixed(2)}`} destaque />
-        <KpiCard label="Sessões pagas" valor={String(porEstado["pago"] ?? 0)} />
-        <KpiCard label="Por cobrar" valor={String(porEstado["pendente"] ?? 0)} aviso={!!pendentes.length} />
-        <KpiCard label="Isentas" valor={String(porEstado["isento"] ?? 0)} />
+        <KpiCard label="Receita cobrada" valor={`€${receitaTotal.toFixed(2)}`} tipo="destaque" />
+        <KpiCard label="Sessões pagas" valor={String(porEstado["pago"] ?? 0)} tipo="normal" />
+        <KpiCard label="Por cobrar" valor={String(porEstado["pendente"] ?? 0)} tipo={pendentes.length ? "aviso" : "normal"} />
+        <KpiCard label="Isentas" valor={String(porEstado["isento"] ?? 0)} tipo="normal" />
       </div>
 
       {/* Por método de pagamento */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">Por método de pagamento</h2>
+        <h2 style={{
+          fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+          color: `rgba(212,184,134,0.55)`, fontSize: "10px",
+          fontWeight: 700, letterSpacing: "0.22em",
+          textTransform: "uppercase", marginBottom: "12px",
+        }}>
+          Por método de pagamento
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(porMetodo).map(([metodo, valor]) => (
-            <div key={metodo} className="bg-white border rounded-lg p-4">
-              <div className="text-sm text-gray-500 capitalize">{metodo}</div>
-              <div className="text-xl font-bold text-gray-900">€{valor.toFixed(2)}</div>
+            <div key={metodo} style={{
+              backgroundColor: CARD_BG,
+              border: `1px solid ${BORDER}`,
+              borderRadius: "10px",
+              padding: "16px",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                color: `rgba(237,231,227,0.45)`,
+                fontSize: "11px", textTransform: "capitalize", marginBottom: "6px",
+              }}>
+                {metodo === "transferencia" ? "Transferência" : metodo.charAt(0).toUpperCase() + metodo.slice(1)}
+              </div>
+              <div style={{
+                fontFamily: "var(--font-heading, Georgia, serif)",
+                color: CREAM, fontSize: "20px", fontWeight: 400,
+              }}>
+                €{valor.toFixed(2)}
+              </div>
             </div>
           ))}
         </div>
@@ -77,28 +120,52 @@ export default async function FinanceiroPage() {
       {/* Sessões por cobrar */}
       {pendentes.length > 0 && (
         <section>
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">
+          <h2 style={{
+            fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+            color: `rgba(212,184,134,0.55)`, fontSize: "10px",
+            fontWeight: 700, letterSpacing: "0.22em",
+            textTransform: "uppercase", marginBottom: "12px",
+          }}>
             Por cobrar ({pendentes.length})
           </h2>
-          <div className="bg-white border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
-                <tr>
-                  <th className="px-4 py-3 text-left">Cliente</th>
-                  <th className="px-4 py-3 text-left">Serviço</th>
-                  <th className="px-4 py-3 text-left">Data</th>
-                  <th className="px-4 py-3 text-right">Valor</th>
+          <div style={{
+            backgroundColor: CARD_BG,
+            border: `1px solid rgba(212,184,134,0.22)`,
+            borderRadius: "10px", overflow: "hidden",
+          }}>
+            <table className="w-full" style={{ borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${BORDER}` }}>
+                  {["Cliente", "Serviço", "Data", "Valor"].map((h, i) => (
+                    <th key={h} style={{
+                      padding: "12px 16px",
+                      textAlign: i === 3 ? "right" : "left",
+                      fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                      fontSize: "10px", fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      color: `rgba(212,184,134,0.45)`,
+                      textTransform: "uppercase",
+                    }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {pendentes.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{s.cliente.nome}</td>
-                    <td className="px-4 py-3 text-gray-600">{s.servico ?? "—"}</td>
-                    <td className="px-4 py-3 text-gray-600">
+              <tbody>
+                {pendentes.map((s, i) => (
+                  <tr key={s.id} style={{
+                    borderBottom: i < pendentes.length - 1 ? `1px solid ${BORDER}` : "none",
+                  }}>
+                    <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: CREAM, fontSize: "13px", fontWeight: 500 }}>
+                      {s.cliente.nome}
+                    </td>
+                    <td style={{ padding: "12px 16px", color: `rgba(237,231,227,0.55)`, fontSize: "13px" }}>
+                      {s.servico ?? "—"}
+                    </td>
+                    <td style={{ padding: "12px 16px", color: `rgba(237,231,227,0.55)`, fontSize: "13px" }}>
                       {new Date(s.data).toLocaleDateString("pt-PT")}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold">
+                    <td style={{ padding: "12px 16px", textAlign: "right", color: GOLD, fontSize: "13px", fontWeight: 600 }}>
                       {s.preco ? `€${Number(s.preco).toFixed(2)}` : "—"}
                     </td>
                   </tr>
@@ -111,32 +178,55 @@ export default async function FinanceiroPage() {
 
       {/* Todas as sessões do mês */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-700 mb-3">
-          Todas as sessões do mês ({dados.length})
+        <h2 style={{
+          fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+          color: `rgba(212,184,134,0.55)`, fontSize: "10px",
+          fontWeight: 700, letterSpacing: "0.22em",
+          textTransform: "uppercase", marginBottom: "12px",
+        }}>
+          Todas as sessões ({dados.length})
         </h2>
-        <div className="bg-white border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
-              <tr>
-                <th className="px-4 py-3 text-left">Cliente</th>
-                <th className="px-4 py-3 text-left">Serviço</th>
-                <th className="px-4 py-3 text-left">Data</th>
-                <th className="px-4 py-3 text-left">Pagamento</th>
-                <th className="px-4 py-3 text-right">Valor pago</th>
+        <div style={{
+          backgroundColor: CARD_BG,
+          border: `1px solid ${BORDER}`,
+          borderRadius: "10px", overflow: "hidden",
+        }}>
+          <table className="w-full" style={{ borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${BORDER}` }}>
+                {["Cliente", "Serviço", "Data", "Pagamento", "Valor pago"].map((h, i) => (
+                  <th key={h} style={{
+                    padding: "12px 16px",
+                    textAlign: i === 4 ? "right" : "left",
+                    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                    fontSize: "10px", fontWeight: 700,
+                    letterSpacing: "0.14em",
+                    color: `rgba(212,184,134,0.45)`,
+                    textTransform: "uppercase",
+                  }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {dados.map((s) => (
-                <tr key={s.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{s.cliente.nome}</td>
-                  <td className="px-4 py-3 text-gray-600">{s.servico ?? "—"}</td>
-                  <td className="px-4 py-3 text-gray-600">
+            <tbody>
+              {dados.map((s, i) => (
+                <tr key={s.id} style={{
+                  borderBottom: i < dados.length - 1 ? `1px solid ${BORDER}` : "none",
+                }}>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: CREAM, fontSize: "13px", fontWeight: 500 }}>
+                    {s.cliente.nome}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: `rgba(237,231,227,0.55)`, fontSize: "13px" }}>
+                    {s.servico ?? "—"}
+                  </td>
+                  <td style={{ padding: "12px 16px", color: `rgba(237,231,227,0.55)`, fontSize: "13px" }}>
                     {new Date(s.data).toLocaleDateString("pt-PT")}
                   </td>
-                  <td className="px-4 py-3">
+                  <td style={{ padding: "12px 16px" }}>
                     <EstadoBadge estado={s.estadoPagamento as string} />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td style={{ padding: "12px 16px", textAlign: "right", color: `rgba(237,231,227,0.7)`, fontSize: "13px" }}>
                     {s.valorPago ? `€${Number(s.valorPago).toFixed(2)}` : "—"}
                   </td>
                 </tr>
@@ -150,24 +240,39 @@ export default async function FinanceiroPage() {
 }
 
 function KpiCard({
-  label,
-  valor,
-  destaque = false,
-  aviso = false,
+  label, valor, tipo,
 }: {
   label: string
   valor: string
-  destaque?: boolean
-  aviso?: boolean
+  tipo: "destaque" | "aviso" | "normal"
 }) {
+  const borderColor =
+    tipo === "destaque" ? `rgba(212,184,134,0.35)` :
+    tipo === "aviso"    ? `rgba(212,140,50,0.30)` :
+    BORDER
+
+  const valorColor =
+    tipo === "destaque" ? GOLD :
+    tipo === "aviso"    ? `#d48c45` :
+    CREAM
+
   return (
-    <div
-      className={`rounded-lg p-4 border ${
-        destaque ? "bg-emerald-50 border-emerald-200" : aviso ? "bg-amber-50 border-amber-200" : "bg-white"
-      }`}
-    >
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className={`text-2xl font-bold ${destaque ? "text-emerald-700" : aviso ? "text-amber-700" : "text-gray-900"}`}>
+    <div style={{
+      backgroundColor: CARD_BG,
+      border: `1px solid ${borderColor}`,
+      borderRadius: "10px",
+      padding: "18px 16px",
+    }}>
+      <div style={{
+        fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+        color: `rgba(237,231,227,0.45)`, fontSize: "11px", marginBottom: "8px",
+      }}>
+        {label}
+      </div>
+      <div style={{
+        fontFamily: "var(--font-heading, Georgia, serif)",
+        color: valorColor, fontSize: "24px", fontWeight: 400,
+      }}>
         {valor}
       </div>
     </div>
@@ -175,14 +280,22 @@ function KpiCard({
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
-  const cores: Record<string, string> = {
-    pago: "bg-green-100 text-green-800",
-    pendente: "bg-amber-100 text-amber-800",
-    parcial: "bg-blue-100 text-blue-800",
-    isento: "bg-gray-100 text-gray-600",
+  const estilos: Record<string, { bg: string; color: string }> = {
+    pago:     { bg: "rgba(80,200,120,0.12)",  color: "#6fcf97" },
+    pendente: { bg: "rgba(212,140,50,0.12)",  color: "#d48c45" },
+    parcial:  { bg: "rgba(100,150,230,0.12)", color: "#7cb4f0" },
+    isento:   { bg: "rgba(237,231,227,0.07)", color: "rgba(237,231,227,0.4)" },
   }
+  const s = estilos[estado] ?? estilos["isento"]!
   return (
-    <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${cores[estado] ?? "bg-gray-100 text-gray-600"}`}>
+    <span style={{
+      display: "inline-flex",
+      padding: "2px 8px", borderRadius: "4px",
+      backgroundColor: s.bg, color: s.color,
+      fontSize: "11px", fontWeight: 600,
+      fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+      letterSpacing: "0.04em",
+    }}>
       {estado}
     </span>
   )

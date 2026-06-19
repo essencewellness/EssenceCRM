@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut, CreditCard, FileText, Send, Package } from "lucide-react";
 
 const GOLD = "#d4b886";
 const CREAM = "#ece6d6";
@@ -13,6 +13,10 @@ const navItems = [
   { label: "Clientes",      href: "/clientes",     icon: Users },
   { label: "Mensagens IA",  href: "/mensagens",    icon: MessageSquare },
   { label: "Top Clientes",  href: "/top-clientes", icon: Trophy },
+  { label: "Financeiro",    href: "/financeiro",   icon: CreditCard },
+  { label: "Serviços",      href: "/servicos",     icon: Package },
+  { label: "Templates",     href: "/templates",    icon: FileText },
+  { label: "Campanhas",     href: "/campanhas",    icon: Send },
 ];
 
 interface SidebarProps {
