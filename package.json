@@ -10,6 +10,9 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed-demo": "npx tsx prisma/seed-demo.ts",
+    "db:recalc": "npx tsx prisma/recalcular-metricas.ts",
+    "db:wipe-test": "npx tsx prisma/wipe-test-data.ts",
     "db:reset": "prisma migrate reset --force && npx tsx prisma/seed.ts",
     "db:studio": "prisma studio"
   },

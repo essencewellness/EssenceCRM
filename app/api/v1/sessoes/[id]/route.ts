@@ -4,6 +4,7 @@ import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { webhooks } from "@/lib/webhooks"
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais, paraNumero } from "@/lib/serialize"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 
 
@@ -100,23 +101,10 @@ export async function PATCH(
 
     let clienteAtualizado = null
 
-    // Quando passa a "realizada" — recalcular métricas do cliente
+    // Quando passa a "realizada" — recalcular métricas (fonte única: lib/metricas)
     if (estado === "realizada" && sessaoAntes.estado !== "realizada") {
-      const sessoesRealizadas = await prisma.sessao.findMany({
-        where: { clienteId: sessaoAntes.clienteId, estado: "realizada", apagadoEm: null },
-        select: { preco: true, data: true },
-        orderBy: { data: "desc" },
-      })
-
-      const totalSessoes = sessoesRealizadas.length
-      const totalGasto = sessoesRealizadas.reduce((s, x) => s + paraNumero(x.preco), 0)
-      const ultimaSessao = sessoesRealizadas[0]?.data ?? sessao.data
-
-      clienteAtualizado = await prisma.cliente.update({
-        where: { id: sessaoAntes.clienteId },
-        data: { totalSessoes, totalGasto, ultimaSessao },
-        select: { id: true, totalSessoes: true, totalGasto: true, ultimaSessao: true },
-      })
+      const metricas = await recalcularMetricasCliente(prisma, sessaoAntes.clienteId)
+      clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
 
       void webhooks.sessaoRealizada({
         sessaoId: id,

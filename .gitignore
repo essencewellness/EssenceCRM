@@ -47,3 +47,7 @@ next-env.d.ts
 *.db-journal
 
 .vercel
+
+# dados privados — nunca versionar
+clientes_backup.txt
+CREDENCIAIS-PRIVADAS.local.md

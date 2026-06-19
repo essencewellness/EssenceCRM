@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { sessaoCreateSchema, sessoesQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 import type { Prisma } from "@prisma/client"
 
@@ -149,14 +150,12 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Atualizar métricas no cliente
-    const totalSessoes = await prisma.sessao.count({
-      where: { clienteId: cliente.id, apagadoEm: null },
-    })
-    await prisma.cliente.update({
-      where: { id: cliente.id },
-      data: { ultimaSessao: dataSessao, totalSessoes },
-    })
+    // Métricas só mudam quando a sessão entra como "realizada" — fonte única
+    // (lib/metricas). Sessões agendada/confirmada futuras não alteram totalGasto,
+    // totalSessoes nem ultimaSessao.
+    if ((estado ?? "agendada") === "realizada") {
+      await recalcularMetricasCliente(prisma, cliente.id)
+    }
 
     auditar({
       quem: "api:n8n",
