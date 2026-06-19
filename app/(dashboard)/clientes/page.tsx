@@ -1,0 +1,181 @@
+import Link from "next/link"
+import { Search, Users } from "lucide-react"
+import { prisma } from "@/lib/prisma"
+import type { Prisma, EstadoCliente } from "@prisma/client"
+import { Input } from "@/components/ui/input"
+import { PageHeader } from "@/components/page-header"
+import { ClientesTable } from "@/components/clientes-table"
+
+export const revalidate = 30
+
+interface ClientesPageProps {
+  searchParams: Promise<{ q?: string; estado?: string }>
+}
+
+export default async function ClientesPage({ searchParams }: ClientesPageProps) {
+  const { q, estado } = await searchParams
+
+  const estadoMap: Record<string, EstadoCliente[]> = {
+    ativas:   ["ativa_recente", "ativa_frequente", "vip_embaixadora"],
+    em_risco: ["vip_em_risco", "reativacao"],
+    novas:    ["lead", "novo"],
+  }
+  const estadoFiltro: Prisma.ClienteWhereInput = estado && estadoMap[estado]
+    ? { estado: { in: estadoMap[estado] } }
+    : {}
+
+  const where: Prisma.ClienteWhereInput = {
+    apagadoEm: null, // soft delete: nunca listar apagadas
+    ...(q ? {
+      OR: [
+        { nome: { contains: q, mode: "insensitive" } },
+        { email: { contains: q, mode: "insensitive" } },
+        { telefone: { contains: q } },
+      ],
+    } : {}),
+    ...estadoFiltro,
+  }
+
+  const clientes = await prisma.cliente.findMany({
+    where,
+    orderBy: { ultimaSessao: "desc" },
+    include: { etiquetas: { include: { etiqueta: true } } },
+  })
+
+  // Serializar para o client component
+  const clientesRows = clientes.map(c => ({
+    id: c.id,
+    nome: c.nome,
+    telefone: c.telefone,
+    email: c.email,
+    ultimaSessao: c.ultimaSessao?.toISOString() ?? null,
+    totalSessoes: c.totalSessoes,
+    totalGasto: Number(c.totalGasto),
+    estado: c.estado,
+    etiquetas: c.etiquetas.map(e => ({ etiqueta: { id: e.etiqueta.id, nome: e.etiqueta.nome, cor: e.etiqueta.cor } })),
+  }))
+
+  return (
+    <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+
+      {/* Header animado */}
+      <PageHeader
+        titulo="Clientes"
+        subtitulo={`${clientes.length} cliente${clientes.length !== 1 ? "s" : ""} encontrado${clientes.length !== 1 ? "s" : ""}`}
+      />
+
+      {/* Filtros — fade down com delay */}
+      <div
+        className="anim-fade-down"
+        style={{
+          display: "flex", alignItems: "center", gap: "12px",
+          marginBottom: "20px", flexWrap: "wrap",
+          animationDelay: "0.25s",
+        }}
+      >
+        <form method="GET" style={{ display: "flex", flex: 1, gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ position: "relative", flex: 1, maxWidth: "380px" }}>
+            <Search size={14} color="#9d9d9a" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
+            <Input
+              name="q"
+              defaultValue={q ?? ""}
+              placeholder="Pesquisar por nome, email ou telefone…"
+              style={{
+                paddingLeft: "36px",
+                backgroundColor: "#ffffff",
+                border: "1px solid #ddd6c4",
+                color: "#161a26",
+                fontSize: "13px",
+                fontFamily: "var(--font-body, sans-serif)",
+                borderRadius: "0px",
+                height: "38px",
+                boxShadow: "none",
+              }}
+              className="placeholder:text-[#b5b5b2] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "6px" }}>
+            {[
+              { label: "Todas", value: "" },
+              { label: "Ativas", value: "ativas" },
+              { label: "Em Risco", value: "em_risco" },
+              { label: "Novas", value: "novas" },
+            ].map(({ label, value }) => {
+              const isActive = (estado ?? "") === value
+              return (
+                <Link
+                  key={value}
+                  href={`/clientes?${q ? `q=${encodeURIComponent(q)}&` : ""}${value ? `estado=${value}` : ""}`}
+                  style={{
+                    display: "inline-flex", alignItems: "center",
+                    height: "38px", padding: "0 14px",
+                    borderRadius: "0px",
+                    fontSize: "9.5px", letterSpacing: "0.24em", textTransform: "uppercase",
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    fontWeight: 500,
+                    transition: "all 150ms",
+                    color: isActive ? "#b9a07a" : "#7a7e8a",
+                    backgroundColor: isActive ? "rgba(185,160,122,0.08)" : "transparent",
+                    border: isActive ? "1px solid rgba(185,160,122,0.35)" : "1px solid rgba(122,126,138,0.25)",
+                    textDecoration: "none",
+                  }}
+                >
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </form>
+      </div>
+
+      {/* Tabela — fade up com delay */}
+      <div
+        className="anim-fade-up"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #ddd6c4",
+          borderRadius: "2px",
+          overflow: "hidden",
+          boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
+          animationDelay: "0.32s",
+        }}
+      >
+        {clientes.length === 0 ? (
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            justifyContent: "center", padding: "72px 24px",
+          }}>
+            <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
+              <Users size={22} />
+            </div>
+            <p style={{
+              fontFamily: "var(--font-heading, Georgia, serif)",
+              fontStyle: "italic", fontSize: "15px", color: "#6d6d6d",
+            }}>
+              Nenhum cliente encontrado
+            </p>
+            {(q || estado) && (
+              <Link
+                href="/clientes"
+                style={{
+                  marginTop: "12px",
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "12px", color: "#b9a07a",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "3px",
+                }}
+              >
+                Limpar filtros
+              </Link>
+            )}
+          </div>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ClientesTable clientes={clientesRows} />
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}

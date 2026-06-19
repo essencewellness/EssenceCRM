@@ -1,0 +1,280 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* ── ESSENCE WELLNESS — NUIT ──
+     Quiet luxury: midnight & bone, champagne como único metálico.
+     Canvas claro = variante "paper" do sistema; sidebar = midnight puro. */
+  --nuit-midnight:   #161a26;
+  --nuit-deep:       #0e1119;
+  --nuit-overlay:    #1f2433;
+  --nuit-bone:       #ece6d6;
+  --nuit-bone-soft:  #d8d2c2;
+  --nuit-champagne:  #d4b886;   /* accent em fundos escuros */
+  --nuit-champagne-soft: #b9a07a; /* accent em fundos claros */
+  --nuit-smoke:      #7a7e8a;
+  --nuit-smoke-deep: #4d5260;
+  --nuit-paper:      #f6f1e5;
+  --nuit-paper-deep: #ebe5d4;
+
+  --background: var(--nuit-paper);
+  --foreground: var(--nuit-midnight);
+  --card: #fdfaf1;
+  --card-foreground: var(--nuit-midnight);
+  --popover: #fdfaf1;
+  --popover-foreground: var(--nuit-midnight);
+  --primary: var(--nuit-champagne-soft);
+  --primary-foreground: #fdfaf1;
+  --secondary: #a0a996;                        /* Verde Sálvia (sucesso) */
+  --secondary-foreground: #fdfaf1;
+  --muted: #ddd6c4;
+  --muted-foreground: var(--nuit-smoke);
+  --accent: var(--nuit-paper-deep);
+  --accent-foreground: var(--nuit-midnight);
+  --destructive: #b06050;
+  --border: #ddd6c4;
+  --input: #ddd6c4;
+  --ring: var(--nuit-champagne-soft);
+  --chart-1: var(--nuit-champagne-soft);
+  --chart-2: #a0a996;
+  --chart-3: var(--nuit-smoke);
+  --chart-4: #ddd6c4;
+  --chart-5: var(--nuit-midnight);
+  --radius: 0.375rem;                          /* NUIT prefere cantos contidos */
+  --sidebar: var(--nuit-deep);
+  --sidebar-foreground: var(--nuit-bone);
+  --sidebar-primary: var(--nuit-champagne);
+  --sidebar-primary-foreground: var(--nuit-bone);
+  --sidebar-accent: rgba(212, 184, 134, 0.08);
+  --sidebar-accent-foreground: var(--nuit-champagne);
+  --sidebar-border: rgba(212, 184, 134, 0.15);
+  --sidebar-ring: var(--nuit-champagne);
+
+  /* Hairlines NUIT — valores canónicos do design system */
+  --rule:      rgba(212, 184, 134, 0.30);
+  --rule-soft: rgba(212, 184, 134, 0.16);
+  --rule-bone: rgba(236, 230, 214, 0.16);
+  --rule-ink:  rgba(22, 26, 38, 0.10);
+
+  /* Shadows NUIT — deep, never colored */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.30), 0 1px 1px rgba(0,0,0,0.20);
+  --shadow-2: 0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.25);
+  --shadow-3: 0 30px 60px rgba(0,0,0,0.55), 0 10px 20px rgba(0,0,0,0.30);
+
+  /* Motion NUIT */
+  --ease-out:  cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast:  160ms;
+  --dur-med:   280ms;
+  --dur-slow:  520ms;
+
+  /* Alias: componentes antigos usam --font-body; agora é sempre Manrope */
+  --font-body: var(--font-sans);
+}
+
+/* ── Tipos semânticos NUIT ── */
+.nuit-eyebrow {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--nuit-champagne-soft);
+  line-height: 1;
+}
+.nuit-hairline { border: 0; border-top: 1px solid var(--rule); }
+.nuit-hairline-soft { border: 0; border-top: 1px solid var(--rule-soft); }
+
+/* ── Animações globais de entrada ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeRight {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes lineReveal {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2.2); opacity: 0; }
+}
+
+.anim-fade-up        { animation: fadeUp   0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-fade-down      { animation: fadeDown 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-fade-left      { animation: fadeLeft 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-fade-right     { animation: fadeRight 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-scale-in       { animation: scaleIn  0.4s cubic-bezier(0.22,1,0.36,1) both; }
+.anim-line-reveal    { animation: lineReveal 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── Hover card premium ── */
+.card-hover {
+  transition: transform 200ms cubic-bezier(0.22,1,0.36,1),
+              box-shadow 200ms cubic-bezier(0.22,1,0.36,1),
+              border-color 200ms ease;
+  cursor: pointer;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(22,26,38,0.10), 0 2px 8px rgba(185,160,122,0.08);
+  border-color: rgba(185,160,122,0.35) !important;
+}
+
+/* ── Hover row premium ── */
+.row-hover {
+  transition: background-color 150ms ease, transform 150ms ease, padding-left 150ms ease;
+  cursor: pointer;
+}
+.row-hover:hover {
+  background-color: #efe9db !important;
+  padding-left: calc(var(--row-indent, 20px) + 4px) !important;
+}
+
+/* ── Botão aprovação ── */
+.btn-approve {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  cursor: pointer;
+}
+.btn-approve:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(160,169,150,0.25);
+  background-color: rgba(160,169,150,0.18) !important;
+}
+.btn-approve:active { transform: scale(0.97); }
+
+/* ── Botão rejeitar ── */
+.btn-reject {
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  cursor: pointer;
+}
+.btn-reject:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(176,96,80,0.2);
+  background-color: rgba(176,96,80,0.14) !important;
+}
+.btn-reject:active { transform: scale(0.97); }
+
+/* ── Link de ação (Ver perfil →) ── */
+.link-action {
+  transition: color 150ms ease, transform 150ms ease, letter-spacing 150ms ease;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.link-action:hover {
+  color: #a08a66 !important;
+  transform: translateX(2px);
+  letter-spacing: 0.02em;
+}
+
+/* ── Input focus premium ── */
+input:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(185,160,122,0.6) !important;
+  box-shadow: 0 0 0 3px rgba(185,160,122,0.12) !important;
+}
+
+/* ── Tab activa ── */
+.tab-premium {
+  position: relative;
+  transition: color 200ms ease, background-color 200ms ease;
+  cursor: pointer;
+}
+
+/* ── Badge pulse (para estados urgentes) ── */
+.badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(176,96,80,0.0); }
+  50%       { box-shadow: 0 0 0 4px rgba(176,96,80,0.2); }
+}
+
+/* ── Skeleton loader ── */
+.skeleton {
+  background: linear-gradient(90deg, rgba(217,217,214,0.4) 25%, rgba(237,231,227,0.6) 50%, rgba(217,217,214,0.4) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Reduced motion overrides ── */
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up, .anim-fade-down, .anim-fade-left, .anim-fade-right,
+  .anim-scale-in, .anim-line-reveal {
+    animation: none !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body, system-ui, sans-serif);
+  }
+}

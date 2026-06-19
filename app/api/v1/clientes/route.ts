@@ -1,0 +1,161 @@
+import { NextRequest } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
+import { serializarDecimais } from "@/lib/serialize"
+import { auditar } from "@/lib/audit"
+import type { Prisma } from "@prisma/client"
+
+export async function GET(request: NextRequest) {
+  const erro = validarApiKey(request)
+  if (erro) return erro
+
+  const q = validarQuery(request.url, clientesQuerySchema)
+  if (!q.ok) return q.resposta
+  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, limit, cursor } = q.data
+
+  try {
+    const where: Prisma.ClienteWhereInput = {
+      apagadoEm: null, // soft delete: nunca listar apagadas
+    }
+
+    // blacklist e ativo têm precedência sobre estado
+    if (blacklist === "true") {
+      where.estado = "blacklist"
+    } else if (ativo === "true") {
+      where.estado = { notIn: ["blacklist", "perdida"] }
+      where.telefone = { not: null }
+    } else {
+      if (estado) where.estado = estado
+    }
+
+    if (canal) where.canalPreferido = canal
+    if (aceitaMarketing !== undefined) where.aceitaMarketing = aceitaMarketing === "true"
+
+    if (email || telefone) {
+      const orConditions: Prisma.ClienteWhereInput[] = []
+      if (email) orConditions.push({ email })
+      if (telefone) orConditions.push({ telefone: { contains: normalizarTelefone(telefone) } })
+      where.OR = orConditions
+    }
+
+    if (inactivos_desde_dias) {
+      const diasAtras = new Date()
+      diasAtras.setDate(diasAtras.getDate() - inactivos_desde_dias)
+      where.ultimaSessao = { lt: diasAtras }
+      // Não contactar blacklist nem perdidas em campanhas de reativação;
+      // anonimizadas também ficam de fora (RGPD)
+      where.estado = { notIn: ["blacklist", "perdida"] }
+      where.anonimizadoEm = null
+      where.aceitaMarketing = true
+    }
+
+    if (semMensagemDias) {
+      const corteMsg = new Date()
+      corteMsg.setDate(corteMsg.getDate() - semMensagemDias)
+      where.mensagens = {
+        none: { geradaEm: { gte: corteMsg }, estado: { in: ["enviada", "em_fila"] } }
+      }
+    }
+
+    const clientes = await prisma.cliente.findMany({
+      where,
+      select: {
+        id: true, nome: true, telefone: true, email: true,
+        estado: true, ultimaSessao: true, totalSessoes: true,
+        totalGasto: true, canalPreferido: true, dataNascimento: true,
+        aceitaMarketing: true, temWhatsapp: true,
+        historicoEstadoEmocional: true, notasPessoais: true,
+        etiquetas: { include: { etiqueta: true } },
+        sessoes: {
+          where: { estado: "realizada", servico: { not: null } },
+          select: { servico: true },
+        },
+      },
+      orderBy: { nome: "asc" },
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    })
+
+    const hasMore = clientes.length > limit
+    if (hasMore) clientes.pop()
+
+    const total = await prisma.cliente.count({ where })
+
+    // Calcular afinidade de serviço (top 3 serviços por sessões realizadas)
+    const clientesEnriquecidos = clientes.map(({ sessoes, ...c }) => {
+      const contagem = new Map<string, number>()
+      for (const s of sessoes) {
+        if (s.servico) contagem.set(s.servico, (contagem.get(s.servico) ?? 0) + 1)
+      }
+      const servicosAfinidade = [...contagem.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([servico, count]) => ({ servico, count }))
+      return { ...c, servicosAfinidade }
+    })
+
+    return respostaSucesso(serializarDecimais(clientesEnriquecidos), {
+      nextCursor: hasMore ? clientes[clientes.length - 1]?.id : null,
+      total,
+    })
+  } catch (error) {
+    console.error("GET /api/v1/clientes:", error)
+    return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const erro = validarApiKey(request)
+  if (erro) return erro
+
+  const v = await validarBody(request, clienteCreateSchema)
+  if (!v.ok) return v.resposta
+  const { nome, telefone, email, fonte, comoNosConheceu, dataNascimento, aceitaMarketing } = v.data
+
+  try {
+    // Upsert: procurar por telefone ou email antes de criar (sem duplicados)
+    let existente = null
+
+    if (telefone) {
+      existente = await prisma.cliente.findFirst({
+        where: { telefone: { contains: normalizarTelefone(telefone) }, apagadoEm: null },
+      })
+    }
+
+    if (!existente && email) {
+      existente = await prisma.cliente.findFirst({ where: { email, apagadoEm: null } })
+    }
+
+    if (existente) {
+      return respostaSucesso(serializarDecimais({ ...existente, created: false }))
+    }
+
+    const cliente = await prisma.cliente.create({
+      data: {
+        nome,
+        telefone: telefone ?? null,
+        email: email ?? null,
+        fonte: fonte ?? "api",
+        comoNosConheceu: comoNosConheceu ?? null,
+        dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
+        aceitaMarketing: aceitaMarketing ?? true,
+        ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
+        estado: "lead",
+      },
+    })
+
+    auditar({
+      quem: "api:n8n",
+      acao: "cliente.criado",
+      entidade: "Cliente",
+      entidadeId: cliente.id,
+      ip: request.headers.get("x-forwarded-for"),
+    })
+
+    return respostaSucesso(serializarDecimais({ ...cliente, created: true }))
+  } catch (error) {
+    console.error("POST /api/v1/clientes:", error)
+    return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
+  }
+}

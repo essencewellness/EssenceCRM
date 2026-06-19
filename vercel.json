@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/estados",
+      "schedule": "0 7 * * *"
+    }
+  ]
+}

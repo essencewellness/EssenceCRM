@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — Ficha de Bem-Estar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --panel:   #1a1612;
+      --cream:   #faf8f5;
+      --gold:    #c9a66b;
+      --sage:    #8fa085;
+      --dark:    #1c1c1c;
+      --mid:     #4a4540;
+      --text:    #6d6d6d;
+      --muted:   #9a9490;
+      --border:  rgba(0,0,0,0.11);
+      --white:   #ffffff;
+      --error:   #b06050;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+      scroll-padding-top: 1.5rem;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'Lato', sans-serif;
+      min-height: 100dvh; /* dynamic viewport — adapts to keyboard & zoom */
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HEADER — mobile-first, sticky top
+    ═══════════════════════════════════════════════════ */
+    .header {
+      background: var(--panel);
+      padding: 20px 22px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* grain */
+    .header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* warm glow top-right */
+    .header::after {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(201,166,107,0.1) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .header-inner {
+      position: relative; z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-logo {
+      height: 44px;
+      width: auto;
+      filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg);
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+
+    .header-brand {
+      flex: 1;
+    }
+
+    .header-name {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 10px;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.8;
+      margin-bottom: 3px;
+    }
+
+    .header-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.25;
+    }
+
+    .header-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PROGRESS BAR
+    ═══════════════════════════════════════════════════ */
+    .progress {
+      background: var(--panel);
+      padding: 0 22px 20px;
+      position: relative; z-index: 1;
+    }
+
+    .progress-track {
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--gold), rgba(201,166,107,0.6));
+      border-radius: 2px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+
+    .prog-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      transition: color 0.3s;
+    }
+
+    .prog-label.active { color: rgba(201,166,107,0.75); }
+    .prog-label.done   { color: rgba(201,166,107,0.4); }
+
+    /* ═══════════════════════════════════════════════════
+       FORM BODY
+    ═══════════════════════════════════════════════════ */
+    .form-body {
+      padding: 32px 22px 48px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       STEPS
+    ═══════════════════════════════════════════════════ */
+    .step { display: none; }
+
+    .step.active {
+      display: block;
+      animation: fadeUp 0.32s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .heading {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 26px; font-weight: 400;
+      color: var(--dark);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .heading em { font-style: italic; color: var(--gold); }
+
+    .desc {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 32px;
+    }
+
+    /* Gold accent line */
+    .accent-line {
+      width: 28px; height: 1.5px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin-bottom: 28px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FLOATING LABEL FIELDS
+    ═══════════════════════════════════════════════════ */
+    .fg { margin-bottom: 1.75rem; }
+
+    .fl {
+      position: relative;
+      padding-top: 1.25rem; /* rem scales with zoom */
+    }
+
+    .fl label {
+      position: absolute;
+      top: 1.25rem; left: 0;  /* matches padding-top — stays aligned at any zoom */
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9375rem; font-weight: 400;
+      color: var(--muted);
+      pointer-events: none;
+      transition: all 0.22s ease;
+    }
+
+    .fl.active label,
+    .fl.filled label {
+      top: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .fl input,
+    .fl textarea {
+      width: 100%;
+      padding: 0.5rem 0 0.75rem;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem; /* 16px base — prevents iOS zoom, scales with user zoom */
+      color: var(--dark);
+      outline: none; appearance: none; border-radius: 0;
+      transition: border-color 0.22s;
+      line-height: 1.5;
+      scroll-margin-top: 6rem; /* ensures field stays visible above keyboard */
+    }
+
+    .fl input::placeholder,
+    .fl textarea::placeholder { color: transparent; }
+
+    .fl textarea { resize: none; min-height: 80px; }
+
+    /* animated gold underline on focus */
+    .fl::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--gold);
+      transition: width 0.32s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .fl.active::after { width: 100%; }
+
+    .fl input.err { border-bottom-color: var(--error); }
+    .fl.active.has-err label { color: var(--error); }
+    .fl.active.has-err::after { background: var(--error); }
+
+    .f-hint {
+      font-size: 11.5px; color: var(--muted);
+      margin-top: 8px; font-style: italic; line-height: 1.5;
+    }
+
+    .f-err {
+      font-size: 12px; color: var(--error);
+      margin-top: 6px; display: none;
+    }
+
+    .f-err.show { display: block; }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION LABEL
+    ═══════════════════════════════════════════════════ */
+    .slabel {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 14px;
+      display: block;
+      line-height: 1.6;
+    }
+
+    .slabel .opt {
+      font-weight: 400; letter-spacing: 0.02em;
+      text-transform: none; color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       CHIPS
+    ═══════════════════════════════════════════════════ */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      padding: 11px 18px;          /* min 44px touch target height */
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+      background: var(--white);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .chip:active { transform: scale(0.97); }
+
+    .chip.sel {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--white);
+      box-shadow: 0 3px 12px rgba(201,166,107,0.28);
+    }
+
+    .chip.sage:not(.sel) { color: var(--text); }
+    .chip.sage.sel {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: var(--white);
+      box-shadow: 0 3px 12px rgba(143,160,133,0.25);
+    }
+
+    /* Binary choice (Sim/Não) */
+    .choice-pair { display: flex; gap: 10px; }
+
+    .choice-btn {
+      flex: 1;
+      padding: 16px 12px;          /* big touch target */
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 17px; font-weight: 400;
+      color: var(--mid);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      background: var(--white);
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .choice-btn:active { transform: scale(0.98); }
+
+    .choice-btn.sel {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--white);
+      box-shadow: 0 4px 14px rgba(201,166,107,0.28);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════════════════════ */
+    .nav {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 18px 24px;          /* full-width, comfortable */
+      background: var(--dark);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      margin-bottom: 14px;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--gold);
+      transform: translateX(-101%);
+      transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .btn-primary:active::before,
+    .btn-primary:hover::before { transform: translateX(0); }
+
+    .btn-primary > span { position: relative; z-index: 1; }
+
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary:disabled::before { display: none; }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10.5px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.2s;
+    }
+
+    .btn-back:active { color: var(--dark); }
+
+    /* ═══════════════════════════════════════════════════
+       GLOBAL ERROR
+    ═══════════════════════════════════════════════════ */
+    .gerr {
+      border-left: 2px solid var(--error);
+      background: rgba(176,96,80,0.06);
+      color: var(--error);
+      padding: 12px 14px;
+      font-size: 13.5px; line-height: 1.55;
+      margin-bottom: 28px;
+      display: none;
+    }
+
+    .gerr.show { display: block; }
+
+    /* ═══════════════════════════════════════════════════
+       SUCCESS
+    ═══════════════════════════════════════════════════ */
+    .success {
+      display: none;
+      text-align: center;
+      padding: 20px 0 32px;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .success-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(201,166,107,0.1);
+      border: 1px solid rgba(201,166,107,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+    }
+
+    .success h2 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 26px; font-weight: 400;
+      color: var(--dark);
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .success p {
+      font-size: 15px; color: var(--text);
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+
+    .success-tag {
+      font-family: 'Libre Baskerville', serif;
+      font-style: italic;
+      font-size: 15px; color: var(--gold);
+      margin-top: 12px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════ */
+    .footer {
+      padding: 16px 22px 28px;
+      font-size: 11.5px; color: var(--muted);
+      line-height: 1.65;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DESKTOP ENHANCEMENT (≥ 760px)
+    ═══════════════════════════════════════════════════ */
+    @media (min-width: 760px) {
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ede7e3;
+        padding: clamp(24px, 4dvh, 48px) 20px clamp(32px, 5dvh, 60px);
+      }
+
+      .card {
+        width: 100%;
+        max-width: 540px;
+        background: var(--cream);
+        box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .header { padding: 28px 36px 24px; }
+
+      .header-logo { height: 48px; }
+
+      .header-title { font-size: 18px; }
+
+      .progress { padding: 0 36px 22px; }
+
+      .form-body { padding: 40px 36px 52px; }
+
+      .heading { font-size: 32px; }
+
+      .footer { padding: 18px 36px 30px; }
+
+      /* Desktop: side-by-side nav */
+      .nav {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .btn-primary {
+        width: auto;
+        padding: 16px 36px;
+        margin-bottom: 0;
+        flex-shrink: 0;
+      }
+
+      .btn-back {
+        width: auto;
+        padding: 12px 0;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- ═══ HEADER ══════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title">Ficha de <em>Bem-Estar</em></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ PROGRESS ════════════════════════════════════ -->
+  <div class="progress">
+    <div class="progress-track">
+      <div class="progress-fill" id="prog-fill" style="width: 25%"></div>
+    </div>
+    <div class="progress-labels">
+      <span class="prog-label active" id="pl-1">Sobre ti</span>
+      <span class="prog-label" id="pl-2">A tua mente</span>
+      <span class="prog-label" id="pl-3">O teu corpo</span>
+      <span class="prog-label" id="pl-4">A tua sessão</span>
+    </div>
+  </div>
+
+  <!-- ═══ FORM ════════════════════════════════════════ -->
+  <div class="form-body">
+    <div class="gerr" id="gerr"></div>
+
+    <!-- ── STEP 1 ────────────────────────────────── -->
+    <div class="step active" id="step-1">
+
+      <div class="eyebrow">Passo 1 de 4 · ~3 minutos</div>
+      <h1 class="heading">Olá, <em>quem és?</em></h1>
+      <div class="accent-line"></div>
+      <p class="desc">Para que a Bea possa adaptar cada detalhe da sessão a ti — antes de chegares.</p>
+
+      <div class="fg">
+        <div class="fl" id="fl-nome">
+          <input type="text" id="nome" placeholder=" " autocomplete="name" inputmode="text" aria-required="true" aria-describedby="err-nome">
+          <label for="nome">Nome completo *</label>
+        </div>
+        <div class="f-err" id="err-nome">Por favor, indica o teu nome.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-email">
+          <input type="email" id="email" placeholder=" " autocomplete="email" inputmode="email" aria-required="true" aria-describedby="err-email hint-email">
+          <label for="email">Email *</label>
+        </div>
+        <div class="f-hint" id="hint-email">Apenas a Bea terá acesso. Total confidencialidade.</div>
+        <div class="f-err" id="err-email">Por favor, indica um email válido.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-tel">
+          <input type="tel" id="telefone" placeholder=" " autocomplete="tel" inputmode="tel">
+          <label for="telefone">Telemóvel <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para confirmar a tua sessão pelo WhatsApp.</div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" onclick="goTo(2)"><span>Continuar →</span></button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2 ────────────────────────────────── -->
+    <div class="step" id="step-2">
+
+      <div class="eyebrow">Passo 2 de 4</div>
+      <h2 class="heading">Como estás <em>por dentro?</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Não há respostas certas ou erradas — queremos apenas perceber como chegas até nós hoje.</p>
+
+      <div class="fg">
+        <span class="slabel">Como está a tua mente agora? <span class="opt">(podes escolher mais do que uma)</span></span>
+        <div class="chips" id="chips-mente">
+          <div class="chip" data-value="muito-activa">Muito activa (mil pensamentos)</div>
+          <div class="chip" data-value="em-paz">Em paz</div>
+          <div class="chip" data-value="ansiosa">Ansiosa / Preocupada</div>
+          <div class="chip" data-value="stressada">Stressada</div>
+          <div class="chip" data-value="irritada">Irritada / Impaciente</div>
+          <div class="chip" data-value="cansada">Cansada</div>
+          <div class="chip" data-value="triste">Triste / A precisar de atenção</div>
+          <div class="chip" data-value="sob-controlo">Sob controlo, a conseguir gerir</div>
+          <div class="chip" data-value="outra">Outra</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Quando foi a última vez que tiveste 1 hora só para ti?</span>
+        <div class="chips" id="chips-1h">
+          <div class="chip single" data-value="semana">Há menos de uma semana</div>
+          <div class="chip single" data-value="mes">No último mês</div>
+          <div class="chip single" data-value="mais-tempo">Há mais tempo do que gostaria</div>
+          <div class="chip single" data-value="nao-lembro">Não me lembro bem</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" onclick="goTo(3)"><span>Continuar →</span></button>
+        <button class="btn-back" onclick="goTo(1)">
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Voltar
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3 ────────────────────────────────── -->
+    <div class="step" id="step-3">
+
+      <div class="eyebrow">Passo 3 de 4</div>
+      <h2 class="heading">Conhecer <em>o teu corpo</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Para que a sessão seja adaptada a ti. Partilha apenas o que fores confortável.</p>
+
+      <div class="fg">
+        <span class="slabel">Onde sentes mais tensão? <span class="opt">(podes escolher mais do que uma)</span></span>
+        <div class="chips" id="chips-tensao">
+          <div class="chip sage" data-value="pescoco">Pescoço</div>
+          <div class="chip sage" data-value="cabeca">Cabeça</div>
+          <div class="chip sage" data-value="costas-sup">Costas (parte superior)</div>
+          <div class="chip sage" data-value="lombar">Costas (zona lombar)</div>
+          <div class="chip sage" data-value="pernas">Pernas</div>
+          <div class="chip sage" data-value="pes">Pés</div>
+          <div class="chip sage" data-value="enxaquecas">Enxaquecas</div>
+          <div class="chip sage" data-value="corpo-todo">Corpo inteiro</div>
+          <div class="chip sage" data-value="outro">Outro</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-cond">
+          <textarea id="condicoes" placeholder=" "></textarea>
+          <label for="condicoes">Condições clínicas <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Ex: gravidez, lesões, dores crónicas, tensão arterial...</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-alergia">
+          <textarea id="alergias" placeholder=" " style="min-height:64px;"></textarea>
+          <label for="alergias">Alergias ou sensibilidades <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Ex: óleos essenciais, aromas, látex, frutos secos...</div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" onclick="goTo(4)"><span>Continuar →</span></button>
+        <button class="btn-back" onclick="goTo(2)">
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Voltar
+        </button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4 ────────────────────────────────── -->
+    <div class="step" id="step-4">
+
+      <div class="eyebrow">Passo 4 de 4</div>
+      <h2 class="heading">A tua <em>sessão</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Ajuda-nos a perceber o que precisas — pode ser uma frase, uma sensação, uma palavra.</p>
+
+      <div class="fg">
+        <div class="fl" id="fl-foco">
+          <textarea id="foco" placeholder=" " aria-required="true" aria-describedby="err-foco"></textarea>
+          <label for="foco">O que esperas sentir quando saíres daqui? *</label>
+        </div>
+        <div class="f-hint">Ex: "Quero soltar o nó que tenho nas costas", "Só quero desligar", "Preciso de atenção"... qualquer coisa que nos ajude a criar uma experiência só tua.</div>
+        <div class="f-err" id="err-foco">Por favor, partilha o que esperas sentir — ajuda-nos a preparar a sessão para ti.</div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Como conheceste a Essence? <span class="opt">(opcional)</span></span>
+        <div class="chips" id="chips-como">
+          <div class="chip single" data-value="google">Google</div>
+          <div class="chip single" data-value="google-maps">Google Maps</div>
+          <div class="chip single" data-value="recomendacao">Recomendação de amiga ou familiar</div>
+          <div class="chip single" data-value="instagram">Instagram</div>
+          <div class="chip single" data-value="tiktok">TikTok</div>
+          <div class="chip single" data-value="facebook">Facebook</div>
+          <div class="chip single" data-value="outra">Outra</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-nasc">
+          <input type="date" id="dataNascimento" autocomplete="bday">
+          <label for="dataNascimento">Data de aniversário <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para te surpreendermos no teu dia especial.</div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" id="btn-submit" onclick="submeter()"><span>Enviar a minha ficha ✦</span></button>
+        <button class="btn-back" onclick="goTo(3)">
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Voltar
+        </button>
+      </div>
+    </div>
+
+    <!-- ── SUCCESS ───────────────────────────────── -->
+    <div class="success" id="success">
+      <div class="success-ring">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M16 29C16 29 5 22 5 13C5 7.477 9.925 3 16 3C22.075 3 27 7.477 27 13C27 22 16 29 16 29Z" stroke="#c9a66b" stroke-width="0.9" fill="none"/>
+          <path d="M16 29V15" stroke="#c9a66b" stroke-width="0.9"/>
+          <path d="M16 19C16 19 9 15 7 10" stroke="#c9a66b" stroke-width="0.75" opacity="0.5"/>
+          <path d="M16 19C16 19 23 15 25 10" stroke="#c9a66b" stroke-width="0.75" opacity="0.5"/>
+        </svg>
+      </div>
+      <h2>Estamos prontas para ti, <span id="nome-ok"></span>.</h2>
+      <p>A tua ficha foi recebida. A Bea vai analisá-la antes da sessão para que cada momento seja verdadeiramente teu.</p>
+      <p class="success-tag">Até já.</p>
+    </div>
+
+  </div><!-- /form-body -->
+
+  <footer class="footer">
+    Os teus dados são tratados com total confidencialidade — apenas a terapeuta tem acesso à tua ficha.
+  </footer>
+
+</div><!-- /card -->
+
+<script>
+  const API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost'))
+    ? 'http://localhost:3000'
+    : 'https://crm.essencewellnesspt.com';
+
+  // ── Parâmetros do link personalizado ─────────────────
+  // Quando o CRM gera o link, inclui ?clienteId=xxx&sessaoId=yyy&n=Maria
+  // O formulário detecta estes IDs e salta o Step 1 (nome/email já conhecidos)
+  const _p         = new URLSearchParams(window.location.search);
+  const _clienteId = _p.get('clienteId') || null;
+  const _sessaoId  = _p.get('sessaoId')  || null;
+  const _nomeParam = _p.get('n')         || null; // primeiro nome — opcional
+  const PERSONAL   = !!(_clienteId && _sessaoId);
+
+  // ── Estado de navegação ──────────────────────────────
+  let cur = PERSONAL ? 2 : 1;
+
+  // ── Progress ─────────────────────────────────────────
+  const progWidths4 = ['25%', '50%', '75%', '100%'];
+  const progWidths3 = ['33%', '66%', '100%'];
+
+  function updateProgress(n) {
+    if (PERSONAL) {
+      // n ∈ {2,3,4} → índice 0,1,2
+      document.getElementById('prog-fill').style.width = progWidths3[n - 2];
+      ['pl-2','pl-3','pl-4'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.toggle('active', i + 2 === n);
+        el.classList.toggle('done',   i + 2 < n);
+      });
+    } else {
+      document.getElementById('prog-fill').style.width = progWidths4[n - 1];
+      ['pl-1','pl-2','pl-3','pl-4'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.toggle('active', i + 1 === n);
+        el.classList.toggle('done',   i + 1 < n);
+      });
+    }
+  }
+
+  // ── Init: link personalizado ──────────────────────────
+  if (PERSONAL) {
+    // Personalizar título do header
+    const headerTitle = document.querySelector('.header-title');
+    if (_nomeParam) {
+      // textContent para evitar XSS — o nome é texto simples
+      headerTitle.textContent = 'Olá, ';
+      const em = document.createElement('em');
+      em.textContent = _nomeParam;
+      headerTitle.appendChild(em);
+    } else {
+      headerTitle.innerHTML = 'A tua ficha de <em>Bem-Estar</em>';
+    }
+
+    // Barra de progresso: ocultar "Sobre ti", mostrar 3 passos
+    document.getElementById('pl-1').style.display = 'none';
+
+    // Eyebrows dos steps: actualizar para "de 3"
+    document.querySelector('#step-2 .eyebrow').textContent = 'Passo 1 de 3 · ~2 minutos';
+    document.querySelector('#step-3 .eyebrow').textContent = 'Passo 2 de 3';
+    document.querySelector('#step-4 .eyebrow').textContent = 'Passo 3 de 3';
+
+    // Ocultar botão "Voltar" do step 2 — não há step 1 para onde voltar
+    const backBtn2 = document.querySelector('#step-2 .btn-back');
+    if (backBtn2) backBtn2.style.display = 'none';
+
+    // Activar step 2 como ponto de entrada
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+    updateProgress(2);
+  }
+
+  // ── Floating labels ──────────────────────────────────
+  document.querySelectorAll('.fl input, .fl textarea').forEach(el => {
+    const w = () => el.closest('.fl');
+    el.addEventListener('focus',  () => w().classList.add('active'));
+    el.addEventListener('blur',   () => {
+      w().classList.remove('active');
+      w().classList.toggle('filled', el.value.trim() !== '' || el.type === 'date');
+    });
+    el.addEventListener('input',  () => w().classList.toggle('filled', el.value.trim() !== ''));
+    el.addEventListener('change', () => w().classList.toggle('filled', el.type === 'date' || el.value.trim() !== ''));
+    if (el.type === 'date') w().classList.add('filled');
+  });
+
+  // ── Chips multi ──────────────────────────────────────
+  document.querySelectorAll('.chips .chip:not(.single)').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('sel'));
+  });
+
+  // ── Chips single ─────────────────────────────────────
+  document.querySelectorAll('.chips .chip.single').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+      chip.classList.add('sel');
+    });
+  });
+
+  // ── Auto-avançar ao seleccionar última opção do step 2 ──
+  document.querySelectorAll('#chips-1h .chip.single').forEach(chip => {
+    chip.addEventListener('click', () => {
+      setTimeout(() => goTo(3), 280);
+    });
+  });
+
+  function chips(id) {
+    return [...document.querySelectorAll(`#${id} .sel`)].map(c => c.textContent.trim());
+  }
+
+  function chip1(id) {
+    return document.querySelector(`#${id} .sel`)?.textContent.trim() || null;
+  }
+
+  // ── Reposicionar campo activo com teclado ────────────
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+        setTimeout(() => {
+          active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    });
+  }
+
+  // ── Navegação ────────────────────────────────────────
+  function goTo(n) {
+    if (PERSONAL && n === 1) return; // step 1 ignorado no link personalizado
+    if (n > cur && !validate(cur)) return;
+
+    document.getElementById(`step-${cur}`).classList.remove('active');
+    cur = n;
+    document.getElementById(`step-${cur}`).classList.add('active');
+
+    updateProgress(cur);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setErr(flId, inputId, errId, hasErr) {
+    document.getElementById(flId)?.classList.toggle('has-err', hasErr);
+    document.getElementById(inputId)?.classList.toggle('err', hasErr);
+    document.getElementById(errId)?.classList.toggle('show', hasErr);
+  }
+
+  // Validação inline ao perder foco (apenas no fluxo genérico sem IDs)
+  document.getElementById('nome').addEventListener('blur', function() {
+    if (PERSONAL) return;
+    setErr('fl-nome', 'nome', 'err-nome', !this.value.trim());
+  });
+
+  document.getElementById('email').addEventListener('blur', function() {
+    if (PERSONAL) return;
+    const v = this.value.trim();
+    setErr('fl-email', 'email', 'err-email', v.length > 0 && !emailRe.test(v));
+  });
+
+  function validate(step) {
+    if (PERSONAL) return true; // identificação por clienteId — step 1 ignorado
+    if (step !== 1) return true;
+
+    let ok = true;
+    const nome  = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    const check = (flId, inputId, errId, hasErr) => {
+      setErr(flId, inputId, errId, hasErr);
+      if (hasErr) ok = false;
+    };
+
+    check('fl-nome',  'nome',  'err-nome',  !nome);
+    check('fl-email', 'email', 'err-email', !emailRe.test(email));
+    return ok;
+  }
+
+  // ── Submissão ────────────────────────────────────────
+  async function submeter() {
+    const btn = document.getElementById('btn-submit');
+    const ge  = document.getElementById('gerr');
+    ge.classList.remove('show');
+
+    btn.querySelector('span').textContent = 'A enviar a tua ficha…';
+    btn.disabled = true;
+
+    const nome         = document.getElementById('nome').value.trim();
+    const email        = document.getElementById('email').value.trim();
+    const telefone     = document.getElementById('telefone').value.trim();
+    const dataNasc     = document.getElementById('dataNascimento').value;
+    const condicoes    = document.getElementById('condicoes').value.trim();
+    const alergias     = document.getElementById('alergias').value.trim();
+    const foco         = document.getElementById('foco').value.trim();
+    const estadoMente  = chips('chips-mente');
+    const ultima1h     = chip1('chips-1h');
+    const tensao       = chips('chips-tensao');
+    const comoConheceu = chip1('chips-como');
+
+    // Validar foco (obrigatório)
+    if (!foco) {
+      setErr('fl-foco', 'foco', 'err-foco', true);
+      document.getElementById('foco').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      btn.querySelector('span').textContent = 'Enviar a minha ficha ✦';
+      btn.disabled = false;
+      return;
+    }
+
+    const historicoCondicoes = [
+      condicoes ? `Condições: ${condicoes}` : '',
+      alergias  ? `Alergias: ${alergias}` : '',
+    ].filter(Boolean).join('\n') || null;
+
+    const historicoEmocional = [
+      estadoMente.length ? `Estado da mente: ${estadoMente.join(', ')}` : '',
+      ultima1h           ? `Última hora para si: ${ultima1h}` : '',
+      foco               ? `Foco da sessão: ${foco}` : '',
+    ].filter(Boolean).join('\n') || null;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/onboarding`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clienteId:                  _clienteId   || undefined,
+          sessaoId:                   _sessaoId    || undefined,
+          nome:                       nome         || undefined,
+          email:                      email        || undefined,
+          telefone:                   telefone     || null,
+          dataNascimento:             dataNasc     || null,
+          comoNosConheceu:            comoConheceu || null,
+          historicoCondicoesAlergias: historicoCondicoes,
+          historicoZonasTensao:       tensao.length ? tensao.join(', ') : null,
+          historicoEstadoEmocional:   historicoEmocional,
+          notasPessoais:              foco         || null,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      document.getElementById(`step-${cur}`).classList.remove('active');
+      document.getElementById('success').style.display = 'block';
+
+      // Nome no ecrã de sucesso: parâmetro URL > campo nome > genérico
+      const nomeOk = (PERSONAL && _nomeParam) ? _nomeParam : nome.split(' ')[0];
+      document.getElementById('nome-ok').textContent = nomeOk;
+
+      document.getElementById('prog-fill').style.width = '100%';
+
+    } catch (err) {
+      console.error(err);
+      ge.textContent = 'Ocorreu um erro ao enviar a ficha. Por favor, tenta novamente ou contacta-nos directamente.';
+      ge.classList.add('show');
+      btn.querySelector('span').textContent = 'Enviar a minha ficha ✦';
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Autenticação (NextAuth) ───────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("terapeuta")
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Enums (integridade ao nível da base de dados) ─────────────
+
+enum EstadoPagamento {
+  pendente
+  pago
+  parcial
+  isento
+}
+
+enum MetodoPagamento {
+  dinheiro
+  mbway
+  transferencia
+  voucher
+}
+
+enum EstadoCampanha {
+  ativa
+  cancelada
+  concluida
+}
+
+enum EstadoCliente {
+  lead
+  novo
+  ativa_recente
+  ativa_frequente
+  vip_embaixadora
+  vip_em_risco
+  reativacao
+  perdida
+  blacklist
+}
+
+enum EstadoSessao {
+  agendada
+  confirmada
+  aguarda_terapeuta
+  realizada
+  cancelada
+  falta
+}
+
+enum EstadoMensagem {
+  pendente
+  aprovada
+  em_fila
+  enviada
+  rejeitada
+  falhada
+}
+
+enum Canal {
+  whatsapp
+  email
+  sms
+}
+
+// ── CRM Principal ─────────────────────────────────────────────
+
+model Cliente {
+  id          String    @id @default(cuid())
+  nome        String
+  telefone    String?
+  email       String?
+
+  // Dados pessoais
+  dataNascimento      DateTime?
+  comoNosConheceu     String?   // instagram, referencia, google, calendly, etc.
+  fonte               String    @default("calendly")
+
+  // Estado CRM (9 estados)
+  estado              EstadoCliente @default(novo)
+
+  // Histórico clínico — DADOS DE SAÚDE (RGPD Art. 9: categoria especial)
+  historicoAromasPreferidos     String?
+  historicoCondicoesAlergias    String?
+  historicoEstadoEmocional      String?
+  historicoZonasTensao          String?
+  historicoUltimaPausa          String?
+  notasPessoais                 String?
+
+  // Preferências de contacto
+  canalPreferido      Canal     @default(whatsapp)
+  temWhatsapp         Boolean   @default(true)
+  aceitaMarketing     Boolean   @default(true)
+  melhorDiaContacto   String?
+
+  // RGPD — consentimentos com timestamp (prova de consentimento)
+  consentimentoMarketingEm  DateTime?
+  consentimentoSaudeEm      DateTime?   // consentimento explícito para dados clínicos
+  anonimizadoEm             DateTime?   // preenchido quando exerce direito ao apagamento
+
+  // Soft delete — nunca destruir histórico clínico por acidente
+  apagadoEm           DateTime?
+
+  // Métricas calculadas (actualizadas pelo motor de estados / sessões)
+  ultimaSessao        DateTime?
+  totalSessoes        Int       @default(0)
+  totalGasto          Decimal   @default(0) @db.Decimal(10, 2)
+
+  criadoEm            DateTime  @default(now())
+  atualizadoEm        DateTime  @updatedAt
+
+  sessoes             Sessao[]
+  etiquetas           ClienteEtiqueta[]
+  mensagens           MensagemIA[]
+  observacoes         Observacao[]
+  precos              PrecoPersonalizado[]
+  packs               Pack[]
+  portalToken         PortalToken?
+
+  @@index([estado])
+  @@index([telefone])
+  @@index([email])
+  @@index([apagadoEm])
+}
+
+model Sessao {
+  id          String    @id @default(cuid())
+  clienteId   String
+
+  data        DateTime
+  hora        String?
+  duracao     Int?      // duração em minutos
+  servico     String?
+  preco       Decimal?  @db.Decimal(10, 2)
+  terapeuta   String    @default("bea")
+
+  // Conteúdo clínico
+  aromaSessao         String?
+  estadoEmocional     String?
+  resumoSessao        String?
+  notasPosSessao      String?
+  linkDocumento       String?
+
+  estado              EstadoSessao @default(agendada)
+
+  dataRecomendadaRegresso DateTime?
+
+  // Rastreio de comunicações automáticas (escrito pelos Workflows N8N)
+  briefingEnviado      Boolean   @default(false)
+  lembreteEnviado      Boolean   @default(false)
+  confirmacaoPresenca  Boolean?
+  nutricao14dEnviado   Boolean   @default(false)
+  nutricao7dEnviado    Boolean   @default(false)
+  googleDocLink        String?
+
+  // Catálogo de serviços (FK opcional — retrocompatível com sessões antigas)
+  servicoId        String?
+  // Idempotência Calendly — UUID único do evento, impede sessões duplicadas
+  calendlyEventId  String? @unique
+
+  // Pagamento
+  estadoPagamento  EstadoPagamento  @default(pendente)
+  valorPago        Decimal?         @db.Decimal(10, 2)
+  metodoPagamento  MetodoPagamento?
+  pagamentoEm      DateTime?
+
+  // Avaliação pós-sessão
+  avaliacaoNota         Int?
+  avaliacaoComentario   String?
+  avaliacaoEnviadaEm    DateTime?
+  avaliacaoRespondidaEm DateTime?
+
+  // Integrações
+  calendarEventId  String?
+  pdfUrl           String?
+  calendlyEventUri String?
+
+  apagadoEm   DateTime?
+  criadoEm    DateTime  @default(now())
+
+  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servico_rel Servico?  @relation(fields: [servicoId], references: [id])
+
+  @@index([data])
+  @@index([clienteId])
+  @@index([estado])
+  @@index([servicoId])
+  @@index([estadoPagamento])
+  @@index([calendlyEventUri])
+}
+
+model Etiqueta {
+  id       String            @id @default(cuid())
+  nome     String            @unique
+  cor      String            @default("#6366f1")
+  clientes ClienteEtiqueta[]
+}
+
+model ClienteEtiqueta {
+  clienteId  String
+  etiquetaId String
+  cliente    Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  etiqueta   Etiqueta @relation(fields: [etiquetaId], references: [id], onDelete: Cascade)
+
+  @@id([clienteId, etiquetaId])
+}
+
+model Observacao {
+  id        String   @id @default(cuid())
+  clienteId String
+  texto     String
+  autor     String   @default("bea")
+  criadoEm DateTime @default(now())
+
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@index([clienteId])
+}
+
+model MensagemIA {
+  id               String    @id @default(cuid())
+  clienteId        String
+  canal            Canal     @default(whatsapp)
+  mensagemGerada   String
+  mensagemFinal    String?
+  estado           EstadoMensagem @default(pendente)
+  // pendente → aprovada → em_fila → enviada | rejeitada | falhada
+  motivoGeracao    String?
+  converteu        Boolean?
+  geradaEm         DateTime  @default(now())
+  aprovadaEm       DateTime?
+  enviadaEm        DateTime?
+
+  // Fila de envio com espaçamento anti-spam (30–90s entre mensagens)
+  enviarApos       DateTime?
+  erroEnvio        String?
+
+  // Tipo de mensagem e associação a campanha
+  tipo             String    @default("reengagement")
+  campanhaId       String?
+
+  cliente          Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  campanha         Campanha? @relation(fields: [campanhaId], references: [id])
+
+  @@index([estado])
+  @@index([clienteId])
+  @@index([enviarApos])
+  @@index([campanhaId])
+}
+
+// ── Catálogo de Serviços ──────────────────────────────────────
+
+model Servico {
+  id             String   @id @default(cuid())
+  nome           String   @unique
+  descricao      String?
+  duracaoMinutos Int      @default(60)
+  precoBase      Decimal  @db.Decimal(10, 2)
+  ativo          Boolean  @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  sessoes Sessao[]
+  precos  PrecoPersonalizado[]
+  packs   Pack[]
+
+  @@index([ativo])
+}
+
+model PrecoPersonalizado {
+  id        String    @id @default(cuid())
+  clienteId String
+  servicoId String
+  valor     Decimal   @db.Decimal(10, 2)
+  motivo    String?
+  validade  DateTime?
+
+  criadoEm DateTime @default(now())
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servico Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+
+  @@unique([clienteId, servicoId])
+  @@index([clienteId])
+}
+
+model Pack {
+  id            String   @id @default(cuid())
+  clienteId     String
+  servicoId     String
+  totalSessoes  Int
+  sessoesUsadas Int      @default(0)
+  valorTotal    Decimal  @db.Decimal(10, 2)
+  descricao     String?
+  ativo         Boolean  @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servico Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+
+  @@index([clienteId])
+  @@index([ativo])
+}
+
+// ── Templates e Campanhas ────────────────────────────────────
+
+model TemplateMensagem {
+  id           String   @id @default(cuid())
+  nome         String   @unique
+  tipo         String
+  texto        String
+  variaveis    String[]
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  campanhas    Campanha[]
+
+  @@index([tipo])
+}
+
+model Campanha {
+  id           String         @id @default(cuid())
+  nome         String
+  segmento     Json
+  templateId   String
+  estado       EstadoCampanha @default(ativa)
+  totalEnviado Int            @default(0)
+  totalFalhado Int            @default(0)
+  criadaEm     DateTime       @default(now())
+
+  template     TemplateMensagem @relation(fields: [templateId], references: [id])
+  mensagens    MensagemIA[]
+
+  @@index([estado])
+  @@index([criadaEm])
+}
+
+// ── Portal do Cliente ─────────────────────────────────────────
+
+model PortalToken {
+  id        String   @id @default(cuid())
+  clienteId String   @unique
+  token     String   @unique
+  expiraEm  DateTime
+  criadoEm  DateTime @default(now())
+
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+// ── Auditoria e segurança ─────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  quem       String   // email do utilizador, "api:n8n", ou "sistema"
+  acao       String   // ex: "login.falhado", "cliente.atualizado", "mensagem.aprovada"
+  entidade   String?  // "Cliente" | "Sessao" | "MensagemIA" | ...
+  entidadeId String?
+  detalhe    Json?
+  ip         String?
+  criadoEm   DateTime @default(now())
+
+  @@index([acao, criadoEm])
+  @@index([entidade, entidadeId])
+  @@index([quem, criadoEm])
+}
