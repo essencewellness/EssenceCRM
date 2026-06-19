@@ -167,6 +167,7 @@ model Cliente {
   precos              PrecoPersonalizado[]
   packs               Pack[]
   portalToken         PortalToken?
+  giftCards           GiftCard[]
 
   @@index([estado])
   @@index([telefone])
@@ -402,6 +403,61 @@ model PortalToken {
   cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   @@index([token])
+}
+
+// ── Gift Cards / Vouchers ─────────────────────────────────────
+
+enum TipoVoucher {
+  digital
+  fisico
+}
+
+enum EstadoVoucher {
+  ativo
+  usado
+  expirado
+  cancelado
+}
+
+model GiftCard {
+  id                   String        @id @default(cuid())
+  codigo               String        @unique
+
+  tipo                 TipoVoucher   @default(digital)
+  estado               EstadoVoucher @default(ativo)
+
+  // Quem comprou
+  compradorNome        String
+  compradorTelefone    String?
+  compradorEmail       String?
+
+  // O que inclui
+  servicoNome          String
+  valorPago            Decimal       @db.Decimal(10, 2)
+
+  // Para quem é (pode ser um nome diferente do comprador)
+  beneficiarioNome     String?
+  beneficiarioTelefone String?
+
+  // Datas
+  dataCompra           DateTime      @default(now())
+  validade             DateTime?
+  dataUso              DateTime?
+
+  notas                String?
+
+  // Quando resgatado, pode ligar ao cliente no CRM
+  clienteId            String?
+
+  criadoEm             DateTime      @default(now())
+  atualizadoEm         DateTime      @updatedAt
+
+  cliente              Cliente?      @relation(fields: [clienteId], references: [id])
+
+  @@index([codigo])
+  @@index([estado])
+  @@index([tipo])
+  @@index([dataCompra])
 }
 
 // ── Auditoria e segurança ─────────────────────────────────────
