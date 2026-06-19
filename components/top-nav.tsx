@@ -10,6 +10,10 @@ const navItems = [
   { label: "Clientes",     href: "/clientes" },
   { label: "Mensagens IA", href: "/mensagens" },
   { label: "Top Clientes", href: "/top-clientes" },
+  { label: "Financeiro",   href: "/financeiro" },
+  { label: "Serviços",     href: "/servicos" },
+  { label: "Templates",    href: "/templates" },
+  { label: "Campanhas",    href: "/campanhas" },
 ];
 
 interface TopNavProps {

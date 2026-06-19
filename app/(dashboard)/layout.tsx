@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   const userEmail = session.user.email ?? "";
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#f6f1e5" }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#0e1119" }}>
       <TopNav
         userName={userName}
         userEmail={userEmail}
