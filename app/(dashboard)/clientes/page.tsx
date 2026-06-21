@@ -5,27 +5,44 @@ import type { Prisma, EstadoCliente } from "@prisma/client"
 import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/page-header"
 import { ClientesTable } from "@/components/clientes-table"
+import { FiltrosClientes } from "./FiltrosClientes"
 
 export const revalidate = 30
 
 interface ClientesPageProps {
-  searchParams: Promise<{ q?: string; estado?: string }>
+  searchParams: Promise<{ q?: string; estado?: string; estados?: string | string[]; etiquetas?: string | string[]; inativo?: string }>
 }
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
-  const { q, estado } = await searchParams
+  const { q, estado, estados: estadosParam, etiquetas: etiquetasParam, inativo } = await searchParams
 
+  const etiquetasFiltro = etiquetasParam
+    ? (Array.isArray(etiquetasParam) ? etiquetasParam : [etiquetasParam])
+    : []
+
+  // estadosFiltro vem de duas fontes:
+  // 1. `estado` (quick filter: ativas/em_risco/novas → mapeado para estados reais)
+  // 2. `estados[]` (filtros avançados do FiltrosClientes — estados individuais)
   const estadoMap: Record<string, EstadoCliente[]> = {
     ativas:   ["ativa_recente", "ativa_frequente", "vip_embaixadora"],
     em_risco: ["vip_em_risco", "reativacao"],
     novas:    ["lead", "novo"],
   }
-  const estadoFiltro: Prisma.ClienteWhereInput = estado && estadoMap[estado]
-    ? { estado: { in: estadoMap[estado] } }
+  const estadosAvancados: EstadoCliente[] = estadosParam
+    ? (Array.isArray(estadosParam) ? estadosParam : [estadosParam]) as EstadoCliente[]
+    : []
+  const estadosFiltro: EstadoCliente[] = estadosAvancados.length > 0
+    ? estadosAvancados
+    : (estado && estadoMap[estado] ? estadoMap[estado] : [])
+
+  // Filtro de inactividade (dias sem sessão)
+  const inativoDias = inativo ? parseInt(inativo, 10) : null
+  const inativoWhere: Prisma.ClienteWhereInput = inativoDias
+    ? { ultimaSessao: { lt: new Date(Date.now() - inativoDias * 86_400_000) } }
     : {}
 
   const where: Prisma.ClienteWhereInput = {
-    apagadoEm: null, // soft delete: nunca listar apagadas
+    apagadoEm: null,
     ...(q ? {
       OR: [
         { nome: { contains: q, mode: "insensitive" } },
@@ -33,16 +50,32 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
         { telefone: { contains: q } },
       ],
     } : {}),
-    ...estadoFiltro,
+    ...(estadosFiltro.length > 0 ? { estado: { in: estadosFiltro } } : {}),
+    ...(etiquetasFiltro.length > 0 ? {
+      etiquetas: { some: { etiquetaId: { in: etiquetasFiltro } } },
+    } : {}),
+    ...inativoWhere,
   }
 
-  const clientes = await prisma.cliente.findMany({
-    where,
-    orderBy: { ultimaSessao: "desc" },
-    include: { etiquetas: { include: { etiqueta: true } } },
-  })
+  const [clientes, todasEtiquetas, templates] = await Promise.all([
+    prisma.cliente.findMany({
+      where,
+      orderBy: { ultimaSessao: "desc" },
+      include: {
+        etiquetas: { include: { etiqueta: true } },
+      },
+    }),
+    prisma.etiqueta.findMany({
+      orderBy: [{ tipo: "asc" }, { nome: "asc" }],
+    }),
+    prisma.templateMensagem.findMany({
+      where: { ativo: true },
+      select: { id: true, nome: true, texto: true },
+      orderBy: { nome: "asc" },
+    }),
+  ])
 
-  // Serializar para o client component
+  // Serializar para os client components
   const clientesRows = clientes.map(c => ({
     id: c.id,
     nome: c.nome,
@@ -52,28 +85,43 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     totalSessoes: c.totalSessoes,
     totalGasto: Number(c.totalGasto),
     estado: c.estado,
-    etiquetas: c.etiquetas.map(e => ({ etiqueta: { id: e.etiqueta.id, nome: e.etiqueta.nome, cor: e.etiqueta.cor } })),
+    etiquetas: c.etiquetas.map(e => ({
+      etiqueta: {
+        id:                 e.etiqueta.id,
+        nome:               e.etiqueta.nome,
+        cor:                e.etiqueta.cor,
+        tipo:               e.etiqueta.tipo,
+        bloqueiaAutomacoes: e.etiqueta.bloqueiaAutomacoes,
+      },
+    })),
   }))
 
-  return (
-    <div style={{ maxWidth: "1024px", margin: "0 auto" }}>
+  const temFiltrosAvancados = etiquetasFiltro.length > 0 || !!inativo
 
-      {/* Header animado */}
+  return (
+    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+
       <PageHeader
         titulo="Clientes"
         subtitulo={`${clientes.length} cliente${clientes.length !== 1 ? "s" : ""} encontrado${clientes.length !== 1 ? "s" : ""}`}
       />
 
-      {/* Filtros — fade down com delay */}
+      {/* Pesquisa + filtros rápidos */}
       <div
         className="anim-fade-down"
         style={{
           display: "flex", alignItems: "center", gap: "12px",
-          marginBottom: "20px", flexWrap: "wrap",
+          marginBottom: "16px", flexWrap: "wrap",
           animationDelay: "0.25s",
         }}
       >
         <form method="GET" style={{ display: "flex", flex: 1, gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+          {/* Preservar filtros avançados no form GET */}
+          {etiquetasFiltro.map(id => (
+            <input key={id} type="hidden" name="etiquetas" value={id} />
+          ))}
+          {inativo && <input type="hidden" name="inativo" value={inativo} />}
+
           <div style={{ position: "relative", flex: 1, maxWidth: "380px" }}>
             <Search size={14} color="#9d9d9a" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
             <Input
@@ -81,15 +129,10 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
               defaultValue={q ?? ""}
               placeholder="Pesquisar por nome, email ou telefone…"
               style={{
-                paddingLeft: "36px",
-                backgroundColor: "#ffffff",
-                border: "1px solid #ddd6c4",
-                color: "#161a26",
-                fontSize: "13px",
-                fontFamily: "var(--font-body, sans-serif)",
-                borderRadius: "0px",
-                height: "38px",
-                boxShadow: "none",
+                paddingLeft: "36px", backgroundColor: "#ffffff",
+                border: "1px solid #ddd6c4", color: "#161a26",
+                fontSize: "13px", fontFamily: "var(--font-body, sans-serif)",
+                borderRadius: "0px", height: "38px", boxShadow: "none",
               }}
               className="placeholder:text-[#b5b5b2] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
             />
@@ -109,11 +152,9 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                   href={`/clientes?${q ? `q=${encodeURIComponent(q)}&` : ""}${value ? `estado=${value}` : ""}`}
                   style={{
                     display: "inline-flex", alignItems: "center",
-                    height: "38px", padding: "0 14px",
-                    borderRadius: "0px",
+                    height: "38px", padding: "0 14px", borderRadius: "0px",
                     fontSize: "9.5px", letterSpacing: "0.24em", textTransform: "uppercase",
-                    fontFamily: "var(--font-sans, sans-serif)",
-                    fontWeight: 500,
+                    fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                     transition: "all 150ms",
                     color: isActive ? "#b9a07a" : "#7a7e8a",
                     backgroundColor: isActive ? "rgba(185,160,122,0.08)" : "transparent",
@@ -129,43 +170,38 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
         </form>
       </div>
 
-      {/* Tabela — fade up com delay */}
+      {/* Filtros avançados por tag — sempre visíveis */}
+      <div className="anim-fade-down" style={{ animationDelay: "0.30s" }}>
+        <FiltrosClientes
+          todasEtiquetas={todasEtiquetas.map(e => ({ id: e.id, nome: e.nome, cor: e.cor, tipo: e.tipo }))}
+          templates={templates}
+          totalResultados={clientes.length}
+          etiquetasFiltro={etiquetasFiltro}
+          estadosFiltro={estadosFiltro}
+          inativoFiltro={inativo ?? ""}
+        />
+      </div>
+
+      {/* Tabela */}
       <div
         className="anim-fade-up"
         style={{
-          backgroundColor: "#ffffff",
-          border: "1px solid #ddd6c4",
-          borderRadius: "2px",
-          overflow: "hidden",
+          backgroundColor: "#ffffff", border: "1px solid #ddd6c4",
+          borderRadius: "2px", overflow: "hidden",
           boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
-          animationDelay: "0.32s",
+          animationDelay: "0.38s",
         }}
       >
         {clientes.length === 0 ? (
-          <div style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "center", padding: "72px 24px",
-          }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "72px 24px" }}>
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <Users size={22} />
             </div>
-            <p style={{
-              fontFamily: "var(--font-heading, Georgia, serif)",
-              fontStyle: "italic", fontSize: "15px", color: "#6d6d6d",
-            }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "#6d6d6d" }}>
               Nenhum cliente encontrado
             </p>
-            {(q || estado) && (
-              <Link
-                href="/clientes"
-                style={{
-                  marginTop: "12px",
-                  fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", color: "#b9a07a",
-                  textDecoration: "underline",
-                  textUnderlineOffset: "3px",
-                }}
-              >
+            {(q || estado || temFiltrosAvancados) && (
+              <Link href="/clientes" style={{ marginTop: "12px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#b9a07a", textDecoration: "underline", textUnderlineOffset: "3px" }}>
                 Limpar filtros
               </Link>
             )}

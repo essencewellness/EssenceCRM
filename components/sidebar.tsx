@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut, CreditCard, FileText, Send, Package } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut, CreditCard, FileText, Send, Package, Tag } from "lucide-react";
 
 const GOLD = "#d4b886";
 const CREAM = "#ece6d6";
@@ -17,6 +17,7 @@ const navItems = [
   { label: "Serviços",      href: "/servicos",     icon: Package },
   { label: "Templates",     href: "/templates",    icon: FileText },
   { label: "Campanhas",     href: "/campanhas",    icon: Send },
+  { label: "Etiquetas",     href: "/etiquetas",    icon: Tag },
 ];
 
 interface SidebarProps {

@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { motion } from "motion/react"
+import { calcularTagActividade } from "@/lib/etiquetas"
 
-interface Etiqueta { id: string; nome: string; cor: string }
+interface Etiqueta { id: string; nome: string; cor: string; tipo: string; bloqueiaAutomacoes: boolean }
 interface ClienteRow {
   id: string
   nome: string
@@ -52,13 +53,13 @@ const estadoMap: Record<string, { label: string; color: string; bg: string; bord
 }
 
 const HEADERS = [
-  { label: "Cliente",       align: "left"   as const },
-  { label: "Telefone",      align: "left"   as const },
-  { label: "Email",         align: "left"   as const },
-  { label: "Última Sessão", align: "left"   as const },
-  { label: "Sessões",       align: "center" as const },
-  { label: "Total Gasto",   align: "center" as const },
-  { label: "Estado",        align: "center" as const },
+  { label: "Cliente",      align: "left"   as const },
+  { label: "Telefone",     align: "left"   as const },
+  { label: "Email",        align: "left"   as const },
+  { label: "Actividade",   align: "left"   as const },
+  { label: "Sessões",      align: "center" as const },
+  { label: "Total Gasto",  align: "center" as const },
+  { label: "Estado",       align: "center" as const },
 ]
 
 export function ClientesTable({ clientes }: { clientes: ClienteRow[] }) {
@@ -85,6 +86,9 @@ export function ClientesTable({ clientes }: { clientes: ClienteRow[] }) {
       <tbody>
       {clientes.map((cliente, idx) => {
         const cfg = estadoMap[cliente.estado] ?? { label: cliente.estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
+        const tagsSaude = cliente.etiquetas.filter(e => e.etiqueta.tipo === "saude")
+        const actividade = calcularTagActividade(cliente.ultimaSessao)
+
         return (
           <motion.tr
             key={cliente.id}
@@ -115,13 +119,14 @@ export function ClientesTable({ clientes }: { clientes: ClienteRow[] }) {
                   <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "#161a26", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {cliente.nome}
                   </p>
-                  {cliente.etiquetas.length > 0 && (
+                  {/* Tags de saúde — máx. 2 visíveis */}
+                  {tagsSaude.length > 0 && (
                     <div style={{ display: "flex", gap: "4px", marginTop: "3px", flexWrap: "wrap" }}>
-                      {cliente.etiquetas.slice(0, 3).map(({ etiqueta }) => (
+                      {tagsSaude.slice(0, 2).map(({ etiqueta }) => (
                         <span key={etiqueta.id} style={{
                           padding: "2px 6px", borderRadius: "0",
                           fontSize: "8.5px", fontWeight: 500,
-                          letterSpacing: "0.24em", textTransform: "uppercase",
+                          letterSpacing: "0.18em", textTransform: "uppercase",
                           fontFamily: "var(--font-sans, sans-serif)",
                           color: etiqueta.cor, border: `1px solid ${etiqueta.cor}55`,
                           backgroundColor: "transparent",
@@ -129,6 +134,11 @@ export function ClientesTable({ clientes }: { clientes: ClienteRow[] }) {
                           {etiqueta.nome}
                         </span>
                       ))}
+                      {tagsSaude.length > 2 && (
+                        <span style={{ fontSize: "8.5px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", padding: "2px 4px" }}>
+                          +{tagsSaude.length - 2}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -145,8 +155,13 @@ export function ClientesTable({ clientes }: { clientes: ClienteRow[] }) {
               </Link>
             </td>
             <td style={{ padding: "14px 16px" }}>
-              <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d", textDecoration: "none" }}>
-                {formatDate(cliente.ultimaSessao)}
+              <Link href={`/clientes/${cliente.id}`} style={{ textDecoration: "none" }}>
+                <span style={{
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                  color: actividade.cor, letterSpacing: "0.02em",
+                }}>
+                  {actividade.label}
+                </span>
               </Link>
             </td>
             <td style={{ padding: "14px 16px", textAlign: "center" }}>

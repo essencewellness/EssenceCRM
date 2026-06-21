@@ -78,6 +78,13 @@ enum EstadoCampanha {
   concluida
 }
 
+enum TipoEtiqueta {
+  saude
+  campanha
+  preferencia
+  automatica
+}
+
 enum EstadoCliente {
   lead
   novo
@@ -242,10 +249,15 @@ model Sessao {
 }
 
 model Etiqueta {
-  id       String            @id @default(cuid())
-  nome     String            @unique
-  cor      String            @default("#6366f1")
-  clientes ClienteEtiqueta[]
+  id                 String            @id @default(cuid())
+  nome               String            @unique
+  cor                String            @default("#b9a07a")
+  tipo               TipoEtiqueta      @default(campanha)
+  bloqueiaAutomacoes Boolean           @default(false)
+  clientes           ClienteEtiqueta[]
+
+  @@index([tipo])
+  @@index([bloqueiaAutomacoes])
 }
 
 model ClienteEtiqueta {

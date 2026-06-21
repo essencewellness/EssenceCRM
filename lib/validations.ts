@@ -75,6 +75,8 @@ export const clientesQuerySchema = z.object({
   semMensagemDias: z.coerce.number().int().min(1).max(365).optional(),
   blacklist: z.enum(["true"]).optional(),
   ativo: z.enum(["true"]).optional(),
+  etiquetas: z.union([z.string().trim(), z.array(z.string().trim())]).optional(),
+  sem_automacoes: z.enum(["true"]).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   cursor: z.string().trim().max(64).optional(),
 })

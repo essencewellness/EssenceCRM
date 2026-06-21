@@ -2,7 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
   ArrowLeft, Phone, Mail, CalendarDays, Wallet,
-  MessageSquare, Hash,
+  MessageSquare,
 } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, formatPhone, getInitials } from "@/lib/utils"
@@ -11,6 +11,8 @@ import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
 import { ObservacoesTimeline } from "@/components/observacoes-timeline"
 import { AnimatedSection } from "@/components/stagger"
+import { EstadoEditor } from "./EstadoEditor"
+import { TagsSection } from "./TagsSection"
 
 interface ClientePageProps {
   params: Promise<{ id: string }>
@@ -91,17 +93,23 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 export default async function ClientePage({ params }: ClientePageProps) {
   const { id } = await params
 
-  const cliente = await prisma.cliente.findUnique({
-    where: { id },
-    include: {
-      etiquetas: { include: { etiqueta: true } },
-      sessoes: { orderBy: { data: "desc" } },
-      mensagens: { orderBy: { geradaEm: "desc" } },
-      observacoes: { orderBy: { criadoEm: "desc" } },
-      precos: { include: { servico: { select: { nome: true, precoBase: true } } }, orderBy: { criadoEm: "desc" } },
-      packs: { include: { servico: { select: { nome: true } } }, orderBy: { criadoEm: "desc" } },
-    },
-  })
+  const [cliente, todasEtiquetas] = await Promise.all([
+    prisma.cliente.findUnique({
+      where: { id },
+      include: {
+        etiquetas: { include: { etiqueta: true } },
+        sessoes: { orderBy: { data: "desc" } },
+        mensagens: { orderBy: { geradaEm: "desc" } },
+        observacoes: { orderBy: { criadoEm: "desc" } },
+        precos: { include: { servico: { select: { nome: true, precoBase: true } } }, orderBy: { criadoEm: "desc" } },
+        packs: { include: { servico: { select: { nome: true } } }, orderBy: { criadoEm: "desc" } },
+      },
+    }),
+    prisma.etiqueta.findMany({
+      where: { tipo: { not: "automatica" } },
+      orderBy: [{ tipo: "asc" }, { nome: "asc" }],
+    }),
+  ])
 
   if (!cliente) notFound()
 
@@ -181,7 +189,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
               }}>
                 {cliente.nome}
               </h1>
-              <EstadoBadge estado={cliente.estado} />
+              <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
               <div style={{ marginLeft: "auto" }}>
                 <DeleteClienteButton
                   clienteId={cliente.id}
@@ -190,24 +198,25 @@ export default async function ClientePage({ params }: ClientePageProps) {
               </div>
             </div>
 
-            {/* Etiquetas */}
-            {cliente.etiquetas.length > 0 && (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "12px" }}>
-                {cliente.etiquetas.map(({ etiqueta }) => (
-                  <span key={etiqueta.id} style={{
-                    display: "inline-flex", alignItems: "center", gap: "4px",
-                    padding: "3px 10px", borderRadius: "100px",
-                    fontSize: "11px", fontWeight: 600,
-                    fontFamily: "var(--font-sans, sans-serif)",
-                    color: etiqueta.cor, backgroundColor: etiqueta.cor + "18",
-                    border: `1px solid ${etiqueta.cor}35`,
-                  }}>
-                    <Hash size={9} />
-                    {etiqueta.nome}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* Etiquetas — geridas de forma interactiva */}
+            <TagsSection
+              clienteId={cliente.id}
+              etiquetasCliente={cliente.etiquetas.map(e => ({
+                id:                 e.etiqueta.id,
+                nome:               e.etiqueta.nome,
+                cor:                e.etiqueta.cor,
+                tipo:               e.etiqueta.tipo,
+                bloqueiaAutomacoes: e.etiqueta.bloqueiaAutomacoes,
+              }))}
+              todasEtiquetas={todasEtiquetas.map(e => ({
+                id:                 e.id,
+                nome:               e.nome,
+                cor:                e.cor,
+                tipo:               e.tipo,
+                bloqueiaAutomacoes: e.bloqueiaAutomacoes,
+              }))}
+              ultimaSessao={cliente.ultimaSessao?.toISOString() ?? null}
+            />
 
             {/* Contact */}
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>

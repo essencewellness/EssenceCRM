@@ -10,6 +10,40 @@ async function verificarSessao() {
   return session
 }
 
+// Adiciona/troca a tag de voucher no cliente correspondente (fire-and-forget)
+async function sincronizarTagVoucher(
+  telefone: string | null | undefined,
+  tagNomeRemover: string | null,
+  tagNomeAdicionar: string
+) {
+  if (!telefone) return
+
+  const cliente = await prisma.cliente.findFirst({
+    where: { telefone, apagadoEm: null },
+    select: { id: true },
+  })
+  if (!cliente) return
+
+  const [tagRemover, tagAdicionar] = await Promise.all([
+    tagNomeRemover ? prisma.etiqueta.findFirst({ where: { nome: tagNomeRemover } }) : null,
+    prisma.etiqueta.findFirst({ where: { nome: tagNomeAdicionar } }),
+  ])
+
+  if (tagRemover) {
+    await prisma.clienteEtiqueta.deleteMany({
+      where: { clienteId: cliente.id, etiquetaId: tagRemover.id },
+    })
+  }
+
+  if (tagAdicionar) {
+    await prisma.clienteEtiqueta.upsert({
+      where: { clienteId_etiquetaId: { clienteId: cliente.id, etiquetaId: tagAdicionar.id } },
+      create: { clienteId: cliente.id, etiquetaId: tagAdicionar.id },
+      update: {},
+    })
+  }
+}
+
 // ── Pagamento de sessão ───────────────────────────────────────
 
 export async function atualizarPagamento(
@@ -87,6 +121,9 @@ export async function criarVoucher(dados: {
     },
   })
 
+  // Auto-tag: se houver beneficiário, marcar como "Voucher ativo"
+  void sincronizarTagVoucher(dados.beneficiarioTelefone, null, "Voucher ativo")
+
   revalidatePath("/financeiro")
   return { codigo }
 }
@@ -97,6 +134,11 @@ export async function atualizarEstadoVoucher(
 ) {
   await verificarSessao()
 
+  const voucher = await prisma.giftCard.findUnique({
+    where: { id: voucherId },
+    select: { beneficiarioTelefone: true },
+  })
+
   await prisma.giftCard.update({
     where: { id: voucherId },
     data: {
@@ -104,6 +146,11 @@ export async function atualizarEstadoVoucher(
       dataUso: estado === "usado" ? new Date() : undefined,
     },
   })
+
+  // Auto-tag: swap "Voucher ativo" → "Voucher usado" ao marcar como usado
+  if (estado === "usado") {
+    void sincronizarTagVoucher(voucher?.beneficiarioTelefone, "Voucher ativo", "Voucher usado")
+  }
 
   revalidatePath("/financeiro")
 }
