@@ -17,7 +17,7 @@ async function main() {
   clientes.forEach(c => console.log(`  [${c.estado}] ${c.nome}`));
 
   // Garantir que existem etiquetas dos 3 tipos (saúde, preferência, campanha)
-  const garantirEtiqueta = async (nome: string, tipo: string, cor: string, bloqueiaAutomacoes = false) => {
+  const garantirEtiqueta = async (nome: string, tipo: import("@prisma/client").TipoEtiqueta, cor: string, bloqueiaAutomacoes = false) => {
     const existe = await prisma.etiqueta.findFirst({ where: { nome } });
     if (existe) return existe;
     return prisma.etiqueta.create({ data: { nome, tipo, cor, bloqueiaAutomacoes } });
