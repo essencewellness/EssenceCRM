@@ -116,7 +116,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       orderBy: { avaliacaoRespondidaEm: "desc" },
       take: 5,
     }),
-    // Tarefas com prazo hoje
+    // Tarefas com prazo hoje (graceful — tabela pode não existir no Neon ainda)
     prisma.tarefa.findMany({
       where: {
         estado: { in: ["pendente", "em_progresso"] },
@@ -125,8 +125,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       include: { cliente: { select: { id: true, nome: true } } },
       orderBy: { prioridade: "desc" },
       take: 5,
-    }),
-    // Tarefas vencidas
+    }).catch(() => []),
+    // Tarefas vencidas (graceful)
     prisma.tarefa.findMany({
       where: {
         estado: { in: ["pendente", "em_progresso"] },
@@ -135,7 +135,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       include: { cliente: { select: { id: true, nome: true } } },
       orderBy: { dataLimite: "asc" },
       take: 5,
-    }),
+    }).catch(() => []),
     // Receita do mês
     prisma.sessao.aggregate({
       where: { data: { gte: inicioMes }, estado: "realizada", ...filtroSessao },
