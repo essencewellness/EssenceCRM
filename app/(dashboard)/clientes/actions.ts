@@ -16,18 +16,34 @@ async function verificarSessao() {
 // ── Tags ────────────────────────────────────────────────────────
 
 export async function adicionarEtiqueta(clienteId: string, etiquetaId: string) {
-  await verificarSessao()
-  await prisma.clienteEtiqueta.upsert({
+  const session = await verificarSessao()
+  const result = await prisma.clienteEtiqueta.upsert({
     where:  { clienteId_etiquetaId: { clienteId, etiquetaId } },
     create: { clienteId, etiquetaId },
     update: {},
+    select: { etiqueta: { select: { nome: true } } },
+  })
+  auditar({
+    quem: session.user?.email ?? "dashboard",
+    acao: "etiqueta.adicionada",
+    entidade: "Cliente",
+    entidadeId: clienteId,
+    detalhe: { etiquetaId, nome: result.etiqueta.nome },
   })
   revalidatePath(`/clientes/${clienteId}`)
 }
 
 export async function removerEtiqueta(clienteId: string, etiquetaId: string) {
-  await verificarSessao()
+  const session = await verificarSessao()
+  const etiqueta = await prisma.etiqueta.findUnique({ where: { id: etiquetaId }, select: { nome: true } })
   await prisma.clienteEtiqueta.deleteMany({ where: { clienteId, etiquetaId } })
+  auditar({
+    quem: session.user?.email ?? "dashboard",
+    acao: "etiqueta.removida",
+    entidade: "Cliente",
+    entidadeId: clienteId,
+    detalhe: { etiquetaId, nome: etiqueta?.nome },
+  })
   revalidatePath(`/clientes/${clienteId}`)
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut, CreditCard, FileText, Send, Package, Tag } from "lucide-react";
+import { LayoutDashboard, Users, MessageSquare, Trophy, ShieldAlert, LogOut, CreditCard, FileText, Send, Package, Settings } from "lucide-react";
 
 const GOLD = "#d4b886";
 const CREAM = "#ece6d6";
@@ -17,7 +17,6 @@ const navItems = [
   { label: "Serviços",      href: "/servicos",     icon: Package },
   { label: "Templates",     href: "/templates",    icon: FileText },
   { label: "Campanhas",     href: "/campanhas",    icon: Send },
-  { label: "Etiquetas",     href: "/etiquetas",    icon: Tag },
 ];
 
 interface SidebarProps {
@@ -282,6 +281,19 @@ export function Sidebar({ userName, userEmail, logoutAction }: SidebarProps) {
               {userEmail}
             </p>
           </div>
+          <Link href="/configuracoes">
+            <motion.div
+              whileHover={{ scale: 1.15, color: "rgba(212,184,134,0.7)" }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              title="Configurações"
+              aria-label="Configurações"
+              className="rounded p-1.5 cursor-pointer"
+              style={{ color: pathname.startsWith("/configuracoes") ? GOLD : `rgba(237,231,227,0.22)` }}
+            >
+              <Settings size={13} />
+            </motion.div>
+          </Link>
           <form action={logoutAction}>
             <motion.button
               type="submit"

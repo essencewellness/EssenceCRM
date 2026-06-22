@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 import {
   ArrowLeft, Phone, Mail, CalendarDays, Wallet,
   MessageSquare,
@@ -7,6 +8,8 @@ import {
 import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, formatPhone, getInitials } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ClienteTimeline } from "@/components/clientes/ClienteTimeline"
+import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
 import { ObservacoesTimeline } from "@/components/observacoes-timeline"
@@ -92,8 +95,9 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default async function ClientePage({ params }: ClientePageProps) {
   const { id } = await params
+  const ctx = await getContextoUtilizador()
 
-  const [cliente, todasEtiquetas] = await Promise.all([
+  const [cliente, todasEtiquetas, tarefasCliente] = await Promise.all([
     prisma.cliente.findUnique({
       where: { id },
       include: {
@@ -109,9 +113,21 @@ export default async function ClientePage({ params }: ClientePageProps) {
       where: { tipo: { not: "automatica" } },
       orderBy: [{ tipo: "asc" }, { nome: "asc" }],
     }),
+    prisma.tarefa.findMany({
+      where: { clienteId: id },
+      include: { atribuida: { select: { id: true, name: true } } },
+      orderBy: { criadoEm: "desc" },
+      take: 50,
+    }),
   ])
 
   if (!cliente) notFound()
+
+  // Verificar scope para role terapeuta
+  if (!ctx.isAdmin) {
+    const temSessaoAtribuida = cliente.sessoes.some(s => s.terapeutaId === ctx.userId)
+    if (!temSessaoAtribuida) notFound()
+  }
 
   const canalLabel: Record<string, string> = {
     whatsapp: "WhatsApp", email: "Email", telefone: "Telefone", instagram: "Instagram",
@@ -252,9 +268,11 @@ export default async function ClientePage({ params }: ClientePageProps) {
           {[
             { value: "resumo", label: "Resumo" },
             { value: "sessoes", label: `Sessões (${cliente.sessoes.length})` },
+            { value: "timeline", label: "Timeline" },
+            { value: "mensagens", label: `Mensagens (${cliente.mensagens.length})` },
+            { value: "tarefas", label: `Tarefas (${tarefasCliente.length})` },
             { value: "packs", label: `Packs & Preços` },
             { value: "notas", label: "Notas" },
-            { value: "mensagens", label: `Mensagens IA (${cliente.mensagens.length})` },
           ].map(({ value, label }) => (
             <TabsTrigger
               key={value}
@@ -653,6 +671,40 @@ export default async function ClientePage({ params }: ClientePageProps) {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* ── TIMELINE ── */}
+        <TabsContent value="timeline">
+          <div style={{
+            backgroundColor: "#ffffff", borderRadius: "12px",
+            border: "1px solid #ddd6c4", padding: "24px",
+            boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
+          }}>
+            <ClienteTimeline clienteId={cliente.id} />
+          </div>
+        </TabsContent>
+
+        {/* ── TAREFAS ── */}
+        <TabsContent value="tarefas">
+          <div style={{
+            backgroundColor: "#ffffff", borderRadius: "12px",
+            border: "1px solid #ddd6c4", padding: "24px",
+            boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
+          }}>
+            <TarefasLista
+              tarefas={tarefasCliente.map(t => ({
+                id: t.id,
+                titulo: t.titulo,
+                descricao: t.descricao,
+                dataLimite: t.dataLimite?.toISOString() ?? null,
+                estado: t.estado,
+                prioridade: t.prioridade,
+                tipo: t.tipo,
+                atribuida: t.atribuida ? { id: t.atribuida.id, name: t.atribuida.name } : null,
+              }))}
+              clienteId={cliente.id}
+            />
+          </div>
         </TabsContent>
       </Tabs>
       </div>

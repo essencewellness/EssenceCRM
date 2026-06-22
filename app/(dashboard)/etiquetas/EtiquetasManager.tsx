@@ -5,6 +5,7 @@ import { Edit2, Trash2, Check, X } from "lucide-react"
 import { CORES_PALETA, TIPO_ETIQUETA_LABELS } from "@/lib/etiquetas"
 import { atualizarEtiqueta, apagarEtiqueta } from "./actions"
 import { criarEtiqueta } from "../clientes/actions"
+import { ConfirmModal } from "@/components/ui/ConfirmModal"
 
 interface Etiqueta {
   id: string
@@ -28,6 +29,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
   const [editBloqueio, setEditBloqueio] = useState(false)
   const [erro, setErro] = useState("")
   const [isPending, startTransition] = useTransition()
+  const [confirmApagar, setConfirmApagar] = useState<{ id: string; nome: string; totalClientes: number } | null>(null)
 
   // Nova etiqueta
   const [mostraCriar, setMostraCriar] = useState(false)
@@ -68,10 +70,19 @@ export function EtiquetasManager({ etiquetas }: Props) {
     })
   }
 
-  function handleApagar(id: string, nome: string) {
-    if (!confirm(`Apagar a etiqueta "${nome}"? Será removida de todos os clientes.`)) return
+  function handleApagar(id: string, nome: string, totalClientes: number) {
+    if (totalClientes === 0) {
+      startTransition(async () => { await apagarEtiqueta(id) })
+    } else {
+      setConfirmApagar({ id, nome, totalClientes })
+    }
+  }
+
+  function confirmarApagar() {
+    if (!confirmApagar) return
     startTransition(async () => {
-      await apagarEtiqueta(id)
+      await apagarEtiqueta(confirmApagar.id)
+      setConfirmApagar(null)
     })
   }
 
@@ -172,6 +183,17 @@ export function EtiquetasManager({ etiquetas }: Props) {
         )}
       </div>
 
+      <ConfirmModal
+        open={!!confirmApagar}
+        onOpenChange={(open) => { if (!open) setConfirmApagar(null) }}
+        title={`Eliminar etiqueta "${confirmApagar?.nome}"`}
+        description={`Esta etiqueta está aplicada a ${confirmApagar?.totalClientes} cliente${confirmApagar?.totalClientes !== 1 ? "s" : ""}. Ao eliminar, será removida de todos eles. Tens a certeza?`}
+        confirmLabel="Eliminar"
+        variant="destructive"
+        onConfirm={confirmarApagar}
+        loading={isPending}
+      />
+
       {/* Lista de etiquetas agrupadas por tipo */}
       {TIPOS_ORDEM.map(tipo => {
         const tags = porTipo[tipo] ?? []
@@ -245,7 +267,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
                               onMouseEnter={e => (e.currentTarget.style.color = "#b9a07a")}
                               onMouseLeave={e => (e.currentTarget.style.color = "#9d9d9a")}
                             ><Edit2 size={13} /></button>
-                            <button onClick={() => handleApagar(tag.id, tag.nome)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9d9d9a", padding: "4px" }}
+                            <button onClick={() => handleApagar(tag.id, tag.nome, tag._count.clientes)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9d9d9a", padding: "4px" }}
                               onMouseEnter={e => (e.currentTarget.style.color = "#b06050")}
                               onMouseLeave={e => (e.currentTarget.style.color = "#9d9d9a")}
                             ><Trash2 size={13} /></button>

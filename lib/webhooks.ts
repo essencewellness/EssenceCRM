@@ -22,9 +22,6 @@ async function dispararWebhook(evento: string, payload: object): Promise<void> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Compatibilidade com fluxos N8N existentes:
-          "X-Webhook-Secret": secret,
-          // Assinatura forte do conteúdo (preferir esta no N8N):
           "X-Assinatura": secret ? assinarPayload(body, secret) : "",
           "X-Evento": evento,
         },

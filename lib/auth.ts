@@ -18,41 +18,51 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.username || !credentials?.password) return null;
 
-        const email = (credentials.email as string).toLowerCase().trim();
+        const identifier = (credentials.username as string).toLowerCase().trim();
 
         // Lockout: demasiadas falhas recentes → recusar sem sequer verificar
-        const falhas = await loginsFalhadosRecentes(email, JANELA_MINUTOS);
+        const falhas = await loginsFalhadosRecentes(identifier, JANELA_MINUTOS);
         if (falhas >= MAX_TENTATIVAS) {
-          auditar({ quem: email, acao: "login.bloqueado", detalhe: { falhas } });
+          auditar({ quem: identifier, acao: "login.bloqueado", detalhe: { falhas } });
           return null;
         }
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        // Suporta login por username OU email (backward compat durante migração)
+        const user = await prisma.user.findFirst({
+          where: {
+            AND: [
+              { ativo: true },
+              { OR: [{ username: identifier }, { email: identifier }] },
+            ],
+          },
+        });
 
-        // bcrypt.compare corre sempre (hash dummy) — sem oráculo de "email existe"
+        // bcrypt.compare corre sempre (hash dummy) — sem oráculo de "username existe"
         const hash =
           user?.password ??
           "$2b$10$invalidinvalidinvalidinvalidinvalidinvalidinvalida";
         const valid = await bcrypt.compare(credentials.password as string, hash);
 
         if (!user?.password || !valid) {
-          auditar({ quem: email, acao: "login.falhado" });
+          auditar({ quem: identifier, acao: "login.falhado" });
           return null;
         }
 
-        auditar({ quem: email, acao: "login.sucesso", entidade: "User", entidadeId: user.id });
+        auditar({ quem: identifier, acao: "login.sucesso", entidade: "User", entidadeId: user.id });
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
+          username: user.username ?? identifier,
+          precisaMudarPassword: user.precisaMudarPassword,
         };
       },
     }),
@@ -62,6 +72,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role ?? "terapeuta";
+        token.username = (user as { username?: string }).username ?? "";
+        token.precisaMudarPassword = (user as { precisaMudarPassword?: boolean }).precisaMudarPassword ?? false;
       }
       return token;
     },
@@ -69,6 +81,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         (session.user as { role?: string }).role = token.role as string;
+        (session.user as { username?: string }).username = token.username as string;
+        (session.user as { precisaMudarPassword?: boolean }).precisaMudarPassword = token.precisaMudarPassword as boolean;
       }
       return session;
     },

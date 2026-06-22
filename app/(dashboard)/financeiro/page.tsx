@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import type { Prisma } from "@prisma/client"
 
 const GOLD = "#d4b886"
 const CREAM = "#ece6d6"
@@ -34,12 +36,15 @@ export default async function FinanceiroPage({
 }: {
   searchParams: Promise<{ mes?: string }>
 }) {
+  const ctx = await getContextoUtilizador()
+  const filtroSessao = ctx.filtroSessao as Prisma.SessaoWhereInput
+
   const { mes } = await searchParams
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
   const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, servicosRaw] = await Promise.all([
     prisma.sessao.findMany({
-      where: { data: { gte: inicio, lt: fim }, apagadoEm: null },
+      where: { data: { gte: inicio, lt: fim }, apagadoEm: null, ...filtroSessao },
       select: {
         id: true, estadoPagamento: true, valorPago: true, metodoPagamento: true,
         preco: true, data: true, servico: true, estado: true,
@@ -48,12 +53,12 @@ export default async function FinanceiroPage({
       orderBy: { data: "desc" },
     }),
     prisma.sessao.aggregate({
-      where: { estadoPagamento: "pago", apagadoEm: null },
+      where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
       _sum: { valorPago: true },
     }),
     prisma.sessao.groupBy({
       by: ["clienteId"],
-      where: { estadoPagamento: "pago", apagadoEm: null },
+      where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
       _sum: { valorPago: true },
       orderBy: { _sum: { valorPago: "desc" } },
       take: 8,

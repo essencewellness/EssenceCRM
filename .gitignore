@@ -50,4 +50,5 @@ next-env.d.ts
 
 # dados privados — nunca versionar
 clientes_backup.txt
+*.backup.txt
 CREDENCIAIS-PRIVADAS.local.md

@@ -4,6 +4,8 @@ import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import { Users, TrendingUp, Crown, AlertTriangle, Star, MessageCircle, Mail } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { AnimatedProgress } from "@/components/animated-progress";
+import { getContextoUtilizador } from "@/lib/contexto-utilizador";
+import type { Prisma } from "@prisma/client";
 
 export const revalidate = 30
 
@@ -111,28 +113,31 @@ const clienteSelect = {
 
 export default async function TopClientesPage({ searchParams }: PageProps) {
   const { tab = "valor" } = await searchParams;
+  const ctx = await getContextoUtilizador();
+  const filtroCliente = ctx.filtroCliente as Prisma.ClienteWhereInput;
 
   const agora = new Date();
 
   const [clientesPorValor, clientesPorSessoes, clientesEmRisco, resumo] = await Promise.all([
     prisma.cliente.findMany({
-      where: { totalGasto: { gt: 0 } },
+      where: { totalGasto: { gt: 0 }, ...filtroCliente },
       select: clienteSelect,
       orderBy: { totalGasto: "desc" },
       take: 50,
     }),
     prisma.cliente.findMany({
-      where: { totalSessoes: { gt: 0 } },
+      where: { totalSessoes: { gt: 0 }, ...filtroCliente },
       select: clienteSelect,
       orderBy: { totalSessoes: "desc" },
       take: 50,
     }),
     prisma.cliente.findMany({
-      where: { estado: { in: ["vip_em_risco", "reativacao"] } },
+      where: { estado: { in: ["vip_em_risco", "reativacao"] }, ...filtroCliente },
       select: clienteSelect,
       orderBy: { ultimaSessao: "asc" },
     }),
     prisma.cliente.aggregate({
+      where: filtroCliente,
       _count: { id: true },
       _avg: { totalGasto: true },
       _max: { totalGasto: true },

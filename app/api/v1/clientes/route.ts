@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, sem_automacoes, limit, cursor } = q.data
+  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -60,7 +60,15 @@ export async function GET(request: NextRequest) {
 
     if (etiquetas) {
       const ids = Array.isArray(etiquetas) ? etiquetas : [etiquetas]
-      where.etiquetas = { some: { etiquetaId: { in: ids } } }
+      if (etiquetas_modo === "and") {
+        // AND: cliente deve ter TODAS as etiquetas (uma condição every por etiqueta)
+        where.AND = ids.map((id) => ({
+          etiquetas: { some: { etiquetaId: id } },
+        }))
+      } else {
+        // OR (padrão): basta ter uma das etiquetas
+        where.etiquetas = { some: { etiquetaId: { in: ids } } }
+      }
     }
 
     if (sem_automacoes === "true") {

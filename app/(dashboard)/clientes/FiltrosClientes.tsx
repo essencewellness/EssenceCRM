@@ -38,6 +38,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
   const [isPending, startTransition] = useTransition()
   const [resultado, setResultado] = useState<{ totalCriadas: number; totalExcluidas: number } | null>(null)
 
+  const etiquetasModo = (searchParams.get("etiquetas_modo") ?? "or") as "and" | "or"
   const temFiltros = etiquetasFiltro.length > 0 || estadosFiltro.length > 0 || !!inativoFiltro
 
   function atualizar(novoParams: Record<string, string | string[]>) {
@@ -46,6 +47,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
     params.delete("etiquetas")
     params.delete("estados")
     params.delete("inativo")
+    params.delete("etiquetas_modo")
     // aplicar novos
     for (const [k, v] of Object.entries(novoParams)) {
       if (Array.isArray(v)) { v.forEach(val => params.append(k, val)) }
@@ -58,7 +60,12 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
     const nova = etiquetasFiltro.includes(id)
       ? etiquetasFiltro.filter(e => e !== id)
       : [...etiquetasFiltro, id]
-    atualizar({ etiquetas: nova, estados: estadosFiltro, inativo: inativoFiltro })
+    atualizar({ etiquetas: nova, estados: estadosFiltro, inativo: inativoFiltro, etiquetas_modo: etiquetasModo })
+  }
+
+  function toggleEtiquetasModo() {
+    const novoModo = etiquetasModo === "or" ? "and" : "or"
+    atualizar({ etiquetas: etiquetasFiltro, estados: estadosFiltro, inativo: inativoFiltro, etiquetas_modo: novoModo })
   }
 
   function toggleEstado(estado: string) {
@@ -131,6 +138,30 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
           </div>
         </div>
       ))}
+
+      {/* Toggle AND/OR para etiquetas — só visível quando há 2+ etiquetas selecionadas */}
+      {etiquetasFiltro.length >= 2 && (
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+          <span style={{ fontSize: "10px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)" }}>
+            Mostrar clientes com
+          </span>
+          <button
+            onClick={toggleEtiquetasModo}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: "4px",
+              padding: "3px 10px", borderRadius: "100px", cursor: "pointer",
+              fontSize: "10px", fontWeight: 700, fontFamily: "var(--font-sans, sans-serif)",
+              letterSpacing: "0.08em",
+              color: etiquetasModo === "and" ? "#ffffff" : "#7a9e7e",
+              backgroundColor: etiquetasModo === "and" ? "#7a9e7e" : "transparent",
+              border: "1px solid #7a9e7e",
+              transition: "all 150ms",
+            }}
+          >
+            {etiquetasModo === "or" ? "QUALQUER tag (OR)" : "TODAS as tags (AND)"}
+          </button>
+        </div>
+      )}
 
       {/* Filtro de estado CRM */}
       <div style={{ marginBottom: "10px" }}>

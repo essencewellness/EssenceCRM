@@ -4,17 +4,21 @@ import { prisma } from "@/lib/prisma"
 import type { Prisma, EstadoCliente } from "@prisma/client"
 import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/page-header"
-import { ClientesTable } from "@/components/clientes-table"
 import { FiltrosClientes } from "./FiltrosClientes"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import { ClientesInfiniteList } from "@/components/clientes/ClientesInfiniteList"
+
+const PAGE_SIZE = 50
 
 export const revalidate = 30
 
 interface ClientesPageProps {
-  searchParams: Promise<{ q?: string; estado?: string; estados?: string | string[]; etiquetas?: string | string[]; inativo?: string }>
+  searchParams: Promise<{ q?: string; estado?: string; estados?: string | string[]; etiquetas?: string | string[]; inativo?: string; terapeuta?: string }>
 }
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
-  const { q, estado, estados: estadosParam, etiquetas: etiquetasParam, inativo } = await searchParams
+  const ctx = await getContextoUtilizador()
+  const { q, estado, estados: estadosParam, etiquetas: etiquetasParam, inativo, terapeuta } = await searchParams
 
   const etiquetasFiltro = etiquetasParam
     ? (Array.isArray(etiquetasParam) ? etiquetasParam : [etiquetasParam])
@@ -41,8 +45,14 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     ? { ultimaSessao: { lt: new Date(Date.now() - inativoDias * 86_400_000) } }
     : {}
 
+  // Filtro por terapeuta: para role terapeuta aplica automaticamente; para admin aceita ?terapeuta=
+  const filtroTerapeuta: Prisma.ClienteWhereInput = ctx.isAdmin && terapeuta
+    ? { sessoes: { some: { terapeutaId: terapeuta } } }
+    : (ctx.filtroCliente as Prisma.ClienteWhereInput)
+
   const where: Prisma.ClienteWhereInput = {
     apagadoEm: null,
+    ...filtroTerapeuta,
     ...(q ? {
       OR: [
         { nome: { contains: q, mode: "insensitive" } },
@@ -57,14 +67,16 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     ...inativoWhere,
   }
 
-  const [clientes, todasEtiquetas, templates] = await Promise.all([
+  const [clientes, totalClientes, todasEtiquetas, templates] = await Promise.all([
     prisma.cliente.findMany({
       where,
-      orderBy: { ultimaSessao: "desc" },
+      orderBy: [{ ultimaSessao: "desc" }, { id: "asc" }],
+      take: PAGE_SIZE + 1,
       include: {
         etiquetas: { include: { etiqueta: true } },
       },
     }),
+    prisma.cliente.count({ where }),
     prisma.etiqueta.findMany({
       orderBy: [{ tipo: "asc" }, { nome: "asc" }],
     }),
@@ -75,8 +87,13 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     }),
   ])
 
+  // Cursor-based pagination
+  const temMaisPagina = clientes.length > PAGE_SIZE
+  const clientesPagina = temMaisPagina ? clientes.slice(0, PAGE_SIZE) : clientes
+  const initialCursor = temMaisPagina ? clientesPagina[clientesPagina.length - 1].id : null
+
   // Serializar para os client components
-  const clientesRows = clientes.map(c => ({
+  const clientesRows = clientesPagina.map(c => ({
     id: c.id,
     nome: c.nome,
     telefone: c.telefone,
@@ -96,6 +113,10 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     })),
   }))
 
+  const etiquetasSerializadas = todasEtiquetas.map(e => ({
+    id: e.id, nome: e.nome, cor: e.cor, tipo: e.tipo, bloqueiaAutomacoes: e.bloqueiaAutomacoes,
+  }))
+
   const temFiltrosAvancados = etiquetasFiltro.length > 0 || !!inativo
 
   return (
@@ -103,7 +124,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
 
       <PageHeader
         titulo="Clientes"
-        subtitulo={`${clientes.length} cliente${clientes.length !== 1 ? "s" : ""} encontrado${clientes.length !== 1 ? "s" : ""}`}
+        subtitulo={`${totalClientes} cliente${totalClientes !== 1 ? "s" : ""} encontrado${totalClientes !== 1 ? "s" : ""}`}
       />
 
       {/* Pesquisa + filtros rápidos */}
@@ -183,15 +204,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       </div>
 
       {/* Tabela */}
-      <div
-        className="anim-fade-up"
-        style={{
-          backgroundColor: "#ffffff", border: "1px solid #ddd6c4",
-          borderRadius: "2px", overflow: "hidden",
-          boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
-          animationDelay: "0.38s",
-        }}
-      >
+      <div className="anim-fade-up" style={{ animationDelay: "0.38s" }}>
         {clientes.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "72px 24px" }}>
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
@@ -207,9 +220,11 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             )}
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <ClientesTable clientes={clientesRows} />
-          </table>
+          <ClientesInfiniteList
+            initialClientes={clientesRows}
+            initialCursor={initialCursor}
+            todasEtiquetas={etiquetasSerializadas}
+          />
         )}
       </div>
     </div>

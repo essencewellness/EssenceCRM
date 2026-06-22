@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Manrope } from "next/font/google";
+import { Lora, Raleway } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-// NUIT — sistema tipográfico Essence Wellness
-// Display serif para títulos, Manrope para tudo o resto.
-const dmSerif = DM_Serif_Display({
+const lora = Lora({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
 });
 
-const manrope = Manrope({
+const raleway = Raleway({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -31,9 +30,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt"
-      className={`${dmSerif.variable} ${manrope.variable} h-full antialiased`}
+      className={`${lora.variable} ${raleway.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster position="bottom-right" richColors closeButton />
+      </body>
     </html>
   );
 }

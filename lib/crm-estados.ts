@@ -6,15 +6,16 @@
 //   lead              → sem nenhuma sessão realizada
 //   novo              → 1 sessão realizada, há menos de 30 dias
 //   ativa_recente     → sessão nos últimos 30 dias
-//   ativa_frequente   → 4+ sessões e última há menos de 45 dias
+//   ativa_frequente   → 4+ sessões e última há menos de diasReativacao dias
 //   vip_embaixadora   → VIP (8+ sessões ou €300+ gastos) ativa (≤30 dias)
-//   vip_em_risco      → VIP sem sessão há 30–60 dias
-//   reativacao        → sem sessão há mais de 60 dias
+//   vip_em_risco      → VIP sem sessão há 30–diasReativacao dias
+//   reativacao        → sem sessão há mais de diasReativacao dias
 //   perdida           → sem sessão há mais de 180 dias
 //   blacklist         → manual; o motor NUNCA toca
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { auditar } from "@/lib/audit"
+import { getConfigNegocio } from "@/lib/config-negocio"
 import type { EstadoCliente } from "@prisma/client"
 
 const VIP_MIN_SESSOES = 8
@@ -27,7 +28,11 @@ export interface DadosClienteEstado {
   totalGasto: number
 }
 
-export function calcularEstado(c: DadosClienteEstado, hoje = new Date()): EstadoCliente {
+export function calcularEstado(
+  c: DadosClienteEstado,
+  hoje = new Date(),
+  diasReativacao = 45
+): EstadoCliente {
   // Estados intocáveis pelo motor
   if (c.estado === "blacklist") return "blacklist"
 
@@ -38,13 +43,13 @@ export function calcularEstado(c: DadosClienteEstado, hoje = new Date()): Estado
   const ehVip = c.totalSessoes >= VIP_MIN_SESSOES || c.totalGasto >= VIP_MIN_GASTO
 
   if (dias > 180) return "perdida"
-  if (dias > 60) return "reativacao"
+  if (dias > diasReativacao) return "reativacao"
 
   if (ehVip) {
     return dias <= 30 ? "vip_embaixadora" : "vip_em_risco"
   }
 
-  if (c.totalSessoes >= 4 && dias <= 45) return "ativa_frequente"
+  if (c.totalSessoes >= 4 && dias <= diasReativacao) return "ativa_frequente"
   if (c.totalSessoes === 1 && dias <= 30) return "novo"
   return "ativa_recente"
 }
@@ -57,6 +62,9 @@ export interface ResultadoMotor {
 
 /** Percorre todas as clientes ativas e aplica as transições devidas. */
 export async function executarMotorEstados(): Promise<ResultadoMotor> {
+  const config = await getConfigNegocio()
+  const diasReativacao = config.diasReativacao
+
   const clientes = await prisma.cliente.findMany({
     where: {
       apagadoEm: null,
@@ -75,7 +83,8 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
   for (const c of clientes) {
     const novoEstado = calcularEstado(
       { ...c, totalGasto: Number(c.totalGasto) },
-      hoje
+      hoje,
+      diasReativacao
     )
     if (novoEstado === c.estado) continue
 
@@ -101,6 +110,48 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
       estadoAnterior: c.estado,
       estadoNovo: novoEstado,
     })
+
+    // Criar tarefa automática de follow-up quando cliente entra em reativacao
+    if (novoEstado === "reativacao" && c.estado !== "reativacao") {
+      try {
+        const ultimaSessao = await prisma.sessao.findFirst({
+          where: { clienteId: c.id, estado: "realizada" },
+          orderBy: { data: "desc" },
+          select: { terapeutaId: true },
+        })
+        const dataLimite = new Date(hoje)
+        dataLimite.setDate(dataLimite.getDate() + 7)
+
+        // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
+        let criadoPor = ultimaSessao?.terapeutaId
+        if (!criadoPor) {
+          const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
+          criadoPor = admin?.id ?? "sistema"
+        }
+
+        // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
+        const jaExiste = await prisma.tarefa.findFirst({
+          where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
+        })
+        if (!jaExiste) {
+          await prisma.tarefa.create({
+            data: {
+              clienteId:  c.id,
+              titulo:     `Contactar ${c.nome}`,
+              tipo:       "follow_up",
+              prioridade: "alta",
+              estado:     "pendente",
+              dataLimite,
+              criadoPor,
+              ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
+            },
+          })
+        }
+      } catch (e) {
+        // Não bloquear o motor se a criação de tarefa falhar
+        console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, e)
+      }
+    }
   }
 
   return resultado

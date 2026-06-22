@@ -75,8 +75,8 @@ Modelos `Servico`, `PrecoPersonalizado` e `Pack` adicionados ao schema. Endpoint
 | Prioridade | Problema | Localização |
 |---|---|---|
 | 🔴 CRÍTICO | `AUTH_URL` no Vercel por confirmar | Vercel dashboard |
-| 🟠 ALTO | `X-Webhook-Secret` envia segredo em plaintext | `lib/webhooks.ts:26` |
-| 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — falta Upstash |
+| ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
+| 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel |
 | 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |
 | 🟡 MÉDIO | `confirmacao-envio` não bloqueia double-delivery | `app/api/v1/webhooks/confirmacao-envio/route.ts` |
 | 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |

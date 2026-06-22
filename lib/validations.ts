@@ -11,6 +11,10 @@ export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "transferencia", "voucher
 export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
 export const TIPOS_MENSAGEM = ["reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas"] as const
 
+export const ESTADOS_TAREFA = ["pendente", "em_progresso", "concluida", "cancelada"] as const
+export const PRIORIDADES_TAREFA = ["baixa", "normal", "alta", "urgente"] as const
+export const TIPOS_TAREFA = ["follow_up", "ligacao", "mensagem", "nota", "outro"] as const
+
 export const ESTADOS_CLIENTE = [
   "lead", "novo", "ativa_recente", "ativa_frequente", "vip_embaixadora",
   "vip_em_risco", "reativacao", "perdida", "blacklist",
@@ -76,6 +80,7 @@ export const clientesQuerySchema = z.object({
   blacklist: z.enum(["true"]).optional(),
   ativo: z.enum(["true"]).optional(),
   etiquetas: z.union([z.string().trim(), z.array(z.string().trim())]).optional(),
+  etiquetas_modo: z.enum(["and", "or"]).default("or"),
   sem_automacoes: z.enum(["true"]).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   cursor: z.string().trim().max(64).optional(),
@@ -319,6 +324,46 @@ export const kpisQuerySchema = z.object({
 export const financeiroQuerySchema = z.object({
   mes: z.string().regex(/^\d{4}-\d{2}$/, "Formato YYYY-MM").optional(),
 })
+
+// ── Tarefas ───────────────────────────────────────────────────
+
+export const tarefaCreateSchema = z.object({
+  clienteId:  z.string().trim().max(64).optional().nullable(),
+  titulo:     z.string().trim().min(1).max(200),
+  descricao:  z.string().trim().max(2000).optional().nullable(),
+  dataLimite: dataISO.optional().nullable(),
+  prioridade: z.enum(PRIORIDADES_TAREFA).optional(),
+  tipo:       z.enum(TIPOS_TAREFA).optional(),
+  atribuidaA: z.string().trim().max(64).optional().nullable(),
+}).strict()
+
+export const tarefaUpdateSchema = z.object({
+  titulo:     z.string().trim().min(1).max(200).optional(),
+  descricao:  z.string().trim().max(2000).optional().nullable(),
+  dataLimite: dataISO.optional().nullable(),
+  estado:     z.enum(ESTADOS_TAREFA).optional(),
+  prioridade: z.enum(PRIORIDADES_TAREFA).optional(),
+  tipo:       z.enum(TIPOS_TAREFA).optional(),
+  atribuidaA: z.string().trim().max(64).optional().nullable(),
+}).strict()
+
+export const tarefaQuerySchema = z.object({
+  clienteId:  z.string().trim().max(64).optional(),
+  estado:     z.enum(ESTADOS_TAREFA).optional(),
+  atribuidaA: z.string().trim().max(64).optional(),
+  tipo:       z.enum(TIPOS_TAREFA).optional(),
+  prioridade: z.enum(PRIORIDADES_TAREFA).optional(),
+  de:         z.string().optional(),
+  ate:        z.string().optional(),
+  limit:      z.coerce.number().int().min(1).max(200).default(50),
+  cursor:     z.string().trim().max(64).optional(),
+})
+
+export const bulkEtiquetasSchema = z.object({
+  clienteIds: z.array(z.string().trim().max(64)).min(1).max(500),
+  etiquetaId: z.string().trim().max(64),
+  acao:       z.enum(["aplicar", "remover"]),
+}).strict()
 
 // ── Helper de validação ───────────────────────────────────────
 

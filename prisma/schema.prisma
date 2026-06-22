@@ -10,16 +10,22 @@ datasource db {
 // ── Autenticação (NextAuth) ───────────────────────────────────
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          String    @default("terapeuta")
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime  @default(now())
+  id                   String    @id @default(cuid())
+  username             String?   @unique
+  name                 String?
+  email                String    @unique
+  emailVerified        DateTime?
+  image                String?
+  password             String?
+  role                 String    @default("terapeuta")
+  precisaMudarPassword Boolean   @default(false)
+  ativo                Boolean   @default(true)
+  accounts             Account[]
+  sessions             Session[]
+  sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")
+  tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
+  tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
+  createdAt            DateTime  @default(now())
 }
 
 model Account {
@@ -57,6 +63,28 @@ model VerificationToken {
 }
 
 // ── Enums (integridade ao nível da base de dados) ─────────────
+
+enum EstadoTarefa {
+  pendente
+  em_progresso
+  concluida
+  cancelada
+}
+
+enum PrioridadeTarefa {
+  baixa
+  normal
+  alta
+  urgente
+}
+
+enum TipoTarefa {
+  follow_up
+  ligacao
+  mensagem
+  nota
+  outro
+}
 
 enum EstadoPagamento {
   pendente
@@ -175,6 +203,7 @@ model Cliente {
   packs               Pack[]
   portalToken         PortalToken?
   giftCards           GiftCard[]
+  tarefas             Tarefa[]
 
   @@index([estado])
   @@index([telefone])
@@ -199,6 +228,10 @@ model Sessao {
   resumoSessao        String?
   notasPosSessao      String?
   linkDocumento       String?
+
+  // Terapeuta que realizou a sessão
+  terapeutaId  String?
+  user         User?    @relation("TerapeutaSessao", fields: [terapeutaId], references: [id])
 
   estado              EstadoSessao @default(agendada)
 
@@ -245,6 +278,7 @@ model Sessao {
   @@index([estado])
   @@index([servicoId])
   @@index([estadoPagamento])
+  @@index([terapeutaId])
   @@index([calendlyEventUri])
 }
 
@@ -472,6 +506,27 @@ model GiftCard {
   @@index([dataCompra])
 }
 
+// ── Configurações do Negócio (singleton) ─────────────────────
+
+model ConfiguracaoNegocio {
+  id                   String   @id @default("singleton")
+
+  nomeNegocio          String   @default("Essence Wellness")
+  emailContacto        String   @default("geral@essencewellnesspt.com")
+  whatsappPrincipal    String   @default("+351913308271")
+  assinaturaAutomatica String   @default("Flora ✦ | Essence Wellness")
+  assinaturaReferral   String   @default("Beatriz | Essence Wellness")
+  horarioAbertura      String   @default("09:00")
+  horarioFecho         String   @default("20:00")
+
+  diasReativacao       Int      @default(45)
+  quietHoraInicio      String   @default("21:00")
+  quietHoraFim         String   @default("09:00")
+  maxMensagensDia      Int      @default(10)
+
+  atualizadoEm         DateTime @updatedAt
+}
+
 // ── Auditoria e segurança ─────────────────────────────────────
 
 model AuditLog {
@@ -487,4 +542,32 @@ model AuditLog {
   @@index([acao, criadoEm])
   @@index([entidade, entidadeId])
   @@index([quem, criadoEm])
+}
+
+// ── Tarefas / Follow-ups ──────────────────────────────────────
+
+model Tarefa {
+  id           String           @id @default(cuid())
+  clienteId    String?
+  titulo       String
+  descricao    String?
+  dataLimite   DateTime?
+  estado       EstadoTarefa     @default(pendente)
+  prioridade   PrioridadeTarefa @default(normal)
+  tipo         TipoTarefa       @default(follow_up)
+  criadoPor    String
+  atribuidaA   String?
+  resolvidaEm  DateTime?
+  criadoEm     DateTime         @default(now())
+  atualizadoEm DateTime         @updatedAt
+
+  cliente   Cliente? @relation(fields: [clienteId],  references: [id], onDelete: SetNull)
+  criador   User     @relation("TarefaCriada",    fields: [criadoPor],  references: [id])
+  atribuida User?    @relation("TarefaAtribuida", fields: [atribuidaA], references: [id])
+
+  @@index([clienteId])
+  @@index([estado])
+  @@index([atribuidaA])
+  @@index([dataLimite])
+  @@index([criadoEm])
 }

@@ -26,11 +26,11 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
     setError(false);
 
     const form = e.currentTarget;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const username = (form.elements.namedItem("username") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     const result = await signIn("credentials", {
-      email,
+      username,
       password,
       redirect: false,
     });
@@ -67,7 +67,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
             lineHeight: 1.55,
           }}
         >
-          Email ou password incorrectos. Após 5 tentativas falhadas, o acesso
+          Username ou password incorrectos. Após 5 tentativas falhadas, o acesso
           fica bloqueado durante 15 minutos.
         </div>
       )}
@@ -75,7 +75,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
           <label
-            htmlFor="email"
+            htmlFor="username"
             className="block"
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
@@ -86,15 +86,15 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
               color: CHAMPAGNE,
             }}
           >
-            Email
+            Username
           </label>
           <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
+            id="username"
+            name="username"
+            type="text"
+            autoComplete="username"
             required
-            placeholder="terapeuta@essencewellnesspt.com"
+            placeholder="bea"
             className="w-full px-4 py-2.5 text-sm outline-none transition-all placeholder:opacity-40"
             style={inputStyle}
             onFocus={(e) => { e.target.style.borderColor = "rgba(212,184,134,0.55)"; }}
