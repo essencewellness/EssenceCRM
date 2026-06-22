@@ -4,10 +4,8 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, Users, Calendar, CheckSquare,
   MessageSquare, Megaphone, FileText,
-  BarChart2, Star, Shield,
-  Settings, ChevronRight,
+  BarChart2, Star, Shield, Settings, ChevronRight,
 } from "lucide-react"
-import Image from "next/image"
 
 interface NavItem {
   href: string
@@ -23,16 +21,16 @@ interface NavGroup {
 
 const grupos: NavGroup[] = [
   {
-    label: "PRINCIPAL",
+    label: "Principal",
     items: [
       { href: "/",          label: "Dashboard",  icon: LayoutDashboard },
       { href: "/clientes",  label: "Clientes",   icon: Users },
-      { href: "/sessoes",   label: "Sessões",     icon: Calendar },
+      { href: "/sessoes",   label: "Sessões",    icon: Calendar },
       { href: "/tarefas",   label: "Tarefas",    icon: CheckSquare },
     ],
   },
   {
-    label: "COMUNICAÇÃO",
+    label: "Comunicação",
     items: [
       { href: "/mensagens",  label: "Mensagens",  icon: MessageSquare },
       { href: "/campanhas",  label: "Campanhas",  icon: Megaphone },
@@ -40,14 +38,15 @@ const grupos: NavGroup[] = [
     ],
   },
   {
-    label: "ANÁLISE",
+    label: "Análise",
     items: [
       { href: "/pipeline",      label: "Pipeline",     icon: BarChart2 },
       { href: "/top-clientes",  label: "Top Clientes", icon: Star },
+      { href: "/financeiro",    label: "Financeiro",   icon: BarChart2 },
     ],
   },
   {
-    label: "CONFIGURAÇÕES",
+    label: "Sistema",
     items: [
       { href: "/configuracoes", label: "Configurações", icon: Settings },
       { href: "/blacklist",     label: "Blacklist",     icon: Shield },
@@ -67,7 +66,6 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
     return pathname.startsWith(href)
   }
 
-  // Inject badge into mensagens
   const gruposComBadge = grupos.map((g) => ({
     ...g,
     items: g.items.map((item) =>
@@ -78,25 +76,61 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
   }))
 
   return (
-    <aside className="hidden lg:flex flex-col w-56 min-h-screen bg-white border-r border-gray-100 shrink-0">
-      {/* Logo */}
-      <div className="px-5 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">EW</span>
+    <aside style={{
+      display: "none",
+      flexDirection: "column",
+      width: "216px",
+      minHeight: "100vh",
+      backgroundColor: "var(--nuit-deep)",
+      borderRight: "1px solid rgba(212,184,134,0.10)",
+      flexShrink: 0,
+    }}
+    className="lg:flex"
+    >
+      {/* Lockup */}
+      <div style={{
+        padding: "24px 20px 20px",
+        borderBottom: "1px solid rgba(212,184,134,0.10)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{
+            width: "32px", height: "32px",
+            border: "1px solid rgba(212,184,134,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{
+              fontFamily: "var(--font-heading, serif)",
+              fontSize: "13px", color: "var(--nuit-champagne)",
+              letterSpacing: "-0.01em",
+            }}>EW</span>
           </div>
           <div>
-            <div className="text-sm font-semibold text-[#064E3B]">Essence</div>
-            <div className="text-xs text-gray-400">Wellness CRM</div>
+            <div style={{
+              fontFamily: "var(--font-heading, serif)",
+              fontSize: "14px", color: "var(--nuit-bone)",
+              letterSpacing: "-0.005em", lineHeight: 1.1,
+            }}>Essence</div>
+            <div style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9px", color: "var(--nuit-champagne)",
+              letterSpacing: "0.32em", textTransform: "uppercase",
+              fontWeight: 500, marginTop: "2px",
+            }}>Wellness · CRM</div>
           </div>
         </div>
       </div>
 
       {/* Grupos de navegação */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav style={{ flex: 1, padding: "16px 0", overflowY: "auto" }}>
         {gruposComBadge.map((grupo) => (
-          <div key={grupo.label} className="mb-4">
-            <div className="px-4 py-1 text-[10px] font-semibold tracking-widest text-gray-400">
+          <div key={grupo.label} style={{ marginBottom: "24px" }}>
+            <div style={{
+              padding: "0 16px 8px",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9px", fontWeight: 500,
+              letterSpacing: "0.32em", textTransform: "uppercase",
+              color: "var(--nuit-smoke-deep)",
+            }}>
               {grupo.label}
             </div>
             {grupo.items.map((item) => {
@@ -106,20 +140,54 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2.5 mx-2 px-3 py-2 rounded-lg text-sm transition-all group ${
-                    active
-                      ? "bg-emerald-50 text-emerald-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "10px",
+                    margin: "0 8px 2px",
+                    padding: "8px 12px",
+                    textDecoration: "none",
+                    transition: "background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast)",
+                    ...(active ? {
+                      backgroundColor: "rgba(212,184,134,0.08)",
+                      borderLeft: "2px solid var(--nuit-champagne)",
+                      paddingLeft: "10px",
+                    } : {
+                      borderLeft: "2px solid transparent",
+                    }),
+                  }}
+                  className={!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${active ? "text-emerald-600" : "text-gray-400 group-hover:text-gray-600"}`} />
-                  <span className="flex-1 truncate">{item.label}</span>
+                  <Icon
+                    size={14}
+                    style={{
+                      color: active ? "var(--nuit-champagne)" : "var(--nuit-smoke)",
+                      flexShrink: 0,
+                      strokeWidth: 1.5,
+                    }}
+                  />
+                  <span style={{
+                    flex: 1,
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    fontSize: "12.5px",
+                    fontWeight: active ? 500 : 400,
+                    color: active ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                    letterSpacing: "0.01em",
+                    transition: "color var(--dur-fast)",
+                  }}>
+                    {item.label}
+                  </span>
                   {item.badge ? (
-                    <span className="flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-emerald-600 text-white rounded-full">
+                    <span style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      minWidth: "18px", height: "18px", padding: "0 4px",
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "9px", fontWeight: 600,
+                      backgroundColor: "var(--nuit-champagne)",
+                      color: "var(--nuit-midnight)",
+                    }}>
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   ) : active ? (
-                    <ChevronRight className="w-3 h-3 text-emerald-400" />
+                    <ChevronRight size={11} style={{ color: "var(--nuit-champagne-soft)", opacity: 0.7 }} />
                   ) : null}
                 </Link>
               )
@@ -129,8 +197,17 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
       </nav>
 
       {/* Rodapé */}
-      <div className="px-4 py-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-300 text-center">Essence Wellness · CRM v1</p>
+      <div style={{
+        padding: "16px 20px",
+        borderTop: "1px solid rgba(212,184,134,0.10)",
+      }}>
+        <p style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "9px", color: "var(--nuit-smoke-deep)",
+          letterSpacing: "0.18em", textTransform: "uppercase", textAlign: "center",
+        }}>
+          Essence Wellness · v1
+        </p>
       </div>
     </aside>
   )

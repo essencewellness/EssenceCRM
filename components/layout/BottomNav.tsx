@@ -43,29 +43,65 @@ export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
       {/* Overlay do menu */}
       {menuOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", zIndex: 40 }}
+          className="lg:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
       {/* Menu lateral deslizante */}
       {menuOpen && (
-        <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 lg:hidden flex flex-col">
-          <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">EW</span>
+        <div
+          className="lg:hidden"
+          style={{
+            position: "fixed", top: 0, bottom: 0, left: 0,
+            width: "264px", zIndex: 50, display: "flex", flexDirection: "column",
+            backgroundColor: "var(--nuit-deep)",
+            borderRight: "1px solid rgba(212,184,134,0.12)",
+          }}
+        >
+          {/* Header do menu */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "20px 16px",
+            borderBottom: "1px solid rgba(212,184,134,0.10)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{
+                width: "28px", height: "28px",
+                border: "1px solid rgba(212,184,134,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <span style={{
+                  fontFamily: "var(--font-heading, serif)",
+                  fontSize: "11px", color: "var(--nuit-champagne)",
+                }}>EW</span>
               </div>
-              <span className="font-semibold text-[#064E3B] text-sm">Essence Wellness</span>
+              <div>
+                <div style={{
+                  fontFamily: "var(--font-heading, serif)",
+                  fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.1,
+                }}>Essence</div>
+                <div style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "8px", color: "var(--nuit-champagne)",
+                  letterSpacing: "0.32em", textTransform: "uppercase", marginTop: "2px",
+                }}>Wellness · CRM</div>
+              </div>
             </div>
             <button
               onClick={() => setMenuOpen(false)}
-              className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              style={{
+                color: "var(--nuit-smoke)", background: "none", border: "none",
+                cursor: "pointer", padding: "4px",
+              }}
             >
-              <X className="w-5 h-5" />
+              <X size={18} />
             </button>
           </div>
-          <nav className="flex-1 py-4 overflow-y-auto">
+
+          {/* Itens do menu */}
+          <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }}>
             {ALL_ITEMS.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
@@ -74,14 +110,31 @@ export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                    active
-                      ? "bg-emerald-50 text-emerald-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "12px",
+                    margin: "0 8px 2px", padding: "10px 12px",
+                    textDecoration: "none",
+                    borderLeft: active ? "2px solid var(--nuit-champagne)" : "2px solid transparent",
+                    backgroundColor: active ? "rgba(212,184,134,0.08)" : "transparent",
+                    paddingLeft: active ? "10px" : "12px",
+                    transition: "background-color 150ms",
+                  }}
                 >
-                  <Icon className={`w-4 h-4 ${active ? "text-emerald-600" : "text-gray-400"}`} />
-                  {item.label}
+                  <Icon
+                    size={15}
+                    style={{
+                      color: active ? "var(--nuit-champagne)" : "var(--nuit-smoke)",
+                      strokeWidth: 1.5, flexShrink: 0,
+                    }}
+                  />
+                  <span style={{
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    fontSize: "13px",
+                    fontWeight: active ? 500 : 400,
+                    color: active ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                  }}>
+                    {item.label}
+                  </span>
                 </Link>
               )
             })}
@@ -90,8 +143,18 @@ export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
       )}
 
       {/* Barra inferior */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 lg:hidden bg-white border-t border-gray-100 safe-area-inset-bottom">
-        <div className="flex items-center justify-around px-2 h-16">
+      <nav
+        className="lg:hidden"
+        style={{
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
+          backgroundColor: "var(--nuit-deep)",
+          borderTop: "1px solid rgba(212,184,134,0.12)",
+        }}
+      >
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-around",
+          padding: "0 8px", height: "60px",
+        }}>
           {MAIN_ITEMS.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
@@ -100,28 +163,51 @@ export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors ${
-                  active ? "text-emerald-600" : "text-gray-400"
-                }`}
+                style={{
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
+                  padding: "6px 12px", textDecoration: "none",
+                  color: active ? "var(--nuit-champagne)" : "var(--nuit-smoke-deep)",
+                }}
               >
-                <div className="relative">
-                  <Icon className="w-5 h-5" />
+                <div style={{ position: "relative" }}>
+                  <Icon size={20} style={{ strokeWidth: 1.5 }} />
                   {badge > 0 && (
-                    <span className="absolute -top-1 -right-1.5 w-4 h-4 text-[9px] font-bold bg-emerald-600 text-white rounded-full flex items-center justify-center">
+                    <span style={{
+                      position: "absolute", top: "-4px", right: "-6px",
+                      width: "16px", height: "16px",
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "8px", fontWeight: 700,
+                      backgroundColor: "var(--nuit-champagne)",
+                      color: "var(--nuit-midnight)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
                       {badge > 9 ? "9+" : badge}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "9px", fontWeight: active ? 500 : 400,
+                  letterSpacing: "0.04em",
+                }}>
+                  {item.label}
+                </span>
               </Link>
             )
           })}
           <button
             onClick={() => setMenuOpen(true)}
-            className="flex flex-col items-center gap-1 px-3 py-1.5 text-gray-400 cursor-pointer"
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
+              padding: "6px 12px", background: "none", border: "none",
+              color: "var(--nuit-smoke-deep)", cursor: "pointer",
+            }}
           >
-            <Menu className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Menu</span>
+            <Menu size={20} style={{ strokeWidth: 1.5 }} />
+            <span style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9px", fontWeight: 400, letterSpacing: "0.04em",
+            }}>Menu</span>
           </button>
         </div>
       </nav>

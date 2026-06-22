@@ -13,13 +13,13 @@ import {
 
 export const revalidate = 10;
 
-const INK = "#161a26";
+const INK = "var(--nuit-bone)";
 const CHAMPAGNE = "#b9a07a";
-const SAGE = "#5f7a5f";
+const SAGE = "#7a9e7e";
 const TERRA = "#b06050";
-const SMOKE = "#9d9d9a";
-const CARD = "#fdfaf1";
-const BORDER = "#ddd6c4";
+const SMOKE = "var(--nuit-smoke)";
+const CARD = "var(--nuit-overlay)";
+const BORDER = "rgba(212,184,134,0.16)";
 
 // ── Server Actions ─────────────────────────────────────────────
 

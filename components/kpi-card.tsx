@@ -55,12 +55,12 @@ export function KpiCardPremium({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
       style={{
-        backgroundColor: "#fdfaf1",
-        border: "1px solid rgba(212,184,134,0.20)",
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(212,184,134,0.16)",
         borderRadius: "2px",
         padding: "22px 24px 20px",
         position: "relative",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        boxShadow: "var(--shadow-1)",
       }}
     >
       {/* Hairline colorida no topo */}
@@ -94,7 +94,7 @@ export function KpiCardPremium({
         )}
         <span style={{
           fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-          fontSize: "34px", fontWeight: 400, color: "#161a26",
+          fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
           lineHeight: 1, letterSpacing: "-0.02em",
         }}>
           {count.toLocaleString("pt-PT")}

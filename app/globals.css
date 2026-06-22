@@ -50,82 +50,71 @@
 }
 
 :root {
-  /* ── ESSENCE WELLNESS — Soft UI Evolution ──
-     Primary: Esmeralda (#10B981), Background: Mint (#ECFDF5), Text: Dark Emerald (#064E3B)
-     Accent NUIT: Gold (#c9a66b / #b9a07a), Sage (#8fa085) — identidade Essence mantida */
+  /* ── ESSENCE WELLNESS — NUIT ──
+     Quiet luxury, after dark. Midnight & bone, with champagne as the only metallic.
+     Direction: Aēsop · Aman · Sisley Paris · Kinfolk */
 
-  /* Paleta Esmeralda (primária) */
-  --emerald-50:  #ECFDF5;
-  --emerald-100: #D1FAE5;
-  --emerald-200: #A7F3D0;
-  --emerald-400: #34D399;
-  --emerald-500: #10B981;
-  --emerald-600: #059669;
-  --emerald-700: #047857;
-  --emerald-900: #064E3B;
-
-  /* Paleta NUIT — accents Essence (mantidos como accent) */
-  --nuit-midnight:   #161a26;
-  --nuit-deep:       #0e1119;
-  --nuit-overlay:    #1f2433;
-  --nuit-bone:       #ece6d6;
-  --nuit-bone-soft:  #d8d2c2;
-  --nuit-champagne:  #d4b886;
+  /* Paleta NUIT (canónica — não alterar) */
+  --nuit-midnight:       #161a26;
+  --nuit-deep:           #0e1119;
+  --nuit-overlay:        #1f2433;
+  --nuit-bone:           #ece6d6;
+  --nuit-bone-soft:      #d8d2c2;
+  --nuit-champagne:      #d4b886;
   --nuit-champagne-soft: #b9a07a;
-  --nuit-smoke:      #7a7e8a;
-  --nuit-smoke-deep: #4d5260;
-  --nuit-paper:      #f6f1e5;
-  --nuit-paper-deep: #ebe5d4;
-  --nuit-sage:       #8fa085;
+  --nuit-smoke:          #7a7e8a;
+  --nuit-smoke-deep:     #4d5260;
+  --nuit-paper:          #f6f1e5;
+  --nuit-paper-deep:     #ebe5d4;
 
-  /* Tokens semânticos — Soft UI Evolution */
-  --background: var(--emerald-50);
-  --foreground: var(--emerald-900);
-  --card: #ffffff;
-  --card-foreground: var(--emerald-900);
-  --popover: #ffffff;
-  --popover-foreground: var(--emerald-900);
-  --primary: var(--emerald-500);
-  --primary-foreground: #ffffff;
-  --secondary: var(--emerald-400);
-  --secondary-foreground: var(--emerald-900);
-  --muted: var(--emerald-100);
-  --muted-foreground: var(--emerald-700);
-  --accent: var(--nuit-champagne-soft);        /* Gold Essence como accent */
-  --accent-foreground: #ffffff;
-  --destructive: #b06050;
-  --border: var(--emerald-100);
-  --input: var(--emerald-100);
-  --ring: var(--emerald-500);
-  --chart-1: var(--emerald-500);
+  /* Tokens semânticos — mapeados para NUIT dark */
+  --background:          var(--nuit-midnight);
+  --foreground:          var(--nuit-bone-soft);
+  --card:                var(--nuit-overlay);
+  --card-foreground:     var(--nuit-bone);
+  --popover:             var(--nuit-overlay);
+  --popover-foreground:  var(--nuit-bone);
+  --primary:             var(--nuit-champagne);
+  --primary-foreground:  var(--nuit-midnight);
+  --secondary:           #2a3040;
+  --secondary-foreground: var(--nuit-bone);
+  --muted:               var(--nuit-overlay);
+  --muted-foreground:    var(--nuit-smoke);
+  --accent:              var(--nuit-champagne);
+  --accent-foreground:   var(--nuit-midnight);
+  --destructive:         #b06050;
+  --border:              rgba(212, 184, 134, 0.16);
+  --input:               var(--nuit-overlay);
+  --ring:                var(--nuit-champagne);
+  --chart-1: var(--nuit-champagne);
   --chart-2: var(--nuit-champagne-soft);
-  --chart-3: var(--nuit-sage);
-  --chart-4: var(--emerald-200);
-  --chart-5: var(--emerald-900);
-  --radius: 0.5rem;
+  --chart-3: var(--nuit-smoke);
+  --chart-4: #7a9e7e;
+  --chart-5: var(--nuit-bone);
+  --radius: 0.125rem;  /* 2px — NUIT é sharp */
 
-  /* Sidebar — mantém fundo claro com accents esmeralda */
-  --sidebar: var(--emerald-50);
-  --sidebar-foreground: var(--emerald-900);
-  --sidebar-primary: var(--emerald-500);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(16, 185, 129, 0.08);
-  --sidebar-accent-foreground: var(--emerald-700);
-  --sidebar-border: var(--emerald-100);
-  --sidebar-ring: var(--emerald-500);
+  /* Sidebar — NUIT dark */
+  --sidebar:                     var(--nuit-deep);
+  --sidebar-foreground:          var(--nuit-bone-soft);
+  --sidebar-primary:             var(--nuit-champagne);
+  --sidebar-primary-foreground:  var(--nuit-midnight);
+  --sidebar-accent:              rgba(212, 184, 134, 0.08);
+  --sidebar-accent-foreground:   var(--nuit-bone);
+  --sidebar-border:              rgba(212, 184, 134, 0.12);
+  --sidebar-ring:                var(--nuit-champagne);
 
   /* Hairlines */
-  --rule:      rgba(16, 185, 129, 0.20);
-  --rule-soft: rgba(16, 185, 129, 0.10);
-  --rule-bone: rgba(209, 250, 229, 0.50);
-  --rule-ink:  rgba(6, 78, 59, 0.10);
+  --rule:      rgba(212, 184, 134, 0.30);
+  --rule-soft: rgba(212, 184, 134, 0.16);
+  --rule-bone: rgba(236, 230, 214, 0.16);
+  --rule-ink:  rgba(22, 26, 38, 0.10);
 
-  /* Shadows — soft, never deep */
-  --shadow-1: 0 1px 3px rgba(6,78,59,0.08), 0 1px 2px rgba(6,78,59,0.04);
-  --shadow-2: 0 4px 16px rgba(6,78,59,0.10), 0 2px 6px rgba(6,78,59,0.06);
-  --shadow-3: 0 16px 40px rgba(6,78,59,0.15), 0 6px 16px rgba(6,78,59,0.08);
+  /* Shadows — profundas, nunca coloridas */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.30), 0 1px 1px rgba(0,0,0,0.20);
+  --shadow-2: 0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.25);
+  --shadow-3: 0 30px 60px rgba(0,0,0,0.55), 0 10px 20px rgba(0,0,0,0.30);
 
-  /* Motion */
+  /* Motion — lento, contínuo, quase imperceptível */
   --ease-out:  cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur-fast:  160ms;
   --dur-med:   280ms;
@@ -185,25 +174,22 @@
 
 /* ── Hover card premium ── */
 .card-hover {
-  transition: transform 200ms cubic-bezier(0.22,1,0.36,1),
-              box-shadow 200ms cubic-bezier(0.22,1,0.36,1),
-              border-color 200ms ease;
+  transition: border-color var(--dur-med) var(--ease-out),
+              box-shadow var(--dur-med) var(--ease-out);
   cursor: pointer;
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(22,26,38,0.10), 0 2px 8px rgba(185,160,122,0.08);
-  border-color: rgba(185,160,122,0.35) !important;
+  box-shadow: var(--shadow-2);
+  border-color: rgba(212,184,134,0.35) !important;
 }
 
 /* ── Hover row premium ── */
 .row-hover {
-  transition: background-color 150ms ease, transform 150ms ease, padding-left 150ms ease;
+  transition: background-color var(--dur-fast) ease;
   cursor: pointer;
 }
 .row-hover:hover {
-  background-color: #efe9db !important;
-  padding-left: calc(var(--row-indent, 20px) + 4px) !important;
+  background-color: rgba(212,184,134,0.06) !important;
 }
 
 /* ── Botão aprovação ── */
@@ -266,10 +252,10 @@ input:focus, textarea:focus {
 
 /* ── Skeleton loader ── */
 .skeleton {
-  background: linear-gradient(90deg, rgba(217,217,214,0.4) 25%, rgba(237,231,227,0.6) 50%, rgba(217,217,214,0.4) 75%);
+  background: linear-gradient(90deg, rgba(31,36,51,0.8) 25%, rgba(42,48,64,0.9) 50%, rgba(31,36,51,0.8) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 @keyframes shimmer {
   0%   { background-position: -200% 0; }

@@ -239,32 +239,59 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <SessoesHojeCard sessoes={sessoesHojeRows} />
 
         {/* Widget de tarefas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-[#064E3B] flex items-center gap-2">
-              <CheckSquare className="w-4 h-4 text-emerald-600" />
+        <div style={{
+          backgroundColor: "var(--nuit-overlay)",
+          border: "1px solid rgba(212,184,134,0.16)",
+          borderRadius: "2px",
+          padding: "20px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+            <h3 style={{
+              display: "flex", alignItems: "center", gap: "8px",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
+            }}>
+              <CheckSquare size={13} style={{ color: "var(--nuit-champagne-soft)" }} />
               As minhas tarefas
             </h3>
-            <Link href="/tarefas" className="text-xs text-emerald-600 hover:text-emerald-700">
+            <Link href="/tarefas" style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "11px", fontWeight: 500,
+              color: "var(--nuit-champagne-soft)", textDecoration: "none",
+            }}>
               Ver todas →
             </Link>
           </div>
 
           {tarefasVencidas.length > 0 && (
-            <div className="mb-3">
-              <p className="text-[10px] font-semibold text-red-500 uppercase tracking-wide mb-1.5">
+            <div style={{ marginBottom: "12px" }}>
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "9px", fontWeight: 600,
+                color: "#b06050", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+              }}>
                 Vencidas ({tarefasVencidas.length})
               </p>
-              <div className="space-y-1.5">
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {tarefasVencidas.map((t) => (
-                  <Link key={t.id} href="/tarefas" className="flex items-start gap-2 group">
-                    <span className={`text-xs mt-0.5 ${PRIORIDADE_COR[t.prioridade] ?? "text-gray-400"}`}>●</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-[#064E3B] truncate group-hover:text-emerald-600 transition-colors">
-                        {t.titulo}
-                      </p>
+                  <Link key={t.id} href="/tarefas" style={{
+                    display: "flex", alignItems: "flex-start", gap: "8px",
+                    textDecoration: "none",
+                  }}>
+                    <span style={{ fontSize: "10px", marginTop: "2px", color: "#b06050" }}>●</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "13px", color: "var(--nuit-bone-soft)",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>{t.titulo}</p>
                       {t.cliente && (
-                        <p className="text-xs text-gray-400 truncate">{t.cliente.nome}</p>
+                        <p style={{
+                          fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "11px", color: "var(--nuit-smoke)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>{t.cliente.nome}</p>
                       )}
                     </div>
                   </Link>
@@ -275,19 +302,32 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
           {tarefasHoje.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-orange-500 uppercase tracking-wide mb-1.5">
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "9px", fontWeight: 600,
+                color: "#b9a07a", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+              }}>
                 Hoje ({tarefasHoje.length})
               </p>
-              <div className="space-y-1.5">
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {tarefasHoje.map((t) => (
-                  <Link key={t.id} href="/tarefas" className="flex items-start gap-2 group">
-                    <span className={`text-xs mt-0.5 ${PRIORIDADE_COR[t.prioridade] ?? "text-gray-400"}`}>●</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-[#064E3B] truncate group-hover:text-emerald-600 transition-colors">
-                        {t.titulo}
-                      </p>
+                  <Link key={t.id} href="/tarefas" style={{
+                    display: "flex", alignItems: "flex-start", gap: "8px",
+                    textDecoration: "none",
+                  }}>
+                    <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--nuit-champagne-soft)" }}>●</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "13px", color: "var(--nuit-bone-soft)",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>{t.titulo}</p>
                       {t.cliente && (
-                        <p className="text-xs text-gray-400 truncate">{t.cliente.nome}</p>
+                        <p style={{
+                          fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "11px", color: "var(--nuit-smoke)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>{t.cliente.nome}</p>
                       )}
                     </div>
                   </Link>
@@ -297,10 +337,20 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           )}
 
           {tarefasHoje.length === 0 && tarefasVencidas.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-              <CheckSquare className="w-8 h-8 mb-2 opacity-30" />
-              <p className="text-sm">Nenhuma tarefa para hoje</p>
-              <Link href="/tarefas" className="text-xs text-emerald-600 mt-1 hover:underline">
+            <div style={{
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              padding: "32px 0",
+            }}>
+              <CheckSquare size={28} style={{ color: "var(--nuit-smoke-deep)", marginBottom: "8px" }} />
+              <p style={{
+                fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+                fontSize: "14px", color: "var(--nuit-smoke)",
+              }}>Nenhuma tarefa para hoje</p>
+              <Link href="/tarefas" style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "11px", color: "var(--nuit-champagne-soft)",
+                marginTop: "6px", textDecoration: "none",
+              }}>
                 Ver todas as tarefas
               </Link>
             </div>
@@ -317,39 +367,80 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         />
 
         {/* Widget de alertas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-4 h-4 text-orange-500" />
-            <h3 className="font-semibold text-[#064E3B]">Alertas</h3>
+        <div style={{
+          backgroundColor: "var(--nuit-overlay)",
+          border: "1px solid rgba(212,184,134,0.16)",
+          borderRadius: "2px",
+          padding: "20px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+            <AlertTriangle size={13} style={{ color: "#b06050" }} />
+            <h3 style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
+            }}>Alertas</h3>
           </div>
 
           {clientesEmRisco > 0 && (
-            <Link href="/clientes?estado=vip_em_risco" className="flex items-center justify-between py-2.5 border-b border-gray-50 hover:bg-gray-50 rounded px-1 transition-colors group">
+            <Link href="/clientes?estado=vip_em_risco" style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "10px 0",
+              borderBottom: "1px solid rgba(212,184,134,0.08)",
+              textDecoration: "none",
+            }}>
               <div>
-                <p className="text-sm font-medium text-[#064E3B] group-hover:text-emerald-700">Clientes em risco</p>
-                <p className="text-xs text-gray-400">VIP em risco + reativação</p>
+                <p style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "13px", fontWeight: 500, color: "var(--nuit-bone-soft)",
+                }}>Clientes em risco</p>
+                <p style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "11px", color: "var(--nuit-smoke)",
+                }}>VIP em risco + reativação</p>
               </div>
-              <span className="text-sm font-bold text-orange-500">{clientesEmRisco}</span>
+              <span style={{
+                fontFamily: "var(--font-heading, serif)",
+                fontSize: "20px", fontWeight: 400, color: "#b06050",
+              }}>{clientesEmRisco}</span>
             </Link>
           )}
 
           {alertasSatisfacao.length > 0 && (
-            <div className="py-2.5 border-b border-gray-50">
-              <p className="text-sm font-medium text-red-600 mb-1">Avaliações baixas</p>
+            <div style={{ padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "11px", fontWeight: 600, color: "#b06050",
+                marginBottom: "6px",
+              }}>Avaliações baixas</p>
               {alertasSatisfacao.slice(0, 3).map((s) => (
-                <p key={s.id} className="text-xs text-gray-500 flex justify-between">
+                <p key={s.id} style={{
+                  display: "flex", justifyContent: "space-between",
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "12px", color: "var(--nuit-smoke)",
+                  padding: "2px 0",
+                }}>
                   <span>{s.cliente.nome}</span>
-                  <span className="text-red-500">{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
+                  <span style={{ color: "#b06050" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
                 </p>
               ))}
             </div>
           )}
 
           {inativasMais90.length > 0 && (
-            <div className="py-2.5">
-              <p className="text-sm font-medium text-[#064E3B] mb-1">Inativas +90 dias</p>
+            <div style={{ padding: "10px 0" }}>
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone-soft)",
+                marginBottom: "6px",
+              }}>Inativas +90 dias</p>
               {inativasMais90.slice(0, 3).map((c) => (
-                <Link key={c.id} href={`/clientes/${c.id}`} className="text-xs text-gray-500 hover:text-emerald-600 flex justify-between py-0.5">
+                <Link key={c.id} href={`/clientes/${c.id}`} style={{
+                  display: "flex", justifyContent: "space-between",
+                  padding: "3px 0", textDecoration: "none",
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "12px", color: "var(--nuit-smoke)",
+                }}>
                   <span>{c.nome}</span>
                 </Link>
               ))}
@@ -357,8 +448,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           )}
 
           {clientesEmRisco === 0 && alertasSatisfacao.length === 0 && inativasMais90.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-              <p className="text-sm">Nenhum alerta activo</p>
+            <div style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              padding: "32px 0",
+            }}>
+              <p style={{
+                fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+                fontSize: "14px", color: "var(--nuit-smoke)",
+              }}>Nenhum alerta activo</p>
             </div>
           )}
         </div>
@@ -369,26 +466,52 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <MensagensCard mensagens={mensagensRows} />
 
         {/* Clientes a reativar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-[#064E3B]">Clientes a reativar</h3>
-            <Link href="/clientes?estado=reativacao" className="text-xs text-emerald-600 hover:text-emerald-700">
-              Ver todas →
-            </Link>
+        <div style={{
+          backgroundColor: "var(--nuit-overlay)",
+          border: "1px solid rgba(212,184,134,0.16)",
+          borderRadius: "2px",
+          padding: "20px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+            <h3 style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
+            }}>Clientes a reativar</h3>
+            <Link href="/clientes?estado=reativacao" style={{
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "11px", fontWeight: 500,
+              color: "var(--nuit-champagne-soft)", textDecoration: "none",
+            }}>Ver todas →</Link>
           </div>
           {[...inativas30a60, ...inativas61a90].slice(0, 5).length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">Nenhuma cliente inativa</p>
+            <p style={{
+              fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+              fontSize: "14px", color: "var(--nuit-smoke)",
+              textAlign: "center", padding: "24px 0",
+            }}>Nenhuma cliente inativa</p>
           ) : (
-            <div className="space-y-2">
+            <div style={{ display: "flex", flexDirection: "column" }}>
               {[...inativas30a60, ...inativas61a90].slice(0, 5).map((c) => {
                 const diasInativa = c.ultimaSessao
                   ? Math.floor((Date.now() - c.ultimaSessao.getTime()) / 86_400_000)
                   : null
                 return (
-                  <Link key={c.id} href={`/clientes/${c.id}`} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded px-1 transition-colors">
-                    <p className="text-sm text-[#064E3B]">{c.nome}</p>
+                  <Link key={c.id} href={`/clientes/${c.id}`} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "9px 0",
+                    borderBottom: "1px solid rgba(212,184,134,0.08)",
+                    textDecoration: "none",
+                  }}>
+                    <p style={{
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "13px", color: "var(--nuit-bone-soft)",
+                    }}>{c.nome}</p>
                     {diasInativa && (
-                      <span className="text-xs text-orange-500 font-medium">{diasInativa}d</span>
+                      <span style={{
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "11px", fontWeight: 600, color: "#b9a07a",
+                      }}>{diasInativa}d</span>
                     )}
                   </Link>
                 )

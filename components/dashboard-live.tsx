@@ -1,8 +1,7 @@
 "use client"
 
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -38,7 +37,7 @@ const ESTADOS: Record<string, { label: string; color: string; bg: string; border
   agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.25)" },
   confirmada:{ label: "Confirmada",color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
   cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)",   border: "rgba(176,96,80,0.20)"  },
-  concluida: { label: "Concluída", color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)"},
+  concluida: { label: "Concluída", color: "#7a7e8a", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
 }
 
 function BadgeEstado({ estado }: { estado: string }) {
@@ -46,7 +45,7 @@ function BadgeEstado({ estado }: { estado: string }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center",
-      padding: "3px 8px", borderRadius: "0px",
+      padding: "3px 8px",
       fontSize: "9px", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
       fontFamily: "var(--font-sans, sans-serif)",
       color: cfg.color, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`,
@@ -54,6 +53,21 @@ function BadgeEstado({ estado }: { estado: string }) {
       {cfg.label}
     </span>
   )
+}
+
+// ─── Card base NUIT ───────────────────────────────────────────────────────────
+
+const cardStyle = {
+  backgroundColor: "var(--nuit-overlay)",
+  border: "1px solid rgba(212,184,134,0.16)",
+  borderRadius: "2px",
+  overflow: "hidden",
+}
+
+const cardHeaderStyle = {
+  display: "flex", alignItems: "center", justifyContent: "space-between",
+  padding: "18px 20px 14px",
+  borderBottom: "1px solid rgba(212,184,134,0.10)",
 }
 
 // ─── Header animado ───────────────────────────────────────────────────────────
@@ -81,7 +95,7 @@ export function DashboardHeader({
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9px", fontWeight: 700,
-              color: "#b9a07a", textTransform: "uppercase", marginBottom: "8px",
+              color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "8px",
             }}
           >
             Essence Wellness · CRM
@@ -93,7 +107,7 @@ export function DashboardHeader({
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "28px", fontWeight: 400, color: "#161a26",
+              fontSize: "28px", fontWeight: 400, color: "var(--nuit-bone)",
               lineHeight: 1.15, fontStyle: "italic",
             }}
           >
@@ -108,12 +122,11 @@ export function DashboardHeader({
             transition={{ duration: 0.5, delay: 0.4, type: "spring", stiffness: 260, damping: 20 }}
             style={{
               display: "flex", alignItems: "center", gap: "8px",
-              padding: "5px 12px", borderRadius: "0px",
-              backgroundColor: "rgba(160,169,150,0.10)",
-              border: "1px solid rgba(160,169,150,0.25)",
+              padding: "5px 12px",
+              backgroundColor: "rgba(160,169,150,0.08)",
+              border: "1px solid rgba(160,169,150,0.20)",
             }}
           >
-            {/* Dot pulsante */}
             <span style={{ position: "relative", display: "flex", width: "8px", height: "8px" }}>
               <span style={{
                 position: "absolute", inset: 0, borderRadius: "50%",
@@ -137,14 +150,13 @@ export function DashboardHeader({
         )}
       </div>
 
-      {/* Divisor com reveal */}
       <motion.div
         initial={{ scaleX: 0, originX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
           marginTop: "24px", height: "1px",
-          background: "linear-gradient(to right, transparent, rgba(185,160,122,0.4), transparent)",
+          background: "linear-gradient(to right, transparent, rgba(212,184,134,0.35), transparent)",
         }}
       />
 
@@ -159,11 +171,7 @@ export function DashboardHeader({
 
 // ─── Sessões de Hoje animadas ─────────────────────────────────────────────────
 
-export function SessoesHojeCard({
-  sessoes,
-}: {
-  sessoes: SessaoRow[]
-}) {
+export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
   if (sessoes.length === 0) return null
 
   return (
@@ -173,24 +181,13 @@ export function SessoesHojeCard({
       transition={{ duration: 0.6, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
       style={{ marginBottom: "28px" }}
     >
-      <div style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #ddd6c4",
-        borderLeft: "3px solid #b9a07a",
-        borderRadius: "2px",
-        overflow: "hidden",
-      }}>
-        {/* Cabeçalho */}
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "18px 20px 14px",
-          borderBottom: "1px solid rgba(217,217,214,0.6)",
-        }}>
+      <div style={{ ...cardStyle, borderLeft: "2px solid var(--nuit-champagne-soft)" }}>
+        <div style={cardHeaderStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{
-              width: "28px", height: "28px", borderRadius: "0px",
+              width: "28px", height: "28px",
               backgroundColor: "rgba(185,160,122,0.08)",
-              border: "1px solid rgba(185,160,122,0.2)",
+              border: "1px solid rgba(185,160,122,0.20)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9a07a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -200,29 +197,28 @@ export function SessoesHojeCard({
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "#9d9d9a", textTransform: "uppercase",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
             }}>
               Sessões de Hoje
             </h2>
             <span style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              minWidth: "18px", height: "18px", borderRadius: "0px",
+              minWidth: "18px", height: "18px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", fontWeight: 600, letterSpacing: "0.05em",
-              backgroundColor: "rgba(185,160,122,0.15)", color: "#b9a07a",
+              fontSize: "9px", fontWeight: 600,
+              backgroundColor: "rgba(185,160,122,0.14)", color: "var(--nuit-champagne)",
             }}>
               {sessoes.length}
             </span>
           </div>
           <span style={{
-            fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "12px", color: "#b5b5b2",
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "12px", color: "var(--nuit-smoke-deep)",
           }}>
             {sessoes.filter(s => s.estado === "confirmada").length} confirmada(s)
           </span>
         </div>
 
-        {/* Linhas de sessão com stagger */}
         <div>
           {sessoes.map((sessao, i) => (
             <motion.div
@@ -244,7 +240,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
   return (
     <>
       <motion.div
-        whileHover={{ backgroundColor: "#efe9db", x: 2 }}
+        whileHover={{ backgroundColor: "rgba(212,184,134,0.06)", x: 2 }}
         transition={{ duration: 0.15 }}
         style={{
           display: "flex", alignItems: "center", gap: "16px",
@@ -254,7 +250,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
         <div style={{ flexShrink: 0, width: "48px", textAlign: "center" }}>
           <span style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "18px", fontWeight: 400, color: "#b9a07a", letterSpacing: "0.01em",
+            fontSize: "18px", fontWeight: 400, color: "var(--nuit-champagne)", letterSpacing: "0.01em",
           }}>
             {sessao.hora ? sessao.hora.slice(0, 5) : "—"}
           </span>
@@ -262,11 +258,11 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
 
         <div style={{
           flexShrink: 0, width: "40px", height: "40px", borderRadius: "50%",
-          backgroundColor: "rgba(185,160,122,0.12)",
-          border: "1.5px solid rgba(185,160,122,0.3)",
+          backgroundColor: "rgba(185,160,122,0.10)",
+          border: "1.5px solid rgba(185,160,122,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", fontWeight: 700, color: "#b9a07a",
+          fontSize: "13px", fontWeight: 700, color: "var(--nuit-champagne)",
         }}>
           {sessao.clienteIniciais}
         </div>
@@ -275,18 +271,18 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           <Link
             href={`/clientes/${sessao.clienteId}`}
             style={{
-              fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "14px", fontWeight: 700, color: "#161a26",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "14px", fontWeight: 600, color: "var(--nuit-bone)",
               textDecoration: "none", display: "block",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}
-            className="hover:text-[#b9a07a] transition-colors"
+            className="hover:text-[#d4b886] transition-colors"
           >
             {sessao.clienteNome}
           </Link>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", color: "#a0a996", marginTop: "2px",
+            fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "2px",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {sessao.servico ?? "Sessão"}
@@ -296,11 +292,11 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
         <span style={{
           flexShrink: 0,
           display: "inline-flex", alignItems: "center",
-          padding: "3px 8px", borderRadius: "0px",
+          padding: "3px 8px",
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9px", fontWeight: 500, letterSpacing: "0.18em", textTransform: "uppercase",
           backgroundColor: "rgba(160,169,150,0.08)",
-          border: "1px solid rgba(160,169,150,0.25)", color: "#a0a996",
+          border: "1px solid rgba(160,169,150,0.20)", color: "#a0a996",
         }}>
           {sessao.terapeuta}
         </span>
@@ -311,7 +307,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
       {!isLast && (
         <div style={{
           height: "1px", marginLeft: "84px", marginRight: "20px",
-          background: "linear-gradient(to right, rgba(185,160,122,0.15), rgba(217,217,214,0.4), transparent)",
+          background: "linear-gradient(to right, rgba(212,184,134,0.12), rgba(212,184,134,0.06), transparent)",
         }} />
       )}
     </>
@@ -328,22 +324,13 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
       transition={{ duration: 0.6, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
       style={{ marginBottom: "28px" }}
     >
-      <div style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #ddd6c4",
-        borderRadius: "2px",
-        overflow: "hidden",
-      }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "18px 20px 14px",
-          borderBottom: "1px solid rgba(217,217,214,0.6)",
-        }}>
+      <div style={cardStyle}>
+        <div style={cardHeaderStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{
-              width: "28px", height: "28px", borderRadius: "0px",
+              width: "28px", height: "28px",
               backgroundColor: "rgba(160,169,150,0.10)",
-              border: "1px solid rgba(160,169,150,0.2)",
+              border: "1px solid rgba(160,169,150,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0a996" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -353,14 +340,14 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "#9d9d9a", textTransform: "uppercase",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
             }}>
               Para Enviar Hoje
             </h2>
             {mensagens.length > 0 && (
               <span style={{
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                minWidth: "18px", height: "18px", borderRadius: "0px",
+                minWidth: "18px", height: "18px",
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9px", fontWeight: 600,
                 backgroundColor: "rgba(160,169,150,0.12)", color: "#a0a996",
@@ -375,7 +362,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
               style={{
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "11px", fontWeight: 600,
-                color: "#a0a996", textDecoration: "none",
+                color: "var(--nuit-champagne-soft)", textDecoration: "none",
               }}
             >
               Ver todas →
@@ -395,7 +382,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
           >
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontStyle: "italic", fontSize: "14px", color: "#9d9d9a",
+              fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
             }}>
               Sem mensagens aprovadas por enviar.
             </p>
@@ -413,7 +400,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
                 {i < mensagens.length - 1 && (
                   <div style={{
                     height: "1px", marginLeft: "66px", marginRight: "20px",
-                    backgroundColor: "rgba(217,217,214,0.5)",
+                    backgroundColor: "rgba(212,184,134,0.08)",
                   }} />
                 )}
               </motion.div>
@@ -429,7 +416,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
   const isWhatsApp = mensagem.canal?.toLowerCase().includes("whatsapp") ?? false
   return (
     <motion.div
-      whileHover={{ backgroundColor: "#efe9db" }}
+      whileHover={{ backgroundColor: "rgba(212,184,134,0.05)" }}
       transition={{ duration: 0.15 }}
       style={{
         display: "flex", alignItems: "center", gap: "12px",
@@ -438,8 +425,8 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
     >
       <div style={{
         flexShrink: 0, width: "34px", height: "34px", borderRadius: "50%",
-        backgroundColor: "rgba(160,169,150,0.12)",
-        border: "1px solid rgba(160,169,150,0.25)",
+        backgroundColor: "rgba(160,169,150,0.10)",
+        border: "1px solid rgba(160,169,150,0.22)",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "var(--font-sans, sans-serif)",
         fontSize: "11px", fontWeight: 700, color: "#a0a996",
@@ -450,22 +437,22 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <p style={{
-            fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "13px", fontWeight: 700, color: "#161a26",
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)",
           }}>
             {mensagem.clienteNome}
           </p>
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em",
-            color: "#b9a07a", textTransform: "uppercase",
+            color: "var(--nuit-champagne)", textTransform: "uppercase",
           }}>
             · Flora
           </span>
         </div>
         <p style={{
-          fontFamily: "var(--font-body, sans-serif)",
-          fontSize: "12px", color: "#9d9d9a", marginTop: "2px",
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "2px",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {mensagem.preview}
@@ -475,12 +462,12 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
       <span style={{
         flexShrink: 0,
         display: "inline-flex", alignItems: "center", gap: "4px",
-        padding: "3px 8px", borderRadius: "0px",
+        padding: "3px 8px",
         fontFamily: "var(--font-sans, sans-serif)",
         fontSize: "9px", fontWeight: 500, letterSpacing: "0.20em", textTransform: "uppercase",
         backgroundColor: "rgba(185,160,122,0.08)",
-        border: "1px solid rgba(185,160,122,0.25)",
-        color: "#b9a07a",
+        border: "1px solid rgba(185,160,122,0.22)",
+        color: "var(--nuit-champagne)",
       }}>
         {isWhatsApp ? "WhatsApp" : mensagem.canal ?? "Email"}
       </span>
@@ -490,14 +477,15 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         style={{
           flexShrink: 0,
           display: "inline-flex", alignItems: "center",
-          padding: "5px 12px", borderRadius: "0px",
+          padding: "5px 12px",
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
           backgroundColor: "rgba(185,160,122,0.08)",
-          border: "1px solid rgba(185,160,122,0.22)",
-          color: "#b9a07a", textDecoration: "none",
+          border: "1px solid rgba(185,160,122,0.20)",
+          color: "var(--nuit-champagne)", textDecoration: "none",
+          transition: "background-color 150ms",
         }}
-        className="hover:bg-[rgba(185,160,122,0.18)] transition-colors"
+        className="hover:bg-[rgba(185,160,122,0.16)]"
       >
         Ver
       </Link>
@@ -508,9 +496,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
 // ─── Próximos 7 dias ──────────────────────────────────────────────────────────
 
 export function ProximosDiasCard({
-  dias,
-  totalSessoes,
-  isHero,
+  dias, totalSessoes, isHero,
 }: {
   dias: DiaRow[]
   totalSessoes: number
@@ -523,22 +509,15 @@ export function ProximosDiasCard({
       transition={{ duration: 0.65, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
     >
       <div style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #ddd6c4",
-        borderLeft: isHero ? "3px solid #b9a07a" : "1px solid #ddd6c4",
-        borderRadius: "2px",
-        overflow: "hidden",
+        ...cardStyle,
+        ...(isHero ? { borderLeft: "2px solid var(--nuit-champagne)" } : {}),
       }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "18px 20px 14px",
-          borderBottom: "1px solid rgba(217,217,214,0.6)",
-        }}>
+        <div style={cardHeaderStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{
-              width: "28px", height: "28px", borderRadius: "0px",
+              width: "28px", height: "28px",
               backgroundColor: "rgba(185,160,122,0.08)",
-              border: "1px solid rgba(185,160,122,0.2)",
+              border: "1px solid rgba(185,160,122,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9a07a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -548,17 +527,17 @@ export function ProximosDiasCard({
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "#9d9d9a", textTransform: "uppercase",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
             }}>
               {isHero ? "Próximas Sessões" : "Próximos 7 Dias"}
             </h2>
             {totalSessoes > 0 && (
               <span style={{
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                minWidth: "18px", height: "18px", borderRadius: "0px",
+                minWidth: "18px", height: "18px",
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9px", fontWeight: 600,
-                backgroundColor: "rgba(185,160,122,0.12)", color: "#b9a07a",
+                backgroundColor: "rgba(185,160,122,0.12)", color: "var(--nuit-champagne)",
               }}>
                 {totalSessoes}
               </span>
@@ -566,8 +545,8 @@ export function ProximosDiasCard({
           </div>
           {totalSessoes > 0 && (
             <span style={{
-              fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "12px", color: "#b5b5b2",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "12px", color: "var(--nuit-smoke-deep)",
             }}>
               {totalSessoes} sessão{totalSessoes !== 1 ? "ões" : ""} agendada{totalSessoes !== 1 ? "s" : ""}
             </span>
@@ -579,7 +558,7 @@ export function ProximosDiasCard({
             <div style={{ padding: "32px 20px", textAlign: "center" }}>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)",
-                fontStyle: "italic", fontSize: "14px", color: "#9d9d9a",
+                fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
               }}>
                 Sem sessões nos próximos 7 dias.
               </p>
@@ -593,75 +572,73 @@ export function ProximosDiasCard({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.95 + diaIdx * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  {/* Cabeçalho do dia */}
                   <div style={{
                     display: "flex", alignItems: "center", gap: "8px",
                     padding: "12px 12px 6px",
                   }}>
                     <div style={{
                       height: "1px", flex: 1,
-                      background: "linear-gradient(to right, transparent, rgba(217,217,214,0.7))",
+                      background: "linear-gradient(to right, transparent, rgba(212,184,134,0.15))",
                     }} />
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
                       fontSize: "9.5px", fontWeight: 700,
-                      letterSpacing: "0.18em", textTransform: "uppercase", color: "#9d9d9a",
+                      letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--nuit-smoke)",
                     }}>
                       {dia.diaSemana}
                     </span>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "10px", color: "#b5b5b2",
+                      fontSize: "10px", color: "var(--nuit-smoke-deep)",
                     }}>
                       {dia.dataCurta}
                     </span>
                     <span style={{
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      minWidth: "16px", height: "16px", borderRadius: "0px",
+                      minWidth: "16px", height: "16px",
                       fontSize: "9px", fontWeight: 600,
-                      backgroundColor: "rgba(217,217,214,0.4)", color: "#9d9d9a",
+                      backgroundColor: "rgba(212,184,134,0.10)", color: "var(--nuit-smoke)",
                       fontFamily: "var(--font-sans, sans-serif)",
                     }}>
                       {dia.sessoes.length}
                     </span>
                     <div style={{
                       height: "1px", flex: 1,
-                      background: "linear-gradient(to left, transparent, rgba(217,217,214,0.7))",
+                      background: "linear-gradient(to left, transparent, rgba(212,184,134,0.15))",
                     }} />
                   </div>
 
-                  {/* Sessões do dia */}
                   <div>
                     {dia.sessoes.map((s) => (
                       <motion.div
                         key={s.id}
-                        whileHover={{ backgroundColor: "#efe9db", x: 2 }}
+                        whileHover={{ backgroundColor: "rgba(212,184,134,0.06)", x: 2 }}
                         transition={{ duration: 0.15 }}
                         style={{
                           display: "flex", alignItems: "center", gap: "12px",
-                          padding: "7px 12px", borderRadius: "0px",
+                          padding: "7px 12px",
                         }}
                       >
                         <span style={{
                           width: "44px", flexShrink: 0,
                           fontFamily: "var(--font-sans, sans-serif)",
                           fontSize: "11px", fontWeight: 600,
-                          color: "#b9a07a", letterSpacing: "0.03em",
+                          color: "var(--nuit-champagne)", letterSpacing: "0.03em",
                         }}>
                           {s.hora ?? "—"}
                         </span>
                         <span style={{
                           flex: 1, minWidth: 0,
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                          fontFamily: "var(--font-body, sans-serif)",
-                          fontSize: "13px", color: "#161a26",
+                          fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "13px", color: "var(--nuit-bone)",
                         }}>
                           {s.clienteNome}
                         </span>
                         <span style={{
                           flexShrink: 0,
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", color: "#9d9d9a",
+                          fontSize: "11px", color: "var(--nuit-smoke)",
                         }}>
                           {s.terapeuta}
                         </span>

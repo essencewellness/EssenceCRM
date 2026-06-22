@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Lora, Raleway } from "next/font/google";
+import { DM_Serif_Display, Manrope } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const lora = Lora({
+const dmSerifDisplay = DM_Serif_Display({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400"],
   style: ["normal", "italic"],
 });
 
-const raleway = Raleway({
+const manrope = Manrope({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt"
-      className={`${lora.variable} ${raleway.variable} h-full antialiased`}
+      className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

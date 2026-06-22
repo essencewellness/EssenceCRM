@@ -27,7 +27,7 @@ export default async function DashboardLayout({
   })
 
   return (
-    <div className="min-h-screen bg-[#ECFDF5] flex">
+    <div className="min-h-screen flex" style={{ backgroundColor: "var(--nuit-midnight)" }}>
       {/* Sidebar — visível em desktop */}
       <Sidebar mensagensPendentes={mensagensPendentes} />
 
