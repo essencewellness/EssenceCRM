@@ -176,6 +176,7 @@ async function main() {
   await prisma.cliente.deleteMany();
   await prisma.campanha.deleteMany();
   await prisma.etiqueta.deleteMany();
+  await prisma.auditLog.deleteMany({ where: { entidade: "Cliente" } });
   console.log("  ✓ Domínio de clientes limpo");
 
   // Apagar quaisquer outros utilizadores — ficam apenas os 3 definidos
@@ -216,6 +217,7 @@ async function main() {
   const tarefasParaCriar: Prisma.TarefaCreateManyInput[] = [];
   const observacoesParaCriar: Prisma.ObservacaoCreateManyInput[] = [];
   const mensagensParaCriar: Prisma.MensagemIACreateManyInput[] = [];
+  const auditParaCriar: Prisma.AuditLogCreateManyInput[] = [];
 
   let idx = 0;
   let sessoesHojeColocadas = 0;
@@ -289,30 +291,38 @@ async function main() {
           terapeutaId,
           estado: "realizada",
           aromaSessao: pick(AROMAS),
-          resumoSessao: `Sessão de ${servNome}. ${pick(EMOCIONAL)}`,
-          notasPosSessao: pick(ZONAS),
+          estadoEmocional: pick(EMOCIONAL),
+          resumoSessao: `Sessão de ${servNome}. ${pick(EMOCIONAL)} Trabalho focado em ${pick(ZONAS).toLowerCase()}`,
+          notasPosSessao: `Próxima: insistir em ${pick(ZONAS).toLowerCase()} Sugerir ${pick(SERVICOS_NOME)}.`,
           estadoPagamento: "pago",
           valorPago: new Prisma.Decimal(preco),
           metodoPagamento: pick(["dinheiro", "mbway", "transferencia"]) as Prisma.SessaoCreateManyInput["metodoPagamento"],
           pagamentoEm: dataSessao,
           avaliacaoNota: rnd() > 0.2 ? intBetween(4, 5) : intBetween(2, 3),
+          avaliacaoComentario: pick([
+            "Adorei, saí completamente renovada. Obrigada!",
+            "Excelente como sempre. A pressão estava perfeita.",
+            "Senti-me muito melhor das costas. Volto em breve.",
+            "Momento de paz que faz toda a diferença na minha semana.",
+            "Profissionalismo e carinho. Recomendo sempre.",
+          ]),
+          avaliacaoRespondidaEm: dataSessao,
         });
       }
 
-      // ── Sessões FUTURAS para clientes activos (dashboard vivo) ──
+      // ── Sessão FUTURA para TODOS (tab Sessões nunca vazia + dashboard vivo) ──
       const ativa = ["vip_embaixadora", "ativa_frequente", "ativa_recente"].includes(coorte.estado);
-      if (ativa) {
-        // Algumas hoje (até 5 no total)
+      const naoBloqueada = coorte.estado !== "blacklist";
+      if (naoBloqueada) {
         let futuroOffset: number;
-        if (sessoesHojeColocadas < 5 && rnd() > 0.6) {
+        if (ativa && sessoesHojeColocadas < 6 && rnd() > 0.65) {
           futuroOffset = 0;
           sessoesHojeColocadas++;
         } else {
-          futuroOffset = intBetween(1, 7);
+          futuroOffset = intBetween(1, ativa ? 9 : 18);
         }
         const servNome = pick(SERVICOS_NOME);
         const serv = servicoPorNome(servNome);
-        const terapeutaId = terapeutaPrincipalId;
         sessoesParaCriar.push({
           clienteId: cliente.id,
           data: d(futuroOffset),
@@ -322,12 +332,12 @@ async function main() {
           servicoId: serv.id,
           preco: new Prisma.Decimal(Number(serv.precoBase)),
           terapeuta: terapeutaNome,
-          terapeutaId,
+          terapeutaId: terapeutaPrincipalId,
           estado: futuroOffset === 0 ? "confirmada" : "agendada",
         });
       }
 
-      // ── Métricas derivadas ──
+      // ── Métricas derivadas (das sessões realizadas) ──
       await prisma.cliente.update({
         where: { id: cliente.id },
         data: {
@@ -337,85 +347,155 @@ async function main() {
         },
       });
 
-      // ── Etiquetas por perfil ──
+      // ── Etiquetas por perfil (todas as clientes têm pelo menos 2) ──
       const tags: string[] = [];
       if (coorte.estado === "vip_embaixadora") tags.push("VIP");
       if (coorte.estado === "novo" || coorte.estado === "lead") tags.push("Nova cliente");
       if (["vip_em_risco", "reativacao"].includes(coorte.estado)) tags.push("Reengagement");
-      // preferência (manhã/tarde)
       tags.push(rnd() > 0.5 ? "Prefere manhã" : "Prefere tarde");
-      // extras aleatórios de saúde/campanha/preferência
-      if (rnd() > 0.7) tags.push(pick(["Dores crónicas", "Lesão / Reabilitação", "Fã de Cera Quente", "Silêncio total", "Indicou amiga", "Drenagem 2026", "Sorteio Instagram"]));
-      if (rnd() > 0.85 && !ativa) tags.push(pick(["Gravidez", "Pós-parto"]));
-      // aniversariantes deste mês
+      tags.push(pick(["Dores crónicas", "Lesão / Reabilitação", "Fã de Cera Quente", "Silêncio total", "Indicou amiga", "Drenagem 2026", "Sorteio Instagram"]));
+      if (rnd() > 0.8 && !ativa) tags.push(pick(["Gravidez", "Pós-parto"]));
       if (dataNascimento.getMonth() === HOJE.getMonth()) tags.push("Aniversário este mês");
-      // blacklist sem tags
       const tagsFinais = coorte.estado === "blacklist" ? [] : Array.from(new Set(tags));
       for (const t of tagsFinais) ligacoesEtiqueta.push({ clienteId: cliente.id, etiquetaId: etId(t) });
 
-      // ── Preço personalizado para VIPs (fidelização) ──
-      if (coorte.estado === "vip_embaixadora") {
-        const serv = servicoPorNome("Essência Plena");
+      // ── Preço personalizado para TODOS (serviço rotativo, único por cliente) ──
+      {
+        const serv = servicoPorNome(SERVICOS_NOME[idx % SERVICOS_NOME.length]);
+        const base = Number(serv.precoBase);
         precosParaCriar.push({
           clienteId: cliente.id, servicoId: serv.id,
-          valor: new Prisma.Decimal(35), motivo: "Preço de fidelização VIP",
+          valor: new Prisma.Decimal(coorte.estado === "vip_embaixadora" ? base - 5 : base - intBetween(2, 8)),
+          motivo: coorte.estado === "vip_embaixadora" ? "Preço de fidelização VIP" : pick(["Desconto de cliente regular", "Condição especial acordada", "Campanha de boas-vindas"]),
+          validade: rnd() > 0.5 ? d(intBetween(30, 180)) : null,
         });
       }
 
-      // ── Pack para algumas frequentes ──
-      if (coorte.estado === "ativa_frequente" && rnd() > 0.6) {
-        const serv = servicoPorNome("Puro Aroma");
+      // ── Pack para TODOS (estado de uso variado) ──
+      {
+        const serv = servicoPorNome(pick(SERVICOS_NOME));
+        const total = pick([3, 5, 5, 10]);
+        const usadas = Math.min(nSessoes, intBetween(0, total));
         packsParaCriar.push({
           clienteId: cliente.id, servicoId: serv.id,
-          totalSessoes: 5, sessoesUsadas: intBetween(1, 4),
-          valorTotal: new Prisma.Decimal(200), descricao: "Pack 5 sessões Puro Aroma",
+          totalSessoes: total, sessoesUsadas: usadas,
+          valorTotal: new Prisma.Decimal(Number(serv.precoBase) * total * 0.9),
+          descricao: `Pack ${total} sessões ${serv.nome} (10% desconto)`,
+          ativo: usadas < total,
         });
       }
 
-      // ── Tarefa de follow-up para risco / reativação / lead ──
-      if (["vip_em_risco", "reativacao", "lead"].includes(coorte.estado)) {
-        const limiteOffset = intBetween(-3, 5);
-        tarefasParaCriar.push({
-          clienteId: cliente.id,
-          titulo:
-            coorte.estado === "lead"
-              ? `Contactar ${primeiro} (lead por ${pick(COMO)})`
-              : `Reengagement — ${primeiro} sem sessão`,
-          descricao: coorte.estado === "lead" ? "Primeiro contacto e marcação." : "Mensagem de reativação personalizada.",
-          dataLimite: d(limiteOffset),
-          estado: "pendente",
-          prioridade: coorte.estado === "vip_em_risco" ? "alta" : "normal",
-          tipo: coorte.estado === "lead" ? "ligacao" : "follow_up",
-          criadoPor: terapeutaPrincipalId,
-          atribuidaA: terapeutaPrincipalId,
-        });
-      }
+      // ── Tarefas para TODOS: 1 concluída (timeline) + 1 pendente (+extra) ──
+      tarefasParaCriar.push({
+        clienteId: cliente.id,
+        titulo: `Enviar resumo pós-sessão a ${primeiro}`,
+        descricao: "Mensagem de seguimento com cuidados pós-massagem.",
+        dataLimite: d(-intBetween(5, 30)),
+        estado: "concluida",
+        prioridade: "normal",
+        tipo: "mensagem",
+        criadoPor: terapeutaPrincipalId,
+        atribuidaA: terapeutaPrincipalId,
+        resolvidaEm: d(-intBetween(1, 25)),
+      });
+      tarefasParaCriar.push({
+        clienteId: cliente.id,
+        titulo:
+          coorte.estado === "lead"
+            ? `Contactar ${primeiro} (lead por ${pick(COMO)})`
+            : ["vip_em_risco", "reativacao"].includes(coorte.estado)
+              ? `Reengagement — ${primeiro} sem sessão`
+              : `Confirmar próxima marcação de ${primeiro}`,
+        descricao: coorte.estado === "lead" ? "Primeiro contacto e marcação." : "Acompanhamento da cliente.",
+        dataLimite: d(intBetween(-3, 7)),
+        estado: rnd() > 0.5 ? "pendente" : "em_progresso",
+        prioridade: coorte.estado === "vip_em_risco" ? "alta" : coorte.estado === "lead" ? "alta" : "normal",
+        tipo: coorte.estado === "lead" ? "ligacao" : "follow_up",
+        criadoPor: terapeutaPrincipalId,
+        atribuidaA: terapeutaPrincipalId,
+      });
 
-      // ── Observação para clientes com histórico ──
-      if (!semDados && rnd() > 0.5) {
+      // ── Observações para TODOS (2-3, tab Notas sempre preenchida) ──
+      const notasPool = [
+        "Gosta de música instrumental suave durante a sessão.",
+        "Prefere a sala mais quente. Confirmar temperatura antes.",
+        "Traz quase sempre uma amiga para a sala de espera.",
+        "Sensível a luz forte — usar candeeiro indirecto.",
+        "Pediu para experimentar a Drenagem Linfática na próxima.",
+        "Chega sempre 10 minutos antes. Oferecer chá.",
+        "Comentou que dorme melhor nas noites a seguir à sessão.",
+      ];
+      const nNotas = intBetween(2, 3);
+      const usadasNotas = new Set<string>();
+      for (let k = 0; k < nNotas; k++) {
+        let txt = pick(notasPool);
+        while (usadasNotas.has(txt)) txt = pick(notasPool);
+        usadasNotas.add(txt);
         observacoesParaCriar.push({
           clienteId: cliente.id,
-          texto: pick([
-            "Gosta de música instrumental suave durante a sessão.",
-            "Prefere a sala mais quente. Confirmar temperatura antes.",
-            "Traz quase sempre uma amiga para a sala de espera.",
-            "Sensível a luz forte — usar candeeiro indirecto.",
-            "Pediu para experimentar a Drenagem Linfática na próxima.",
-          ]),
-          autor: "bea",
+          texto: txt,
+          autor: terapeutaNome === "beatriz" ? "Beatriz" : "Cristina",
+          criadoEm: d(-intBetween(2, 120)),
         });
       }
 
-      // ── Mensagem IA pendente para risco / reativação (alimenta /mensagens) ──
-      if (["vip_em_risco", "reativacao"].includes(coorte.estado) && rnd() > 0.4) {
+      // ── Mensagens para TODOS: histórico enviado + (pendente p/ risco/reativação) ──
+      const primeiroNome = primeiro;
+      mensagensParaCriar.push({
+        clienteId: cliente.id,
+        canal: "whatsapp",
+        estado: "enviada",
+        tipo: "pos_sessao",
+        motivoGeracao: "Seguimento pós-sessão",
+        mensagemGerada: `Olá ${primeiroNome}! 🌿 Foi um prazer receber-te. Bebe bastante água hoje e descansa. Até à próxima 💚`,
+        mensagemFinal: `Olá ${primeiroNome}! 🌿 Foi um prazer receber-te. Bebe bastante água hoje e descansa. Até à próxima 💚`,
+        geradaEm: d(-intBetween(20, 60)),
+        aprovadaEm: d(-intBetween(18, 59)),
+        enviadaEm: d(-intBetween(17, 58)),
+        converteu: rnd() > 0.5,
+      });
+      if (["vip_em_risco", "reativacao"].includes(coorte.estado)) {
         mensagensParaCriar.push({
           clienteId: cliente.id,
           canal: "whatsapp",
           estado: "pendente",
           tipo: "reengagement",
           motivoGeracao: `${coorte.estado.replace(/_/g, " ")} — sem sessão há ${ultimaOffset} dias`,
-          mensagemGerada: `Olá ${primeiro}! 🌿 É a Bea da Essence Wellness. Estava a pensar em ti — já há algum tempo que não nos vemos. Se precisares de um momento só teu, tenho disponibilidade esta semana. Um abraço 💚`,
+          mensagemGerada: `Olá ${primeiroNome}! 🌿 É a Bea da Essence Wellness. Estava a pensar em ti — já há algum tempo que não nos vemos. Se precisares de um momento só teu, tenho disponibilidade esta semana. Um abraço 💚`,
           geradaEm: d(-intBetween(0, 3)),
+        });
+      } else if (naoBloqueada && rnd() > 0.5) {
+        mensagensParaCriar.push({
+          clienteId: cliente.id,
+          canal: "whatsapp",
+          estado: "aprovada",
+          tipo: "lembrete",
+          motivoGeracao: "Lembrete de marcação",
+          mensagemGerada: `Olá ${primeiroNome}! Lembrete da tua sessão. Até já 🌿`,
+          mensagemFinal: `Olá ${primeiroNome}! Lembrete da tua sessão. Até já 🌿`,
+          geradaEm: d(-intBetween(0, 2)),
+          aprovadaEm: d(-intBetween(0, 1)),
+        });
+      }
+
+      // ── AuditLog para a Timeline (mudança de estado + tags adicionadas) ──
+      const autorAudit = terapeutaNome === "beatriz" ? "Beatriz Leão" : "Cristina Martins";
+      auditParaCriar.push({
+        quem: autorAudit,
+        acao: "cliente.estado_alterado",
+        entidade: "Cliente",
+        entidadeId: cliente.id,
+        detalhe: { de: "novo", para: coorte.estado, manual: false },
+        criadoEm: d(-intBetween(10, 90)),
+      });
+      for (const t of tagsFinais.slice(0, 2)) {
+        auditParaCriar.push({
+          quem: autorAudit,
+          acao: "etiqueta.adicionada",
+          entidade: "Cliente",
+          entidadeId: cliente.id,
+          detalhe: { etiqueta: t },
+          criadoEm: d(-intBetween(5, 80)),
         });
       }
     }
@@ -429,6 +509,7 @@ async function main() {
   if (tarefasParaCriar.length) await prisma.tarefa.createMany({ data: tarefasParaCriar });
   if (observacoesParaCriar.length) await prisma.observacao.createMany({ data: observacoesParaCriar });
   if (mensagensParaCriar.length) await prisma.mensagemIA.createMany({ data: mensagensParaCriar });
+  if (auditParaCriar.length) await prisma.auditLog.createMany({ data: auditParaCriar });
 
   console.log(`  ✓ ${sessoesParaCriar.length} sessões`);
   console.log(`  ✓ ${ligacoesEtiqueta.length} ligações de etiqueta`);
@@ -436,7 +517,8 @@ async function main() {
   console.log(`  ✓ ${packsParaCriar.length} packs`);
   console.log(`  ✓ ${tarefasParaCriar.length} tarefas`);
   console.log(`  ✓ ${observacoesParaCriar.length} observações`);
-  console.log(`  ✓ ${mensagensParaCriar.length} mensagens IA pendentes`);
+  console.log(`  ✓ ${mensagensParaCriar.length} mensagens IA`);
+  console.log(`  ✓ ${auditParaCriar.length} eventos de auditoria (timeline)`);
 
   // ── 7. Templates de mensagem (upsert) ────────────────────────────────────
   const templatesData = [
