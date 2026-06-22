@@ -77,7 +77,6 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
 
   return (
     <aside style={{
-      display: "none",
       flexDirection: "column",
       width: "216px",
       minHeight: "100vh",
@@ -85,7 +84,7 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
       borderRight: "1px solid rgba(212,184,134,0.10)",
       flexShrink: 0,
     }}
-    className="lg:flex"
+    className="hidden lg:flex"
     >
       {/* Lockup */}
       <div style={{
