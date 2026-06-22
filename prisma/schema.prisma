@@ -23,6 +23,7 @@ model User {
   accounts             Account[]
   sessions             Session[]
   sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")
+  clientesPrincipais   Cliente[] @relation("TerapeutaCliente")
   tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
   tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
   createdAt            DateTime  @default(now())
@@ -165,6 +166,10 @@ model Cliente {
   // Estado CRM (9 estados)
   estado              EstadoCliente @default(novo)
 
+  // Terapeuta responsável pelo cliente (atribuição mutável — base do isolamento por terapeuta)
+  terapeutaPrincipalId String?
+  terapeutaPrincipal   User?   @relation("TerapeutaCliente", fields: [terapeutaPrincipalId], references: [id], onDelete: SetNull)
+
   // Histórico clínico — DADOS DE SAÚDE (RGPD Art. 9: categoria especial)
   historicoAromasPreferidos     String?
   historicoCondicoesAlergias    String?
@@ -209,6 +214,7 @@ model Cliente {
   @@index([telefone])
   @@index([email])
   @@index([apagadoEm])
+  @@index([terapeutaPrincipalId])
 }
 
 model Sessao {

@@ -145,20 +145,25 @@ async function main() {
   const servicoPorNome = (n: string) => servicos.find((s) => s.nome === n)!;
   console.log(`  ✓ ${servicos.length} serviços`);
 
-  // ── 2. Utilizadores: Bea (admin) + Cris (terapeuta) ─────────────────────
-  // NÃO apaga contas. Garante a Bea como admin para ver tudo e todas as configs.
-  const senhaFallback = await bcrypt.hash(process.env.SEED_PASSWORD ?? "essence2026", 12);
-  const bea = await prisma.user.upsert({
-    where: { email: "bea@essencewellness.pt" },
-    update: { role: "admin", ativo: true },
-    create: { name: "Beatriz", email: "bea@essencewellness.pt", password: senhaFallback, role: "admin", emailVerified: new Date() },
-  });
-  const cris = await prisma.user.upsert({
-    where: { email: "cris@essencewellnesspt.com" },
-    update: { role: "terapeuta", ativo: true },
-    create: { name: "Cristina", email: "cris@essencewellnesspt.com", password: senhaFallback, role: "terapeuta", emailVerified: new Date() },
-  });
-  console.log(`  ✓ Bea (admin) + Cris (terapeuta)`);
+  // ── 2. Utilizadores: exatamente 3 (admin + 2 terapeutas) ────────────────
+  // Login por username (minúsculas) ou email. Password partilhada por agora.
+  const senha = await bcrypt.hash("EssencePT1506", 10);
+  const UTILIZADORES = [
+    { username: "nunobrito",       name: "Nuno Brito",       email: "nuno@essencewellnesspt.com",     role: "admin" },
+    { username: "beatrizleao",     name: "Beatriz Leão",     email: "beatriz@essencewellnesspt.com",  role: "terapeuta" },
+    { username: "cristinamartins", name: "Cristina Martins", email: "cristina@essencewellnesspt.com", role: "terapeuta" },
+  ];
+  for (const u of UTILIZADORES) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: { username: u.username, name: u.name, role: u.role, password: senha, precisaMudarPassword: false, ativo: true },
+      create: { username: u.username, name: u.name, email: u.email, role: u.role, password: senha, precisaMudarPassword: false, ativo: true, emailVerified: new Date() },
+    });
+  }
+  const nuno = await prisma.user.findUniqueOrThrow({ where: { username: "nunobrito" } });
+  const bea = await prisma.user.findUniqueOrThrow({ where: { username: "beatrizleao" } });
+  const cris = await prisma.user.findUniqueOrThrow({ where: { username: "cristinamartins" } });
+  console.log(`  ✓ 3 utilizadores: nunobrito (admin), beatrizleao, cristinamartins`);
 
   // ── 3. Limpar APENAS o domínio de clientes (idempotência) ───────────────
   await prisma.mensagemIA.deleteMany();
@@ -172,6 +177,13 @@ async function main() {
   await prisma.campanha.deleteMany();
   await prisma.etiqueta.deleteMany();
   console.log("  ✓ Domínio de clientes limpo");
+
+  // Apagar quaisquer outros utilizadores — ficam apenas os 3 definidos
+  const removidos = await prisma.user.deleteMany({
+    where: { email: { notIn: UTILIZADORES.map((u) => u.email) } },
+  });
+  console.log(`  ✓ ${removidos.count} utilizadores antigos removidos (ficam 3)`);
+  void nuno; // admin criado; usado para login, não precisa de ligação a clientes
 
   // ── 4. Etiquetas (4 tipos) ──────────────────────────────────────────────
   const etiquetasData = [
@@ -221,12 +233,17 @@ async function main() {
       const dataNascimento = new Date(anoNasc, intBetween(0, 11), intBetween(1, 28));
       const semDados = coorte.estado === "novo" || coorte.estado === "lead";
 
+      // Terapeuta responsável: ~60% Beatriz, ~40% Cristina
+      const terapeutaPrincipalId = idx % 5 < 3 ? bea.id : cris.id;
+      const terapeutaNome = terapeutaPrincipalId === bea.id ? "beatriz" : "cristina";
+
       // Criar cliente (precisamos do ID para ligar tudo)
       const cliente = await prisma.cliente.create({
         data: {
           nome, telefone, email, dataNascimento,
           comoNosConheceu: pick(COMO), fonte: pick(COMO),
           estado: coorte.estado as Prisma.ClienteCreateInput["estado"],
+          terapeutaPrincipalId,
           canalPreferido: canal,
           temWhatsapp: canal === "whatsapp",
           aceitaMarketing: coorte.estado !== "blacklist" && rnd() > 0.15,
@@ -256,7 +273,7 @@ async function main() {
         const servNome = SERVICOS_NOME[(idx + s) % SERVICOS_NOME.length];
         const serv = servicoPorNome(servNome);
         const preco = Number(serv.precoBase);
-        const terapeutaId = rnd() > 0.3 ? bea.id : cris.id;
+        const terapeutaId = terapeutaPrincipalId;
         const dataSessao = d(offsetDias);
         totalGasto += preco;
         if (!ultimaSessao || dataSessao > ultimaSessao) ultimaSessao = dataSessao;
@@ -268,7 +285,7 @@ async function main() {
           servico: servNome,
           servicoId: serv.id,
           preco: new Prisma.Decimal(preco),
-          terapeuta: terapeutaId === bea.id ? "bea" : "cris",
+          terapeuta: terapeutaNome,
           terapeutaId,
           estado: "realizada",
           aromaSessao: pick(AROMAS),
@@ -295,7 +312,7 @@ async function main() {
         }
         const servNome = pick(SERVICOS_NOME);
         const serv = servicoPorNome(servNome);
-        const terapeutaId = rnd() > 0.3 ? bea.id : cris.id;
+        const terapeutaId = terapeutaPrincipalId;
         sessoesParaCriar.push({
           clienteId: cliente.id,
           data: d(futuroOffset),
@@ -304,7 +321,7 @@ async function main() {
           servico: servNome,
           servicoId: serv.id,
           preco: new Prisma.Decimal(Number(serv.precoBase)),
-          terapeuta: terapeutaId === bea.id ? "bea" : "cris",
+          terapeuta: terapeutaNome,
           terapeutaId,
           estado: futuroOffset === 0 ? "confirmada" : "agendada",
         });
@@ -369,8 +386,8 @@ async function main() {
           estado: "pendente",
           prioridade: coorte.estado === "vip_em_risco" ? "alta" : "normal",
           tipo: coorte.estado === "lead" ? "ligacao" : "follow_up",
-          criadoPor: bea.id,
-          atribuidaA: bea.id,
+          criadoPor: terapeutaPrincipalId,
+          atribuidaA: terapeutaPrincipalId,
         });
       }
 
@@ -461,8 +478,17 @@ async function main() {
   console.log("\n📊 Distribuição por estado:");
   porEstado.sort((a, b) => b._count.id - a._count.id).forEach((r) => console.log(`   ${r.estado.padEnd(18)} ${r._count.id}`));
   const total = await prisma.cliente.count();
+  const porTerapeuta = await prisma.cliente.groupBy({ by: ["terapeutaPrincipalId"], _count: { id: true } });
   console.log(`\n🎯 Total: ${total} clientes`);
-  console.log("👤 Login Bea: bea@essencewellness.pt (role: admin — vê tudo)\n");
+  console.log("👥 Por terapeuta:");
+  for (const r of porTerapeuta) {
+    const nome = r.terapeutaPrincipalId === bea.id ? "Beatriz Leão" : r.terapeutaPrincipalId === cris.id ? "Cristina Martins" : "—";
+    console.log(`   ${nome.padEnd(18)} ${r._count.id}`);
+  }
+  console.log("\n👤 Logins (password: EssencePT1506):");
+  console.log("   nunobrito        → admin (vê tudo + filtro por terapeuta)");
+  console.log("   beatrizleao      → terapeuta (só os clientes dela)");
+  console.log("   cristinamartins  → terapeuta (só os clientes dela)\n");
   console.log("✅ Seed-100 concluído.");
 }
 

@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import { getContextoUtilizador, listarTerapeutas } from "@/lib/contexto-utilizador"
 import {
   ArrowLeft, Phone, Mail, CalendarDays, Wallet,
   MessageSquare,
@@ -16,6 +16,7 @@ import { ObservacoesTimeline } from "@/components/observacoes-timeline"
 import { AnimatedSection } from "@/components/stagger"
 import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
+import { TerapeutaEditor } from "./TerapeutaEditor"
 
 interface ClientePageProps {
   params: Promise<{ id: string }>
@@ -97,7 +98,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
   const { id } = await params
   const ctx = await getContextoUtilizador()
 
-  const [cliente, todasEtiquetas, tarefasCliente] = await Promise.all([
+  const [cliente, todasEtiquetas, tarefasCliente, terapeutas] = await Promise.all([
     prisma.cliente.findUnique({
       where: { id },
       include: {
@@ -119,14 +120,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
       orderBy: { criadoEm: "desc" },
       take: 50,
     }),
+    listarTerapeutas(),
   ])
 
   if (!cliente) notFound()
 
-  // Verificar scope para role terapeuta
-  if (!ctx.isAdmin) {
-    const temSessaoAtribuida = cliente.sessoes.some(s => s.terapeutaId === ctx.userId)
-    if (!temSessaoAtribuida) notFound()
+  // Verificar scope para role terapeuta: só vê os SEUS clientes
+  if (!ctx.isAdmin && cliente.terapeutaPrincipalId !== ctx.userId) {
+    notFound()
   }
 
   const canalLabel: Record<string, string> = {
@@ -206,6 +207,12 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 {cliente.nome}
               </h1>
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
+              <TerapeutaEditor
+                clienteId={cliente.id}
+                terapeutaAtualId={cliente.terapeutaPrincipalId}
+                terapeutas={terapeutas.map((t) => ({ id: t.id, name: t.name }))}
+                podeEditar={ctx.isAdmin}
+              />
               <div style={{ marginLeft: "auto" }}>
                 <DeleteClienteButton
                   clienteId={cliente.id}

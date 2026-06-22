@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
 import { BarChart2, Users, AlertTriangle, TrendingUp, MessageSquare, Calendar } from "lucide-react";
+import type { Prisma } from "@prisma/client";
 
 export const revalidate = 60;
 
@@ -23,7 +26,20 @@ const ESTADOS: {
   { key: "blacklist",       label: "Blacklist",       desc: "Bloqueada — sem comunicação",         color: "#b06050", bg: "rgba(176,96,80,0.12)",   href: "/clientes?estado=blacklist"       },
 ];
 
-export default async function PipelinePage() {
+interface PageProps {
+  searchParams: Promise<{ terapeuta?: string }>;
+}
+
+export default async function PipelinePage({ searchParams }: PageProps) {
+  const { terapeuta } = await searchParams;
+  const { filtroCliente: fcBase, filtroSessao: fsBase } = await getFiltrosTerapeuta(terapeuta);
+  const filtroCliente = fcBase as Prisma.ClienteWhereInput;
+  const filtroSessao = fsBase as Prisma.SessaoWhereInput;
+  // Mensagens são filtradas pelo cliente associado
+  const filtroMensagemCliente = (terapeuta || (filtroCliente.terapeutaPrincipalId))
+    ? { cliente: filtroCliente }
+    : {};
+
   const hoje = new Date();
   const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
   const fimDia    = new Date(inicioDia.getTime() + 86400000);
@@ -32,7 +48,7 @@ export default async function PipelinePage() {
   const [contagens, sessoesHoje, mensagensPendentes, emFila, totalClientes, clientesEmRisco, ativosMes] = await Promise.all([
     prisma.cliente.groupBy({
       by: ["estado"],
-      where: { apagadoEm: null },
+      where: { apagadoEm: null, ...filtroCliente },
       _count: { estado: true },
     }),
     prisma.sessao.count({
@@ -40,16 +56,17 @@ export default async function PipelinePage() {
         data: { gte: inicioDia, lt: fimDia },
         estado: { in: ["agendada", "confirmada", "realizada"] },
         apagadoEm: null,
+        ...filtroSessao,
       },
     }),
-    prisma.mensagemIA.count({ where: { estado: "pendente" } }),
-    prisma.mensagemIA.count({ where: { estado: "em_fila" } }),
-    prisma.cliente.count({ where: { apagadoEm: null } }),
+    prisma.mensagemIA.count({ where: { estado: "pendente", ...filtroMensagemCliente } }),
+    prisma.mensagemIA.count({ where: { estado: "em_fila", ...filtroMensagemCliente } }),
+    prisma.cliente.count({ where: { apagadoEm: null, ...filtroCliente } }),
     prisma.cliente.count({
-      where: { estado: { in: ["vip_em_risco", "reativacao"] }, apagadoEm: null },
+      where: { estado: { in: ["vip_em_risco", "reativacao"] }, apagadoEm: null, ...filtroCliente },
     }),
     prisma.cliente.count({
-      where: { ultimaSessao: { gte: inicioMes }, apagadoEm: null },
+      where: { ultimaSessao: { gte: inicioMes }, apagadoEm: null, ...filtroCliente },
     }),
   ]);
 
@@ -78,6 +95,8 @@ export default async function PipelinePage() {
           Pipeline
         </h1>
       </div>
+
+      <FiltroTerapeutaSlot />
 
       {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "28px" }}>
@@ -152,7 +171,7 @@ export default async function PipelinePage() {
           return (
             <Link
               key={estado.key}
-              href={estado.href}
+              href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href}
               style={{ textDecoration: "none", display: "block" }}
             >
               <div

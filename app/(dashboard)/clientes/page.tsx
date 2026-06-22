@@ -5,7 +5,8 @@ import type { Prisma, EstadoCliente } from "@prisma/client"
 import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/page-header"
 import { FiltrosClientes } from "./FiltrosClientes"
-import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { ClientesInfiniteList } from "@/components/clientes/ClientesInfiniteList"
 
 const PAGE_SIZE = 50
@@ -17,8 +18,8 @@ interface ClientesPageProps {
 }
 
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
-  const ctx = await getContextoUtilizador()
   const { q, estado, estados: estadosParam, etiquetas: etiquetasParam, inativo, terapeuta } = await searchParams
+  const { filtroCliente: filtroTerapeuta } = await getFiltrosTerapeuta(terapeuta)
 
   const etiquetasFiltro = etiquetasParam
     ? (Array.isArray(etiquetasParam) ? etiquetasParam : [etiquetasParam])
@@ -45,14 +46,9 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     ? { ultimaSessao: { lt: new Date(Date.now() - inativoDias * 86_400_000) } }
     : {}
 
-  // Filtro por terapeuta: para role terapeuta aplica automaticamente; para admin aceita ?terapeuta=
-  const filtroTerapeuta: Prisma.ClienteWhereInput = ctx.isAdmin && terapeuta
-    ? { sessoes: { some: { terapeutaId: terapeuta } } }
-    : (ctx.filtroCliente as Prisma.ClienteWhereInput)
-
   const where: Prisma.ClienteWhereInput = {
     apagadoEm: null,
-    ...filtroTerapeuta,
+    ...(filtroTerapeuta as Prisma.ClienteWhereInput),
     ...(q ? {
       OR: [
         { nome: { contains: q, mode: "insensitive" } },
@@ -126,6 +122,8 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
         titulo="Clientes"
         subtitulo={`${totalClientes} cliente${totalClientes !== 1 ? "s" : ""} encontrado${totalClientes !== 1 ? "s" : ""}`}
       />
+
+      <FiltroTerapeutaSlot />
 
       {/* Pesquisa + filtros rápidos */}
       <div

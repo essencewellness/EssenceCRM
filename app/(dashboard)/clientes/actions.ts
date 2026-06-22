@@ -107,6 +107,41 @@ export async function atualizarEstadoCliente(clienteId: string, estado: EstadoCl
   revalidatePath("/clientes")
 }
 
+// ── Terapeuta responsável ───────────────────────────────────────
+
+export async function atribuirTerapeutaCliente(clienteId: string, terapeutaId: string | null) {
+  const session = await verificarSessao()
+  const role = (session.user as { role?: string })?.role ?? "terapeuta"
+  if (role !== "admin") throw new Error("Apenas o administrador pode mudar a terapeuta")
+
+  // Validar que o destino é mesmo uma terapeuta (ou null para remover atribuição)
+  if (terapeutaId) {
+    const terapeuta = await prisma.user.findUnique({ where: { id: terapeutaId }, select: { id: true } })
+    if (!terapeuta) throw new Error("Terapeuta não encontrada")
+  }
+
+  const anterior = await prisma.cliente.findUnique({
+    where: { id: clienteId },
+    select: { terapeutaPrincipalId: true },
+  })
+
+  await prisma.cliente.update({
+    where: { id: clienteId },
+    data: { terapeutaPrincipalId: terapeutaId },
+  })
+
+  auditar({
+    quem: session.user?.email ?? "admin",
+    acao: "cliente.terapeuta_alterada",
+    entidade: "Cliente",
+    entidadeId: clienteId,
+    detalhe: { de: anterior?.terapeutaPrincipalId ?? null, para: terapeutaId },
+  })
+
+  revalidatePath(`/clientes/${clienteId}`)
+  revalidatePath("/clientes")
+}
+
 // ── Campanhas ───────────────────────────────────────────────────
 
 export async function criarCampanhaFromFiltro(dados: {

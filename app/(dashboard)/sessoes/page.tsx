@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
-import { getContextoUtilizador } from "@/lib/contexto-utilizador";
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
 import { Calendar, Clock, User } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 
@@ -17,13 +18,13 @@ const ESTADO_SESSAO: Record<string, { label: string; color: string; bg: string }
 };
 
 interface PageProps {
-  searchParams: Promise<{ estado?: string; data?: string }>;
+  searchParams: Promise<{ estado?: string; data?: string; terapeuta?: string }>;
 }
 
 export default async function SessoesPage({ searchParams }: PageProps) {
-  const ctx = await getContextoUtilizador();
-  const { estado: estadoFiltro, data: dataFiltro } = await searchParams;
-  const filtroSessao = ctx.filtroSessao as Prisma.SessaoWhereInput;
+  const { estado: estadoFiltro, data: dataFiltro, terapeuta } = await searchParams;
+  const { filtroSessao: filtroSessaoBase } = await getFiltrosTerapeuta(terapeuta);
+  const filtroSessao = filtroSessaoBase as Prisma.SessaoWhereInput;
 
   const hoje = new Date();
   const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
@@ -87,6 +88,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
     const p = new URLSearchParams();
     if (estadoFiltro && !("estado" in params)) p.set("estado", estadoFiltro);
     if (dataFiltro   && !("data"   in params)) p.set("data",   dataFiltro);
+    if (terapeuta) p.set("terapeuta", terapeuta);
     Object.entries(params).forEach(([k, v]) => { if (v) p.set(k, v); });
     const s = p.toString();
     return s ? `?${s}` : "/sessoes";
@@ -111,6 +113,8 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           Sessões
         </h1>
       </div>
+
+      <FiltroTerapeutaSlot />
 
       {/* KPIs rápidos */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>

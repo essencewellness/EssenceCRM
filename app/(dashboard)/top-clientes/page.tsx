@@ -4,7 +4,8 @@ import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import { Users, TrendingUp, Crown, AlertTriangle, Star, MessageCircle, Mail } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { AnimatedProgress } from "@/components/animated-progress";
-import { getContextoUtilizador } from "@/lib/contexto-utilizador";
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
 import type { Prisma } from "@prisma/client";
 
 export const revalidate = 30
@@ -100,7 +101,7 @@ function EstadoBadgeMini({ estado }: { estado: string }) {
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 interface PageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; terapeuta?: string }>;
 }
 
 const clienteSelect = {
@@ -112,9 +113,9 @@ const clienteSelect = {
 } as const;
 
 export default async function TopClientesPage({ searchParams }: PageProps) {
-  const { tab = "valor" } = await searchParams;
-  const ctx = await getContextoUtilizador();
-  const filtroCliente = ctx.filtroCliente as Prisma.ClienteWhereInput;
+  const { tab = "valor", terapeuta } = await searchParams;
+  const { filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeuta);
+  const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput;
 
   const agora = new Date();
 
@@ -162,6 +163,8 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
         titulo="Top Clientes"
         subtitulo="Identifica as tuas clientes mais valiosas e as que precisam de atenção."
       />
+
+      <FiltroTerapeutaSlot />
 
       {/* Stat cards — scale in com stagger */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", marginBottom: "28px" }}>

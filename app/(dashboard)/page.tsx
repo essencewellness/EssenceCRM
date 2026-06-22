@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { KpiCardPremium } from "@/components/kpi-card"
 import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard } from "@/components/dashboard-live"
-import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import Link from "next/link"
 import { CheckSquare, AlertTriangle, Calendar } from "lucide-react"
 import type { Prisma } from "@prisma/client"
@@ -46,16 +47,10 @@ interface DashboardPageProps {
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const ctx = await getContextoUtilizador()
   const { terapeuta: terapeutaFiltroId } = await searchParams
-
-  const filtroSessao: Prisma.SessaoWhereInput = ctx.isAdmin && terapeutaFiltroId
-    ? { terapeutaId: terapeutaFiltroId }
-    : (ctx.filtroSessao as Prisma.SessaoWhereInput)
-
-  const filtroCliente: Prisma.ClienteWhereInput = ctx.isAdmin && terapeutaFiltroId
-    ? { sessoes: { some: { terapeutaId: terapeutaFiltroId } } }
-    : (ctx.filtroCliente as Prisma.ClienteWhereInput)
+  const { filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
+  const filtroSessao = filtroSessaoBase as Prisma.SessaoWhereInput
+  const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput
 
   const { hoje, amanha, semanaFim } = buildDateRange()
   const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
@@ -200,6 +195,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Saudação */}
       <DashboardHeader saudacao={saudacao} totalHoje={sessõesHoje.length} />
+
+      <FiltroTerapeutaSlot />
 
       {/* ── Linha 1: 4 KPI cards ── */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

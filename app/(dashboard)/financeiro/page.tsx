@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
-import { getContextoUtilizador } from "@/lib/contexto-utilizador"
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import type { Prisma } from "@prisma/client"
 
 const GOLD = "#d4b886"
@@ -34,12 +35,12 @@ function parseMes(mes?: string) {
 export default async function FinanceiroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string }>
+  searchParams: Promise<{ mes?: string; terapeuta?: string }>
 }) {
-  const ctx = await getContextoUtilizador()
-  const filtroSessao = ctx.filtroSessao as Prisma.SessaoWhereInput
+  const { mes, terapeuta } = await searchParams
+  const { filtroSessao: fsBase } = await getFiltrosTerapeuta(terapeuta)
+  const filtroSessao = fsBase as Prisma.SessaoWhereInput
 
-  const { mes } = await searchParams
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
   const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, servicosRaw] = await Promise.all([
@@ -173,6 +174,8 @@ export default async function FinanceiroPage({
           <MesLink href={`/financeiro?mes=${nextMes}`} aria-label="Mês seguinte"><ChevronRight size={16} /></MesLink>
         </div>
       </div>
+
+      <FiltroTerapeutaSlot />
 
       {/* KPI cards do mês */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

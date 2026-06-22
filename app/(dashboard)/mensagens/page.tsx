@@ -6,6 +6,9 @@ import { auth } from "@/lib/auth";
 import { aprovarEAgendar } from "@/lib/fila-envio";
 import { auditar } from "@/lib/audit";
 import { MensagensBulk, type MensagemPendente } from "@/components/mensagens-bulk";
+import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
+import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
+import type { Prisma } from "@prisma/client";
 import {
   MessageSquare, Clock, CheckCircle2, XCircle, TrendingUp,
   Hourglass, AlertTriangle, Send, RotateCcw,
@@ -83,11 +86,16 @@ async function reporNaFilaAction(formData: FormData) {
 // ── Page ───────────────────────────────────────────────────────
 
 interface PageProps {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; terapeuta?: string }>;
 }
 
 export default async function MensagensPage({ searchParams }: PageProps) {
-  const { tab = "pendentes" } = await searchParams;
+  const { tab = "pendentes", terapeuta } = await searchParams;
+  const { filtroCliente } = await getFiltrosTerapeuta(terapeuta);
+  // Mensagens filtradas pela terapeuta do cliente associado
+  const fMsg = (filtroCliente as Prisma.ClienteWhereInput).terapeutaPrincipalId
+    ? { cliente: filtroCliente as Prisma.ClienteWhereInput }
+    : {};
 
   const agora = new Date();
   const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
@@ -102,25 +110,25 @@ export default async function MensagensPage({ searchParams }: PageProps) {
     mensagensFila,
     mensagensHistorico,
   ] = await Promise.all([
-    prisma.mensagemIA.count({ where: { estado: "pendente" } }),
-    prisma.mensagemIA.count({ where: { estado: "em_fila" } }),
-    prisma.mensagemIA.count({ where: { estado: "falhada" } }),
-    prisma.mensagemIA.count({ where: { estado: "enviada", enviadaEm: { gte: inicioMes } } }),
-    prisma.mensagemIA.count({ where: { converteu: true, enviadaEm: { gte: inicioMes } } }),
+    prisma.mensagemIA.count({ where: { estado: "pendente", ...fMsg } }),
+    prisma.mensagemIA.count({ where: { estado: "em_fila", ...fMsg } }),
+    prisma.mensagemIA.count({ where: { estado: "falhada", ...fMsg } }),
+    prisma.mensagemIA.count({ where: { estado: "enviada", enviadaEm: { gte: inicioMes }, ...fMsg } }),
+    prisma.mensagemIA.count({ where: { converteu: true, enviadaEm: { gte: inicioMes }, ...fMsg } }),
     prisma.mensagemIA.findMany({
-      where: { estado: "pendente" },
+      where: { estado: "pendente", ...fMsg },
       include: { cliente: { include: { etiquetas: { include: { etiqueta: true } } } } },
       orderBy: { geradaEm: "desc" },
       take: 100,
     }),
     prisma.mensagemIA.findMany({
-      where: { estado: { in: ["em_fila", "falhada"] } },
+      where: { estado: { in: ["em_fila", "falhada"] }, ...fMsg },
       include: { cliente: { select: { id: true, nome: true, telefone: true } } },
       orderBy: { enviarApos: "asc" },
       take: 100,
     }),
     prisma.mensagemIA.findMany({
-      where: { estado: { in: ["enviada", "rejeitada", "aprovada"] } },
+      where: { estado: { in: ["enviada", "rejeitada", "aprovada"] }, ...fMsg },
       include: { cliente: { select: { id: true, nome: true } } },
       orderBy: { geradaEm: "desc" },
       take: 50,
@@ -163,6 +171,8 @@ export default async function MensagensPage({ searchParams }: PageProps) {
         titulo="Mensagens IA"
         subtitulo="Aprova em massa — a fila trata do envio com espaçamento seguro."
       />
+
+      <FiltroTerapeutaSlot />
 
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "24px" }}>

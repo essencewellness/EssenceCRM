@@ -27,6 +27,19 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // Isolamento por sessão: terapeuta (não-admin) só vê tarefas dos SEUS clientes
+  // ou atribuídas a si. Chamadas N8N (X-API-Key sem cookie de sessão) não são afetadas.
+  try {
+    const session = await auth()
+    const u = session?.user as { id?: string; role?: string } | undefined
+    if (u?.id && u.role !== "admin") {
+      where.OR = [
+        { cliente: { terapeutaPrincipalId: u.id } },
+        { atribuidaA: u.id },
+      ]
+    }
+  } catch { /* sem sessão (N8N) — sem scope */ }
+
   const tarefas = await prisma.tarefa.findMany({
     where,
     include: {
