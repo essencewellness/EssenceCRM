@@ -49,6 +49,15 @@ export async function POST(request: NextRequest) {
       if (!sessao) {
         return NextResponse.json({ ok: true })
       }
+
+      // Deduplicação: 1 feedback por sessão (evita spam de notificações à Bea)
+      const feedbackExistente = await prisma.feedback.findFirst({
+        where: { sessaoId, clienteId },
+        select: { id: true, encaminhadoGoogle: true },
+      })
+      if (feedbackExistente) {
+        return NextResponse.json({ ok: true, feedbackId: feedbackExistente.id, encaminharGoogle: feedbackExistente.encaminhadoGoogle })
+      }
     }
 
     const encaminhadoGoogle = rating >= 4

@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { auditar, loginsFalhadosRecentes } from "@/lib/audit";
+import { auditar, loginsFalhadosRecentes, loginsFalhadosPorIp } from "@/lib/audit";
 
 // Proteção brute-force: 5 tentativas falhadas em 15 min → conta bloqueada 15 min
 const MAX_TENTATIVAS = 5;
@@ -21,16 +21,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.username || !credentials?.password) return null;
 
         const identifier = (credentials.username as string).toLowerCase().trim();
+        const ip = (request as Request).headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
 
-        // Lockout: demasiadas falhas recentes → recusar sem sequer verificar
+        // Lockout por conta: demasiadas falhas recentes → recusar
         const falhas = await loginsFalhadosRecentes(identifier, JANELA_MINUTOS);
         if (falhas >= MAX_TENTATIVAS) {
-          auditar({ quem: identifier, acao: "login.bloqueado", detalhe: { falhas } });
+          auditar({ quem: identifier, acao: "login.bloqueado", detalhe: { falhas }, ip });
           return null;
+        }
+
+        // Lockout por IP: evita ataques multi-conta do mesmo IP (threshold 3×)
+        if (ip) {
+          const falhasIp = await loginsFalhadosPorIp(ip, JANELA_MINUTOS);
+          if (falhasIp >= MAX_TENTATIVAS * 3) {
+            auditar({ quem: `ip:${ip}`, acao: "login.bloqueado_ip", detalhe: { falhasIp }, ip });
+            return null;
+          }
         }
 
         // Suporta login por username OU email (backward compat durante migração)

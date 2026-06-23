@@ -38,3 +38,15 @@ export async function loginsFalhadosRecentes(email: string, minutos = 15): Promi
     },
   })
 }
+
+/** Conta logins falhados recentes por IP (proteção brute-force multi-conta). */
+export async function loginsFalhadosPorIp(ip: string, minutos = 15): Promise<number> {
+  const desde = new Date(Date.now() - minutos * 60_000)
+  return prisma.auditLog.count({
+    where: {
+      acao: "login.falhado",
+      ip,
+      criadoEm: { gte: desde },
+    },
+  })
+}

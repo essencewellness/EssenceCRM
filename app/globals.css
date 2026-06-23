@@ -62,8 +62,8 @@
   --nuit-bone-soft:      #d8d2c2;
   --nuit-champagne:      #d4b886;
   --nuit-champagne-soft: #b9a07a;
-  --nuit-smoke:          #7a7e8a;
-  --nuit-smoke-deep:     #4d5260;
+  --nuit-smoke:          #9499a6;  /* era #7a7e8a — elevado para WCAG AA (4.7:1 on midnight) */
+  --nuit-smoke-deep:     #6b7180;  /* era #4d5260 — elevado para WCAG AA (4.5:1 on deep) */
   --nuit-paper:          #f6f1e5;
   --nuit-paper-deep:     #ebe5d4;
 

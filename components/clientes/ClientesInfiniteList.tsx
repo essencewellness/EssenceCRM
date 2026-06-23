@@ -43,9 +43,7 @@ export function ClientesInfiniteList({
     try {
       const sep = queryString ? "&" : ""
       const url = `/api/v1/clientes?limit=${PAGE_SIZE}&cursor=${cursor}${queryString ? sep + queryString : ""}`
-      const res = await fetch(url, {
-        headers: { "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "" },
-      })
+      const res = await fetch(url, { credentials: "include" })
       if (!res.ok) return
       const json = await res.json()
       const novos: ClienteRow[] = (json.data ?? []).map((c: Record<string, unknown>) => ({

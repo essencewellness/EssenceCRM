@@ -74,7 +74,7 @@ Modelos `Servico`, `PrecoPersonalizado` e `Pack` adicionados ao schema. Endpoint
 
 | Prioridade | Problema | Localização |
 |---|---|---|
-| 🔴 CRÍTICO | `AUTH_URL` no Vercel por confirmar | Vercel dashboard |
+| ~~🔴 CRÍTICO~~ | ~~`AUTH_URL` no Vercel por confirmar~~ | ✅ Resolvido — `https://crm.essencewellness.pt` |
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
 | 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel |
 | 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |

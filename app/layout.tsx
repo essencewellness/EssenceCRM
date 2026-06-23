@@ -33,6 +33,13 @@ export default function RootLayout({
       className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:text-xs focus:font-medium focus:tracking-widest focus:uppercase focus:bg-[var(--nuit-champagne)] focus:text-[var(--nuit-midnight)]"
+          style={{ letterSpacing: "0.1em" }}
+        >
+          Saltar para o conteúdo
+        </a>
         {children}
         <Toaster position="bottom-right" richColors closeButton />
       </body>
