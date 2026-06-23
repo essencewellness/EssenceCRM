@@ -61,8 +61,8 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
       {aberto && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0,
-          backgroundColor: "#fff", border: "1px solid #ddd6c4",
-          borderRadius: "4px", boxShadow: "0 4px 16px rgba(22,26,38,0.10)",
+          backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+          borderRadius: "4px", boxShadow: "0 8px 24px rgba(14,17,25,0.40)",
           zIndex: 50, minWidth: "160px", overflow: "hidden",
         }}>
           {ESTADOS.map(([estado, c]) => (
@@ -73,7 +73,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
                 display: "flex", alignItems: "center", gap: "8px",
                 width: "100%", padding: "8px 12px",
                 fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                color: estado === estadoLocal ? c.cor : "#6d6d6d",
+                color: estado === estadoLocal ? c.cor : "var(--nuit-smoke)",
                 backgroundColor: estado === estadoLocal ? c.bg : "transparent",
                 border: "none", cursor: "pointer", textAlign: "left",
                 transition: "background-color 100ms",

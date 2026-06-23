@@ -1,24 +1,25 @@
 export default function ClientesLoading() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="h-8 w-36 bg-gray-200 rounded animate-pulse" />
-        <div className="h-9 w-32 bg-emerald-100 rounded-lg animate-pulse" />
+    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+        <div style={{ width: "140px", height: "28px", borderRadius: "3px", backgroundColor: "rgba(212,184,134,0.08)", animation: "pulse 1.5s ease-in-out infinite" }} />
+        <div style={{ width: "120px", height: "36px", borderRadius: "2px", backgroundColor: "rgba(212,184,134,0.06)", animation: "pulse 1.5s ease-in-out infinite" }} />
       </div>
-      <div className="h-12 w-full bg-white rounded-xl mb-4 animate-pulse shadow-sm" />
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div style={{ height: "38px", width: "100%", borderRadius: "2px", backgroundColor: "rgba(212,184,134,0.06)", marginBottom: "16px", animation: "pulse 1.5s ease-in-out infinite" }} />
+      <div style={{ backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.12)", borderRadius: "2px", overflow: "hidden" }}>
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-gray-50">
-            <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse shrink-0" />
-            <div className="flex-1 space-y-1.5">
-              <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
-              <div className="h-3 w-1/4 bg-gray-100 rounded animate-pulse" />
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "16px", padding: "16px", borderBottom: i < 7 ? "1px solid rgba(212,184,134,0.08)" : "none" }}>
+            <div style={{ width: "34px", height: "34px", borderRadius: "50%", backgroundColor: "rgba(185,160,122,0.08)", flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div style={{ height: "14px", width: "33%", borderRadius: "3px", backgroundColor: "rgba(212,184,134,0.08)", animation: "pulse 1.5s ease-in-out infinite" }} />
+              <div style={{ height: "11px", width: "25%", borderRadius: "3px", backgroundColor: "rgba(212,184,134,0.05)", animation: "pulse 1.5s ease-in-out infinite" }} />
             </div>
-            <div className="h-6 w-20 bg-gray-100 rounded-full animate-pulse" />
-            <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+            <div style={{ width: "80px", height: "22px", borderRadius: "2px", backgroundColor: "rgba(212,184,134,0.06)", animation: "pulse 1.5s ease-in-out infinite" }} />
+            <div style={{ width: "96px", height: "13px", borderRadius: "3px", backgroundColor: "rgba(212,184,134,0.06)", animation: "pulse 1.5s ease-in-out infinite" }} />
           </div>
         ))}
       </div>
+      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
     </div>
   )
 }

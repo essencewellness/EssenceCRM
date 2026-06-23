@@ -157,12 +157,12 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
               defaultValue={q ?? ""}
               placeholder="Pesquisar por nome, email ou telefone…"
               style={{
-                paddingLeft: "36px", backgroundColor: "#ffffff",
-                border: "1px solid #ddd6c4", color: "#161a26",
+                paddingLeft: "36px", backgroundColor: "var(--nuit-deep)",
+                border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone)",
                 fontSize: "13px", fontFamily: "var(--font-body, sans-serif)",
                 borderRadius: "0px", height: "38px", boxShadow: "none",
               }}
-              className="placeholder:text-[#b5b5b2] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
+              className="placeholder:text-[var(--nuit-smoke)] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
             />
           </div>
 
@@ -217,7 +217,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <Users size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "#6d6d6d" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-smoke)" }}>
               Nenhum cliente encontrado
             </p>
             {(q || estado || temFiltrosAvancados) && (

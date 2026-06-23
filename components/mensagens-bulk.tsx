@@ -9,8 +9,8 @@ const INK = "#161a26";
 const CHAMPAGNE = "#b9a07a";
 const SAGE = "#5f7a5f";
 const TERRA = "#b06050";
-const CARD = "#fdfaf1";
-const BORDER = "#ddd6c4";
+const CARD = "var(--nuit-overlay)";
+const BORDER = "rgba(212,184,134,0.18)";
 
 export interface MensagemPendente {
   id: string;
@@ -108,10 +108,10 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
           border: `1px dashed rgba(185,160,122,0.35)`,
         }}
       >
-        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "16px", color: "#6d6d6d" }}>
+        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "16px", color: "var(--nuit-smoke)" }}>
           Nenhuma mensagem pendente
         </p>
-        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#9d9d9a", marginTop: "6px" }}>
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "6px" }}>
           Assim que a IA gerar novas mensagens, aparecem aqui para aprovares.
         </p>
       </div>
@@ -231,7 +231,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px" }}>
                     <a
                       href={`/clientes/${m.clienteId}`}
-                      style={{ fontFamily: "var(--font-sans, sans-serif)", fontWeight: 700, fontSize: "14px", color: INK, textDecoration: "none" }}
+                      style={{ fontFamily: "var(--font-sans, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)", textDecoration: "none" }}
                     >
                       {m.clienteNome}
                     </a>
@@ -286,7 +286,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                     style={{
                       width: "100%", padding: "12px 14px",
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", lineHeight: 1.65,
-                      color: INK, backgroundColor: "#fff",
+                      color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)",
                       border: `1px solid rgba(185,160,122,0.6)`, borderRadius: "8px",
                       resize: "vertical",
                     }}

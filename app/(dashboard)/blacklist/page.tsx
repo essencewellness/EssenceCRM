@@ -26,7 +26,7 @@ export default async function BlacklistPage() {
           <div>
             <h1 style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "20px", fontWeight: 400, color: "#161a26",
+              fontSize: "20px", fontWeight: 400, color: "var(--nuit-bone)",
             }}>
               Acessos Bloqueados
             </h1>
@@ -47,12 +47,11 @@ export default async function BlacklistPage() {
 
       {/* Add form */}
       <div style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid rgba(176,96,80,0.18)",
-        borderRadius: "12px",
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(176,96,80,0.22)",
+        borderRadius: "8px",
         padding: "20px 24px",
         marginBottom: "20px",
-        boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
       }}>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
@@ -99,11 +98,10 @@ export default async function BlacklistPage() {
 
       {/* Table */}
       <div style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #ddd6c4",
-        borderRadius: "12px",
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(212,184,134,0.16)",
+        borderRadius: "8px",
         overflow: "hidden",
-        boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
       }}>
         {bloqueados.length === 0 ? (
           <div style={{
@@ -121,7 +119,7 @@ export default async function BlacklistPage() {
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #ddd6c4" }}>
+              <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.14)" }}>
                 {[
                   { label: "Nome", key: "nome" },
                   { label: "Telefone", key: "telefone" },
@@ -134,9 +132,9 @@ export default async function BlacklistPage() {
                     padding: "10px 16px",
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-                    color: "#9d9d9a", textTransform: "uppercase",
+                    color: "var(--nuit-smoke)", textTransform: "uppercase",
                     textAlign: i === 5 ? "center" : "left",
-                    backgroundColor: "rgba(237,231,227,0.5)",
+                    backgroundColor: "rgba(212,184,134,0.06)",
                   }}>
                     {label}
                   </th>
@@ -150,9 +148,9 @@ export default async function BlacklistPage() {
                   <tr
                     key={c.id}
                     style={{
-                      borderBottom: idx < bloqueados.length - 1 ? "1px solid #e6e0d2" : "none",
+                      borderBottom: idx < bloqueados.length - 1 ? "1px solid rgba(212,184,134,0.10)" : "none",
                     }}
-                    className="hover:bg-[#efe9db]"
+                    className="hover:bg-[rgba(212,184,134,0.05)]"
                   >
                     <td style={{ padding: "13px 16px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -168,14 +166,14 @@ export default async function BlacklistPage() {
                         </div>
                         <span style={{
                           fontFamily: "var(--font-body, sans-serif)",
-                          fontSize: "13px", fontWeight: 600, color: "#161a26",
+                          fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)",
                         }}>
                           {c.nome}
                         </span>
                       </div>
                     </td>
                     <td style={{ padding: "13px 16px" }}>
-                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d" }}>
+                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)" }}>
                         {formatPhone(c.telefone)}
                       </span>
                     </td>
@@ -190,7 +188,7 @@ export default async function BlacklistPage() {
                     </td>
                     <td style={{ padding: "13px 16px" }}>
                       <span style={{
-                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "#6d6d6d",
+                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)",
                         fontStyle: motivo === "—" ? "italic" : "normal",
                         display: "block", maxWidth: "160px",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -218,7 +216,7 @@ export default async function BlacklistPage() {
                             letterSpacing: "0.06em",
                             transition: "all 150ms",
                           }}
-                          className="hover:text-[#6d6d6d] hover:bg-[#f5f2ef]"
+                          className="hover:text-[var(--nuit-smoke)] hover:bg-[rgba(212,184,134,0.06)]"
                         >
                           remover
                         </button>
@@ -255,11 +253,11 @@ const labelStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   width: "100%", height: "36px", padding: "0 10px",
-  backgroundColor: "#efe9db",
-  border: "1px solid #ddd6c4",
+  backgroundColor: "var(--nuit-midnight)",
+  border: "1px solid rgba(212,184,134,0.22)",
   borderRadius: "8px",
   fontFamily: "var(--font-body, sans-serif)",
-  fontSize: "13px", color: "#161a26",
+  fontSize: "13px", color: "var(--nuit-bone)",
   outline: "none",
   boxSizing: "border-box",
 };

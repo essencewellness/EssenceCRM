@@ -229,8 +229,8 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {temFiltros && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", backgroundColor: "rgba(185,160,122,0.06)", borderRadius: "6px", border: "1px solid rgba(185,160,122,0.20)" }}>
           <Zap size={13} color="#b9a07a" />
-          <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "#6d6d6d", flex: 1 }}>
-            <strong style={{ color: "#161a26" }}>{totalResultados}</strong> cliente{totalResultados !== 1 ? "s" : ""} encontrada{totalResultados !== 1 ? "s" : ""}
+          <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)", flex: 1 }}>
+            <strong style={{ color: "var(--nuit-bone)" }}>{totalResultados}</strong> cliente{totalResultados !== 1 ? "s" : ""} encontrada{totalResultados !== 1 ? "s" : ""}
           </span>
           <button
             onClick={() => setModalCampanha(true)}
@@ -250,7 +250,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             style={{
               padding: "6px 10px", borderRadius: "4px", cursor: "pointer",
               fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
-              color: "#9d9d9a", backgroundColor: "transparent", border: "1px solid #ddd6c4",
+              color: "var(--nuit-smoke)", backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.20)",
             }}
           >
             Limpar filtros
@@ -267,17 +267,18 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
           onClick={e => { if (e.target === e.currentTarget && !resultado) setModalCampanha(false) }}
         >
           <div style={{
-            backgroundColor: "#fff", borderRadius: "8px", padding: "28px",
-            width: "100%", maxWidth: "420px", boxShadow: "0 16px 48px rgba(22,26,38,0.18)",
+            backgroundColor: "var(--nuit-overlay)", borderRadius: "8px", padding: "28px",
+            width: "100%", maxWidth: "420px", boxShadow: "0 16px 48px rgba(14,17,25,0.50)",
+            border: "1px solid rgba(212,184,134,0.16)",
           }}>
             {resultado ? (
               /* Estado de sucesso */
               <>
-                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "#161a26", marginBottom: "12px" }}>
+                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "var(--nuit-bone)", marginBottom: "12px" }}>
                   Campanha criada!
                 </h3>
-                <p style={{ fontSize: "14px", color: "#6d6d6d", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
-                  <strong style={{ color: "#161a26" }}>{resultado.totalCriadas}</strong> mensagens criadas e aguardam aprovação.
+                <p style={{ fontSize: "14px", color: "var(--nuit-smoke)", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
+                  <strong style={{ color: "var(--nuit-bone)" }}>{resultado.totalCriadas}</strong> mensagens criadas e aguardam aprovação.
                 </p>
                 {resultado.totalExcluidas > 0 && (
                   <p style={{ fontSize: "12px", color: "#b06050", fontFamily: "var(--font-sans, sans-serif)" }}>
@@ -287,7 +288,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                   <button
                     onClick={() => { setModalCampanha(false); setResultado(null); setNomeCampanha(""); setTemplateId("") }}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid #ddd6c4", color: "#6d6d6d", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-smoke)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Fechar
                   </button>
@@ -302,7 +303,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             ) : (
               /* Formulário */
               <>
-                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "#161a26", marginBottom: "18px" }}>
+                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "var(--nuit-bone)", marginBottom: "18px" }}>
                   Nova Campanha WhatsApp
                 </h3>
 
@@ -314,7 +315,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                     value={nomeCampanha}
                     onChange={e => setNomeCampanha(e.target.value)}
                     placeholder="Ex.: Campanha Junho — Massagem de Casal"
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid #ddd6c4", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "#161a26", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
 
@@ -325,7 +326,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   <select
                     value={templateId}
                     onChange={e => setTemplateId(e.target.value)}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid #ddd6c4", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "#161a26", outline: "none", backgroundColor: "#fff" }}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", outline: "none", backgroundColor: "var(--nuit-midnight)" }}
                   >
                     <option value="">Seleccionar template…</option>
                     {templates.map(t => (
@@ -334,14 +335,14 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   </select>
                 </div>
 
-                <p style={{ fontSize: "12px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "18px" }}>
+                <p style={{ fontSize: "12px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "18px" }}>
                   {totalResultados} cliente{totalResultados !== 1 ? "s" : ""} receberá{totalResultados !== 1 ? "m" : ""} esta mensagem (clientes com restrições de saúde serão excluídas automaticamente).
                 </p>
 
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     onClick={() => setModalCampanha(false)}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid #ddd6c4", color: "#6d6d6d", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-smoke)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Cancelar
                   </button>

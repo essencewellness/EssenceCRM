@@ -178,12 +178,12 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
             display: "inline-flex", alignItems: "center", gap: "5px",
             padding: "5px 10px", borderRadius: "100px",
             fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
-            fontWeight: 500, color: "#9d9d9a",
-            backgroundColor: "transparent", border: "1px dashed #ddd6c4",
+            fontWeight: 500, color: "var(--nuit-smoke)",
+            backgroundColor: "transparent", border: "1px dashed rgba(212,184,134,0.28)",
             cursor: "pointer", transition: "all 150ms",
           }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = "#b9a07a"; e.currentTarget.style.color = "#b9a07a" }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "#ddd6c4"; e.currentTarget.style.color = "#9d9d9a" }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,184,134,0.28)"; e.currentTarget.style.color = "var(--nuit-smoke)" }}
         >
           <Plus size={11} /> Adicionar etiqueta
         </button>
@@ -191,16 +191,16 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         {abertoDropdown && (
           <div style={{
             position: "absolute", top: "calc(100% + 6px)", left: 0,
-            backgroundColor: "#fff", border: "1px solid #ddd6c4",
-            borderRadius: "6px", boxShadow: "0 6px 24px rgba(22,26,38,0.12)",
+            backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+            borderRadius: "6px", boxShadow: "0 8px 28px rgba(14,17,25,0.45)",
             zIndex: 50, width: "260px", overflow: "hidden",
           }}>
             {!mostraFormCriar ? (
               <>
                 {/* Pesquisa */}
-                <div style={{ padding: "10px 12px 6px", borderBottom: "1px solid #f0ebe0" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", backgroundColor: "#f8f4ef", borderRadius: "4px", padding: "6px 10px" }}>
-                    <Search size={12} color="#9d9d9a" />
+                <div style={{ padding: "10px 12px 6px", borderBottom: "1px solid rgba(212,184,134,0.12)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", backgroundColor: "var(--nuit-midnight)", borderRadius: "4px", padding: "6px 10px" }}>
+                    <Search size={12} color="var(--nuit-smoke)" />
                     <input
                       autoFocus
                       value={pesquisa}
@@ -209,7 +209,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                       style={{
                         border: "none", background: "none", outline: "none",
                         fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                        color: "#161a26", width: "100%",
+                        color: "var(--nuit-bone)", width: "100%",
                       }}
                     />
                   </div>
@@ -218,7 +218,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                 {/* Lista de etiquetas disponíveis */}
                 <div style={{ maxHeight: "200px", overflowY: "auto" }}>
                   {filtradas.length === 0 && !pesquisa && (
-                    <p style={{ padding: "12px", fontSize: "12px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
+                    <p style={{ padding: "12px", fontSize: "12px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
                       Todas as etiquetas já atribuídas
                     </p>
                   )}
@@ -230,15 +230,15 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         display: "flex", alignItems: "center", gap: "8px",
                         width: "100%", padding: "8px 12px",
                         fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                        color: "#161a26", backgroundColor: "transparent",
+                        color: "var(--nuit-bone)", backgroundColor: "transparent",
                         border: "none", cursor: "pointer", textAlign: "left",
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f8f4ef")}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "rgba(212,184,134,0.06)")}
                       onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                     >
                       <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: tag.cor, flexShrink: 0 }} />
                       {tag.nome}
-                      <span style={{ marginLeft: "auto", fontSize: "10px", color: "#9d9d9a" }}>
+                      <span style={{ marginLeft: "auto", fontSize: "10px", color: "var(--nuit-smoke)" }}>
                         {TIPO_ETIQUETA_LABELS[tag.tipo]}
                       </span>
                     </button>
@@ -246,7 +246,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                 </div>
 
                 {/* Criar nova */}
-                <div style={{ borderTop: "1px solid #f0ebe0" }}>
+                <div style={{ borderTop: "1px solid rgba(212,184,134,0.12)" }}>
                   <button
                     onClick={() => { setNovoNome(pesquisa); setMostraFormCriar(true) }}
                     style={{
@@ -283,8 +283,9 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                   placeholder="Nome da etiqueta"
                   style={{
                     width: "100%", padding: "7px 10px", borderRadius: "4px",
-                    border: "1px solid #ddd6c4", fontSize: "13px",
-                    fontFamily: "var(--font-sans, sans-serif)", color: "#161a26",
+                    border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px",
+                    fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)",
+                    backgroundColor: "var(--nuit-midnight)",
                     outline: "none", boxSizing: "border-box", marginBottom: "10px",
                   }}
                 />
@@ -300,8 +301,8 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                         letterSpacing: "0.08em", textTransform: "uppercase",
                         border: "1px solid", cursor: "pointer",
-                        color: novoTipo === t ? "#b9a07a" : "#9d9d9a",
-                        borderColor: novoTipo === t ? "rgba(185,160,122,0.5)" : "#ddd6c4",
+                        color: novoTipo === t ? "#b9a07a" : "var(--nuit-smoke)",
+                        borderColor: novoTipo === t ? "rgba(185,160,122,0.5)" : "rgba(212,184,134,0.18)",
                         backgroundColor: novoTipo === t ? "rgba(185,160,122,0.08)" : "transparent",
                       }}
                     >
@@ -318,7 +319,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                       checked={novoBloqueio}
                       onChange={e => setNovoBloqueio(e.target.checked)}
                     />
-                    <span style={{ fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "#6d6d6d" }}>
+                    <span style={{ fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)" }}>
                       Bloquear automações
                     </span>
                   </label>
@@ -332,7 +333,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                       onClick={() => setNovoCor(cor)}
                       style={{
                         width: "20px", height: "20px", borderRadius: "50%",
-                        backgroundColor: cor, border: novoCor === cor ? `2px solid #161a26` : "2px solid transparent",
+                        backgroundColor: cor, border: novoCor === cor ? `2px solid var(--nuit-bone)` : "2px solid transparent",
                         cursor: "pointer", padding: 0, outline: "none",
                       }}
                     />
@@ -347,7 +348,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     style={{
                       flex: 1, padding: "7px", borderRadius: "4px", fontSize: "12px",
                       fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
-                      border: "1px solid #ddd6c4", color: "#9d9d9a", backgroundColor: "transparent", cursor: "pointer",
+                      border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-smoke)", backgroundColor: "transparent", cursor: "pointer",
                     }}
                   >
                     Cancelar

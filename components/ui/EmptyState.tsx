@@ -15,25 +15,25 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-        <Icon className="w-7 h-7 text-emerald-400" />
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 16px", textAlign: "center" }}>
+      <div style={{ width: "52px", height: "52px", borderRadius: "50%", backgroundColor: "rgba(185,160,122,0.08)", border: "1px solid rgba(185,160,122,0.20)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+        <Icon style={{ width: "26px", height: "26px", color: "#b9a07a" }} />
       </div>
-      <h3 className="text-base font-semibold text-[#064E3B] mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 max-w-xs">{description}</p>
+      <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", fontWeight: 400, color: "var(--nuit-bone)", marginBottom: "6px" }}>{title}</h3>
+      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)", maxWidth: "280px" }}>{description}</p>
       {action && (
-        <div className="mt-4">
+        <div style={{ marginTop: "16px" }}>
           {action.href ? (
             <Link
               href={action.href}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "#b9a07a", textDecoration: "none" }}
             >
               {action.label}
             </Link>
           ) : (
             <button
               onClick={action.onClick}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer"
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "#b9a07a", background: "none", border: "none", cursor: "pointer" }}
             >
               {action.label}
             </button>

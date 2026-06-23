@@ -27,10 +27,7 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
     try {
       await fetch("/api/v1/clientes/bulk-etiquetas", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clienteIds: selecionados, etiquetaId, acao: acaoEtiqueta }),
       })
       setMostrarEtiquetas(false)
@@ -43,7 +40,7 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
 
   return (
     <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
-      <div className="bg-[#064E3B] text-white rounded-2xl shadow-xl px-5 py-3 flex items-center gap-3">
+      <div style={{ backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.22)", boxShadow: "0 8px 32px rgba(14,17,25,0.50)", borderRadius: "16px" }} className="text-white px-5 py-3 flex items-center gap-3">
         <span className="text-sm font-medium">
           {selecionados.length} {selecionados.length === 1 ? "cliente" : "clientes"}
         </span>
@@ -113,16 +110,17 @@ function EtiquetasDropdown({
   return (
     <>
       <div className="fixed inset-0 z-10" onClick={onClose} />
-      <div className="absolute bottom-full mb-2 left-0 z-20 bg-white rounded-xl shadow-xl border border-gray-100 py-1 min-w-44">
+      <div style={{ backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", boxShadow: "0 8px 28px rgba(14,17,25,0.45)" }} className="absolute bottom-full mb-2 left-0 z-20 rounded-xl py-1 min-w-44">
         {etiquetas.length === 0 && (
-          <p className="text-xs text-gray-400 px-3 py-2">Nenhuma etiqueta</p>
+          <p style={{ color: "var(--nuit-smoke)" }} className="text-xs px-3 py-2">Nenhuma etiqueta</p>
         )}
         {etiquetas.map((e) => (
           <button
             key={e.id}
             onClick={() => onSelect(e.id)}
             disabled={loading}
-            className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
+            style={{ color: "var(--nuit-bone)" }}
+            className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm hover:bg-[rgba(212,184,134,0.06)] cursor-pointer transition-colors"
           >
             <span
               className="w-3 h-3 rounded-full shrink-0"

@@ -16,16 +16,16 @@ interface EventoTimeline {
   criadoEm: string
 }
 
-const TIPO_CONFIG: Record<string, { icon: React.ElementType; cor: string; bgCor: string }> = {
-  sessao_realizada:   { icon: Calendar,      cor: "text-emerald-600", bgCor: "bg-emerald-50" },
-  sessao_agendada:    { icon: Clock,         cor: "text-blue-500",    bgCor: "bg-blue-50"    },
-  mensagem_enviada:   { icon: MessageSquare, cor: "text-purple-500",  bgCor: "bg-purple-50"  },
-  mensagem_pendente:  { icon: MessageSquare, cor: "text-orange-400",  bgCor: "bg-orange-50"  },
-  estado_alterado:    { icon: ArrowRight,    cor: "text-amber-500",   bgCor: "bg-amber-50"   },
-  tarefa_concluida:   { icon: CheckSquare,   cor: "text-teal-500",    bgCor: "bg-teal-50"    },
-  etiqueta_adicionada:{ icon: Tag,           cor: "text-pink-500",    bgCor: "bg-pink-50"    },
-  etiqueta_removida:  { icon: Tag,           cor: "text-gray-400",    bgCor: "bg-gray-50"    },
-  audit:              { icon: RefreshCw,     cor: "text-gray-400",    bgCor: "bg-gray-50"    },
+const TIPO_CONFIG: Record<string, { icon: React.ElementType; cor: string; bg: string; iconColor: string }> = {
+  sessao_realizada:   { icon: Calendar,      cor: "var(--nuit-bone)",     bg: "rgba(122,158,126,0.12)",   iconColor: "#7a9e7e" },
+  sessao_agendada:    { icon: Clock,         cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "#b9a07a" },
+  mensagem_enviada:   { icon: MessageSquare, cor: "var(--nuit-bone-soft)",bg: "rgba(160,169,150,0.12)",   iconColor: "#a0a996" },
+  mensagem_pendente:  { icon: MessageSquare, cor: "var(--nuit-smoke)",    bg: "rgba(185,160,122,0.08)",   iconColor: "#b9a07a" },
+  estado_alterado:    { icon: ArrowRight,    cor: "var(--nuit-bone-soft)",bg: "rgba(212,149,107,0.10)",   iconColor: "#d4956b" },
+  tarefa_concluida:   { icon: CheckSquare,   cor: "var(--nuit-bone-soft)",bg: "rgba(122,158,126,0.10)",   iconColor: "#7a9e7e" },
+  etiqueta_adicionada:{ icon: Tag,           cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "#b9a07a" },
+  etiqueta_removida:  { icon: Tag,           cor: "var(--nuit-smoke)",    bg: "rgba(157,157,154,0.10)",   iconColor: "#9d9d9a" },
+  audit:              { icon: RefreshCw,     cor: "var(--nuit-smoke)",    bg: "rgba(157,157,154,0.08)",   iconColor: "#9d9d9a" },
 }
 
 interface ClienteTimelineProps {
@@ -37,19 +37,21 @@ export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
 
   if (eventos.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-        <Clock className="w-8 h-8 mb-2 opacity-30" />
-        <p className="text-sm">Nenhuma atividade registada</p>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 0" }}>
+        <Clock style={{ width: "32px", height: "32px", color: "rgba(212,184,134,0.20)", marginBottom: "10px" }} />
+        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)" }}>
+          Nenhuma atividade registada
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="relative">
+    <div style={{ position: "relative" }}>
       {/* Linha vertical */}
-      <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-100" />
+      <div style={{ position: "absolute", left: "13px", top: "8px", bottom: "8px", width: "1px", backgroundColor: "rgba(212,184,134,0.12)" }} />
 
-      <div className="space-y-1">
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
         {eventos.map((evento) => {
           const cfg = TIPO_CONFIG[evento.tipo] ?? TIPO_CONFIG.audit
           const Icon = cfg.icon
@@ -57,44 +59,47 @@ export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
           const temDetalhe = evento.detalhe && Object.keys(evento.detalhe).length > 0
 
           return (
-            <div
-              key={evento.id}
-              className="relative flex gap-3 pl-1 group"
-            >
+            <div key={evento.id} style={{ position: "relative", display: "flex", gap: "12px", paddingLeft: "2px" }}>
               {/* Ícone */}
-              <div className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-1.5 ${cfg.bgCor}`}>
-                <Icon className={`w-3.5 h-3.5 ${cfg.cor}`} />
+              <div style={{
+                position: "relative", zIndex: 1,
+                width: "26px", height: "26px", borderRadius: "50%",
+                flexShrink: 0, marginTop: "8px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                backgroundColor: cfg.bg,
+              }}>
+                <Icon style={{ width: "13px", height: "13px", color: cfg.iconColor }} />
               </div>
 
               {/* Conteúdo */}
               <div
-                className={`flex-1 min-w-0 py-2 px-3 rounded-xl transition-colors ${
-                  temDetalhe ? "cursor-pointer hover:bg-gray-50" : ""
-                }`}
+                style={{
+                  flex: 1, minWidth: 0, padding: "8px 12px", borderRadius: "6px",
+                  transition: "background-color 120ms",
+                  cursor: temDetalhe ? "pointer" : "default",
+                  backgroundColor: aberto ? "rgba(212,184,134,0.04)" : "transparent",
+                }}
                 onClick={() => temDetalhe && setExpandido(aberto ? null : evento.id)}
+                className={temDetalhe ? "hover:bg-[rgba(212,184,134,0.04)]" : ""}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-[#064E3B] leading-snug">{evento.descricao}</p>
-                  <span className="text-xs text-gray-400 shrink-0 mt-0.5">
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" }}>
+                  <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: cfg.cor, lineHeight: 1.5 }}>
+                    {evento.descricao}
+                  </p>
+                  <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke-deep)", flexShrink: 0, marginTop: "2px" }}>
                     {formatDistanceToNow(new Date(evento.criadoEm), { addSuffix: true, locale: ptBR })}
                   </span>
                 </div>
                 {evento.autor && evento.autor !== "sistema" && (
-                  <p className="text-xs text-gray-400 mt-0.5">{evento.autor}</p>
+                  <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke-deep)", marginTop: "2px" }}>
+                    {evento.autor}
+                  </p>
                 )}
-
-                {/* Expansível */}
                 {aberto && evento.detalhe && (
-                  <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2 space-y-1">
-                    {!!evento.detalhe.preview && (
-                      <p className="italic">&ldquo;{String(evento.detalhe.preview)}&rdquo;</p>
-                    )}
-                    {!!evento.detalhe.hora && (
-                      <p>Hora: {String(evento.detalhe.hora)}</p>
-                    )}
-                    {!!evento.detalhe.terapeuta && (
-                      <p>Terapeuta: {String(evento.detalhe.terapeuta)}</p>
-                    )}
+                  <div style={{ marginTop: "8px", fontSize: "11px", fontFamily: "var(--font-body, sans-serif)", color: "var(--nuit-smoke)", backgroundColor: "rgba(212,184,134,0.06)", borderRadius: "4px", padding: "8px 10px", display: "flex", flexDirection: "column", gap: "3px" }}>
+                    {!!evento.detalhe.preview && <p style={{ fontStyle: "italic" }}>&ldquo;{String(evento.detalhe.preview)}&rdquo;</p>}
+                    {!!evento.detalhe.hora && <p>Hora: {String(evento.detalhe.hora)}</p>}
+                    {!!evento.detalhe.terapeuta && <p>Terapeuta: {String(evento.detalhe.terapeuta)}</p>}
                   </div>
                 )}
               </div>

@@ -89,15 +89,15 @@ export function ClientesInfiniteList({
 
       {/* Loading skeleton */}
       {loading && (
-        <div className="mt-2 space-y-2">
+        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-gray-50 rounded animate-pulse" />
+            <div key={i} style={{ height: "64px", backgroundColor: "rgba(212,184,134,0.05)", borderRadius: "2px", border: "1px solid rgba(212,184,134,0.08)", animation: "pulse 1.5s ease-in-out infinite" }} />
           ))}
         </div>
       )}
 
       {!temMais && clientes.length > 0 && (
-        <p className="text-center text-xs text-gray-400 py-4">
+        <p style={{ textAlign: "center", fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)", padding: "16px 0" }}>
           {clientes.length} cliente{clientes.length !== 1 ? "s" : ""} no total
         </p>
       )}

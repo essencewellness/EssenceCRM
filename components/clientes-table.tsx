@@ -72,13 +72,13 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
   return (
     <>
       <thead>
-        <tr style={{ borderBottom: "1px solid #ddd6c4" }}>
-          <th style={{ padding: "11px 16px", width: "40px", backgroundColor: "rgba(237,231,227,0.5)" }}>
+        <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.12)" }}>
+          <th style={{ padding: "11px 16px", width: "40px", backgroundColor: "rgba(212,184,134,0.06)" }}>
             <input
               type="checkbox"
               checked={todosSelec}
               onChange={onToggleTodos}
-              className="cursor-pointer accent-emerald-600 w-4 h-4"
+              className="cursor-pointer accent-[#b9a07a] w-4 h-4"
             />
           </th>
           {HEADERS.map(({ label, align }) => (
@@ -86,9 +86,9 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
               padding: "11px 16px",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.16em",
-              color: "#9d9d9a", textTransform: "uppercase",
+              color: "var(--nuit-smoke)", textTransform: "uppercase",
               textAlign: align,
-              backgroundColor: "rgba(237,231,227,0.5)",
+              backgroundColor: "rgba(212,184,134,0.06)",
             }}>
               {label}
             </th>
@@ -109,14 +109,14 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.38, delay: idx * 0.04, ease: [0.22, 1, 0.36, 1] }}
               whileHover={{
-                backgroundColor: isSelec ? "rgba(236,253,245,1)" : "rgba(250,248,246,1)",
+                backgroundColor: isSelec ? "rgba(185,160,122,0.12)" : "rgba(212,184,134,0.06)",
                 boxShadow: "inset 3px 0 0 rgba(185,160,122,0.5)",
               }}
               style={{
-                borderBottom: idx < clientes.length - 1 ? "1px solid #e6e0d2" : "none",
+                borderBottom: idx < clientes.length - 1 ? "1px solid rgba(212,184,134,0.10)" : "none",
                 transition: "background-color 150ms ease",
                 cursor: "pointer",
-                backgroundColor: isSelec ? "rgba(209,250,229,0.4)" : undefined,
+                backgroundColor: isSelec ? "rgba(185,160,122,0.10)" : undefined,
               }}
             >
               <td
@@ -128,7 +128,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                   checked={isSelec}
                   onChange={() => onToggle(cliente.id)}
                   onClick={(e) => e.stopPropagation()}
-                  className="cursor-pointer accent-emerald-600 w-4 h-4"
+                  className="cursor-pointer accent-[#b9a07a] w-4 h-4"
                 />
               </td>
               <td style={{ padding: "14px 16px" }}>
@@ -142,7 +142,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                     {getInitials(cliente.nome)}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "#161a26", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {cliente.nome}
                     </p>
                     {tagsSaude.length > 0 && (
@@ -168,7 +168,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                 </Link>
               </td>
               <td style={{ padding: "14px 16px" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)", textDecoration: "none" }}>
                   {formatPhone(cliente.telefone)}
                 </Link>
               </td>
@@ -185,7 +185,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                 </Link>
               </td>
               <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "#161a26", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "var(--nuit-bone)", textDecoration: "none" }}>
                   {cliente.totalSessoes}
                 </Link>
               </td>
@@ -232,9 +232,8 @@ export function ClientesTable({ clientes, todasEtiquetas = [] }: { clientes: Cli
     <>
       <table style={{
         width: "100%", borderCollapse: "collapse",
-        backgroundColor: "#ffffff", borderRadius: "12px",
-        border: "1px solid #ddd6c4",
-        boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
+        backgroundColor: "var(--nuit-overlay)", borderRadius: "2px",
+        border: "1px solid rgba(212,184,134,0.16)",
         overflow: "hidden",
       }}>
         <ClientesTableFragment

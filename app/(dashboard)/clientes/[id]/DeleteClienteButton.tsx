@@ -58,10 +58,10 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
             aria-modal="true"
             aria-labelledby="apagar-titulo"
             style={{
-              backgroundColor: "#ffffff", borderRadius: "14px",
-              border: "1px solid #ddd6c4",
+              backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+              border: "1px solid rgba(212,184,134,0.18)",
               padding: "28px 32px", width: "100%", maxWidth: "420px",
-              boxShadow: "0 8px 32px rgba(22,26,38,0.12)",
+              boxShadow: "0 16px 48px rgba(14,17,25,0.50)",
             }}
           >
             {/* Header */}
@@ -85,7 +85,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
 
             <h2 id="apagar-titulo" style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "18px", fontWeight: 400, color: "#161a26",
+              fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
               marginBottom: "8px",
             }}>
               Apagar contacto
@@ -93,7 +93,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
 
             <p style={{
               fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "13px", color: "#6d6d6d", lineHeight: 1.6,
+              fontSize: "13px", color: "var(--nuit-smoke)", lineHeight: 1.6,
               marginBottom: "20px",
             }}>
               Esta ação é <strong>irreversível</strong>. Todas as sessões e mensagens associadas serão também eliminadas.
@@ -104,7 +104,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
               <label htmlFor="confirm-nome" style={{
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em",
-                color: "#9d9d9a", textTransform: "uppercase",
+                color: "var(--nuit-smoke)", textTransform: "uppercase",
                 display: "block", marginBottom: "8px",
               }}>
                 Escreve <span style={{ color: "#b06050" }}>{primeiroNome}</span> para confirmar
@@ -119,10 +119,10 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
                 style={{
                   width: "100%", height: "40px", padding: "0 12px",
                   borderRadius: "8px",
-                  border: `1px solid ${confirmado ? "rgba(160,169,150,0.6)" : "#ddd6c4"}`,
-                  backgroundColor: confirmado ? "rgba(160,169,150,0.05)" : "#efe9db",
+                  border: `1px solid ${confirmado ? "rgba(160,169,150,0.6)" : "rgba(212,184,134,0.22)"}`,
+                  backgroundColor: confirmado ? "rgba(160,169,150,0.05)" : "var(--nuit-midnight)",
                   fontFamily: "var(--font-body, sans-serif)",
-                  fontSize: "14px", color: "#161a26",
+                  fontSize: "14px", color: "var(--nuit-bone)",
                   outline: "none", boxSizing: "border-box",
                   transition: "border-color 150ms",
                 }}
@@ -136,9 +136,9 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
                 style={{
                   padding: "9px 18px", borderRadius: "8px",
                   backgroundColor: "transparent",
-                  border: "1px solid #ddd6c4",
+                  border: "1px solid rgba(212,184,134,0.20)",
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", fontWeight: 600, color: "#6d6d6d",
+                  fontSize: "12px", fontWeight: 600, color: "var(--nuit-smoke)",
                   cursor: "pointer",
                 }}
               >

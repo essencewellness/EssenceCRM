@@ -54,11 +54,11 @@ function agrupar(tarefas: Tarefa[]) {
 }
 
 const GRUPO_META = {
-  vencidas: { label: "Vencidas", color: "text-red-600" },
-  hoje:     { label: "Hoje", color: "text-orange-600" },
-  semana:   { label: "Esta semana", color: "text-blue-600" },
-  depois:   { label: "Mais tarde", color: "text-gray-500" },
-  semprazo: { label: "Sem prazo", color: "text-gray-400" },
+  vencidas: { label: "Vencidas", cor: "#b06050" },
+  hoje:     { label: "Hoje", cor: "#d4956b" },
+  semana:   { label: "Esta semana", cor: "#b9a07a" },
+  depois:   { label: "Mais tarde", cor: "var(--nuit-smoke)" },
+  semprazo: { label: "Sem prazo", cor: "var(--nuit-smoke)" },
 }
 
 export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProps) {
@@ -68,10 +68,7 @@ export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProp
     async (id: string, dados: object) => {
       await fetch(`/api/v1/tarefas/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
       })
       onRefresh?.()
@@ -102,7 +99,7 @@ export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProp
         const meta = GRUPO_META[key as keyof typeof GRUPO_META]
         return (
           <div key={key}>
-            <h3 className={`text-xs font-semibold uppercase tracking-wide mb-2 ${meta.color}`}>
+            <h3 style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: meta.cor, fontFamily: "var(--font-sans, sans-serif)" }}>
               {meta.label} ({itens.length})
             </h3>
             <div className="space-y-2">

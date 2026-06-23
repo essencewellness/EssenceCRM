@@ -87,8 +87,8 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
       {aberto && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0,
-          backgroundColor: "#fff", border: "1px solid #ddd6c4",
-          borderRadius: "4px", boxShadow: "0 4px 16px rgba(22,26,38,0.10)",
+          backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+          borderRadius: "4px", boxShadow: "0 8px 24px rgba(14,17,25,0.40)",
           zIndex: 50, minWidth: "180px", overflow: "hidden",
         }}>
           {terapeutas.map((t) => (
@@ -99,7 +99,7 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
                 display: "flex", alignItems: "center", gap: "8px",
                 width: "100%", padding: "9px 12px",
                 fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                color: t.id === atualId ? GOLD : "#6d6d6d",
+                color: t.id === atualId ? GOLD : "var(--nuit-smoke)",
                 backgroundColor: t.id === atualId ? "rgba(185,160,122,0.10)" : "transparent",
                 border: "none", cursor: "pointer", textAlign: "left",
                 transition: "background-color 100ms",
@@ -117,11 +117,11 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
               display: "flex", alignItems: "center", gap: "8px",
               width: "100%", padding: "9px 12px",
               fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-              color: !atualId ? "#b06050" : "#9d9d9a",
+              color: !atualId ? "#b06050" : "var(--nuit-smoke-deep)",
               backgroundColor: "transparent",
-              border: "none", borderTop: "1px solid #f0ebe2", cursor: "pointer", textAlign: "left",
+              border: "none", borderTop: "1px solid rgba(212,184,134,0.12)", cursor: "pointer", textAlign: "left",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(176,96,80,0.06)")}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(176,96,80,0.08)")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
           >
             Sem terapeuta
