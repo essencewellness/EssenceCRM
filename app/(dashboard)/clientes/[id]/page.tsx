@@ -34,10 +34,10 @@ function EstadoBadge({ estado }: { estado: string }) {
     vip_embaixadora: { label: "VIP ✦",        color: "#b9a07a", bg: "rgba(185,160,122,0.13)", border: "rgba(185,160,122,0.35)" },
     vip_em_risco:    { label: "Em Risco",     color: "#d4956b", bg: "rgba(212,149,107,0.10)", border: "rgba(212,149,107,0.28)" },
     reativacao:      { label: "Reativação",   color: "#b06050", bg: "rgba(176,96,80,0.08)",  border: "rgba(176,96,80,0.22)" },
-    perdida:         { label: "Perdida",      color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" },
+    perdida:         { label: "Perdida",      color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" },
     blacklist:       { label: "Blacklist",    color: "#b06050", bg: "rgba(176,96,80,0.12)",  border: "rgba(176,96,80,0.30)" },
   }
-  const cfg = map[estado] ?? { label: estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
+  const cfg = map[estado] ?? { label: estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
   return (
     <span style={{
       display: "inline-flex", alignItems: "center",
@@ -55,10 +55,10 @@ function MensagemEstadoBadge({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
     pendente: { label: "Pendente", color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
     aprovada: { label: "Aprovada", color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
-    enviada: { label: "Enviada", color: "#161a26", bg: "rgba(22,26,38,0.06)" },
+    enviada: { label: "Enviada", color: "var(--nuit-bone)", bg: "rgba(22,26,38,0.06)" },
     rejeitada: { label: "Rejeitada", color: "#b06050", bg: "rgba(176,96,80,0.08)" },
   }
-  const cfg = map[estado] ?? { label: estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" }
+  const cfg = map[estado] ?? { label: estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)" }
   return (
     <span style={{
       display: "inline-flex", alignItems: "center",
@@ -79,13 +79,13 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
       <span style={{
         fontFamily: "var(--font-sans, sans-serif)",
         fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-        color: "#9d9d9a", textTransform: "uppercase",
+        color: "var(--nuit-smoke)", textTransform: "uppercase",
       }}>
         {label}
       </span>
       <span style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "13px", color: "#161a26",
+        fontSize: "13px", color: "var(--nuit-bone)",
       }}>
         {value || "—"}
       </span>
@@ -169,7 +169,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
         <Link href="/clientes" style={{
           display: "inline-flex", alignItems: "center", gap: "6px",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "12px", color: "#9d9d9a", textDecoration: "none",
+          fontSize: "12px", color: "var(--nuit-smoke)", textDecoration: "none",
           transition: "color 150ms",
         }}
           className="hover:text-[#b9a07a]"
@@ -181,8 +181,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
       {/* Profile header — scale in */}
       <div className="anim-scale-in" style={{
-        backgroundColor: "#ffffff", borderRadius: "12px",
-        border: "1px solid #ddd6c4", padding: "28px",
+        backgroundColor: "var(--nuit-overlay)", borderRadius: "12px",
+        border: "1px solid rgba(212,184,134,0.16)", padding: "28px",
         marginBottom: "20px",
         boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
         animationDelay: "0.1s",
@@ -205,7 +205,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px", flexWrap: "wrap" }}>
               <h1 style={{
                 fontFamily: "var(--font-heading, Georgia, serif)",
-                fontSize: "26px", fontWeight: 400, color: "#161a26",
+                fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
               }}>
                 {cliente.nome}
               </h1>
@@ -248,16 +248,16 @@ export default async function ClientePage({ params }: ClientePageProps) {
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
               {cliente.telefone && (
                 <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Phone size={13} color="#9d9d9a" />
-                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d" }}>
+                  <Phone size={13} color="var(--nuit-smoke)" />
+                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                     {formatPhone(cliente.telefone)}
                   </span>
                 </span>
               )}
               {cliente.email && (
                 <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Mail size={13} color="#9d9d9a" />
-                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d" }}>
+                  <Mail size={13} color="var(--nuit-smoke)" />
+                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                     {cliente.email}
                   </span>
                 </span>
@@ -273,7 +273,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
         <TabsList
           variant="line"
           className="mb-5 w-full border-b rounded-none bg-transparent p-0 h-auto justify-start gap-0"
-          style={{ borderColor: "#ddd6c4" }}
+          style={{ borderColor: "rgba(212,184,134,0.16)" }}
         >
           {[
             { value: "resumo", label: "Resumo" },
@@ -287,7 +287,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             <TabsTrigger
               key={value}
               value={value}
-              className="rounded-none px-4 py-2.5 text-sm border-b-2 border-transparent data-active:border-[#b9a07a] data-active:text-[#b9a07a] text-[#9d9d9a] hover:text-[#6d6d6d]"
+              className="rounded-none px-4 py-2.5 text-sm border-b-2 border-transparent data-active:border-[#b9a07a] data-active:text-[#b9a07a] text-[var(--nuit-smoke)] hover:text-[var(--nuit-bone-soft)]"
               style={{ fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500 }}
             >
               {label}
@@ -304,8 +304,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
           }}>
             {statCards.map(({ label, value, Icon, color }, idx) => (
               <div key={label} className="anim-scale-in card-hover" style={{
-                backgroundColor: "#ffffff", borderRadius: "10px",
-                border: "1px solid #ddd6c4", padding: "16px",
+                backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+                border: "1px solid rgba(212,184,134,0.16)", padding: "16px",
                 boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
                 animationDelay: `${0.28 + idx * 0.07}s`,
               }}>
@@ -321,13 +321,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
                   fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em",
-                  color: "#9d9d9a", textTransform: "uppercase", marginBottom: "4px",
+                  color: "var(--nuit-smoke)", textTransform: "uppercase", marginBottom: "4px",
                 }}>
                   {label}
                 </p>
                 <p style={{
                   fontFamily: "var(--font-heading, Georgia, serif)",
-                  fontSize: "18px", fontWeight: 400, color: "#161a26",
+                  fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
                 }}>
                   {value}
                 </p>
@@ -337,8 +337,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
           {/* Detail grid */}
           <div style={{
-            backgroundColor: "#ffffff", borderRadius: "10px",
-            border: "1px solid #ddd6c4", padding: "24px",
+            backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+            border: "1px solid rgba(212,184,134,0.16)", padding: "24px",
             boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
@@ -349,7 +349,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
               <h2 style={{
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-                color: "#9d9d9a", textTransform: "uppercase",
+                color: "var(--nuit-smoke)", textTransform: "uppercase",
               }}>
                 Informações Gerais
               </h2>
@@ -372,8 +372,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
             const s = cliente.sessoes[0]
             return (
               <div style={{
-                backgroundColor: "#ffffff", borderRadius: "10px",
-                border: "1px solid #ddd6c4", padding: "24px", marginTop: "12px",
+                backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+                border: "1px solid rgba(212,184,134,0.16)", padding: "24px", marginTop: "12px",
                 boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
@@ -381,7 +381,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   <h2 style={{
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-                    color: "#9d9d9a", textTransform: "uppercase",
+                    color: "var(--nuit-smoke)", textTransform: "uppercase",
                   }}>
                     Última Sessão
                   </h2>
@@ -391,10 +391,10 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         realizada: { label: "Realizada", color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
                         agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
                         cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)" },
-                        concluida: { label: "Concluída", color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" },
+                        concluida: { label: "Concluída", color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)" },
                         falta:     { label: "Falta",     color: "#b06050", bg: "rgba(176,96,80,0.08)" },
                       }
-                      const cfg = map[s.estado] ?? { label: s.estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" }
+                      const cfg = map[s.estado] ?? { label: s.estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)" }
                       return (
                         <span style={{
                           padding: "3px 10px", borderRadius: "100px",
@@ -414,13 +414,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 <div style={{ display: "flex", alignItems: "baseline", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
                   <span style={{
                     fontFamily: "var(--font-heading, Georgia, serif)",
-                    fontSize: "18px", fontWeight: 400, color: "#161a26",
+                    fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
                   }}>
                     {s.servico ?? "Sessão"}
                   </span>
                   <span style={{
                     fontFamily: "var(--font-body, sans-serif)",
-                    fontSize: "13px", color: "#9d9d9a",
+                    fontSize: "13px", color: "var(--nuit-smoke)",
                   }}>
                     {formatDate(s.data)}
                     {s.hora ? ` · ${s.hora}` : ""}
@@ -442,25 +442,25 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   {s.estadoEmocional && (
                     <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(176,96,80,0.05)", border: "1px solid rgba(176,96,80,0.15)" }}>
                       <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#b06050", textTransform: "uppercase", marginBottom: "4px" }}>Estado Emocional</p>
-                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "#161a26", lineHeight: 1.5 }}>{s.estadoEmocional}</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.5 }}>{s.estadoEmocional}</p>
                     </div>
                   )}
                   {s.resumoSessao && (
                     <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(160,169,150,0.05)", border: "1px solid rgba(160,169,150,0.2)", gridColumn: "1/-1" }}>
                       <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#a0a996", textTransform: "uppercase", marginBottom: "4px" }}>Observações</p>
-                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "#6d6d6d", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.resumoSessao}</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.resumoSessao}</p>
                     </div>
                   )}
                   {s.notasPosSessao && (
                     <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(185,160,122,0.04)", border: "1px solid rgba(185,160,122,0.15)", gridColumn: "1/-1" }}>
                       <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#b9a07a", textTransform: "uppercase", marginBottom: "4px" }}>Notas para a Próxima Sessão</p>
-                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "#6d6d6d", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.notasPosSessao}</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.notasPosSessao}</p>
                     </div>
                   )}
                   {!s.estadoEmocional && !s.resumoSessao && !s.notasPosSessao && (
                     <p style={{
                       fontFamily: "var(--font-heading, Georgia, serif)",
-                      fontStyle: "italic", fontSize: "13px", color: "#b5b5b2",
+                      fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)",
                       gridColumn: "1/-1",
                     }}>
                       Sessão agendada — sem notas clínicas ainda
@@ -482,15 +482,15 @@ export default async function ClientePage({ params }: ClientePageProps) {
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
             {/* Packs */}
-            <div style={{ backgroundColor: "#ffffff", borderRadius: "10px", border: "1px solid #ddd6c4", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
+            <div style={{ backgroundColor: "var(--nuit-overlay)", borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a", textTransform: "uppercase" }}>
+                <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase" }}>
                   Packs de Sessões
                 </h2>
               </div>
               {cliente.packs.length === 0 ? (
-                <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "#b5b5b2" }}>
+                <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)" }}>
                   Sem packs activos para este cliente.
                 </p>
               ) : (
@@ -499,9 +499,9 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     const restantes = p.totalSessoes - p.sessoesUsadas
                     const pct = Math.round((p.sessoesUsadas / p.totalSessoes) * 100)
                     return (
-                      <div key={p.id} style={{ padding: "14px 16px", borderRadius: "8px", border: "1px solid #ddd6c4", opacity: p.ativo ? 1 : 0.5 }}>
+                      <div key={p.id} style={{ padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.16)", opacity: p.ativo ? 1 : 0.5 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                          <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", flex: 1 }}>{p.servico.nome}</span>
+                          <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", flex: 1 }}>{p.servico.nome}</span>
                           <span style={{
                             fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",
                             background: p.ativo ? "rgba(74,124,89,0.12)" : "rgba(160,100,80,0.1)",
@@ -510,14 +510,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
                           <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#b9a07a" }}>€{Number(p.valorTotal).toFixed(2)}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <div style={{ flex: 1, height: "6px", borderRadius: "3px", background: "#f0ebe2", overflow: "hidden" }}>
+                          <div style={{ flex: 1, height: "6px", borderRadius: "3px", background: "rgba(212,184,134,0.1)", overflow: "hidden" }}>
                             <div style={{ height: "100%", width: `${pct}%`, background: p.ativo ? "#a0a996" : "#b9a07a", borderRadius: "3px", transition: "width 0.3s" }} />
                           </div>
-                          <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#6d6d6d", whiteSpace: "nowrap" }}>
+                          <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap" }}>
                             {p.sessoesUsadas}/{p.totalSessoes} sessões · {restantes} restantes
                           </span>
                         </div>
-                        {p.descricao && <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "#9d9d9a", marginTop: "6px" }}>{p.descricao}</p>}
+                        {p.descricao && <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "6px" }}>{p.descricao}</p>}
                       </div>
                     )
                   })}
@@ -526,34 +526,34 @@ export default async function ClientePage({ params }: ClientePageProps) {
             </div>
 
             {/* Preços Personalizados */}
-            <div style={{ backgroundColor: "#ffffff", borderRadius: "10px", border: "1px solid #ddd6c4", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
+            <div style={{ backgroundColor: "var(--nuit-overlay)", borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a", textTransform: "uppercase" }}>
+                <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase" }}>
                   Preços Personalizados
                 </h2>
               </div>
               {cliente.precos.length === 0 ? (
-                <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "#b5b5b2" }}>
+                <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)" }}>
                   Sem preços personalizados — usa os preços base dos serviços.
                 </p>
               ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
-                    <tr style={{ borderBottom: "1px solid #ddd6c4" }}>
+                    <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
                       {["Serviço", "Preço Base", "Preço Personalizado", "Motivo", "Validade"].map(h => (
-                        <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "#9d9d9a", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                        <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "var(--nuit-smoke)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {cliente.precos.map(p => (
-                      <tr key={p.id} style={{ borderBottom: "1px solid #f0ebe2" }}>
-                        <td style={{ padding: "9px 10px", fontSize: "13px", color: "#161a26" }}>{p.servico.nome}</td>
-                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "#9d9d9a" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
+                      <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)" }}>
+                        <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}>{p.servico.nome}</td>
+                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-smoke)" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
                         <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "#b9a07a" }}>€{Number(p.valor).toFixed(2)}</td>
-                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "#6d6d6d" }}>{p.motivo ?? "—"}</td>
-                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "#9d9d9a" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
+                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
+                        <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-smoke)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -583,13 +583,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center",
               justifyContent: "center", padding: "52px",
-              backgroundColor: "#ffffff", borderRadius: "10px",
-              border: "1px solid #ddd6c4",
+              backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+              border: "1px solid rgba(212,184,134,0.16)",
             }}>
-              <MessageSquare size={32} color="#ddd6c4" style={{ marginBottom: "12px" }} />
+              <MessageSquare size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)",
-                fontStyle: "italic", fontSize: "14px", color: "#9d9d9a",
+                fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
               }}>
                 Nenhuma mensagem gerada para este cliente
               </p>
@@ -598,22 +598,22 @@ export default async function ClientePage({ params }: ClientePageProps) {
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {cliente.mensagens.map((msg) => (
                 <div key={msg.id} className="card-hover" style={{
-                  backgroundColor: "#ffffff", borderRadius: "10px",
-                  border: "1px solid #ddd6c4", padding: "18px",
+                  backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+                  border: "1px solid rgba(212,184,134,0.16)", padding: "18px",
                   boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
                 }}>
                   {/* Top row */}
                   <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
                     <MensagemEstadoBadge estado={msg.estado} />
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "#9d9d9a", textTransform: "capitalize" }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke)", textTransform: "capitalize" }}>
                       {msg.canal}
                     </span>
                     {msg.motivoGeracao && (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "#9d9d9a" }}>
-                        Motivo: <span style={{ color: "#6d6d6d" }}>{msg.motivoGeracao}</span>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke)" }}>
+                        Motivo: <span style={{ color: "var(--nuit-bone-soft)" }}>{msg.motivoGeracao}</span>
                       </span>
                     )}
-                    <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "#b5b5b2" }}>
+                    <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)" }}>
                       {formatDate(msg.geradaEm)}
                     </span>
                   </div>
@@ -622,18 +622,18 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   <div style={{
                     padding: "14px", borderRadius: "8px",
                     backgroundColor: "rgba(237,231,227,0.5)",
-                    border: "1px solid #ddd6c4",
+                    border: "1px solid rgba(212,184,134,0.16)",
                     marginBottom: "8px",
                   }}>
                     <p style={{
                       fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
-                      letterSpacing: "0.16em", color: "#9d9d9a", textTransform: "uppercase",
+                      letterSpacing: "0.16em", color: "var(--nuit-smoke)", textTransform: "uppercase",
                       marginBottom: "8px",
                     }}>
                       Mensagem gerada
                     </p>
                     <p style={{
-                      fontFamily: "var(--font-body)", fontSize: "13px", color: "#6d6d6d",
+                      fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
                       lineHeight: 1.7, whiteSpace: "pre-wrap",
                     }}>
                       {msg.mensagemGerada}
@@ -655,7 +655,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         Mensagem final (editada)
                       </p>
                       <p style={{
-                        fontFamily: "var(--font-body)", fontSize: "13px", color: "#6d6d6d",
+                        fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
                         lineHeight: 1.7, whiteSpace: "pre-wrap",
                       }}>
                         {msg.mensagemFinal}
@@ -667,7 +667,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   <div style={{
                     display: "flex", flexWrap: "wrap", gap: "16px",
                     marginTop: "12px",
-                    fontFamily: "var(--font-body)", fontSize: "11px", color: "#b5b5b2",
+                    fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)",
                   }}>
                     {msg.aprovadaEm && <span>Aprovada em {formatDate(msg.aprovadaEm)}</span>}
                     {msg.enviadaEm && <span>Enviada em {formatDate(msg.enviadaEm)}</span>}
@@ -686,8 +686,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
         {/* ── TIMELINE ── */}
         <TabsContent value="timeline">
           <div style={{
-            backgroundColor: "#ffffff", borderRadius: "12px",
-            border: "1px solid #ddd6c4", padding: "24px",
+            backgroundColor: "var(--nuit-overlay)", borderRadius: "12px",
+            border: "1px solid rgba(212,184,134,0.16)", padding: "24px",
             boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
           }}>
             <ClienteTimeline eventos={eventosTimeline} />
@@ -697,8 +697,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
         {/* ── TAREFAS ── */}
         <TabsContent value="tarefas">
           <div style={{
-            backgroundColor: "#ffffff", borderRadius: "12px",
-            border: "1px solid #ddd6c4", padding: "24px",
+            backgroundColor: "var(--nuit-overlay)", borderRadius: "12px",
+            border: "1px solid rgba(212,184,134,0.16)", padding: "24px",
             boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
           }}>
             <TarefasLista

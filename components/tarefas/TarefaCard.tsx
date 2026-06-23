@@ -7,15 +7,15 @@ import { ptBR } from "date-fns/locale"
 const PRIORIDADE_CLASSES: Record<string, string> = {
   urgente: "border-l-4 border-red-500",
   alta:    "border-l-4 border-orange-400",
-  normal:  "border-l-4 border-blue-400",
-  baixa:   "border-l-4 border-gray-300",
+  normal:  "border-l-4 border-[#b9a07a]",
+  baixa:   "border-l-4 border-[#4d5260]",
 }
 
 const PRIORIDADE_BADGE: Record<string, string> = {
-  urgente: "bg-red-100 text-red-700",
-  alta:    "bg-orange-100 text-orange-700",
-  normal:  "bg-blue-100 text-blue-700",
-  baixa:   "bg-gray-100 text-gray-600",
+  urgente: "bg-red-500/15 text-red-300",
+  alta:    "bg-orange-500/15 text-orange-300",
+  normal:  "bg-[rgba(185,160,122,0.15)] text-[#d4b886]",
+  baixa:   "bg-[rgba(122,126,138,0.15)] text-[#9aa0ad]",
 }
 
 interface TarefaCardProps {
@@ -56,7 +56,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
 
   return (
     <div
-      className={`bg-white rounded-xl p-4 shadow-sm border border-gray-100 cursor-pointer transition-shadow hover:shadow-md ${PRIORIDADE_CLASSES[tarefa.prioridade] ?? "border-l-4 border-gray-200"}`}
+      className={`bg-[#1f2433] rounded-xl p-4 shadow-sm border border-[rgba(212,184,134,0.12)] cursor-pointer transition-shadow hover:shadow-md ${PRIORIDADE_CLASSES[tarefa.prioridade] ?? "border-l-4 border-[#4d5260]"}`}
       onClick={() => setExpanded((p) => !p)}
     >
       <div className="flex items-start gap-3">
@@ -65,9 +65,9 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${PRIORIDADE_BADGE[tarefa.prioridade]}`}>
               {tarefa.prioridade}
             </span>
-            <span className="font-medium text-sm text-[#064E3B] truncate">{tarefa.titulo}</span>
+            <span className="font-medium text-sm text-[#ece6d6] truncate">{tarefa.titulo}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-[#7a7e8a] flex-wrap">
             {tarefa.cliente && (
               <span className="flex items-center gap-1">
                 <User className="w-3 h-3" />
@@ -86,7 +86,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
           <button
             onClick={(e) => { e.stopPropagation(); marcarConcluida() }}
             disabled={loading}
-            className="text-gray-300 hover:text-emerald-500 transition-colors cursor-pointer shrink-0"
+            className="text-[#4d5260] hover:text-[#7a9e7e] transition-colors cursor-pointer shrink-0"
             title="Marcar como concluída"
           >
             <CheckSquare className="w-5 h-5" />
@@ -95,11 +95,11 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
       </div>
 
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-3 pt-3 border-t border-[rgba(212,184,134,0.1)]" onClick={(e) => e.stopPropagation()}>
           {tarefa.descricao && (
-            <p className="text-sm text-gray-600 mb-3">{tarefa.descricao}</p>
+            <p className="text-sm text-[#d8d2c2] mb-3">{tarefa.descricao}</p>
           )}
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+          <div className="flex items-center gap-2 text-xs text-[#7a7e8a] mb-3">
             <span>Tipo: {tarefa.tipo.replace("_", " ")}</span>
             {tarefa.atribuida?.name && <span>· Atribuída a: {tarefa.atribuida.name}</span>}
           </div>
@@ -108,14 +108,14 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
               <button
                 onClick={marcarConcluida}
                 disabled={loading}
-                className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                className="flex items-center gap-1 text-xs font-medium text-[#7a9e7e] hover:text-[#9ab89e] cursor-pointer"
               >
                 <CheckSquare className="w-3.5 h-3.5" /> Concluir
               </button>
               <button
                 onClick={cancelar}
                 disabled={loading}
-                className="flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-red-500 cursor-pointer"
+                className="flex items-center gap-1 text-xs font-medium text-[#7a7e8a] hover:text-red-400 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" /> Cancelar
               </button>

@@ -114,12 +114,12 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{
             overflow: "hidden",
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--nuit-overlay)",
             border: "1px solid rgba(185,160,122,0.3)",
             borderLeft: "3px solid #b9a07a",
             borderRadius: "10px",
             padding: "20px",
-            boxShadow: "0 2px 12px rgba(185,160,122,0.08)",
+            boxShadow: "var(--shadow-2)",
           }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
@@ -140,10 +140,10 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             }}
             style={{
               width: "100%", padding: "12px",
-              borderRadius: "7px", border: "1px solid #ddd6c4",
-              backgroundColor: "#faf8f5",
+              borderRadius: "7px", border: "1px solid rgba(212,184,134,0.2)",
+              backgroundColor: "var(--nuit-midnight)",
               fontFamily: "var(--font-body, sans-serif)", fontSize: "14px",
-              color: "#161a26", lineHeight: 1.7,
+              color: "var(--nuit-bone)", lineHeight: 1.7,
               resize: "vertical", outline: "none", boxSizing: "border-box",
             }}
           />
@@ -172,8 +172,8 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
               onClick={cancelar}
               style={{
                 padding: "8px 14px", borderRadius: "7px",
-                backgroundColor: "transparent", color: "#9d9d9a",
-                border: "1px solid #ddd6c4",
+                backgroundColor: "transparent", color: "var(--nuit-smoke)",
+                border: "1px solid rgba(212,184,134,0.2)",
                 fontFamily: "var(--font-sans)", fontSize: "12px",
                 cursor: "pointer",
               }}
@@ -182,7 +182,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             </button>
             <span style={{
               marginLeft: "auto",
-              fontFamily: "var(--font-body)", fontSize: "11px", color: "#b5b5b2",
+              fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)",
             }}>
               ⌘↵ para guardar · Esc para cancelar
             </span>
@@ -203,13 +203,13 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           }} />
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontStyle: "italic", fontSize: "15px", color: "#b5b5b2",
+            fontStyle: "italic", fontSize: "15px", color: "var(--nuit-smoke)",
           }}>
             Ainda nenhuma observação registada.
           </p>
           <p style={{
             fontFamily: "var(--font-body)", fontSize: "12px",
-            color: "#d0cdc9", marginTop: "6px",
+            color: "var(--nuit-smoke-deep)", marginTop: "6px",
           }}>
             A primeira nota ficará aqui, com data e hora.
           </p>
@@ -251,7 +251,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                   }}>
                     <div style={{
                       fontFamily: "var(--font-heading, Georgia, serif)",
-                      fontSize: "28px", fontWeight: 400, color: "#161a26",
+                      fontSize: "28px", fontWeight: 400, color: "var(--nuit-bone)",
                       lineHeight: 1,
                     }}>
                       {d.dia}
@@ -265,7 +265,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                     </div>
                     <div style={{
                       fontFamily: "var(--font-body)", fontSize: "10px",
-                      color: "#c0bdb9", marginTop: "2px",
+                      color: "var(--nuit-smoke-deep)", marginTop: "2px",
                     }}>
                       {d.hora}
                     </div>
@@ -285,22 +285,22 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
 
                   {/* Bloco de nota */}
                   <div style={{
-                    flex: 1, backgroundColor: "#ffffff",
-                    border: "1px solid #e8e4e0",
+                    flex: 1, backgroundColor: "var(--nuit-overlay)",
+                    border: "1px solid rgba(212,184,134,0.14)",
                     borderLeft: "2px solid rgba(185,160,122,0.4)",
                     borderRadius: "10px", padding: "16px 18px",
-                    boxShadow: "0 1px 4px rgba(22,26,38,0.04)",
+                    boxShadow: "var(--shadow-1)",
                   }}>
                     <p style={{
                       fontFamily: "var(--font-body, sans-serif)",
-                      fontSize: "14px", color: "#2c2c2c", lineHeight: 1.75,
+                      fontSize: "14px", color: "var(--nuit-bone-soft)", lineHeight: 1.75,
                       whiteSpace: "pre-wrap", margin: 0,
                     }}>
                       {o.texto}
                     </p>
                     <div style={{
                       marginTop: "10px", paddingTop: "10px",
-                      borderTop: "1px solid #f0ece8",
+                      borderTop: "1px solid rgba(212,184,134,0.1)",
                       display: "flex", alignItems: "center", gap: "6px",
                     }}>
                       <div style={{
@@ -313,7 +313,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                       </div>
                       <span style={{
                         fontFamily: "var(--font-sans)", fontSize: "10px",
-                        color: "#b5b5b2", textTransform: "capitalize",
+                        color: "var(--nuit-smoke)", textTransform: "capitalize",
                       }}>
                         {o.autor}
                       </span>

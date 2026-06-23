@@ -22,7 +22,7 @@ const ESTADOS: {
   { key: "vip_embaixadora", label: "VIP Embaixadora", desc: "Top clientes, promotoras da marca",   color: "#b9a07a", bg: "#d4b88618",              href: "/clientes?estado=vip_embaixadora" },
   { key: "vip_em_risco",    label: "VIP em Risco",    desc: "VIP sem sessão há mais de 45 dias",   color: "#d4956b", bg: "rgba(212,149,107,0.10)", href: "/clientes?estado=vip_em_risco"    },
   { key: "reativacao",      label: "Reativação",      desc: "Sem sessão há mais de 60 dias",       color: "#b06050", bg: "rgba(176,96,80,0.08)",   href: "/clientes?estado=reativacao"      },
-  { key: "perdida",         label: "Perdida",         desc: "Sem sessão há mais de 180 dias",      color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", href: "/clientes?estado=perdida"         },
+  { key: "perdida",         label: "Perdida",         desc: "Sem sessão há mais de 180 dias",      color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", href: "/clientes?estado=perdida"         },
   { key: "blacklist",       label: "Blacklist",       desc: "Bloqueada — sem comunicação",         color: "#b06050", bg: "rgba(176,96,80,0.12)",   href: "/clientes?estado=blacklist"       },
 ];
 
@@ -90,7 +90,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
         </p>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
-          fontWeight: 400, color: "#161a26", letterSpacing: "-0.005em",
+          fontWeight: 400, color: "var(--nuit-bone)", letterSpacing: "-0.005em",
         }}>
           Pipeline
         </h1>
@@ -107,19 +107,19 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             { label: "Em risco",       value: clientesEmRisco,    icon: <AlertTriangle size={15} color="#d4956b" /> },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
-              backgroundColor: "#fdfaf1", border: "1px solid #ddd6c4",
+              backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
               borderRadius: "2px", padding: "16px",
             }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a", textTransform: "uppercase",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
-                fontWeight: 400, color: "#161a26",
+                fontWeight: 400, color: "var(--nuit-bone)",
               }}>{value}</p>
             </div>
           ))}
@@ -132,19 +132,19 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             { label: "Em fila envio",   value: emFila,               icon: <MessageSquare size={15} color="#a0a996" /> },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
-              backgroundColor: "#fdfaf1", border: "1px solid #ddd6c4",
+              backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
               borderRadius: "2px", padding: "16px",
             }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a", textTransform: "uppercase",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
-                fontWeight: 400, color: "#161a26",
+                fontWeight: 400, color: "var(--nuit-bone)",
               }}>{value}</p>
             </div>
           ))}
@@ -155,14 +155,14 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{ marginBottom: "8px" }}>
         <span style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-          fontWeight: 700, letterSpacing: "0.22em", color: "#9d9d9a", textTransform: "uppercase",
+          fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-smoke)", textTransform: "uppercase",
         }}>
           Distribuição por Estado
         </span>
       </div>
 
       <div style={{
-        backgroundColor: "#ffffff", border: "1px solid #ddd6c4",
+        backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
         borderRadius: "2px", overflow: "hidden",
       }}>
         {ESTADOS.map((estado, i) => {
@@ -177,11 +177,11 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               <div
                 style={{
                   padding: "14px 20px",
-                  borderBottom: i < ESTADOS.length - 1 ? "1px solid #f0ece4" : "none",
-                  backgroundColor: i % 2 === 0 ? "#ffffff" : "rgba(237,231,227,0.18)",
+                  borderBottom: i < ESTADOS.length - 1 ? "1px solid rgba(212,184,134,0.1)" : "none",
+                  backgroundColor: i % 2 === 0 ? "var(--nuit-overlay)" : "rgba(255,255,255,0.02)",
                   transition: "background-color 120ms",
                 }}
-                className="hover:bg-[#efe9db]"
+                className="hover:bg-[rgba(212,184,134,0.06)]"
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                   {/* Badge estado */}
@@ -199,7 +199,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   {/* Barra de progresso */}
                   <div style={{ flex: 1, position: "relative" }}>
                     <div style={{
-                      height: "4px", backgroundColor: "#f0ece4",
+                      height: "4px", backgroundColor: "rgba(212,184,134,0.1)",
                       borderRadius: "2px", overflow: "hidden",
                     }}>
                       <div style={{
@@ -211,7 +211,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                     </div>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
-                      color: "#9d9d9a", marginTop: "4px", display: "block",
+                      color: "var(--nuit-smoke)", marginTop: "4px", display: "block",
                     }}>
                       {estado.desc}
                     </span>
@@ -221,13 +221,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   <div style={{ flexShrink: 0, textAlign: "right", minWidth: "60px" }}>
                     <span style={{
                       fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px",
-                      fontWeight: 400, color: count > 0 ? "#161a26" : "#ddd6c4",
+                      fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
                     }}>
                       {count}
                     </span>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
-                      color: "#9d9d9a", marginLeft: "4px",
+                      color: "var(--nuit-smoke)", marginLeft: "4px",
                     }}>
                       {count === 1 ? "cliente" : "clientes"}
                     </span>
@@ -250,7 +250,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{
         display: "flex", justifyContent: "flex-end", alignItems: "center",
         gap: "6px", marginTop: "12px",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#9d9d9a",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)",
       }}>
         <BarChart2 size={13} />
         {totalClientes} clientes no total · atualizado a cada 60 s

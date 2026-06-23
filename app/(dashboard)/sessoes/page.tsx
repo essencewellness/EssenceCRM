@@ -12,8 +12,8 @@ const ESTADO_SESSAO: Record<string, { label: string; color: string; bg: string }
   agendada:          { label: "Agendada",          color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
   confirmada:        { label: "Confirmada",         color: "#7a9e7e", bg: "rgba(122,158,126,0.10)" },
   aguarda_terapeuta: { label: "Aguarda terapeuta",  color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
-  realizada:         { label: "Realizada",          color: "#064E3B", bg: "rgba(6,78,59,0.08)"     },
-  cancelada:         { label: "Cancelada",          color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" },
+  realizada:         { label: "Realizada",          color: "#7a9e7e", bg: "rgba(122,158,126,0.12)" },
+  cancelada:         { label: "Cancelada",          color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)" },
   falta:             { label: "Falta",              color: "#b06050", bg: "rgba(176,96,80,0.10)"   },
 };
 
@@ -108,7 +108,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
         </p>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
-          fontWeight: 400, color: "#161a26", letterSpacing: "-0.005em",
+          fontWeight: 400, color: "var(--nuit-bone)", letterSpacing: "-0.005em",
         }}>
           Sessões
         </h1>
@@ -124,19 +124,19 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           { label: "Realizadas",    value: contagemPorEstado["realizada"] ?? 0, icon: <User size={15} color="#7a9e7e" /> },
         ].map(({ label, value, icon }) => (
           <div key={label} style={{
-            backgroundColor: "#fdfaf1", border: "1px solid #ddd6c4",
+            backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
             borderRadius: "2px", padding: "18px 20px",
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <span style={{
                 fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-                fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a", textTransform: "uppercase",
+                fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
               }}>{label}</span>
               {icon}
             </div>
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "28px",
-              fontWeight: 400, color: "#161a26",
+              fontWeight: 400, color: "var(--nuit-bone)",
             }}>{value}</p>
           </div>
         ))}
@@ -150,22 +150,22 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <Link key={key} href={buildUrl({ data: key })} style={{
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
-              border: ativo ? "1px solid #b9a07a" : "1px solid #ddd6c4",
-              color: ativo ? "#b9a07a" : "#9d9d9a",
+              border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
+              color: ativo ? "#b9a07a" : "var(--nuit-smoke)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
           );
         })}
-        <div style={{ width: "1px", backgroundColor: "#ddd6c4", margin: "0 4px" }} />
+        <div style={{ width: "1px", backgroundColor: "rgba(212,184,134,0.16)", margin: "0 4px" }} />
         {filtrosEstado.map(({ key, label }) => {
           const ativo = (estadoFiltro ?? "") === key;
           return (
             <Link key={key} href={buildUrl({ estado: key })} style={{
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
-              border: ativo ? "1px solid #b9a07a" : "1px solid #ddd6c4",
-              color: ativo ? "#b9a07a" : "#9d9d9a",
+              border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
+              color: ativo ? "#b9a07a" : "var(--nuit-smoke)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
@@ -175,7 +175,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
       {/* Lista de sessões */}
       <div style={{
-        backgroundColor: "#ffffff", border: "1px solid #ddd6c4",
+        backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
         borderRadius: "2px", overflow: "hidden",
       }}>
         {sessoes.length === 0 ? (
@@ -183,10 +183,10 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             display: "flex", flexDirection: "column", alignItems: "center",
             justifyContent: "center", padding: "64px",
           }}>
-            <Calendar size={32} color="#ddd6c4" style={{ marginBottom: "12px" }} />
+            <Calendar size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic",
-              fontSize: "14px", color: "#9d9d9a",
+              fontSize: "14px", color: "var(--nuit-smoke)",
             }}>
               Nenhuma sessão encontrada.
             </p>
@@ -197,13 +197,13 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <div style={{
               display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px",
               padding: "10px 20px",
-              borderBottom: "1px solid #f0ece4",
-              backgroundColor: "#fdfaf1",
+              borderBottom: "1px solid rgba(212,184,134,0.1)",
+              backgroundColor: "var(--nuit-overlay)",
             }}>
               {["Data", "Cliente", "Serviço", "Terapeuta", "Estado"].map((col) => (
                 <span key={col} style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "#9d9d9a",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)",
                   textTransform: "uppercase",
                 }}>{col}</span>
               ))}
@@ -221,36 +221,36 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                   <div style={{
                     display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px",
                     padding: "13px 20px", alignItems: "center",
-                    borderBottom: i < sessoes.length - 1 ? "1px solid #f0ece4" : "none",
+                    borderBottom: i < sessoes.length - 1 ? "1px solid rgba(212,184,134,0.1)" : "none",
                     backgroundColor: isHoje
                       ? "rgba(185,160,122,0.04)"
-                      : i % 2 === 0 ? "#ffffff" : "rgba(237,231,227,0.18)",
+                      : i % 2 === 0 ? "var(--nuit-overlay)" : "rgba(255,255,255,0.02)",
                     transition: "background-color 120ms",
                   }}
-                  className="hover:bg-[#efe9db]"
+                  className="hover:bg-[rgba(212,184,134,0.06)]"
                   >
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: isHoje ? "#b9a07a" : "#6d6d6d",
+                      color: isHoje ? "#b9a07a" : "var(--nuit-bone-soft)",
                       fontWeight: isHoje ? 600 : 400,
                     }}>
                       {isHoje ? "Hoje" : formatDate(sessao.data)}
                       {sessao.hora && (
-                        <span style={{ color: "#9d9d9a", marginLeft: "6px" }}>{sessao.hora}</span>
+                        <span style={{ color: "var(--nuit-smoke)", marginLeft: "6px" }}>{sessao.hora}</span>
                       )}
                     </span>
 
                     <div>
                       <span style={{
                         fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
-                        fontWeight: 600, color: "#161a26",
+                        fontWeight: 600, color: "var(--nuit-bone)",
                       }}>
                         {sessao.cliente.nome}
                       </span>
                       {sessao.cliente.telefone && (
                         <span style={{
                           fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-                          color: "#9d9d9a", marginLeft: "8px",
+                          color: "var(--nuit-smoke)", marginLeft: "8px",
                         }}>
                           {sessao.cliente.telefone}
                         </span>
@@ -259,14 +259,14 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: "#6d6d6d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      color: "var(--nuit-bone-soft)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>
                       {sessao.servico ?? "—"}
                     </span>
 
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: "#9d9d9a", textTransform: "capitalize",
+                      color: "var(--nuit-smoke)", textTransform: "capitalize",
                     }}>
                       {sessao.terapeuta ?? "—"}
                     </span>
@@ -292,7 +292,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       {sessoes.length === 100 && (
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-          color: "#9d9d9a", textAlign: "center", marginTop: "16px",
+          color: "var(--nuit-smoke)", textAlign: "center", marginTop: "16px",
         }}>
           A mostrar as últimas 100 sessões. Usa os filtros para refinar.
         </p>
