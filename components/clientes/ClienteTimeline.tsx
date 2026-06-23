@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useCallback } from "react"
+import { useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import {
@@ -29,46 +29,11 @@ const TIPO_CONFIG: Record<string, { icon: React.ElementType; cor: string; bgCor:
 }
 
 interface ClienteTimelineProps {
-  clienteId: string
+  eventos: EventoTimeline[]
 }
 
-export function ClienteTimeline({ clienteId }: ClienteTimelineProps) {
-  const [eventos, setEventos] = useState<EventoTimeline[]>([])
-  const [loading, setLoading] = useState(true)
+export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
   const [expandido, setExpandido] = useState<string | null>(null)
-
-  const carregar = useCallback(async () => {
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/v1/clientes/${clienteId}/timeline?limite=50`, {
-        headers: { "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "" },
-      })
-      if (res.ok) {
-        const json = await res.json()
-        setEventos(json.data ?? [])
-      }
-    } finally {
-      setLoading(false)
-    }
-  }, [clienteId])
-
-  useEffect(() => { carregar() }, [carregar])
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <div className="w-8 h-8 rounded-full bg-gray-100 animate-pulse shrink-0 mt-0.5" />
-            <div className="flex-1 space-y-1.5">
-              <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse" />
-              <div className="h-3 w-1/4 bg-gray-100 rounded animate-pulse" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
 
   if (eventos.length === 0) {
     return (

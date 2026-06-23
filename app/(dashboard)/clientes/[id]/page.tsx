@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, formatPhone, getInitials } from "@/lib/utils"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClienteTimeline } from "@/components/clientes/ClienteTimeline"
+import { construirEventosTimeline } from "@/lib/timeline"
 import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
@@ -124,6 +125,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
   ])
 
   if (!cliente) notFound()
+
+  const eventosTimeline = await construirEventosTimeline(cliente.id, 50)
 
   // Verificar scope para role terapeuta: só vê os SEUS clientes
   if (!ctx.isAdmin && cliente.terapeutaPrincipalId !== ctx.userId) {
@@ -687,7 +690,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             border: "1px solid #ddd6c4", padding: "24px",
             boxShadow: "0 1px 3px rgba(22,26,38,0.05)",
           }}>
-            <ClienteTimeline clienteId={cliente.id} />
+            <ClienteTimeline eventos={eventosTimeline} />
           </div>
         </TabsContent>
 
