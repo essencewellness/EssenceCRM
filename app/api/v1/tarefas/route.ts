@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
   }
 
   // Isolamento por sessão: terapeuta (não-admin) só vê tarefas dos SEUS clientes
-  // ou atribuídas a si. Chamadas N8N (X-API-Key sem cookie de sessão) não são afetadas.
+  // ou atribuídas a si. Admin pode filtrar por terapeuta via ?terapeuta=.
+  // Chamadas N8N (X-API-Key sem cookie de sessão) não são afetadas.
   try {
     const session = await auth()
     const u = session?.user as { id?: string; role?: string } | undefined
@@ -37,6 +38,8 @@ export async function GET(request: NextRequest) {
         { cliente: { terapeutaPrincipalId: u.id } },
         { atribuidaA: u.id },
       ]
+    } else if (u?.role === "admin" && q.terapeuta) {
+      where.cliente = { terapeutaPrincipalId: q.terapeuta }
     }
   } catch { /* sem sessão (N8N) — sem scope */ }
 
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
       cliente: { select: { id: true, nome: true, telefone: true } },
       atribuida: { select: { id: true, name: true, email: true } },
     },
-    orderBy: [{ dataLimite: "asc" }, { criadoEm: "desc" }],
+    orderBy: [{ estado: "asc" }, { dataLimite: "asc" }, { criadoEm: "desc" }],
     take: q.limit + 1,
     ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
   })

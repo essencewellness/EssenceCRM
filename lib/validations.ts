@@ -355,7 +355,8 @@ export const tarefaQuerySchema = z.object({
   prioridade: z.enum(PRIORIDADES_TAREFA).optional(),
   de:         z.string().optional(),
   ate:        z.string().optional(),
-  limit:      z.coerce.number().int().min(1).max(200).default(50),
+  terapeuta:  z.string().trim().max(64).optional(),
+  limit:      z.coerce.number().int().min(1).max(500).default(50),
   cursor:     z.string().trim().max(64).optional(),
 })
 
