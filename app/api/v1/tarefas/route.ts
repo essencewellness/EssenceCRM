@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey } from "@/lib/api-auth"
+import { validarApiKeyOuSessao } from "@/lib/api-auth"
 import { validarBody, validarQuery, tarefaCreateSchema, tarefaQuerySchema } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
 import type { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
-  const apiKeyError = validarApiKey(request)
+  const apiKeyError = await validarApiKeyOuSessao(request)
   if (apiKeyError) return apiKeyError
 
   const validacao = validarQuery(request.url, tarefaQuerySchema)
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKeyError = validarApiKey(request)
+  const apiKeyError = await validarApiKeyOuSessao(request)
   if (apiKeyError) return apiKeyError
 
   const validacao = await validarBody(request, tarefaCreateSchema)

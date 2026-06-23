@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { timingSafeEqual } from "node:crypto"
+import { auth } from "@/lib/auth"
 
 // Comparação em tempo constante — evita timing attacks na descoberta da chave
 function compararSeguro(a: string, b: string): boolean {
@@ -33,6 +34,22 @@ export function validarApiKey(request: NextRequest): NextResponse | null {
   }
 
   return null
+}
+
+// Aceita autenticação por API key (N8N) OU por sessão de utilizador (dashboard
+// same-origin, que envia o cookie de sessão). Retorna null se autorizado.
+// Usar em endpoints partilhados entre o N8N e o dashboard (ex: tarefas).
+export async function validarApiKeyOuSessao(request: NextRequest): Promise<NextResponse | null> {
+  const erroApiKey = validarApiKey(request)
+  if (!erroApiKey) return null
+
+  try {
+    const session = await auth()
+    if (session?.user) return null
+  } catch {
+    /* sem sessão — cai no erro da API key */
+  }
+  return erroApiKey
 }
 
 export function respostaErro(mensagem: string, code: string, status: number) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey } from "@/lib/api-auth"
+import { validarApiKeyOuSessao } from "@/lib/api-auth"
 import { validarBody, tarefaUpdateSchema } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
@@ -14,7 +14,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const apiKeyError = validarApiKey(request)
+  const apiKeyError = await validarApiKeyOuSessao(request)
   if (apiKeyError) return apiKeyError
 
   const { id } = await params
