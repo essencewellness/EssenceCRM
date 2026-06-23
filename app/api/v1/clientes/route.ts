@@ -1,18 +1,19 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { auth } from "@/lib/auth"
 import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import type { Prisma } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
-  const erro = validarApiKey(request)
+  const erro = await validarApiKeyOuSessao(request)
   if (erro) return erro
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, limit, cursor } = q.data
+  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -73,6 +74,20 @@ export async function GET(request: NextRequest) {
 
     if (sem_automacoes === "true") {
       where.NOT = { etiquetas: { some: { etiqueta: { bloqueiaAutomacoes: true } } } }
+    }
+
+    // Isolamento por sessão: terapeuta (não-admin) só vê os SEUS clientes.
+    // Admin pode filtrar por ?terapeuta=. N8N (só API key, sem sessão) vê tudo.
+    if (!validarApiKey(request)) {
+      // pedido autenticado por API key (N8N) — sem isolamento
+    } else {
+      const session = await auth()
+      const u = session?.user as { id?: string; role?: string } | undefined
+      if (u?.id && u.role !== "admin") {
+        where.terapeutaPrincipalId = u.id
+      } else if (u?.role === "admin" && terapeuta) {
+        where.terapeutaPrincipalId = terapeuta
+      }
     }
 
     const clientes = await prisma.cliente.findMany({

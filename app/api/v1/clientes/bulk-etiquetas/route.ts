@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { bulkEtiquetasSchema, validarBody } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 
 export async function POST(request: NextRequest) {
-  const erro = validarApiKey(request)
+  const erro = await validarApiKeyOuSessao(request)
   if (erro) return erro
 
   const parseado = await validarBody(request, bulkEtiquetasSchema)

@@ -60,7 +60,7 @@ export function ClientesInfiniteList({
         etiquetas: (c.etiquetas as { etiqueta: Etiqueta }[]) ?? [],
       }))
       setClientes((prev) => [...prev, ...novos])
-      const novoCursor = json.meta?.proximoCursor ?? null
+      const novoCursor = json.meta?.nextCursor ?? null
       setCursor(novoCursor)
       setTemMais(!!novoCursor)
     } finally {

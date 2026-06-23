@@ -113,6 +113,15 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     id: e.id, nome: e.nome, cor: e.cor, tipo: e.tipo, bloqueiaAutomacoes: e.bloqueiaAutomacoes,
   }))
 
+  // Query string para o scroll infinito respeitar os filtros activos.
+  // (isolamento por terapeuta também é imposto no servidor pela API)
+  const apiParams = new URLSearchParams()
+  if (terapeuta) apiParams.set("terapeuta", terapeuta)
+  if (estadosFiltro.length === 1) apiParams.set("estado", estadosFiltro[0])
+  for (const eid of etiquetasFiltro) apiParams.append("etiquetas", eid)
+  if (inativoDias) apiParams.set("inactivos_desde_dias", String(inativoDias))
+  const queryString = apiParams.toString()
+
   const temFiltrosAvancados = etiquetasFiltro.length > 0 || !!inativo
 
   return (
@@ -222,6 +231,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             initialClientes={clientesRows}
             initialCursor={initialCursor}
             todasEtiquetas={etiquetasSerializadas}
+            queryString={queryString}
           />
         )}
       </div>
