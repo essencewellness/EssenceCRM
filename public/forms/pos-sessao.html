@@ -9,18 +9,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --panel:  #1a1612;
-      --cream:  #faf8f5;
-      --bg:     #ede7e3;
-      --gold:   #c9a66b;
-      --sage:   #8fa085;
-      --dark:   #1c1c1c;
-      --mid:    #4a4540;
-      --text:   #6d6d6d;
-      --muted:  #9a9490;
-      --border: rgba(0,0,0,0.11);
-      --white:  #ffffff;
-      --error:  #b06050;
+      --deep:           #0E1119;
+      --midnight:       #161A26;
+      --overlay:        #1F2433;
+      --bone:           #ECE6D6;
+      --bone-soft:      #c9c3b4;
+      --champagne:      #D4B886;
+      --champagne-soft: #b9a07a;
+      --smoke:          #7a7e8a;
+      --sage:           #7a9e7e;
+      --terra:          #b06050;
+      --border:         rgba(212,184,134,0.16);
+      --border-input:   rgba(212,184,134,0.22);
+      --field-bg:       #161A26;
     }
 
     html {
@@ -31,60 +32,49 @@
     }
 
     body {
-      background: var(--bg);
-      color: var(--dark);
+      background: var(--deep);
+      color: var(--bone);
       font-family: 'Lato', sans-serif;
       min-height: 100dvh;
       padding: 0 0 env(safe-area-inset-bottom);
     }
 
-    /* ═══════════════════════════════════════════════════
-       CARD
-    ═══════════════════════════════════════════════════ */
-    .card {
-      width: 100%;
-      background: var(--cream);
-    }
+    .card { width: 100%; background: var(--midnight); }
 
     /* ═══════════════════════════════════════════════════
-       HEADER — dark panel com logo
+       HEADER
     ═══════════════════════════════════════════════════ */
     .header {
-      background: var(--panel);
+      background: var(--deep);
       padding: 20px 22px 20px;
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
     }
 
     .header::before {
       content: '';
       position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 0;
     }
 
     .header::after {
       content: '';
-      position: absolute;
-      top: -60px; right: -60px;
+      position: absolute; top: -60px; right: -60px;
       width: 220px; height: 220px;
-      background: radial-gradient(circle, rgba(201,166,107,0.08) 0%, transparent 65%);
+      background: radial-gradient(circle, rgba(212,184,134,0.07) 0%, transparent 65%);
       pointer-events: none; z-index: 0;
     }
 
     .header-top {
       position: relative; z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
     }
 
     .header-logo {
       height: 40px; width: auto;
       filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg);
-      opacity: 0.85;
-      flex-shrink: 0;
+      opacity: 0.85; flex-shrink: 0;
     }
 
     .header-brand-group { flex: 1; }
@@ -93,132 +83,130 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 9px; font-weight: 600;
       letter-spacing: 0.35em; text-transform: uppercase;
-      color: var(--gold); opacity: 0.8;
-      margin-bottom: 3px;
+      color: var(--champagne); opacity: 0.8; margin-bottom: 3px;
     }
 
     .header-title {
       font-family: 'Libre Baskerville', serif;
       font-size: 16px; font-weight: 400;
-      color: rgba(255,255,255,0.88);
+      color: rgba(236,230,214,0.88);
     }
 
-    .header-title em { font-style: italic; color: var(--gold); }
+    .header-title em { font-style: italic; color: var(--champagne); }
 
     /* Search */
-    .search-wrap {
-      position: relative; z-index: 1;
-    }
+    .search-wrap { position: relative; z-index: 1; }
 
     .search-input {
       width: 100%;
       padding: 12px 16px 12px 40px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
       border-radius: 2px;
-      font-family: 'Lato', sans-serif;
-      font-size: 1rem;
-      color: var(--white);
-      outline: none;
+      font-family: 'Lato', sans-serif; font-size: 1rem;
+      color: var(--bone); outline: none;
       transition: border-color 0.2s, background 0.2s;
     }
 
-    .search-input::placeholder { color: rgba(255,255,255,0.35); }
-    .search-input:focus {
-      border-color: var(--gold);
-      background: rgba(255,255,255,0.12);
-    }
+    .search-input::placeholder { color: var(--smoke); }
+    .search-input:focus { border-color: var(--champagne); background: rgba(255,255,255,0.07); }
 
     .search-icon {
-      position: absolute;
-      left: 13px; top: 50%;
+      position: absolute; left: 13px; top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.35);
-      pointer-events: none;
+      color: var(--smoke); pointer-events: none;
     }
 
     .search-clear {
-      position: absolute;
-      right: 12px; top: 50%;
+      position: absolute; right: 12px; top: 50%;
       transform: translateY(-50%);
       background: none; border: none;
-      color: rgba(255,255,255,0.4);
-      cursor: pointer; font-size: 16px;
-      line-height: 1; padding: 4px;
-      display: none;
+      color: var(--smoke); cursor: pointer;
+      font-size: 16px; line-height: 1; padding: 4px; display: none;
     }
 
     .search-clear.visible { display: block; }
 
+    /* Dropdown de resultados */
+    .search-dropdown {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+      background: var(--overlay);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      max-height: 240px; overflow-y: auto;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .search-dropdown.visible { display: block; }
+
+    .dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background: rgba(212,184,134,0.08); }
+
+    .dropdown-nome {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px; font-weight: 600; color: var(--bone);
+      margin-bottom: 2px;
+    }
+
+    .dropdown-meta { font-size: 11px; color: var(--smoke); }
+
+    .dropdown-empty {
+      padding: 14px 16px;
+      font-size: 13px; color: var(--smoke); text-align: center;
+    }
+
     /* ═══════════════════════════════════════════════════
-       CLIENTE BANNER (após seleção)
+       CLIENTE BANNER
     ═══════════════════════════════════════════════════ */
     .cliente-banner {
-      background: rgba(201,166,107,0.08);
-      border-bottom: 1px solid rgba(201,166,107,0.2);
-      padding: 16px 22px;
-      display: none;
-      align-items: center;
-      gap: 14px;
+      background: rgba(212,184,134,0.06);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 22px;
+      display: none; align-items: center; gap: 14px;
     }
 
     .cliente-banner.visible { display: flex; }
 
     .cliente-avatar {
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      background: var(--gold);
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(212,184,134,0.15);
+      border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       font-family: 'Libre Baskerville', serif;
-      font-size: 17px; color: var(--white);
-      flex-shrink: 0;
+      font-size: 17px; color: var(--champagne); flex-shrink: 0;
     }
 
     .cliente-info { flex: 1; min-width: 0; }
 
     .cliente-nome {
       font-family: 'Montserrat', sans-serif;
-      font-size: 14px; font-weight: 600;
-      color: var(--dark);
+      font-size: 14px; font-weight: 600; color: var(--bone);
       margin-bottom: 2px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    .cliente-meta {
-      font-size: 12px; color: var(--muted);
-    }
+    .cliente-meta { font-size: 12px; color: var(--smoke); }
 
     .btn-trocar {
       font-family: 'Montserrat', sans-serif;
       font-size: 10px; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--muted);
+      color: var(--smoke);
       background: none; border: 1px solid var(--border);
-      padding: 8px 12px; cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
+      padding: 8px 12px; cursor: pointer; border-radius: 2px;
+      transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
     }
 
-    .btn-trocar:hover { border-color: var(--gold); color: var(--gold); }
-
-    /* Not found state */
-    .not-found {
-      padding: 14px 22px;
-      background: rgba(176,96,80,0.06);
-      border-bottom: 1px solid rgba(176,96,80,0.15);
-      display: none;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .not-found.visible { display: flex; }
-
-    .not-found-text {
-      font-size: 13px; color: var(--error);
-      flex: 1;
-    }
+    .btn-trocar:hover { border-color: var(--champagne); color: var(--champagne); }
 
     /* ═══════════════════════════════════════════════════
        FORM BODY
@@ -226,9 +214,8 @@
     .form-body { padding: 28px 22px; }
 
     .section {
-      margin-bottom: 28px;
-      padding-bottom: 28px;
-      border-bottom: 1px solid rgba(0,0,0,0.06);
+      margin-bottom: 28px; padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
     }
 
     .section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -237,8 +224,7 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 9px; font-weight: 600;
       letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--sage);
-      margin-bottom: 18px;
+      color: var(--champagne-soft); margin-bottom: 18px;
     }
 
     .field-label {
@@ -246,94 +232,72 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 10px; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--mid);
-      margin-bottom: 8px;
+      color: var(--smoke); margin-bottom: 8px;
     }
 
     .field-label .opt {
-      font-weight: 400; color: var(--muted);
+      font-weight: 400; color: var(--smoke);
       text-transform: none; letter-spacing: 0; font-size: 10px;
     }
 
-    input, select, textarea {
+    input[type="text"], input[type="date"], input[type="time"], select, textarea {
       width: 100%;
       padding: 12px 14px;
-      border: 1.5px solid rgba(0,0,0,0.12);
-      border-radius: 1px;
-      background: var(--white);
+      border: 1px solid var(--border-input);
+      border-radius: 2px;
+      background: var(--field-bg);
       font-family: 'Lato', sans-serif;
-      font-size: 1rem; /* 16px — prevents iOS zoom */
-      color: var(--dark);
+      font-size: 1rem;
+      color: var(--bone);
       transition: border-color 0.2s;
-      outline: none;
-      appearance: none;
+      outline: none; appearance: none;
     }
 
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--gold);
-    }
+    input:focus, select:focus, textarea:focus { border-color: var(--champagne); }
 
-    input.err, select.err { border-color: var(--error); }
+    input.err, select.err { border-color: var(--terra); }
 
     textarea { resize: vertical; line-height: 1.65; min-height: 90px; }
 
     select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236d6d6d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7e8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 14px center;
-      background-color: var(--white);
-      padding-right: 38px;
-      cursor: pointer;
+      background-color: var(--field-bg);
+      padding-right: 38px; cursor: pointer;
     }
+
+    select option { background: var(--overlay); color: var(--bone); }
 
     .field-group { margin-bottom: 16px; }
     .field-group:last-child { margin-bottom: 0; }
 
-    .f-err {
-      font-size: 12px; color: var(--error);
-      margin-top: 6px; display: none;
-    }
+    .f-err { font-size: 12px; color: var(--terra); margin-top: 6px; display: none; }
     .f-err.show { display: block; }
 
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
     /* ═══════════════════════════════════════════════════
-       ESCALA EMOCIONAL
+       ESTADO EMOCIONAL
     ═══════════════════════════════════════════════════ */
-    .emocional-scale {
-      display: flex;
-      gap: 8px;
-    }
+    .emocional-scale { display: flex; gap: 8px; }
 
     .emocional-btn {
-      flex: 1;
-      padding: 12px 6px;
-      min-height: 72px;
-      border: 1.5px solid rgba(0,0,0,0.1);
-      border-radius: 2px;
-      background: var(--white);
+      flex: 1; padding: 12px 6px; min-height: 72px;
+      border: 1px solid var(--border);
+      border-radius: 2px; background: var(--overlay);
       font-family: 'Montserrat', sans-serif;
-      font-size: 11px; font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-      line-height: 1.3;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 4px;
+      font-size: 11px; font-weight: 500; color: var(--smoke);
+      cursor: pointer; text-align: center; transition: all 0.2s;
+      line-height: 1.3; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
     }
 
     .emocional-btn:hover { border-color: var(--sage); color: var(--sage); }
 
     .emocional-btn.selected {
-      background: var(--sage);
-      border-color: var(--sage);
-      color: var(--white);
+      background: rgba(122,158,126,0.15);
+      border-color: var(--sage); color: var(--sage);
     }
 
     .emocional-emoji { font-size: 18px; }
@@ -348,68 +312,51 @@
     }
 
     .aroma-btn {
-      padding: 12px 10px;
-      min-height: 44px;
-      border: 1.5px solid rgba(0,0,0,0.1);
-      border-radius: 2px;
-      background: var(--white);
-      font-family: 'Lato', sans-serif;
-      font-size: 13px;
-      color: var(--text);
-      cursor: pointer;
-      text-align: center;
+      padding: 12px 10px; min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 2px; background: var(--overlay);
+      font-family: 'Lato', sans-serif; font-size: 13px;
+      color: var(--bone-soft); cursor: pointer; text-align: center;
       transition: all 0.2s;
     }
 
-    .aroma-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .aroma-btn:hover { border-color: var(--champagne); color: var(--champagne); }
 
     .aroma-btn.selected {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--white);
+      background: rgba(212,184,134,0.12);
+      border-color: var(--champagne); color: var(--champagne);
     }
 
     /* ═══════════════════════════════════════════════════
        RETORNO
     ═══════════════════════════════════════════════════ */
-    .return-options {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .return-options { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .return-btn {
-      padding: 11px 16px;
-      min-height: 44px;
-      border: 1.5px solid rgba(0,0,0,0.1);
-      border-radius: 40px;
-      background: var(--white);
+      padding: 11px 16px; min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 40px; background: var(--overlay);
       font-family: 'Montserrat', sans-serif;
-      font-size: 12px; font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.2s;
+      font-size: 12px; font-weight: 500; color: var(--bone-soft);
+      cursor: pointer; transition: all 0.2s;
     }
 
-    .return-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .return-btn:hover { border-color: var(--champagne); color: var(--champagne); }
 
     .return-btn.selected {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--white);
+      background: rgba(212,184,134,0.12);
+      border-color: var(--champagne); color: var(--champagne);
     }
 
     /* ═══════════════════════════════════════════════════
        GLOBAL ERROR
     ═══════════════════════════════════════════════════ */
     .global-error {
-      border-left: 2px solid var(--error);
-      background: rgba(176,96,80,0.06);
-      color: var(--error);
-      padding: 12px 14px;
-      font-size: 13px; line-height: 1.55;
-      margin-bottom: 24px;
-      display: none;
+      border-left: 2px solid var(--terra);
+      background: rgba(176,96,80,0.08);
+      color: var(--terra);
+      padding: 12px 14px; font-size: 13px; line-height: 1.55;
+      margin-bottom: 24px; display: none;
     }
 
     .global-error.visible { display: block; }
@@ -419,31 +366,26 @@
     ═══════════════════════════════════════════════════ */
     .form-footer {
       padding: 20px 22px calc(20px + env(safe-area-inset-bottom));
-      background: var(--bg);
-      border-top: 1px solid rgba(0,0,0,0.08);
+      background: var(--deep);
+      border-top: 1px solid var(--border);
     }
 
     .btn-guardar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 18px 24px;
-      background: var(--dark);
-      color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 18px 24px;
+      background: var(--overlay); color: var(--bone);
       font-family: 'Montserrat', sans-serif;
       font-size: 11px; font-weight: 700;
       letter-spacing: 0.22em; text-transform: uppercase;
-      border: none; cursor: pointer;
+      border: 1px solid var(--border); cursor: pointer;
       position: relative; overflow: hidden;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
+      transition: all 0.2s; -webkit-tap-highlight-color: transparent;
     }
 
     .btn-guardar::before {
       content: '';
       position: absolute; inset: 0;
-      background: var(--gold);
+      background: var(--champagne);
       transform: translateX(-101%);
       transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
     }
@@ -451,10 +393,13 @@
     .btn-guardar:hover::before,
     .btn-guardar:active::before { transform: translateX(0); }
 
+    .btn-guardar:hover { color: var(--midnight); border-color: var(--champagne); }
+
     .btn-guardar > span { position: relative; z-index: 1; }
 
-    .btn-guardar:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-guardar:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-guardar:disabled::before { display: none; }
+    .btn-guardar:disabled:hover { color: var(--bone); border-color: var(--border); }
 
     /* ═══════════════════════════════════════════════════
        TOAST
@@ -462,62 +407,49 @@
     .toast {
       position: fixed;
       bottom: max(32px, env(safe-area-inset-bottom, 32px));
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--dark);
-      color: var(--white);
-      padding: 14px 28px;
-      border-radius: 2px;
+      left: 50%; transform: translateX(-50%) translateY(100px);
+      background: var(--overlay);
+      border: 1px solid var(--border);
+      color: var(--bone);
+      padding: 14px 28px; border-radius: 2px;
       font-family: 'Montserrat', sans-serif;
-      font-size: 13px; font-weight: 500;
-      letter-spacing: 0.05em;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.05em;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 100;
-      white-space: nowrap;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      z-index: 100; white-space: nowrap;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
     }
 
     .toast.visible { transform: translateX(-50%) translateY(0); }
-    .toast.gold { background: var(--gold); }
+
+    .toast.gold {
+      background: var(--champagne);
+      color: var(--midnight);
+      border-color: var(--champagne);
+    }
 
     /* ═══════════════════════════════════════════════════
        DESKTOP (≥ 640px)
     ═══════════════════════════════════════════════════ */
     @media (min-width: 640px) {
       body {
-        display: flex;
-        flex-direction: column;
+        display: flex; flex-direction: column;
         align-items: center;
         padding: clamp(24px, 4dvh, 48px) 20px clamp(32px, 5dvh, 60px);
       }
 
       .card {
         max-width: 640px;
-        box-shadow: 0 4px 40px rgba(0,0,0,0.1);
-        border-radius: 2px;
-        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+        border: 1px solid var(--border);
+        border-radius: 2px; overflow: hidden;
       }
 
       .header { padding: 24px 32px 22px; }
-
       .header-logo { height: 44px; }
-
-      .cliente-banner { padding: 16px 32px; }
-
-      .not-found { padding: 14px 32px; }
-
+      .cliente-banner { padding: 14px 32px; }
       .form-body { padding: 32px 32px; }
-
-      .form-footer { padding: 22px 32px; }
-
+      .form-footer { padding: 22px 32px; display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
       .btn-guardar { width: auto; padding: 16px 40px; }
-
-      .form-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 16px;
-      }
     }
 
     @media (max-width: 480px) {
@@ -550,13 +482,12 @@
         type="text"
         class="search-input"
         id="busca-input"
-        placeholder="Pesquisa o nome ou email da cliente…"
+        placeholder="Pesquisa o nome ou telemóvel da cliente…"
         oninput="buscarCliente(this.value)"
-        autocomplete="off"
-        autocorrect="off"
-        spellcheck="false"
+        autocomplete="off" autocorrect="off" spellcheck="false"
       >
       <button class="search-clear" id="search-clear" onclick="limparBusca()" type="button">×</button>
+      <div class="search-dropdown" id="search-dropdown"></div>
     </div>
   </header>
 
@@ -568,15 +499,6 @@
       <div class="cliente-meta" id="display-meta"></div>
     </div>
     <button class="btn-trocar" onclick="trocarCliente()" type="button">Trocar</button>
-  </div>
-
-  <!-- ═══ NOT FOUND ════════════════════════════════════ -->
-  <div class="not-found" id="not-found">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:var(--error)">
-      <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
-      <path d="M7 4v4M7 10v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-    </svg>
-    <span class="not-found-text" id="not-found-text">Nenhuma cliente encontrada.</span>
   </div>
 
   <!-- ═══ FORM ══════════════════════════════════════════ -->
@@ -595,11 +517,7 @@
           <div class="field-group">
             <label class="field-label" for="servico">Serviço *</label>
             <select id="servico">
-              <option value="">Seleciona…</option>
-              <option value="Essência Plena">Essência Plena (40€)</option>
-              <option value="Puro Aroma">Puro Aroma (45€)</option>
-              <option value="Cera Quente">Cera Quente (50€)</option>
-              <option value="Massagem Dubai Essence">Dubai Essence (55€)</option>
+              <option value="">A carregar…</option>
             </select>
             <div class="f-err" id="err-servico">Seleciona o serviço realizado.</div>
           </div>
@@ -607,8 +525,7 @@
           <div class="field-group">
             <label class="field-label" for="terapeuta">Terapeuta</label>
             <select id="terapeuta">
-              <option value="bea">Bea</option>
-              <option value="cris">Cris</option>
+              <option value="">A carregar…</option>
             </select>
           </div>
         </div>
@@ -627,7 +544,7 @@
 
       <!-- Estado emocional -->
       <div class="section">
-        <div class="section-label">Estado emocional <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--muted)">(opcional)</span></div>
+        <div class="section-label">Estado emocional <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
         <div class="emocional-scale" id="emocional-scale">
           <button type="button" class="emocional-btn" data-value="muito tensa">
             <span class="emocional-emoji">😣</span>Muito tensa
@@ -649,7 +566,7 @@
 
       <!-- Aroma -->
       <div class="section">
-        <div class="section-label">Aroma <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--muted)">(opcional)</span></div>
+        <div class="section-label">Aroma <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
         <div class="aromas-grid" id="aromas-grid">
           <button type="button" class="aroma-btn" data-value="Lavanda">🌸 Lavanda</button>
           <button type="button" class="aroma-btn" data-value="Eucalipto">🌿 Eucalipto</button>
@@ -683,7 +600,7 @@
 
       <!-- Retorno recomendado -->
       <div class="section">
-        <div class="section-label">Retorno recomendado <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--muted)">(opcional)</span></div>
+        <div class="section-label">Retorno recomendado <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
 
         <div class="return-options" id="return-options">
           <button type="button" class="return-btn" data-days="7">1 semana</button>
@@ -718,16 +635,70 @@
     ? 'http://localhost:3000'
     : 'https://crm.essencewellness.pt';
 
-  // ATENÇÃO: configurar a API key antes de usar (não guardar aqui — ficheiro público)
-  // Em produção: usar /dashboard/pos-sessao (página autenticada) em vez deste HTML
   const API_KEY = window.CRM_API_KEY ?? '';
+
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    ...(API_KEY ? { 'X-API-Key': API_KEY } : {}),
+  };
 
   // Preencher data/hora com "agora"
   const agora = new Date();
   document.getElementById('data-sessao').value = agora.toISOString().split('T')[0];
   document.getElementById('hora-sessao').value = agora.toTimeString().slice(0, 5);
 
-  // ── Estado emocional ──────────────────────────────────
+  // ── Carregar serviços do catálogo ─────────────────
+  let catalogoServicos = [];
+
+  async function carregarServicos() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/servicos?ativo=true`, { headers: authHeaders });
+      if (!res.ok) return;
+      const json = await res.json();
+      catalogoServicos = json.data || [];
+      const sel = document.getElementById('servico');
+      sel.innerHTML = '<option value="">Seleciona o serviço…</option>';
+      catalogoServicos.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.nome;
+        opt.dataset.preco = s.precoBase;
+        opt.textContent = `${s.nome} (${Number(s.precoBase).toFixed(0)}€)`;
+        sel.appendChild(opt);
+      });
+    } catch {
+      document.getElementById('servico').innerHTML = '<option value="">Seleciona…</option>';
+    }
+  }
+
+  // ── Carregar terapeutas ───────────────────────────
+  let catalogoTerapeutas = [];
+
+  async function carregarTerapeutas() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/terapeutas`, { headers: authHeaders });
+      if (!res.ok) return;
+      const json = await res.json();
+      catalogoTerapeutas = json.data || [];
+      const sel = document.getElementById('terapeuta');
+      sel.innerHTML = '';
+      catalogoTerapeutas.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name || t.email;
+        sel.appendChild(opt);
+      });
+      if (catalogoTerapeutas.length === 0) {
+        sel.innerHTML = '<option value="">Sem terapeutas</option>';
+      }
+    } catch {
+      document.getElementById('terapeuta').innerHTML = '<option value="bea">Bea</option><option value="cris">Cris</option>';
+    }
+  }
+
+  carregarServicos();
+  carregarTerapeutas();
+
+  // ── Estado emocional ──────────────────────────────
   document.querySelectorAll('.emocional-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.emocional-btn').forEach(b => b.classList.remove('selected'));
@@ -735,7 +706,7 @@
     });
   });
 
-  // ── Aromas ───────────────────────────────────────────
+  // ── Aromas ───────────────────────────────────────
   document.querySelectorAll('.aroma-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.aroma-btn').forEach(b => b.classList.remove('selected'));
@@ -743,7 +714,7 @@
     });
   });
 
-  // ── Retorno ──────────────────────────────────────────
+  // ── Retorno ──────────────────────────────────────
   document.querySelectorAll('.return-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.return-btn').forEach(b => b.classList.remove('selected'));
@@ -754,53 +725,68 @@
     });
   });
 
-  // ── Busca de cliente ─────────────────────────────────
+  // ── Busca de cliente (debounced, via API ?q=) ─────
   let buscaTimeout;
   let clienteSelecionado = null;
-  let todosClientes = [];
-
-  async function carregarClientes() {
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/clientes?limit=200`, {
-        headers: { 'X-API-Key': API_KEY }
-      });
-      if (!res.ok) return;
-      const json = await res.json();
-      todosClientes = json.data || [];
-    } catch { /* silencioso */ }
-  }
-
-  carregarClientes();
 
   function buscarCliente(query) {
     clearTimeout(buscaTimeout);
     const clearBtn = document.getElementById('search-clear');
+    const dropdown = document.getElementById('search-dropdown');
     clearBtn.classList.toggle('visible', query.length > 0);
 
     if (query.length < 2) {
-      document.getElementById('not-found').classList.remove('visible');
+      dropdown.classList.remove('visible');
       return;
     }
 
-    buscaTimeout = setTimeout(() => {
-      const q = query.toLowerCase().trim();
-      const match = todosClientes.find(c =>
-        (c.nome && c.nome.toLowerCase().includes(q)) ||
-        (c.email && c.email.toLowerCase().includes(q)) ||
-        (c.telefone && c.telefone.includes(q))
-      );
+    buscaTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/clientes?q=${encodeURIComponent(query)}&limit=8`, {
+          headers: authHeaders,
+        });
+        if (!res.ok) return;
+        const json = await res.json();
+        const resultados = json.data || [];
 
-      if (match) {
-        selecionarCliente(match);
-        document.getElementById('not-found').classList.remove('visible');
-      } else {
-        document.getElementById('not-found-text').textContent =
-          `Nenhuma cliente encontrada para "${query}".`;
-        document.getElementById('not-found').classList.add('visible');
-        document.getElementById('cliente-banner').classList.remove('visible');
-      }
-    }, 350);
+        dropdown.innerHTML = '';
+
+        if (resultados.length === 0) {
+          dropdown.innerHTML = `<div class="dropdown-empty">Nenhuma cliente encontrada para "${query}".</div>`;
+          dropdown.classList.add('visible');
+          return;
+        }
+
+        resultados.forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'dropdown-item';
+
+          const ultima = c.ultimaSessao
+            ? `Última sessão: ${new Date(c.ultimaSessao).toLocaleDateString('pt-PT')}`
+            : 'Primeira sessão';
+
+          item.innerHTML = `
+            <div class="dropdown-nome">${c.nome}</div>
+            <div class="dropdown-meta">${c.estado || ''} · ${ultima}</div>
+          `;
+          item.addEventListener('click', () => {
+            selecionarCliente(c);
+            dropdown.classList.remove('visible');
+          });
+          dropdown.appendChild(item);
+        });
+
+        dropdown.classList.add('visible');
+      } catch { /* silencioso */ }
+    }, 320);
   }
+
+  // Fechar dropdown ao clicar fora
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) {
+      document.getElementById('search-dropdown').classList.remove('visible');
+    }
+  });
 
   function selecionarCliente(c) {
     clienteSelecionado = c;
@@ -813,9 +799,7 @@
       : 'Primeira sessão';
     document.getElementById('display-meta').textContent = `${c.estado || 'nova'} · ${ultima}`;
     document.getElementById('cliente-banner').classList.add('visible');
-    document.getElementById('not-found').classList.remove('visible');
 
-    // Limpar search
     document.getElementById('busca-input').value = '';
     document.getElementById('search-clear').classList.remove('visible');
   }
@@ -831,17 +815,17 @@
   function limparBusca() {
     document.getElementById('busca-input').value = '';
     document.getElementById('search-clear').classList.remove('visible');
-    document.getElementById('not-found').classList.remove('visible');
+    document.getElementById('search-dropdown').classList.remove('visible');
   }
 
-  // ── Validação inline ─────────────────────────────────
+  // ── Validação inline ─────────────────────────────
   document.getElementById('servico').addEventListener('change', function() {
     const hasErr = !this.value;
     this.classList.toggle('err', hasErr);
     document.getElementById('err-servico').classList.toggle('show', hasErr);
   });
 
-  // ── Guardar ──────────────────────────────────────────
+  // ── Guardar ──────────────────────────────────────
   async function guardar() {
     const btn = document.getElementById('btn-guardar');
     const ge  = document.getElementById('global-error');
@@ -850,7 +834,6 @@
     const clienteId = document.getElementById('cliente-id').value;
     const servico   = document.getElementById('servico').value;
 
-    // Validação
     if (!clienteId) {
       ge.textContent = 'Pesquisa e seleciona uma cliente antes de guardar.';
       ge.classList.add('visible');
@@ -867,10 +850,14 @@
     btn.querySelector('span').textContent = 'A guardar…';
     btn.disabled = true;
 
-    const terapeuta = document.getElementById('terapeuta').value;
-    const data      = document.getElementById('data-sessao').value;
-    const hora      = document.getElementById('hora-sessao').value;
-    const resumo    = document.getElementById('resumo').value.trim() || null;
+    // Terapeuta: id do utilizador selecionado
+    const terapeutaSelect = document.getElementById('terapeuta');
+    const terapeutaId     = terapeutaSelect.value || null;
+    const terapeutaNome   = terapeutaSelect.options[terapeutaSelect.selectedIndex]?.textContent || '';
+
+    const data        = document.getElementById('data-sessao').value;
+    const hora        = document.getElementById('hora-sessao').value;
+    const resumo      = document.getElementById('resumo').value.trim() || null;
     const notasProxima = document.getElementById('notas-proxima').value.trim() || null;
     const dataRetorno  = document.getElementById('data-retorno').value || null;
     const aromaCustom  = document.getElementById('aroma-custom').value.trim();
@@ -880,30 +867,28 @@
       ? (aromaCustom ? `${aromaBtn.dataset.value} — ${aromaCustom}` : aromaBtn.dataset.value)
       : (aromaCustom || null);
 
-    const emocionalBtn  = document.querySelector('.emocional-btn.selected');
+    const emocionalBtn   = document.querySelector('.emocional-btn.selected');
     const estadoEmocional = emocionalBtn ? emocionalBtn.dataset.value : null;
 
-    const precos = {
-      'Essência Plena': 40,
-      'Puro Aroma': 45,
-      'Cera Quente': 50,
-      'Massagem Dubai Essence': 55,
-    };
+    // Preço: do catálogo (pelo option selecionado)
+    const selectedOption = terapeutaSelect.form?.querySelector('#servico option:checked');
+    const servicoSel = document.getElementById('servico');
+    const precoServico = servicoSel.options[servicoSel.selectedIndex]?.dataset?.preco
+      ? parseFloat(servicoSel.options[servicoSel.selectedIndex].dataset.preco)
+      : null;
 
     try {
       const res = await fetch(`${API_BASE}/api/v1/sessoes`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': API_KEY,
-        },
+        headers: authHeaders,
         body: JSON.stringify({
           clienteId,
           data,
           hora,
           servico,
-          preco: precos[servico] ?? null,
-          terapeuta,
+          preco: precoServico,
+          terapeuta: terapeutaNome,
+          terapeutaId,
           estado: 'realizada',
           aromaSessao,
           resumoSessao: resumo,
@@ -918,16 +903,13 @@
       if (dataRetorno && sessao?.id) {
         await fetch(`${API_BASE}/api/v1/sessoes/${sessao.id}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'X-API-Key': API_KEY },
+          headers: authHeaders,
           body: JSON.stringify({ dataRecomendadaRegresso: dataRetorno }),
         });
       }
 
-      // Toast com nome da cliente
       const nomeCliente = clienteSelecionado?.nome?.split(' ')[0] || 'cliente';
       mostrarToast(`✓ Sessão da ${nomeCliente} guardada`, 'gold');
-
-      // Reset
       setTimeout(resetForm, 1500);
 
     } catch (err) {
@@ -952,27 +934,26 @@
     document.getElementById('notas-proxima').value = '';
     document.getElementById('aroma-custom').value = '';
     document.getElementById('data-retorno').value = '';
-    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn')
-      .forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById('servico').value = '';
     document.getElementById('servico').classList.remove('err');
     document.getElementById('err-servico').classList.remove('show');
-
+    clienteSelecionado = null;
+    document.getElementById('cliente-id').value = '';
+    document.getElementById('cliente-banner').classList.remove('visible');
     const btn = document.getElementById('btn-guardar');
     btn.querySelector('span').textContent = 'Guardar registo ✦';
     btn.disabled = false;
   }
 
-  // Pré-selecionar cliente via URL param: ?clienteId=xxx
+  // Pré-selecionar cliente via ?clienteId=
   const params = new URLSearchParams(window.location.search);
   const cidParam = params.get('clienteId');
   if (cidParam) {
-    fetch(`${API_BASE}/api/v1/clientes/${cidParam}`, {
-      headers: { 'X-API-Key': API_KEY }
-    })
-    .then(r => r.json())
-    .then(j => { if (j.data) selecionarCliente(j.data); })
-    .catch(() => {});
+    fetch(`${API_BASE}/api/v1/clientes/${cidParam}`, { headers: authHeaders })
+      .then(r => r.json())
+      .then(j => { if (j.data) selecionarCliente(j.data); })
+      .catch(() => {});
   }
 </script>
 </body>

@@ -209,6 +209,7 @@ model Cliente {
   portalToken         PortalToken?
   giftCards           GiftCard[]
   tarefas             Tarefa[]
+  feedbacks           Feedback[]
 
   @@index([estado])
   @@index([telefone])
@@ -278,6 +279,7 @@ model Sessao {
 
   cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   servico_rel Servico?  @relation(fields: [servicoId], references: [id])
+  feedbacks   Feedback[]
 
   @@index([data])
   @@index([clienteId])
@@ -548,6 +550,26 @@ model AuditLog {
   @@index([acao, criadoEm])
   @@index([entidade, entidadeId])
   @@index([quem, criadoEm])
+}
+
+// ── Feedback de Clientes ──────────────────────────────────────
+
+model Feedback {
+  id                String   @id @default(cuid())
+  clienteId         String
+  sessaoId          String?
+  rating            Int      // 1..5
+  pontosPositivos   String?  // chips/tópicos do que gostou
+  pontosMelhorar    String?  // texto privado quando negativo
+  comentario        String?
+  encaminhadoGoogle Boolean  @default(false)
+  criadoEm          DateTime @default(now())
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  sessao  Sessao? @relation(fields: [sessaoId], references: [id], onDelete: SetNull)
+
+  @@index([clienteId])
+  @@index([sessaoId])
 }
 
 // ── Tarefas / Follow-ups ──────────────────────────────────────

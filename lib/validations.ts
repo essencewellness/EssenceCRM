@@ -70,6 +70,7 @@ export const clienteUpdateSchema = z.object({
 }).strict()
 
 export const clientesQuerySchema = z.object({
+  q: z.string().trim().max(120).optional(), // pesquisa livre: nome, email, telefone
   estado: z.enum(ESTADOS_CLIENTE).optional(),
   canal: z.enum(CANAIS).optional(),
   aceitaMarketing: z.enum(["true", "false"]).optional(),
@@ -365,6 +366,18 @@ export const bulkEtiquetasSchema = z.object({
   clienteIds: z.array(z.string().trim().max(64)).min(1).max(500),
   etiquetaId: z.string().trim().max(64),
   acao:       z.enum(["aplicar", "remover"]),
+}).strict()
+
+// ── Feedback público (24h pós-sessão) ────────────────────────
+
+export const feedbackPublicSchema = z.object({
+  clienteId:      z.string().trim().max(64),
+  sessaoId:       z.string().trim().max(64).optional().nullable(),
+  rating:         z.coerce.number().int().min(1).max(5),
+  pontosPositivos: z.string().trim().max(1000).optional().nullable(),
+  pontosMelhorar: z.string().trim().max(2000).optional().nullable(),
+  comentario:     z.string().trim().max(2000).optional().nullable(),
+  website:        z.string().max(0).optional(), // honeypot
 }).strict()
 
 // ── Helper de validação ───────────────────────────────────────

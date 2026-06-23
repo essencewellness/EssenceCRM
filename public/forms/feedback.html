@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — A tua opinião</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --deep:           #0E1119;
+      --midnight:       #161A26;
+      --overlay:        #1F2433;
+      --bone:           #ECE6D6;
+      --bone-soft:      #c9c3b4;
+      --champagne:      #D4B886;
+      --champagne-soft: #b9a07a;
+      --smoke:          #7a7e8a;
+      --sage:           #7a9e7e;
+      --terra:          #b06050;
+      --border:         rgba(212,184,134,0.16);
+      --border-input:   rgba(212,184,134,0.22);
+      --field-bg:       #161A26;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--deep);
+      color: var(--bone);
+      font-family: 'Lato', sans-serif;
+      min-height: 100dvh;
+      padding: 0 0 env(safe-area-inset-bottom);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       STATES: intro, rating, positive, negative, done
+    ═══════════════════════════════════════════════════ */
+    .screen { display: none; flex-direction: column; min-height: 100dvh; }
+    .screen.active { display: flex; }
+
+    /* ═══════════════════════════════════════════════════
+       HEADER
+    ═══════════════════════════════════════════════════ */
+    .header {
+      background: var(--deep);
+      padding: 22px 22px 20px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(212,184,134,0.07) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .header-inner {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .header-logo {
+      height: 38px; width: auto;
+      filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg);
+      opacity: 0.85; flex-shrink: 0;
+    }
+
+    .header-brand-group { flex: 1; }
+
+    .header-brand {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--champagne); opacity: 0.8; margin-bottom: 3px;
+    }
+
+    .header-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 15px; font-weight: 400;
+      color: rgba(236,230,214,0.88);
+    }
+
+    .header-title em { font-style: italic; color: var(--champagne); }
+
+    /* ═══════════════════════════════════════════════════
+       BODY
+    ═══════════════════════════════════════════════════ */
+    .body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 22px; }
+
+    .lead-text {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 22px; font-weight: 400; line-height: 1.45;
+      color: var(--bone); text-align: center; margin-bottom: 10px;
+    }
+
+    .lead-text em { font-style: italic; color: var(--champagne); }
+
+    .sub-text {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 400;
+      color: var(--smoke); text-align: center;
+      letter-spacing: 0.05em; margin-bottom: 40px; line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       STAR RATING
+    ═══════════════════════════════════════════════════ */
+    .stars-wrap {
+      display: flex; justify-content: center;
+      gap: 10px; margin-bottom: 28px;
+    }
+
+    .star {
+      font-size: 40px; cursor: pointer;
+      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s;
+      filter: grayscale(1) brightness(0.5);
+      user-select: none; -webkit-tap-highlight-color: transparent;
+      line-height: 1;
+    }
+
+    .star.hover, .star.selected {
+      filter: grayscale(0) brightness(1);
+      transform: scale(1.2);
+    }
+
+    .star.selected-lower {
+      filter: grayscale(0) brightness(0.85);
+      transform: scale(1.05);
+    }
+
+    .rating-label {
+      text-align: center; height: 24px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--champagne);
+      transition: opacity 0.2s; opacity: 0; margin-bottom: 32px;
+    }
+
+    .rating-label.visible { opacity: 1; }
+
+    .btn-rating {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 17px 24px;
+      background: var(--overlay); color: var(--bone);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      border: 1px solid var(--border); cursor: pointer;
+      position: relative; overflow: hidden;
+      transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-rating::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--champagne);
+      transform: translateX(-101%);
+      transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .btn-rating:hover::before { transform: translateX(0); }
+    .btn-rating:hover { color: var(--midnight); border-color: var(--champagne); }
+    .btn-rating > span { position: relative; z-index: 1; }
+    .btn-rating:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-rating:disabled::before { display: none; }
+    .btn-rating:disabled:hover { color: var(--bone); border-color: var(--border); }
+
+    /* ═══════════════════════════════════════════════════
+       CHIPS (pontos positivos)
+    ═══════════════════════════════════════════════════ */
+    .chips-grid {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-bottom: 28px;
+    }
+
+    .chip {
+      padding: 11px 18px; min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 40px; background: var(--overlay);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; font-weight: 500; color: var(--bone-soft);
+      cursor: pointer; transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .chip:hover { border-color: var(--champagne); color: var(--champagne); }
+
+    .chip.selected {
+      background: rgba(212,184,134,0.12);
+      border-color: var(--champagne); color: var(--champagne);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       TEXTAREA
+    ═══════════════════════════════════════════════════ */
+    .field-label {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--smoke); margin-bottom: 10px;
+    }
+
+    textarea {
+      width: 100%; padding: 14px;
+      border: 1px solid var(--border-input);
+      border-radius: 2px; background: var(--field-bg);
+      font-family: 'Lato', sans-serif; font-size: 1rem;
+      color: var(--bone); resize: vertical; min-height: 110px;
+      line-height: 1.65; outline: none; margin-bottom: 24px;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus { border-color: var(--champagne); }
+    textarea::placeholder { color: var(--smoke); }
+
+    /* ═══════════════════════════════════════════════════
+       GOOGLE CTA
+    ═══════════════════════════════════════════════════ */
+    .google-box {
+      background: rgba(212,184,134,0.05);
+      border: 1px solid var(--border);
+      border-radius: 2px; padding: 20px;
+      text-align: center; margin-bottom: 24px;
+    }
+
+    .google-icon { font-size: 28px; margin-bottom: 10px; }
+
+    .google-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 16px; font-weight: 400;
+      color: var(--bone); margin-bottom: 8px;
+    }
+
+    .google-desc {
+      font-family: 'Lato', sans-serif;
+      font-size: 13px; color: var(--smoke);
+      line-height: 1.6; margin-bottom: 18px;
+    }
+
+    .btn-google {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 28px;
+      background: var(--champagne); color: var(--midnight);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: opacity 0.2s; -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-google:hover { opacity: 0.88; }
+
+    .btn-skip {
+      display: block; margin-top: 14px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; color: var(--smoke);
+      letter-spacing: 0.1em; background: none;
+      border: none; cursor: pointer; text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: color 0.2s, text-decoration-color 0.2s;
+    }
+
+    .btn-skip:hover { color: var(--bone-soft); text-decoration-color: var(--smoke); }
+
+    /* ═══════════════════════════════════════════════════
+       DONE SCREEN
+    ═══════════════════════════════════════════════════ */
+    .done-icon {
+      font-size: 52px; text-align: center; margin-bottom: 16px;
+    }
+
+    .done-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 24px; font-weight: 400;
+      color: var(--bone); text-align: center; margin-bottom: 10px;
+    }
+
+    .done-title em { font-style: italic; color: var(--champagne); }
+
+    .done-sub {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px; color: var(--smoke);
+      text-align: center; line-height: 1.7; letter-spacing: 0.04em;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════ */
+    .form-footer {
+      padding: 18px 22px calc(18px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border); background: var(--deep);
+      flex-shrink: 0;
+    }
+
+    .privacy-note {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px; color: var(--smoke);
+      text-align: center; letter-spacing: 0.04em;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DESKTOP
+    ═══════════════════════════════════════════════════ */
+    @media (min-width: 640px) {
+      body {
+        display: flex; flex-direction: column;
+        align-items: center;
+        padding: clamp(24px, 5dvh, 56px) 20px clamp(32px, 5dvh, 60px);
+      }
+
+      .screen { min-height: auto; width: 100%; max-width: 480px; }
+      .screen.active { display: flex; }
+
+      .card {
+        background: var(--midnight);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+        overflow: hidden;
+      }
+
+      .header { padding: 24px 32px 22px; }
+      .body { padding: 36px 32px; }
+      .form-footer { padding: 18px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: RATING
+═══════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-rating">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">A tua <em>opinião</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text">Como te sentiste após a <em>sessão</em>?</p>
+      <p class="sub-text">A tua experiência importa. Demora menos de 1 minuto.</p>
+
+      <div class="stars-wrap" id="stars-wrap">
+        <span class="star" data-value="1">⭐</span>
+        <span class="star" data-value="2">⭐</span>
+        <span class="star" data-value="3">⭐</span>
+        <span class="star" data-value="4">⭐</span>
+        <span class="star" data-value="5">⭐</span>
+      </div>
+
+      <div class="rating-label" id="rating-label">—</div>
+
+      <button class="btn-rating" id="btn-continuar" onclick="avancarDeRating()" disabled>
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">A tua resposta é confidencial e ajuda-nos a melhorar.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: POSITIVO
+═══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-positivo">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">O que <em>mais gostaste</em>?</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais. <br>Cada detalhe conta para a Bea.</p>
+
+      <div class="chips-grid" id="chips-positivos">
+        <button type="button" class="chip" data-value="Ambiente relaxante">Ambiente relaxante</button>
+        <button type="button" class="chip" data-value="Pressão perfeita">Pressão perfeita</button>
+        <button type="button" class="chip" data-value="Atenção personalizada">Atenção personalizada</button>
+        <button type="button" class="chip" data-value="Aroma agradável">Aroma agradável</button>
+        <button type="button" class="chip" data-value="Saí muito leve">Saí muito leve</button>
+        <button type="button" class="chip" data-value="Saí a dormir">Saí a dormir 😴</button>
+        <button type="button" class="chip" data-value="Melhor sono depois">Melhor sono depois</button>
+        <button type="button" class="chip" data-value="Marcaria de novo já">Marcaria de novo já</button>
+      </div>
+
+      <!-- CTA Google -->
+      <div class="google-box">
+        <div class="google-icon">🌟</div>
+        <div class="google-title">Partilha com outras pessoas</div>
+        <div class="google-desc">Cada avaliação no Google ajuda outras pessoas a descobrir a Essence Wellness — e demora 30 segundos.</div>
+        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="enviarFeedback('google')">
+          ⭐ Avaliar no Google
+        </a>
+        <button class="btn-skip" onclick="enviarFeedback('skip')">Prefiro não deixar avaliação</button>
+      </div>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Obrigada pela tua generosidade. ✦</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: NEGATIVO
+═══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-negativo">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Queremos <em>melhorar</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;margin-bottom:8px;">O teu feedback é um presente.</p>
+      <p class="sub-text" style="margin-bottom:28px;">Só a Beatriz vai ler isto. Sê completamente honesta — é a única forma de melhorarmos.</p>
+
+      <label class="field-label" for="texto-melhoria">O que poderíamos ter feito melhor?</label>
+      <textarea id="texto-melhoria" placeholder="Escreve o que sentiste — pressão, temperatura, duração, comunicação, ambiente… Qualquer detalhe ajuda."></textarea>
+
+      <button class="btn-rating" onclick="enviarFeedbackNegativo()">
+        <span>Enviar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Esta mensagem é completamente privada e nunca será publicada.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: DONE
+═══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-done">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Essence <em>Wellness</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <div class="done-icon" id="done-icon">🌿</div>
+      <h1 class="done-title" id="done-title">Obrigada, <em>de coração</em>.</h1>
+      <p class="done-sub" id="done-sub">O teu feedback chegou. Faz diferença para nós — mesmo que seja privado, é lido e sentido.<br><br>Até à próxima sessão. ✦</p>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
+    </footer>
+  </div>
+</div>
+
+<script>
+  const API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost'))
+    ? 'http://localhost:3000'
+    : 'https://crm.essencewellness.pt';
+
+  const GOOGLE_REVIEW_URL = 'https://g.page/r/CUpYz4Jwxqw3EBM/review';
+
+  // Extrair params da URL
+  const params = new URLSearchParams(window.location.search);
+  const clienteId = params.get('c') || params.get('clienteId') || '';
+  const sessaoId  = params.get('s') || params.get('sessaoId') || null;
+
+  let ratingActual = 0;
+  let feedbackEnviado = false;
+
+  // Pré-definir link Google
+  document.getElementById('link-google').href = GOOGLE_REVIEW_URL;
+
+  // ── RATING LABELS ─────────────────────────────────
+  const labels = {
+    1: 'Não foi o que esperava',
+    2: 'Podia ter sido melhor',
+    3: 'Boa experiência',
+    4: 'Muito boa sessão 🌿',
+    5: 'Incrível, recomendo! ⭐',
+  };
+
+  // ── STARS ─────────────────────────────────────────
+  const stars = document.querySelectorAll('.star');
+  const labelEl = document.getElementById('rating-label');
+  const btnContinuar = document.getElementById('btn-continuar');
+
+  stars.forEach(star => {
+    const v = parseInt(star.dataset.value);
+
+    star.addEventListener('mouseenter', () => {
+      if (ratingActual > 0) return;
+      highlightStars(v, 'hover');
+      labelEl.textContent = labels[v];
+      labelEl.classList.add('visible');
+    });
+
+    star.addEventListener('mouseleave', () => {
+      if (ratingActual > 0) return;
+      highlightStars(0, '');
+      labelEl.textContent = '';
+      labelEl.classList.remove('visible');
+    });
+
+    star.addEventListener('click', () => {
+      ratingActual = v;
+      highlightStars(v, 'selected');
+      labelEl.textContent = labels[v];
+      labelEl.classList.add('visible');
+      btnContinuar.disabled = false;
+    });
+  });
+
+  function highlightStars(value, cls) {
+    stars.forEach(s => {
+      const sv = parseInt(s.dataset.value);
+      s.classList.remove('hover', 'selected', 'selected-lower');
+      if (sv <= value) s.classList.add(cls);
+    });
+  }
+
+  // ── CHIPS (multi-select) ───────────────────────────
+  document.querySelectorAll('#chips-positivos .chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+
+  // ── AVANÇAR DE RATING ──────────────────────────────
+  function avancarDeRating() {
+    if (!ratingActual) return;
+    mostrarScreen(ratingActual >= 4 ? 'positivo' : 'negativo');
+  }
+
+  // ── ENVIAR FEEDBACK (positivo) ─────────────────────
+  async function enviarFeedback(acao) {
+    if (feedbackEnviado) return;
+    feedbackEnviado = true;
+
+    const chipsEscolhidos = [...document.querySelectorAll('#chips-positivos .chip.selected')]
+      .map(c => c.dataset.value)
+      .join(', ') || null;
+
+    try {
+      await fetch(`${API_BASE}/api/v1/public/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clienteId,
+          sessaoId,
+          rating: ratingActual,
+          pontosPositivos: chipsEscolhidos,
+          pontosMelhorar: null,
+          comentario: null,
+        }),
+      });
+    } catch { /* silencioso — não bloquear fluxo */ }
+
+    if (acao === 'google') {
+      window.open(GOOGLE_REVIEW_URL, '_blank', 'noopener');
+      mostrarDone(
+        '🌟',
+        'Obrigada, és <em>incrível</em>.',
+        'A tua avaliação no Google ajuda imensas pessoas a descobrir a Essence Wellness.\n\nVemo-nos na próxima sessão. ✦'
+      );
+    } else {
+      mostrarDone(
+        '🌿',
+        'Obrigada, <em>de coração</em>.',
+        'O teu feedback chegou. Faz diferença para nós.\n\nAté à próxima sessão. ✦'
+      );
+    }
+  }
+
+  // ── ENVIAR FEEDBACK (negativo) ─────────────────────
+  async function enviarFeedbackNegativo() {
+    if (feedbackEnviado) return;
+    feedbackEnviado = true;
+
+    const texto = document.getElementById('texto-melhoria').value.trim() || null;
+
+    try {
+      await fetch(`${API_BASE}/api/v1/public/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clienteId,
+          sessaoId,
+          rating: ratingActual,
+          pontosPositivos: null,
+          pontosMelhorar: texto,
+          comentario: null,
+        }),
+      });
+    } catch { /* silencioso */ }
+
+    mostrarDone(
+      '💛',
+      'Recebido com <em>gratidão</em>.',
+      'Só a Beatriz vai ler a tua mensagem. A honestidade é o maior presente que nos podes dar.\n\nEsperamos poder surpreender-te da próxima vez. ✦'
+    );
+  }
+
+  // ── NAVEGAR ENTRE SCREENS ─────────────────────────
+  function mostrarScreen(nome) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`screen-${nome}`).classList.add('active');
+    window.scrollTo({ top: 0 });
+  }
+
+  function mostrarDone(icon, title, sub) {
+    document.getElementById('done-icon').textContent = icon;
+    document.getElementById('done-title').innerHTML = `<em>${title.replace('<em>', '').replace('</em>', '')}</em>`;
+    // parse simples de <em>
+    const titleEl = document.getElementById('done-title');
+    titleEl.innerHTML = title;
+    document.getElementById('done-sub').textContent = sub;
+    mostrarScreen('done');
+  }
+
+  // Se não tiver clienteId, apenas mostramos o formulário normalmente.
+  // O API retorna 200 silencioso para IDs inválidos (anti-enumeration).
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, limit, cursor } = q.data
+  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -33,7 +33,16 @@ export async function GET(request: NextRequest) {
     if (canal) where.canalPreferido = canal
     if (aceitaMarketing !== undefined) where.aceitaMarketing = aceitaMarketing === "true"
 
-    if (email || telefone) {
+    if (pesquisa) {
+      // Pesquisa livre em nome, email ou telefone (OR). Sem mode:"insensitive" — incompatível com SQLite.
+      const isProd = process.env.DATABASE_URL?.startsWith("postgresql")
+      const containsOpt = isProd ? { contains: pesquisa, mode: "insensitive" as const } : { contains: pesquisa }
+      where.OR = [
+        { nome:     containsOpt },
+        { email:    containsOpt },
+        { telefone: containsOpt },
+      ]
+    } else if (email || telefone) {
       const orConditions: Prisma.ClienteWhereInput[] = []
       if (email) orConditions.push({ email })
       if (telefone) orConditions.push({ telefone: { contains: normalizarTelefone(telefone) } })

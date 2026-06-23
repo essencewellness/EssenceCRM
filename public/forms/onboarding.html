@@ -9,17 +9,19 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --panel:   #1a1612;
-      --cream:   #faf8f5;
-      --gold:    #c9a66b;
-      --sage:    #8fa085;
-      --dark:    #1c1c1c;
-      --mid:     #4a4540;
-      --text:    #6d6d6d;
-      --muted:   #9a9490;
-      --border:  rgba(0,0,0,0.11);
-      --white:   #ffffff;
-      --error:   #b06050;
+      --deep:           #0E1119;
+      --midnight:       #161A26;
+      --overlay:        #1F2433;
+      --bone:           #ECE6D6;
+      --bone-soft:      #c9c3b4;
+      --champagne:      #D4B886;
+      --champagne-soft: #b9a07a;
+      --smoke:          #7a7e8a;
+      --sage:           #7a9e7e;
+      --terra:          #b06050;
+      --border:         rgba(212,184,134,0.16);
+      --border-input:   rgba(212,184,134,0.22);
+      --field-bg:       #161A26;
     }
 
     html {
@@ -31,133 +33,109 @@
     }
 
     body {
-      background: var(--cream);
-      color: var(--dark);
+      background: var(--deep);
+      color: var(--bone);
       font-family: 'Lato', sans-serif;
-      min-height: 100dvh; /* dynamic viewport — adapts to keyboard & zoom */
+      min-height: 100dvh;
     }
 
     /* ═══════════════════════════════════════════════════
-       HEADER — mobile-first, sticky top
+       HEADER
     ═══════════════════════════════════════════════════ */
     .header {
-      background: var(--panel);
+      background: var(--deep);
       padding: 20px 22px 18px;
       position: relative;
       overflow: hidden;
     }
 
-    /* grain */
     .header::before {
       content: '';
       position: absolute; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 0;
     }
 
-    /* warm glow top-right */
     .header::after {
       content: '';
       position: absolute;
       top: -60px; right: -60px;
       width: 220px; height: 220px;
-      background: radial-gradient(circle, rgba(201,166,107,0.1) 0%, transparent 65%);
+      background: radial-gradient(circle, rgba(212,184,134,0.08) 0%, transparent 65%);
       pointer-events: none; z-index: 0;
     }
 
     .header-inner {
       position: relative; z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 14px;
+      display: flex; align-items: center; gap: 14px;
     }
 
     .header-logo {
-      height: 44px;
-      width: auto;
+      height: 44px; width: auto;
       filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg);
-      opacity: 0.85;
-      flex-shrink: 0;
+      opacity: 0.85; flex-shrink: 0;
     }
 
-    .header-brand {
-      flex: 1;
-    }
+    .header-brand { flex: 1; }
 
     .header-name {
       font-family: 'Libre Baskerville', serif;
-      font-size: 10px;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.8;
-      margin-bottom: 3px;
+      font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--champagne); opacity: 0.8; margin-bottom: 3px;
     }
 
     .header-title {
       font-family: 'Libre Baskerville', serif;
-      font-size: 16px;
-      font-weight: 400;
-      color: rgba(255,255,255,0.88);
-      line-height: 1.25;
+      font-size: 16px; font-weight: 400;
+      color: rgba(236,230,214,0.88); line-height: 1.25;
     }
 
-    .header-title em {
-      font-style: italic;
-      color: var(--gold);
-    }
+    .header-title em { font-style: italic; color: var(--champagne); }
 
     /* ═══════════════════════════════════════════════════
        PROGRESS BAR
     ═══════════════════════════════════════════════════ */
     .progress {
-      background: var(--panel);
+      background: var(--deep);
       padding: 0 22px 20px;
       position: relative; z-index: 1;
+      border-bottom: 1px solid var(--border);
     }
 
     .progress-track {
       height: 2px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 2px;
-      overflow: hidden;
+      background: rgba(212,184,134,0.12);
+      border-radius: 2px; overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(to right, var(--gold), rgba(201,166,107,0.6));
+      background: linear-gradient(to right, var(--champagne), rgba(212,184,134,0.5));
       border-radius: 2px;
       transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
     }
 
     .progress-labels {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
+      display: flex; justify-content: space-between; margin-top: 8px;
     }
 
     .prog-label {
       font-family: 'Montserrat', sans-serif;
-      font-size: 8px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.28);
-      transition: color 0.3s;
+      font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(236,230,214,0.22); transition: color 0.3s;
     }
 
-    .prog-label.active { color: rgba(201,166,107,0.75); }
-    .prog-label.done   { color: rgba(201,166,107,0.4); }
+    .prog-label.active { color: rgba(212,184,134,0.75); }
+    .prog-label.done   { color: rgba(212,184,134,0.35); }
 
     /* ═══════════════════════════════════════════════════
        FORM BODY
     ═══════════════════════════════════════════════════ */
     .form-body {
+      background: var(--midnight);
       padding: 32px 22px 48px;
     }
 
-    /* ═══════════════════════════════════════════════════
-       STEPS
-    ═══════════════════════════════════════════════════ */
     .step { display: none; }
 
     .step.active {
@@ -174,31 +152,25 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 10px; font-weight: 600;
       letter-spacing: 0.24em; text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
+      color: var(--champagne-soft); margin-bottom: 8px;
     }
 
     .heading {
       font-family: 'Libre Baskerville', serif;
       font-size: 26px; font-weight: 400;
-      color: var(--dark);
-      line-height: 1.25;
-      margin-bottom: 10px;
+      color: var(--bone); line-height: 1.25; margin-bottom: 10px;
     }
 
-    .heading em { font-style: italic; color: var(--gold); }
+    .heading em { font-style: italic; color: var(--champagne); }
 
     .desc {
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.75;
-      margin-bottom: 32px;
+      font-size: 14px; color: var(--smoke);
+      line-height: 1.75; margin-bottom: 32px;
     }
 
-    /* Gold accent line */
     .accent-line {
       width: 28px; height: 1.5px;
-      background: linear-gradient(to right, var(--gold), transparent);
+      background: linear-gradient(to right, var(--champagne), transparent);
       margin-bottom: 28px;
     }
 
@@ -209,15 +181,15 @@
 
     .fl {
       position: relative;
-      padding-top: 1.25rem; /* rem scales with zoom */
+      padding-top: 1.25rem;
     }
 
     .fl label {
       position: absolute;
-      top: 1.25rem; left: 0;  /* matches padding-top — stays aligned at any zoom */
+      top: 1.25rem; left: 0;
       font-family: 'Lato', sans-serif;
       font-size: 0.9375rem; font-weight: 400;
-      color: var(--muted);
+      color: var(--smoke);
       pointer-events: none;
       transition: all 0.22s ease;
     }
@@ -228,7 +200,7 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 0.6875rem; font-weight: 600;
       letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--gold);
+      color: var(--champagne);
     }
 
     .fl input,
@@ -236,15 +208,15 @@
       width: 100%;
       padding: 0.5rem 0 0.75rem;
       border: none;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-input);
       background: transparent;
       font-family: 'Lato', sans-serif;
-      font-size: 1rem; /* 16px base — prevents iOS zoom, scales with user zoom */
-      color: var(--dark);
+      font-size: 1rem;
+      color: var(--bone);
       outline: none; appearance: none; border-radius: 0;
       transition: border-color 0.22s;
       line-height: 1.5;
-      scroll-margin-top: 6rem; /* ensures field stays visible above keyboard */
+      scroll-margin-top: 6rem;
     }
 
     .fl input::placeholder,
@@ -252,29 +224,52 @@
 
     .fl textarea { resize: none; min-height: 80px; }
 
-    /* animated gold underline on focus */
     .fl::after {
       content: '';
       position: absolute;
       bottom: 0; left: 0;
       width: 0; height: 1.5px;
-      background: var(--gold);
+      background: var(--champagne);
       transition: width 0.32s cubic-bezier(0.4,0,0.2,1);
     }
 
     .fl.active::after { width: 100%; }
 
-    .fl input.err { border-bottom-color: var(--error); }
-    .fl.active.has-err label { color: var(--error); }
-    .fl.active.has-err::after { background: var(--error); }
+    .fl input.err { border-bottom-color: var(--terra); }
+    .fl.active.has-err label { color: var(--terra); }
+    .fl.active.has-err::after { background: var(--terra); }
+
+    /* Campo de texto inline para "Outra/Outro" */
+    .outra-field {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .outra-field.show { display: block; }
+
+    .outra-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--overlay);
+      border: 1px solid var(--border-input);
+      border-radius: 2px;
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      color: var(--bone);
+      outline: none;
+      transition: border-color 0.22s;
+    }
+
+    .outra-input:focus { border-color: var(--champagne); }
+    .outra-input::placeholder { color: var(--smoke); }
 
     .f-hint {
-      font-size: 11.5px; color: var(--muted);
+      font-size: 11.5px; color: var(--smoke);
       margin-top: 8px; font-style: italic; line-height: 1.5;
     }
 
     .f-err {
-      font-size: 12px; color: var(--error);
+      font-size: 12px; color: var(--terra);
       margin-top: 6px; display: none;
     }
 
@@ -287,16 +282,13 @@
       font-family: 'Montserrat', sans-serif;
       font-size: 12px; font-weight: 600;
       letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--mid);
-      margin-bottom: 14px;
-      display: block;
-      line-height: 1.6;
+      color: var(--bone-soft);
+      margin-bottom: 14px; display: block; line-height: 1.6;
     }
 
     .slabel .opt {
       font-weight: 400; letter-spacing: 0.02em;
-      text-transform: none; color: var(--muted);
-      font-size: 11px;
+      text-transform: none; color: var(--smoke); font-size: 11px;
     }
 
     /* ═══════════════════════════════════════════════════
@@ -305,95 +297,109 @@
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
     .chip {
-      padding: 11px 18px;          /* min 44px touch target height */
+      padding: 11px 18px;
       border: 1px solid var(--border);
       border-radius: 40px;
       font-family: 'Montserrat', sans-serif;
       font-size: 12px; font-weight: 500;
-      color: var(--text);
+      color: var(--bone-soft);
       cursor: pointer;
       transition: all 0.18s ease;
       user-select: none;
-      background: var(--white);
+      background: var(--overlay);
       -webkit-tap-highlight-color: transparent;
     }
 
     .chip:active { transform: scale(0.97); }
 
     .chip.sel {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--white);
-      box-shadow: 0 3px 12px rgba(201,166,107,0.28);
+      background: var(--champagne);
+      border-color: var(--champagne);
+      color: var(--midnight);
+      box-shadow: 0 3px 12px rgba(212,184,134,0.22);
     }
 
-    .chip.sage:not(.sel) { color: var(--text); }
-    .chip.sage.sel {
+    .chip.sage-chip:not(.sel) { color: var(--bone-soft); }
+    .chip.sage-chip.sel {
       background: var(--sage);
       border-color: var(--sage);
-      color: var(--white);
-      box-shadow: 0 3px 12px rgba(143,160,133,0.25);
+      color: var(--midnight);
     }
 
-    /* Binary choice (Sim/Não) */
     .choice-pair { display: flex; gap: 10px; }
 
     .choice-btn {
-      flex: 1;
-      padding: 16px 12px;          /* big touch target */
+      flex: 1; padding: 16px 12px;
       border: 1.5px solid var(--border);
       border-radius: 6px;
       font-family: 'Libre Baskerville', serif;
       font-size: 17px; font-weight: 400;
-      color: var(--mid);
-      cursor: pointer;
-      transition: all 0.2s;
-      user-select: none;
-      background: var(--white);
-      text-align: center;
-      -webkit-tap-highlight-color: transparent;
+      color: var(--bone-soft);
+      cursor: pointer; transition: all 0.2s;
+      user-select: none; background: var(--overlay);
+      text-align: center; -webkit-tap-highlight-color: transparent;
     }
 
     .choice-btn:active { transform: scale(0.98); }
 
     .choice-btn.sel {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: var(--white);
-      box-shadow: 0 4px 14px rgba(201,166,107,0.28);
+      background: var(--champagne);
+      border-color: var(--champagne);
+      color: var(--midnight);
     }
+
+    /* ═══════════════════════════════════════════════════
+       CONSENT (RGPD)
+    ═══════════════════════════════════════════════════ */
+    .consent-box {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 16px;
+      background: var(--overlay);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .consent-box input[type="checkbox"] {
+      width: 18px; height: 18px;
+      flex-shrink: 0; cursor: pointer;
+      accent-color: var(--champagne);
+      margin-top: 2px;
+    }
+
+    .consent-box label {
+      font-size: 12.5px; color: var(--smoke);
+      line-height: 1.55; cursor: pointer;
+    }
+
+    .consent-box label strong { color: var(--bone-soft); }
 
     /* ═══════════════════════════════════════════════════
        NAVIGATION
     ═══════════════════════════════════════════════════ */
     .nav {
-      margin-top: 40px;
-      padding-top: 24px;
-      border-top: 1px solid rgba(0,0,0,0.06);
+      margin-top: 40px; padding-top: 24px;
+      border-top: 1px solid var(--border);
     }
 
     .btn-primary {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 18px 24px;          /* full-width, comfortable */
-      background: var(--dark);
-      color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 18px 24px;
+      background: var(--overlay);
+      color: var(--bone);
       font-family: 'Montserrat', sans-serif;
       font-size: 11px; font-weight: 700;
       letter-spacing: 0.22em; text-transform: uppercase;
-      border: none; cursor: pointer;
-      position: relative; overflow: hidden;
-      transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
+      border: 1px solid var(--border);
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: all 0.2s; -webkit-tap-highlight-color: transparent;
       margin-bottom: 14px;
     }
 
     .btn-primary::before {
       content: '';
       position: absolute; inset: 0;
-      background: var(--gold);
+      background: var(--champagne);
       transform: translateX(-101%);
       transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
     }
@@ -401,41 +407,37 @@
     .btn-primary:active::before,
     .btn-primary:hover::before { transform: translateX(0); }
 
+    .btn-primary:hover { color: var(--midnight); border-color: var(--champagne); }
+
     .btn-primary > span { position: relative; z-index: 1; }
 
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-primary:disabled::before { display: none; }
+    .btn-primary:disabled:hover { color: var(--bone); border-color: var(--border); }
 
     .btn-back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 12px;
-      background: transparent;
-      color: var(--muted);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 12px;
+      background: transparent; color: var(--smoke);
       font-family: 'Montserrat', sans-serif;
       font-size: 10.5px; font-weight: 600;
       letter-spacing: 0.16em; text-transform: uppercase;
-      border: none; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      border: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
       transition: color 0.2s;
     }
 
-    .btn-back:active { color: var(--dark); }
+    .btn-back:active { color: var(--bone); }
 
     /* ═══════════════════════════════════════════════════
        GLOBAL ERROR
     ═══════════════════════════════════════════════════ */
     .gerr {
-      border-left: 2px solid var(--error);
-      background: rgba(176,96,80,0.06);
-      color: var(--error);
+      border-left: 2px solid var(--terra);
+      background: rgba(176,96,80,0.08);
+      color: var(--terra);
       padding: 12px 14px;
       font-size: 13.5px; line-height: 1.55;
-      margin-bottom: 28px;
-      display: none;
+      margin-bottom: 28px; display: none;
     }
 
     .gerr.show { display: block; }
@@ -444,17 +446,15 @@
        SUCCESS
     ═══════════════════════════════════════════════════ */
     .success {
-      display: none;
-      text-align: center;
+      display: none; text-align: center;
       padding: 20px 0 32px;
       animation: fadeUp 0.5s ease forwards;
     }
 
     .success-ring {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: rgba(201,166,107,0.1);
-      border: 1px solid rgba(201,166,107,0.3);
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(212,184,134,0.08);
+      border: 1px solid rgba(212,184,134,0.25);
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 28px;
     }
@@ -462,90 +462,69 @@
     .success h2 {
       font-family: 'Libre Baskerville', serif;
       font-size: 26px; font-weight: 400;
-      color: var(--dark);
-      line-height: 1.3;
-      margin-bottom: 16px;
+      color: var(--bone); line-height: 1.3; margin-bottom: 16px;
     }
 
     .success p {
-      font-size: 15px; color: var(--text);
-      line-height: 1.8;
-      margin-bottom: 10px;
+      font-size: 15px; color: var(--smoke);
+      line-height: 1.8; margin-bottom: 10px;
     }
 
     .success-tag {
       font-family: 'Libre Baskerville', serif;
-      font-style: italic;
-      font-size: 15px; color: var(--gold);
-      margin-top: 12px;
+      font-style: italic; font-size: 15px;
+      color: var(--champagne); margin-top: 12px;
     }
 
     /* ═══════════════════════════════════════════════════
        FOOTER
     ═══════════════════════════════════════════════════ */
     .footer {
+      background: var(--deep);
       padding: 16px 22px 28px;
-      font-size: 11.5px; color: var(--muted);
+      font-size: 11.5px; color: var(--smoke);
       line-height: 1.65;
-      border-top: 1px solid rgba(0,0,0,0.06);
+      border-top: 1px solid var(--border);
       text-align: center;
     }
 
     /* ═══════════════════════════════════════════════════
-       DESKTOP ENHANCEMENT (≥ 760px)
+       DESKTOP (≥ 760px)
     ═══════════════════════════════════════════════════ */
     @media (min-width: 760px) {
       body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: #ede7e3;
+        display: flex; flex-direction: column;
+        align-items: center; background: var(--deep);
         padding: clamp(24px, 4dvh, 48px) 20px clamp(32px, 5dvh, 60px);
       }
 
       .card {
-        width: 100%;
-        max-width: 540px;
-        background: var(--cream);
-        box-shadow: 0 4px 40px rgba(0,0,0,0.08);
-        border-radius: 2px;
-        overflow: hidden;
+        width: 100%; max-width: 540px;
+        background: var(--midnight);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+        border: 1px solid var(--border);
+        border-radius: 2px; overflow: hidden;
       }
 
       .header { padding: 28px 36px 24px; }
-
       .header-logo { height: 48px; }
-
       .header-title { font-size: 18px; }
-
       .progress { padding: 0 36px 22px; }
-
       .form-body { padding: 40px 36px 52px; }
-
       .heading { font-size: 32px; }
-
       .footer { padding: 18px 36px 30px; }
 
-      /* Desktop: side-by-side nav */
       .nav {
-        display: flex;
-        flex-direction: row-reverse;
-        align-items: center;
-        gap: 16px;
+        display: flex; flex-direction: row-reverse;
+        align-items: center; gap: 16px;
       }
 
       .btn-primary {
-        width: auto;
-        padding: 16px 36px;
-        margin-bottom: 0;
-        flex-shrink: 0;
+        width: auto; padding: 16px 36px;
+        margin-bottom: 0; flex-shrink: 0;
       }
 
-      .btn-back {
-        width: auto;
-        padding: 12px 0;
-        justify-content: flex-start;
-      }
+      .btn-back { width: auto; padding: 12px 0; justify-content: flex-start; }
     }
   </style>
 </head>
@@ -559,7 +538,7 @@
       <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
       <div class="header-brand">
         <div class="header-name">Essence Wellness</div>
-        <div class="header-title">Ficha de <em>Bem-Estar</em></div>
+        <div class="header-title" id="header-title">Ficha de <em>Bem-Estar</em></div>
       </div>
     </div>
   </header>
@@ -583,7 +562,6 @@
 
     <!-- ── STEP 1 ────────────────────────────────── -->
     <div class="step active" id="step-1">
-
       <div class="eyebrow">Passo 1 de 4 · ~3 minutos</div>
       <h1 class="heading">Olá, <em>quem és?</em></h1>
       <div class="accent-line"></div>
@@ -609,7 +587,7 @@
       <div class="fg">
         <div class="fl" id="fl-tel">
           <input type="tel" id="telefone" placeholder=" " autocomplete="tel" inputmode="tel">
-          <label for="telefone">Telemóvel <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <label for="telefone">Telemóvel <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Para confirmar a tua sessão pelo WhatsApp.</div>
       </div>
@@ -621,11 +599,10 @@
 
     <!-- ── STEP 2 ────────────────────────────────── -->
     <div class="step" id="step-2">
-
       <div class="eyebrow">Passo 2 de 4</div>
       <h2 class="heading">Como estás <em>por dentro?</em></h2>
       <div class="accent-line"></div>
-      <p class="desc">Não há respostas certas ou erradas — queremos apenas perceber como chegas até nós hoje.</p>
+      <p class="desc">Não há respostas certas ou erradas — queremos perceber como chegas até nós hoje.</p>
 
       <div class="fg">
         <span class="slabel">Como está a tua mente agora? <span class="opt">(podes escolher mais do que uma)</span></span>
@@ -638,7 +615,10 @@
           <div class="chip" data-value="cansada">Cansada</div>
           <div class="chip" data-value="triste">Triste / A precisar de atenção</div>
           <div class="chip" data-value="sob-controlo">Sob controlo, a conseguir gerir</div>
-          <div class="chip" data-value="outra">Outra</div>
+          <div class="chip outra-trigger" data-value="outra" data-target="outra-mente">Outra</div>
+        </div>
+        <div class="outra-field" id="outra-mente">
+          <input type="text" class="outra-input" id="outra-mente-input" placeholder="Descreve brevemente como te sentes…" maxlength="200">
         </div>
       </div>
 
@@ -663,7 +643,6 @@
 
     <!-- ── STEP 3 ────────────────────────────────── -->
     <div class="step" id="step-3">
-
       <div class="eyebrow">Passo 3 de 4</div>
       <h2 class="heading">Conhecer <em>o teu corpo</em></h2>
       <div class="accent-line"></div>
@@ -672,22 +651,42 @@
       <div class="fg">
         <span class="slabel">Onde sentes mais tensão? <span class="opt">(podes escolher mais do que uma)</span></span>
         <div class="chips" id="chips-tensao">
-          <div class="chip sage" data-value="pescoco">Pescoço</div>
-          <div class="chip sage" data-value="cabeca">Cabeça</div>
-          <div class="chip sage" data-value="costas-sup">Costas (parte superior)</div>
-          <div class="chip sage" data-value="lombar">Costas (zona lombar)</div>
-          <div class="chip sage" data-value="pernas">Pernas</div>
-          <div class="chip sage" data-value="pes">Pés</div>
-          <div class="chip sage" data-value="enxaquecas">Enxaquecas</div>
-          <div class="chip sage" data-value="corpo-todo">Corpo inteiro</div>
-          <div class="chip sage" data-value="outro">Outro</div>
+          <div class="chip sage-chip" data-value="Pescoço">Pescoço</div>
+          <div class="chip sage-chip" data-value="Cabeça">Cabeça</div>
+          <div class="chip sage-chip" data-value="Costas superiores">Costas (parte superior)</div>
+          <div class="chip sage-chip" data-value="Lombar">Costas (zona lombar)</div>
+          <div class="chip sage-chip" data-value="Pernas">Pernas</div>
+          <div class="chip sage-chip" data-value="Pés">Pés</div>
+          <div class="chip sage-chip" data-value="Enxaquecas">Enxaquecas</div>
+          <div class="chip sage-chip" data-value="Corpo inteiro">Corpo inteiro</div>
+          <div class="chip sage-chip outra-trigger" data-value="Outro" data-target="outra-tensao">Outro</div>
+        </div>
+        <div class="outra-field" id="outra-tensao">
+          <input type="text" class="outra-input" id="outra-tensao-input" placeholder="Ex: cotovelos, mandíbula…" maxlength="200">
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Qual o teu aroma preferido? <span class="opt">(opcional)</span></span>
+        <div class="chips" id="chips-aroma">
+          <div class="chip" data-value="Lavanda">Lavanda</div>
+          <div class="chip" data-value="Eucalipto">Eucalipto</div>
+          <div class="chip" data-value="Rosa">Rosa</div>
+          <div class="chip" data-value="Bergamota">Bergamota</div>
+          <div class="chip" data-value="Hortelã">Hortelã</div>
+          <div class="chip" data-value="Sândalo">Sândalo</div>
+          <div class="chip" data-value="Ylang Ylang">Ylang Ylang</div>
+          <div class="chip outra-trigger" data-value="Outro" data-target="outra-aroma">Outro</div>
+        </div>
+        <div class="outra-field" id="outra-aroma">
+          <input type="text" class="outra-input" id="outra-aroma-input" placeholder="Qual o teu aroma preferido?" maxlength="200">
         </div>
       </div>
 
       <div class="fg">
         <div class="fl" id="fl-cond">
           <textarea id="condicoes" placeholder=" "></textarea>
-          <label for="condicoes">Condições clínicas <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <label for="condicoes">Condições clínicas <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Ex: gravidez, lesões, dores crónicas, tensão arterial...</div>
       </div>
@@ -695,9 +694,18 @@
       <div class="fg">
         <div class="fl" id="fl-alergia">
           <textarea id="alergias" placeholder=" " style="min-height:64px;"></textarea>
-          <label for="alergias">Alergias ou sensibilidades <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <label for="alergias">Alergias ou sensibilidades <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Ex: óleos essenciais, aromas, látex, frutos secos...</div>
+      </div>
+
+      <div class="fg">
+        <div class="consent-box">
+          <input type="checkbox" id="consentimento-saude" checked>
+          <label for="consentimento-saude">
+            <strong>Autorizo a Bea a guardar estes dados de saúde no meu perfil</strong> — para que a sessão seja sempre personalizada e segura. Podes retirar este consentimento a qualquer momento.
+          </label>
+        </div>
       </div>
 
       <div class="nav">
@@ -711,7 +719,6 @@
 
     <!-- ── STEP 4 ────────────────────────────────── -->
     <div class="step" id="step-4">
-
       <div class="eyebrow">Passo 4 de 4</div>
       <h2 class="heading">A tua <em>sessão</em></h2>
       <div class="accent-line"></div>
@@ -722,7 +729,7 @@
           <textarea id="foco" placeholder=" " aria-required="true" aria-describedby="err-foco"></textarea>
           <label for="foco">O que esperas sentir quando saíres daqui? *</label>
         </div>
-        <div class="f-hint">Ex: "Quero soltar o nó que tenho nas costas", "Só quero desligar", "Preciso de atenção"... qualquer coisa que nos ajude a criar uma experiência só tua.</div>
+        <div class="f-hint">Ex: "Quero soltar o nó que tenho nas costas", "Só quero desligar", "Preciso de atenção"...</div>
         <div class="f-err" id="err-foco">Por favor, partilha o que esperas sentir — ajuda-nos a preparar a sessão para ti.</div>
       </div>
 
@@ -735,16 +742,28 @@
           <div class="chip single" data-value="instagram">Instagram</div>
           <div class="chip single" data-value="tiktok">TikTok</div>
           <div class="chip single" data-value="facebook">Facebook</div>
-          <div class="chip single" data-value="outra">Outra</div>
+          <div class="chip single outra-trigger" data-value="outra" data-target="outra-como">Outra</div>
+        </div>
+        <div class="outra-field" id="outra-como">
+          <input type="text" class="outra-input" id="outra-como-input" placeholder="Como nos encontraste?" maxlength="200">
         </div>
       </div>
 
       <div class="fg">
         <div class="fl" id="fl-nasc">
           <input type="date" id="dataNascimento" autocomplete="bday">
-          <label for="dataNascimento">Data de aniversário <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted)">(opcional)</span></label>
+          <label for="dataNascimento">Data de aniversário <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Para te surpreendermos no teu dia especial.</div>
+      </div>
+
+      <!-- Campo voucher (aparece apenas com ?sv=gc) -->
+      <div class="fg" id="voucher-group" style="display:none">
+        <div class="fl" id="fl-voucher">
+          <input type="text" id="voucherCodigo" placeholder=" " autocomplete="off" style="text-transform:uppercase;letter-spacing:0.08em">
+          <label for="voucherCodigo">Código do voucher</label>
+        </div>
+        <div class="f-hint">Ex: EWD2026-XXXX ou EW2025-XXXX</div>
       </div>
 
       <div class="nav">
@@ -760,10 +779,10 @@
     <div class="success" id="success">
       <div class="success-ring">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <path d="M16 29C16 29 5 22 5 13C5 7.477 9.925 3 16 3C22.075 3 27 7.477 27 13C27 22 16 29 16 29Z" stroke="#c9a66b" stroke-width="0.9" fill="none"/>
-          <path d="M16 29V15" stroke="#c9a66b" stroke-width="0.9"/>
-          <path d="M16 19C16 19 9 15 7 10" stroke="#c9a66b" stroke-width="0.75" opacity="0.5"/>
-          <path d="M16 19C16 19 23 15 25 10" stroke="#c9a66b" stroke-width="0.75" opacity="0.5"/>
+          <path d="M16 29C16 29 5 22 5 13C5 7.477 9.925 3 16 3C22.075 3 27 7.477 27 13C27 22 16 29 16 29Z" stroke="#D4B886" stroke-width="0.9" fill="none"/>
+          <path d="M16 29V15" stroke="#D4B886" stroke-width="0.9"/>
+          <path d="M16 19C16 19 9 15 7 10" stroke="#D4B886" stroke-width="0.75" opacity="0.5"/>
+          <path d="M16 19C16 19 23 15 25 10" stroke="#D4B886" stroke-width="0.75" opacity="0.5"/>
         </svg>
       </div>
       <h2>Estamos prontas para ti, <span id="nome-ok"></span>.</h2>
@@ -782,27 +801,25 @@
 <script>
   const API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost'))
     ? 'http://localhost:3000'
-    : 'https://crm.essencewellnesspt.com';
+    : 'https://crm.essencewellness.pt';
 
-  // ── Parâmetros do link personalizado ─────────────────
-  // Quando o CRM gera o link, inclui ?clienteId=xxx&sessaoId=yyy&n=Maria
-  // O formulário detecta estes IDs e salta o Step 1 (nome/email já conhecidos)
   const _p         = new URLSearchParams(window.location.search);
   const _clienteId = _p.get('clienteId') || null;
   const _sessaoId  = _p.get('sessaoId')  || null;
-  const _nomeParam = _p.get('n')         || null; // primeiro nome — opcional
+  const _nomeParam = _p.get('n')         || null;
+  const _isGC      = _p.get('sv') === 'gc';
   const PERSONAL   = !!(_clienteId && _sessaoId);
 
-  // ── Estado de navegação ──────────────────────────────
+  // Mostrar campo voucher se gift card
+  if (_isGC) document.getElementById('voucher-group').style.display = '';
+
   let cur = PERSONAL ? 2 : 1;
 
-  // ── Progress ─────────────────────────────────────────
   const progWidths4 = ['25%', '50%', '75%', '100%'];
   const progWidths3 = ['33%', '66%', '100%'];
 
   function updateProgress(n) {
     if (PERSONAL) {
-      // n ∈ {2,3,4} → índice 0,1,2
       document.getElementById('prog-fill').style.width = progWidths3[n - 2];
       ['pl-2','pl-3','pl-4'].forEach((id, i) => {
         const el = document.getElementById(id);
@@ -819,12 +836,9 @@
     }
   }
 
-  // ── Init: link personalizado ──────────────────────────
   if (PERSONAL) {
-    // Personalizar título do header
-    const headerTitle = document.querySelector('.header-title');
+    const headerTitle = document.getElementById('header-title');
     if (_nomeParam) {
-      // textContent para evitar XSS — o nome é texto simples
       headerTitle.textContent = 'Olá, ';
       const em = document.createElement('em');
       em.textContent = _nomeParam;
@@ -833,25 +847,20 @@
       headerTitle.innerHTML = 'A tua ficha de <em>Bem-Estar</em>';
     }
 
-    // Barra de progresso: ocultar "Sobre ti", mostrar 3 passos
     document.getElementById('pl-1').style.display = 'none';
-
-    // Eyebrows dos steps: actualizar para "de 3"
     document.querySelector('#step-2 .eyebrow').textContent = 'Passo 1 de 3 · ~2 minutos';
     document.querySelector('#step-3 .eyebrow').textContent = 'Passo 2 de 3';
     document.querySelector('#step-4 .eyebrow').textContent = 'Passo 3 de 3';
 
-    // Ocultar botão "Voltar" do step 2 — não há step 1 para onde voltar
     const backBtn2 = document.querySelector('#step-2 .btn-back');
     if (backBtn2) backBtn2.style.display = 'none';
 
-    // Activar step 2 como ponto de entrada
     document.getElementById('step-1').classList.remove('active');
     document.getElementById('step-2').classList.add('active');
     updateProgress(2);
   }
 
-  // ── Floating labels ──────────────────────────────────
+  // ── Floating labels ──────────────────────────────
   document.querySelectorAll('.fl input, .fl textarea').forEach(el => {
     const w = () => el.closest('.fl');
     el.addEventListener('focus',  () => w().classList.add('active'));
@@ -864,49 +873,66 @@
     if (el.type === 'date') w().classList.add('filled');
   });
 
-  // ── Chips multi ──────────────────────────────────────
-  document.querySelectorAll('.chips .chip:not(.single)').forEach(chip => {
+  // ── Chips multi ──────────────────────────────────
+  document.querySelectorAll('.chips .chip:not(.single):not(.outra-trigger)').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('sel'));
   });
 
-  // ── Chips single ─────────────────────────────────────
-  document.querySelectorAll('.chips .chip.single').forEach(chip => {
+  // ── Chips single ─────────────────────────────────
+  document.querySelectorAll('.chips .chip.single:not(.outra-trigger)').forEach(chip => {
     chip.addEventListener('click', () => {
-      chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+      chip.closest('.chips').querySelectorAll('.chip:not(.outra-trigger)').forEach(c => c.classList.remove('sel'));
       chip.classList.add('sel');
     });
   });
 
-  // ── Auto-avançar ao seleccionar última opção do step 2 ──
-  document.querySelectorAll('#chips-1h .chip.single').forEach(chip => {
+  // ── Chips "Outra" — revelam campo de texto ────────
+  document.querySelectorAll('.chip.outra-trigger').forEach(chip => {
     chip.addEventListener('click', () => {
-      setTimeout(() => goTo(3), 280);
+      const isMulti = !chip.classList.contains('single');
+
+      if (chip.closest('.chips').querySelector('.chip.single')) {
+        // single group: deselect others
+        chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+      }
+
+      chip.classList.toggle('sel');
+      const target = document.getElementById(chip.dataset.target);
+      if (target) {
+        target.classList.toggle('show', chip.classList.contains('sel'));
+        if (chip.classList.contains('sel')) {
+          target.querySelector('input, textarea')?.focus();
+        }
+      }
     });
   });
 
+  // ── Auto-avançar no step 2 (última hora) ─────────
+  document.querySelectorAll('#chips-1h .chip.single').forEach(chip => {
+    chip.addEventListener('click', () => setTimeout(() => goTo(3), 280));
+  });
+
   function chips(id) {
-    return [...document.querySelectorAll(`#${id} .sel`)].map(c => c.textContent.trim());
+    return [...document.querySelectorAll(`#${id} .chip.sel`)].map(c => c.textContent.trim());
   }
 
   function chip1(id) {
-    return document.querySelector(`#${id} .sel`)?.textContent.trim() || null;
+    return document.querySelector(`#${id} .chip.sel`)?.textContent.trim() || null;
   }
 
-  // ── Reposicionar campo activo com teclado ────────────
+  // ── Viewport keyboard adjust ──────────────────────
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
       const active = document.activeElement;
       if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
-        setTimeout(() => {
-          active.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+        setTimeout(() => active.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
       }
     });
   }
 
-  // ── Navegação ────────────────────────────────────────
+  // ── Navegação ─────────────────────────────────────
   function goTo(n) {
-    if (PERSONAL && n === 1) return; // step 1 ignorado no link personalizado
+    if (PERSONAL && n === 1) return;
     if (n > cur && !validate(cur)) return;
 
     document.getElementById(`step-${cur}`).classList.remove('active');
@@ -925,7 +951,6 @@
     document.getElementById(errId)?.classList.toggle('show', hasErr);
   }
 
-  // Validação inline ao perder foco (apenas no fluxo genérico sem IDs)
   document.getElementById('nome').addEventListener('blur', function() {
     if (PERSONAL) return;
     setErr('fl-nome', 'nome', 'err-nome', !this.value.trim());
@@ -938,24 +963,18 @@
   });
 
   function validate(step) {
-    if (PERSONAL) return true; // identificação por clienteId — step 1 ignorado
+    if (PERSONAL) return true;
     if (step !== 1) return true;
-
     let ok = true;
     const nome  = document.getElementById('nome').value.trim();
     const email = document.getElementById('email').value.trim();
-
-    const check = (flId, inputId, errId, hasErr) => {
-      setErr(flId, inputId, errId, hasErr);
-      if (hasErr) ok = false;
-    };
-
+    const check = (flId, inputId, errId, hasErr) => { setErr(flId, inputId, errId, hasErr); if (hasErr) ok = false; };
     check('fl-nome',  'nome',  'err-nome',  !nome);
     check('fl-email', 'email', 'err-email', !emailRe.test(email));
     return ok;
   }
 
-  // ── Submissão ────────────────────────────────────────
+  // ── Submissão ─────────────────────────────────────
   async function submeter() {
     const btn = document.getElementById('btn-submit');
     const ge  = document.getElementById('gerr');
@@ -971,12 +990,32 @@
     const condicoes    = document.getElementById('condicoes').value.trim();
     const alergias     = document.getElementById('alergias').value.trim();
     const foco         = document.getElementById('foco').value.trim();
-    const estadoMente  = chips('chips-mente');
-    const ultima1h     = chip1('chips-1h');
-    const tensao       = chips('chips-tensao');
-    const comoConheceu = chip1('chips-como');
+    const voucherCodigo = _isGC ? document.getElementById('voucherCodigo').value.trim() : null;
+    const consentimentoSaude = document.getElementById('consentimento-saude').checked;
 
-    // Validar foco (obrigatório)
+    // Mente: chips + texto "outra"
+    const menteChips = chips('chips-mente').filter(t => t !== 'Outra');
+    const menteOutraText = document.getElementById('outra-mente-input').value.trim();
+    if (menteOutraText) menteChips.push(menteOutraText);
+
+    const ultima1h  = chip1('chips-1h');
+
+    // Tensão: chips + texto "outro"
+    const tensaoChips = chips('chips-tensao').filter(t => t !== 'Outro');
+    const tensaoOutraText = document.getElementById('outra-tensao-input').value.trim();
+    if (tensaoOutraText) tensaoChips.push(tensaoOutraText);
+
+    // Aromas preferidos
+    const aromaChips = chips('chips-aroma').filter(t => t !== 'Outro');
+    const aromaOutraText = document.getElementById('outra-aroma-input').value.trim();
+    if (aromaOutraText) aromaChips.push(aromaOutraText);
+
+    // Como conheceu: chip + texto "outra"
+    const comoChip = document.querySelector('#chips-como .chip.sel:not(.outra-trigger)')?.textContent.trim();
+    const comoOutraText = document.getElementById('outra-como-input').value.trim();
+    const comoConheceu = comoChip || comoOutraText || null;
+
+    // Foco (obrigatório)
     if (!foco) {
       setErr('fl-foco', 'foco', 'err-foco', true);
       document.getElementById('foco').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -991,9 +1030,8 @@
     ].filter(Boolean).join('\n') || null;
 
     const historicoEmocional = [
-      estadoMente.length ? `Estado da mente: ${estadoMente.join(', ')}` : '',
-      ultima1h           ? `Última hora para si: ${ultima1h}` : '',
-      foco               ? `Foco da sessão: ${foco}` : '',
+      menteChips.length ? `Estado da mente: ${menteChips.join(', ')}` : '',
+      ultima1h          ? `Última hora para si: ${ultima1h}` : '',
     ].filter(Boolean).join('\n') || null;
 
     try {
@@ -1007,11 +1045,14 @@
           email:                      email        || undefined,
           telefone:                   telefone     || null,
           dataNascimento:             dataNasc     || null,
-          comoNosConheceu:            comoConheceu || null,
+          comoNosConheceu:            comoConheceu,
           historicoCondicoesAlergias: historicoCondicoes,
-          historicoZonasTensao:       tensao.length ? tensao.join(', ') : null,
+          historicoZonasTensao:       tensaoChips.length ? tensaoChips.join(', ') : null,
           historicoEstadoEmocional:   historicoEmocional,
-          notasPessoais:              foco         || null,
+          historicoAromasPreferidos:  aromaChips.length ? aromaChips.join(', ') : null,
+          notasPessoais:              foco,
+          voucherCodigo:              voucherCodigo || null,
+          consentimentoSaude:         consentimentoSaude,
         }),
       });
 
@@ -1020,10 +1061,8 @@
       document.getElementById(`step-${cur}`).classList.remove('active');
       document.getElementById('success').style.display = 'block';
 
-      // Nome no ecrã de sucesso: parâmetro URL > campo nome > genérico
       const nomeOk = (PERSONAL && _nomeParam) ? _nomeParam : nome.split(' ')[0];
       document.getElementById('nome-ok').textContent = nomeOk;
-
       document.getElementById('prog-fill').style.width = '100%';
 
     } catch (err) {

@@ -83,6 +83,12 @@ export async function POST(request: NextRequest) {
         ...(comoNosConheceu && !cliente.comoNosConheceu ? { comoNosConheceu } : {}),
         // Submeter a ficha clínica com a checkbox marcada = consentimento explícito
         ...(consentimentoSaude ? { consentimentoSaudeEm: new Date() } : {}),
+        // Dados clínicos — só persistem com consentimento explícito (RGPD Art. 9)
+        ...(consentimentoSaude && historicoCondicoesAlergias ? { historicoCondicoesAlergias } : {}),
+        ...(consentimentoSaude && historicoZonasTensao ? { historicoZonasTensao } : {}),
+        ...(consentimentoSaude && historicoEstadoEmocional ? { historicoEstadoEmocional } : {}),
+        ...(consentimentoSaude && historicoAromasPreferidos ? { historicoAromasPreferidos } : {}),
+        ...(notasPessoais ? { notasPessoais } : {}),
       },
     })
 

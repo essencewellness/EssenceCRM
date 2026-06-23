@@ -108,4 +108,22 @@ export const webhooks = {
     mensagem: string
     preferencia?: string
   }) => dispararWebhook("cliente.pedido_remarcacao", payload),
+
+  feedbackRecebido: (payload: {
+    feedbackId: string
+    clienteId: string
+    sessaoId?: string | null
+    rating: number
+    encaminhadoGoogle: boolean
+  }) => dispararWebhook("feedback.recebido", payload),
+
+  feedbackNegativo: (payload: {
+    feedbackId: string
+    clienteId: string
+    nomeCliente: string
+    sessaoId?: string | null
+    rating: number
+    pontosMelhorar?: string | null
+    comentario?: string | null
+  }) => dispararWebhook("feedback.negativo", payload),
 }
