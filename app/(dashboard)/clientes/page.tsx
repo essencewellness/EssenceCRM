@@ -8,6 +8,7 @@ import { FiltrosClientes } from "./FiltrosClientes"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { ClientesInfiniteList } from "@/components/clientes/ClientesInfiniteList"
+import { AnimatedSection } from "@/components/stagger"
 
 const PAGE_SIZE = 50
 
@@ -135,13 +136,9 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       <FiltroTerapeutaSlot />
 
       {/* Pesquisa + filtros rápidos */}
-      <div
-        className="anim-fade-down"
-        style={{
-          display: "flex", alignItems: "center", gap: "12px",
-          marginBottom: "16px", flexWrap: "wrap",
-          animationDelay: "0.25s",
-        }}
+      <AnimatedSection
+        delay={0.25}
+        style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}
       >
         <form method="GET" style={{ display: "flex", flex: 1, gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
           {/* Preservar filtros avançados no form GET */}
@@ -196,10 +193,10 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             })}
           </div>
         </form>
-      </div>
+      </AnimatedSection>
 
       {/* Filtros avançados por tag — sempre visíveis */}
-      <div className="anim-fade-down" style={{ animationDelay: "0.30s" }}>
+      <AnimatedSection delay={0.30}>
         <FiltrosClientes
           todasEtiquetas={todasEtiquetas.map(e => ({ id: e.id, nome: e.nome, cor: e.cor, tipo: e.tipo }))}
           templates={templates}
@@ -208,10 +205,10 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           estadosFiltro={estadosFiltro}
           inativoFiltro={inativo ?? ""}
         />
-      </div>
+      </AnimatedSection>
 
       {/* Tabela */}
-      <div className="anim-fade-up" style={{ animationDelay: "0.38s" }}>
+      <AnimatedSection delay={0.38}>
         {clientes.length === 0 ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "72px 24px" }}>
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
@@ -234,7 +231,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             queryString={queryString}
           />
         )}
-      </div>
+      </AnimatedSection>
     </div>
   )
 }

@@ -4,6 +4,7 @@
 // Selecionar → editar inline (opcional) → Aprovar selecionadas → fila espaçada.
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { CheckCircle2, XCircle, Pencil, Send, CheckCheck } from "lucide-react";
+import { StaggerList, StaggerItem } from "@/components/stagger";
 
 const INK = "#161a26";
 const CHAMPAGNE = "#b9a07a";
@@ -185,14 +186,14 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
       )}
 
       {/* Lista de mensagens */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <StaggerList style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {mensagens.map((m) => {
           const marcada = selecionadas.has(m.id);
           const editada = edicoes[m.id] !== undefined && edicoes[m.id] !== m.texto;
           const aEditar = emEdicao === m.id;
 
           return (
-            <div
+            <StaggerItem
               key={m.id}
               style={{
                 backgroundColor: CARD,
@@ -360,10 +361,10 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                   Rejeitar
                 </button>
               </div>
-            </div>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerList>
     </div>
   );
 }
