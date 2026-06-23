@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, Users, Calendar, CheckSquare,
   MessageSquare, Megaphone, FileText,
-  BarChart2, Star, Shield, Settings, ChevronRight,
+  BarChart2, Star, Shield, Settings, ChevronRight, LogOut,
 } from "lucide-react"
 
 interface NavItem {
@@ -56,9 +56,10 @@ const grupos: NavGroup[] = [
 
 interface SidebarProps {
   mensagensPendentes?: number
+  logoutAction: () => Promise<void>
 }
 
-export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
+export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) {
   const pathname = usePathname()
 
   function isActive(href: string) {
@@ -197,16 +198,37 @@ export function Sidebar({ mensagensPendentes = 0 }: SidebarProps) {
 
       {/* Rodapé */}
       <div style={{
-        padding: "16px 20px",
+        padding: "12px 16px",
         borderTop: "1px solid rgba(212,184,134,0.10)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9px", color: "var(--nuit-smoke-deep)",
-          letterSpacing: "0.18em", textTransform: "uppercase", textAlign: "center",
+          letterSpacing: "0.18em", textTransform: "uppercase",
         }}>
           Essence Wellness · v1
         </p>
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            title="Terminar sessão"
+            aria-label="Terminar sessão"
+            style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              background: "none", border: "none", cursor: "pointer",
+              color: "var(--nuit-smoke-deep)",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "11px", letterSpacing: "0.04em",
+              padding: "4px 6px",
+              transition: "color 150ms",
+            }}
+            className="hover:!text-[var(--nuit-smoke)]"
+          >
+            <LogOut size={12} strokeWidth={1.5} />
+            Sair
+          </button>
+        </form>
       </div>
     </aside>
   )

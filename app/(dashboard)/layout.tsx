@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "var(--nuit-midnight)" }}>
       {/* Sidebar — visível em desktop */}
-      <Sidebar mensagensPendentes={mensagensPendentes} />
+      <Sidebar mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
 
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -39,7 +39,7 @@ export default async function DashboardLayout({
       </div>
 
       {/* Bottom nav — visível em mobile */}
-      <BottomNav mensagensPendentes={mensagensPendentes} />
+      <BottomNav mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
     </div>
   )
 }

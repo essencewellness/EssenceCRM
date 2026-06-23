@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   LayoutDashboard, Users, CheckSquare,
   MessageSquare, Menu, X,
-  Calendar, BarChart2, Settings, Shield, Star, Megaphone, FileText,
+  Calendar, BarChart2, Settings, Shield, Star, Megaphone, FileText, LogOut,
 } from "lucide-react"
 
 const MAIN_ITEMS = [
@@ -27,9 +27,10 @@ const ALL_ITEMS = [
 
 interface BottomNavProps {
   mensagensPendentes?: number
+  logoutAction: () => Promise<void>
 }
 
-export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
+export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavProps) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -139,6 +140,35 @@ export function BottomNav({ mensagensPendentes = 0 }: BottomNavProps) {
               )
             })}
           </nav>
+
+          {/* Logout */}
+          <div style={{
+            padding: "12px 16px",
+            borderTop: "1px solid rgba(212,184,134,0.10)",
+          }}>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                style={{
+                  display: "flex", alignItems: "center", gap: "12px",
+                  width: "100%", padding: "10px 12px",
+                  background: "none", border: "none", cursor: "pointer",
+                  borderLeft: "2px solid transparent",
+                  transition: "background-color 150ms",
+                }}
+                className="hover:bg-[rgba(212,184,134,0.05)]"
+              >
+                <LogOut size={15} style={{ color: "var(--nuit-smoke)", strokeWidth: 1.5, flexShrink: 0 }} />
+                <span style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "13px", fontWeight: 400,
+                  color: "var(--nuit-smoke)",
+                }}>
+                  Terminar sessão
+                </span>
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
