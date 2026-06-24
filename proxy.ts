@@ -8,6 +8,23 @@ import { getToken } from "next-auth/jwt"
 // - /forms: formulários públicos (onboarding/pós-sessão) servidos de /public
 const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/forms"]
 
+function buildCsp(nonce: string): string {
+  const dev = process.env.NODE_ENV !== "production"
+  return [
+    "default-src 'self'",
+    // strict-dynamic: scripts com nonce podem carregar outros scripts dinamicamente
+    // (necessário para hidratação Next.js); unsafe-eval só em dev (HMR)
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ")
+}
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -27,7 +44,18 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  return NextResponse.next()
+  // Nonce único por request — CSP sem unsafe-inline em produção
+  const nonce = crypto.randomUUID()
+  const csp = buildCsp(nonce)
+
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set("x-nonce", nonce)
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+  response.headers.set("Content-Security-Policy", csp)
+  return response
 }
 
 export const config = {
