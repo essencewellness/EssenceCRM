@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { testarWebhookN8N } from "./actions";
 
-const GOLD = "#d4b886";
-
 interface Integracao {
   nome: string;
   descricao: string;

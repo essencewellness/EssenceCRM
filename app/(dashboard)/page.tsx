@@ -1,10 +1,9 @@
 import { prisma } from "@/lib/prisma"
 import { KpiCardPremium } from "@/components/kpi-card"
-import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard } from "@/components/dashboard-live"
+import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
-import Link from "next/link"
-import { CheckSquare, AlertTriangle, Calendar } from "lucide-react"
+import { Calendar } from "lucide-react"
 import type { Prisma } from "@prisma/client"
 
 export const revalidate = 30
@@ -187,9 +186,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       }
     })
 
-  const PRIORIDADE_COR: Record<string, string> = {
-    urgente: "text-red-600", alta: "text-orange-500", normal: "text-blue-500", baixa: "text-gray-400",
-  }
+  const tarefasHojeRows = tarefasHoje.map(t => ({ id: t.id, titulo: t.titulo, cliente: t.cliente }))
+  const tarefasVencidasRows = tarefasVencidas.map(t => ({ id: t.id, titulo: t.titulo, cliente: t.cliente }))
+  const alertasRows = alertasSatisfacao.map(s => ({ id: s.id, avaliacaoNota: s.avaliacaoNota, cliente: s.cliente }))
+  const inativasRows = inativasMais90.map(c => ({ id: c.id, nome: c.nome }))
+  // eslint-disable-next-line react-hooks/purity
+  const agora = Date.now()
+  const reativarRows = [...inativas30a60, ...inativas61a90].slice(0, 5).map(c => ({
+    id: c.id,
+    nome: c.nome,
+    diasInativa: c.ultimaSessao ? Math.floor((agora - c.ultimaSessao.getTime()) / 86_400_000) : null,
+  }))
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -235,124 +242,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <SessoesHojeCard sessoes={sessoesHojeRows} />
 
-        {/* Widget de tarefas */}
-        <div style={{
-          backgroundColor: "var(--nuit-overlay)",
-          border: "1px solid rgba(212,184,134,0.16)",
-          borderRadius: "2px",
-          padding: "20px",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-            <h3 style={{
-              display: "flex", alignItems: "center", gap: "8px",
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
-            }}>
-              <CheckSquare size={13} style={{ color: "var(--nuit-champagne-soft)" }} />
-              As minhas tarefas
-            </h3>
-            <Link href="/tarefas" style={{
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px", fontWeight: 500,
-              color: "var(--nuit-champagne-soft)", textDecoration: "none",
-            }}>
-              Ver todas →
-            </Link>
-          </div>
-
-          {tarefasVencidas.length > 0 && (
-            <div style={{ marginBottom: "12px" }}>
-              <p style={{
-                fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9px", fontWeight: 600,
-                color: "#b06050", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
-              }}>
-                Vencidas ({tarefasVencidas.length})
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {tarefasVencidas.map((t) => (
-                  <Link key={t.id} href="/tarefas" style={{
-                    display: "flex", alignItems: "flex-start", gap: "8px",
-                    textDecoration: "none",
-                  }}>
-                    <span style={{ fontSize: "10px", marginTop: "2px", color: "#b06050" }}>●</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "13px", color: "var(--nuit-bone-soft)",
-                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      }}>{t.titulo}</p>
-                      {t.cliente && (
-                        <p style={{
-                          fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", color: "var(--nuit-smoke)",
-                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                        }}>{t.cliente.nome}</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tarefasHoje.length > 0 && (
-            <div>
-              <p style={{
-                fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9px", fontWeight: 600,
-                color: "#b9a07a", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
-              }}>
-                Hoje ({tarefasHoje.length})
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {tarefasHoje.map((t) => (
-                  <Link key={t.id} href="/tarefas" style={{
-                    display: "flex", alignItems: "flex-start", gap: "8px",
-                    textDecoration: "none",
-                  }}>
-                    <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--nuit-champagne-soft)" }}>●</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "13px", color: "var(--nuit-bone-soft)",
-                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      }}>{t.titulo}</p>
-                      {t.cliente && (
-                        <p style={{
-                          fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", color: "var(--nuit-smoke)",
-                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                        }}>{t.cliente.nome}</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {tarefasHoje.length === 0 && tarefasVencidas.length === 0 && (
-            <div style={{
-              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              padding: "32px 0",
-            }}>
-              <CheckSquare size={28} style={{ color: "var(--nuit-smoke-deep)", marginBottom: "8px" }} />
-              <p style={{
-                fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-                fontSize: "14px", color: "var(--nuit-smoke)",
-              }}>Nenhuma tarefa para hoje</p>
-              <Link href="/tarefas" style={{
-                fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", color: "var(--nuit-champagne-soft)",
-                marginTop: "6px", textDecoration: "none",
-              }}>
-                Ver todas as tarefas
-              </Link>
-            </div>
-          )}
-        </div>
+        <TarefasWidget tarefasHoje={tarefasHojeRows} tarefasVencidas={tarefasVencidasRows} />
       </section>
 
       {/* ── Linha 3: Próximos 7 dias + Alertas ── */}
@@ -363,159 +253,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           isHero={sessõesHoje.length === 0}
         />
 
-        {/* Widget de alertas */}
-        <div style={{
-          backgroundColor: "var(--nuit-overlay)",
-          border: "1px solid rgba(212,184,134,0.16)",
-          borderRadius: "2px",
-          padding: "20px",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-            <AlertTriangle size={13} style={{ color: "#b06050" }} />
-            <h3 style={{
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
-            }}>Alertas</h3>
-          </div>
-
-          {clientesEmRisco > 0 && (
-            <Link href="/clientes?estado=vip_em_risco" style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "10px 0",
-              borderBottom: "1px solid rgba(212,184,134,0.08)",
-              textDecoration: "none",
-            }}>
-              <div>
-                <p style={{
-                  fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "13px", fontWeight: 500, color: "var(--nuit-bone-soft)",
-                }}>Clientes em risco</p>
-                <p style={{
-                  fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "11px", color: "var(--nuit-smoke)",
-                }}>VIP em risco + reativação</p>
-              </div>
-              <span style={{
-                fontFamily: "var(--font-heading, serif)",
-                fontSize: "20px", fontWeight: 400, color: "#b06050",
-              }}>{clientesEmRisco}</span>
-            </Link>
-          )}
-
-          {alertasSatisfacao.length > 0 && (
-            <div style={{ padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
-              <p style={{
-                fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", fontWeight: 600, color: "#b06050",
-                marginBottom: "6px",
-              }}>Avaliações baixas</p>
-              {alertasSatisfacao.slice(0, 3).map((s) => (
-                <p key={s.id} style={{
-                  display: "flex", justifyContent: "space-between",
-                  fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", color: "var(--nuit-smoke)",
-                  padding: "2px 0",
-                }}>
-                  <span>{s.cliente.nome}</span>
-                  <span style={{ color: "#b06050" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
-                </p>
-              ))}
-            </div>
-          )}
-
-          {inativasMais90.length > 0 && (
-            <div style={{ padding: "10px 0" }}>
-              <p style={{
-                fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone-soft)",
-                marginBottom: "6px",
-              }}>Inativas +90 dias</p>
-              {inativasMais90.slice(0, 3).map((c) => (
-                <Link key={c.id} href={`/clientes/${c.id}`} style={{
-                  display: "flex", justifyContent: "space-between",
-                  padding: "3px 0", textDecoration: "none",
-                  fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", color: "var(--nuit-smoke)",
-                }}>
-                  <span>{c.nome}</span>
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {clientesEmRisco === 0 && alertasSatisfacao.length === 0 && inativasMais90.length === 0 && (
-            <div style={{
-              display: "flex", flexDirection: "column", alignItems: "center",
-              padding: "32px 0",
-            }}>
-              <p style={{
-                fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-                fontSize: "14px", color: "var(--nuit-smoke)",
-              }}>Nenhum alerta activo</p>
-            </div>
-          )}
-        </div>
+        <AlertasWidget clientesEmRisco={clientesEmRisco} alertas={alertasRows} inativas={inativasRows} />
       </section>
 
       {/* ── Linha 4: Mensagens a aprovar + Clientes a reativar ── */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <MensagensCard mensagens={mensagensRows} />
 
-        {/* Clientes a reativar */}
-        <div style={{
-          backgroundColor: "var(--nuit-overlay)",
-          border: "1px solid rgba(212,184,134,0.16)",
-          borderRadius: "2px",
-          padding: "20px",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-            <h3 style={{
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
-            }}>Clientes a reativar</h3>
-            <Link href="/clientes?estado=reativacao" style={{
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px", fontWeight: 500,
-              color: "var(--nuit-champagne-soft)", textDecoration: "none",
-            }}>Ver todas →</Link>
-          </div>
-          {[...inativas30a60, ...inativas61a90].slice(0, 5).length === 0 ? (
-            <p style={{
-              fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-              fontSize: "14px", color: "var(--nuit-smoke)",
-              textAlign: "center", padding: "24px 0",
-            }}>Nenhuma cliente inativa</p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {[...inativas30a60, ...inativas61a90].slice(0, 5).map((c) => {
-                const diasInativa = c.ultimaSessao
-                  ? Math.floor((Date.now() - c.ultimaSessao.getTime()) / 86_400_000)
-                  : null
-                return (
-                  <Link key={c.id} href={`/clientes/${c.id}`} style={{
-                    display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "9px 0",
-                    borderBottom: "1px solid rgba(212,184,134,0.08)",
-                    textDecoration: "none",
-                  }}>
-                    <p style={{
-                      fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "13px", color: "var(--nuit-bone-soft)",
-                    }}>{c.nome}</p>
-                    {diasInativa && (
-                      <span style={{
-                        fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "11px", fontWeight: 600, color: "#b9a07a",
-                      }}>{diasInativa}d</span>
-                    )}
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-        </div>
+        <ClientesReativarWidget clientes={reativarRows} />
       </section>
     </div>
   )

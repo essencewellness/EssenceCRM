@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react"
 import Link from "next/link"
+import { CheckSquare, AlertTriangle } from "lucide-react"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -37,7 +38,7 @@ const ESTADOS: Record<string, { label: string; color: string; bg: string; border
   agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.25)" },
   confirmada:{ label: "Confirmada",color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
   cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)",   border: "rgba(176,96,80,0.20)"  },
-  concluida: { label: "Concluída", color: "#7a7e8a", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
+  concluida: { label: "Concluída", color: "#9499a6", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
 }
 
 function BadgeEstado({ estado }: { estado: string }) {
@@ -653,5 +654,339 @@ export function ProximosDiasCard({
         </div>
       </div>
     </motion.section>
+  )
+}
+
+// ─── Widget de Tarefas ────────────────────────────────────────────────────────
+
+export interface TarefaRow {
+  id: string
+  titulo: string
+  cliente: { nome: string } | null
+}
+
+export function TarefasWidget({
+  tarefasHoje,
+  tarefasVencidas,
+}: {
+  tarefasHoje: TarefaRow[]
+  tarefasVencidas: TarefaRow[]
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(212,184,134,0.16)",
+        borderRadius: "2px",
+        padding: "20px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+        <h3 style={{
+          display: "flex", alignItems: "center", gap: "8px",
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          color: "var(--nuit-smoke)", textTransform: "uppercase",
+        }}>
+          <CheckSquare size={13} style={{ color: "var(--nuit-champagne-soft)" }} />
+          As minhas tarefas
+        </h3>
+        <Link href="/tarefas" style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "11px", fontWeight: 500,
+          color: "var(--nuit-champagne-soft)", textDecoration: "none",
+        }}>
+          Ver todas →
+        </Link>
+      </div>
+
+      {tarefasVencidas.length > 0 && (
+        <div style={{ marginBottom: "12px" }}>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "9px", fontWeight: 600,
+            color: "#b06050", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+          }}>
+            Vencidas ({tarefasVencidas.length})
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {tarefasVencidas.map((t) => (
+              <motion.div key={t.id} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
+                <Link href="/tarefas" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textDecoration: "none" }}>
+                  <span style={{ fontSize: "10px", marginTop: "2px", color: "#b06050", flexShrink: 0 }}>●</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "13px", color: "var(--nuit-bone-soft)",
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{t.titulo}</p>
+                    {t.cliente && (
+                      <p style={{
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "11px", color: "var(--nuit-smoke)",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>{t.cliente.nome}</p>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tarefasHoje.length > 0 && (
+        <div>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "9px", fontWeight: 600,
+            color: "#b9a07a", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+          }}>
+            Hoje ({tarefasHoje.length})
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {tarefasHoje.map((t) => (
+              <motion.div key={t.id} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
+                <Link href="/tarefas" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textDecoration: "none" }}>
+                  <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--nuit-champagne-soft)", flexShrink: 0 }}>●</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "13px", color: "var(--nuit-bone-soft)",
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>{t.titulo}</p>
+                    {t.cliente && (
+                      <p style={{
+                        fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "11px", color: "var(--nuit-smoke)",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>{t.cliente.nome}</p>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tarefasHoje.length === 0 && tarefasVencidas.length === 0 && (
+        <div style={{
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          padding: "32px 0",
+        }}>
+          <CheckSquare size={28} style={{ color: "var(--nuit-smoke-deep)", marginBottom: "8px" }} />
+          <p style={{
+            fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+            fontSize: "14px", color: "var(--nuit-smoke)",
+          }}>Nenhuma tarefa para hoje</p>
+          <Link href="/tarefas" style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "11px", color: "var(--nuit-champagne-soft)",
+            marginTop: "6px", textDecoration: "none",
+          }}>
+            Ver todas as tarefas
+          </Link>
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+// ─── Widget de Alertas ────────────────────────────────────────────────────────
+
+export interface AlertaRow {
+  id: string
+  avaliacaoNota: number | null
+  cliente: { nome: string }
+}
+
+export interface InativaRow {
+  id: string
+  nome: string
+}
+
+export function AlertasWidget({
+  clientesEmRisco,
+  alertas,
+  inativas,
+}: {
+  clientesEmRisco: number
+  alertas: AlertaRow[]
+  inativas: InativaRow[]
+}) {
+  const semAlertas = clientesEmRisco === 0 && alertas.length === 0 && inativas.length === 0
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(212,184,134,0.16)",
+        borderRadius: "2px",
+        padding: "20px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+        <AlertTriangle size={13} style={{ color: "#b06050" }} />
+        <h3 style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          color: "var(--nuit-smoke)", textTransform: "uppercase",
+        }}>Alertas</h3>
+      </div>
+
+      {clientesEmRisco > 0 && (
+        <motion.div whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+          <Link href="/clientes?estado=vip_em_risco" style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "10px 0",
+            borderBottom: "1px solid rgba(212,184,134,0.08)",
+            textDecoration: "none",
+          }}>
+            <div>
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "13px", fontWeight: 500, color: "var(--nuit-bone-soft)",
+              }}>Clientes em risco</p>
+              <p style={{
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "11px", color: "var(--nuit-smoke)",
+              }}>VIP em risco + reativação</p>
+            </div>
+            <span style={{
+              fontFamily: "var(--font-heading, serif)",
+              fontSize: "20px", fontWeight: 400, color: "#b06050",
+            }}>{clientesEmRisco}</span>
+          </Link>
+        </motion.div>
+      )}
+
+      {alertas.length > 0 && (
+        <div style={{ padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "11px", fontWeight: 600, color: "#b06050",
+            marginBottom: "6px",
+          }}>Avaliações baixas</p>
+          {alertas.slice(0, 3).map((s) => (
+            <p key={s.id} style={{
+              display: "flex", justifyContent: "space-between",
+              fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "12px", color: "var(--nuit-smoke)",
+              padding: "2px 0",
+            }}>
+              <span>{s.cliente.nome}</span>
+              <span style={{ color: "#b06050" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
+            </p>
+          ))}
+        </div>
+      )}
+
+      {inativas.length > 0 && (
+        <div style={{ padding: "10px 0" }}>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone-soft)",
+            marginBottom: "6px",
+          }}>Inativas +90 dias</p>
+          {inativas.slice(0, 3).map((c) => (
+            <motion.div key={c.id} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+              <Link href={`/clientes/${c.id}`} style={{
+                display: "flex", justifyContent: "space-between",
+                padding: "3px 0", textDecoration: "none",
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "12px", color: "var(--nuit-smoke)",
+              }}>
+                <span>{c.nome}</span>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {semAlertas && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 0" }}>
+          <p style={{
+            fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+            fontSize: "14px", color: "var(--nuit-smoke)",
+          }}>Nenhum alerta activo</p>
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+// ─── Widget de Clientes a Reativar ────────────────────────────────────────────
+
+export interface ClienteReativarRow {
+  id: string
+  nome: string
+  diasInativa: number | null
+}
+
+export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativarRow[] }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        backgroundColor: "var(--nuit-overlay)",
+        border: "1px solid rgba(212,184,134,0.16)",
+        borderRadius: "2px",
+        padding: "20px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+        <h3 style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          color: "var(--nuit-smoke)", textTransform: "uppercase",
+        }}>Clientes a reativar</h3>
+        <Link href="/clientes?estado=reativacao" style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "11px", fontWeight: 500,
+          color: "var(--nuit-champagne-soft)", textDecoration: "none",
+        }}>Ver todas →</Link>
+      </div>
+
+      {clientes.length === 0 ? (
+        <p style={{
+          fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+          fontSize: "14px", color: "var(--nuit-smoke)",
+          textAlign: "center", padding: "24px 0",
+        }}>Nenhuma cliente inativa</p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {clientes.map((c) => (
+            <motion.div key={c.id} whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+              <Link href={`/clientes/${c.id}`} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "9px 0",
+                borderBottom: "1px solid rgba(212,184,134,0.08)",
+                textDecoration: "none",
+              }}>
+                <p style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "13px", color: "var(--nuit-bone-soft)",
+                }}>{c.nome}</p>
+                {c.diasInativa !== null && (
+                  <span style={{
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    fontSize: "11px", fontWeight: 600, color: "#b9a07a",
+                  }}>{c.diasInativa}d</span>
+                )}
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </motion.div>
   )
 }

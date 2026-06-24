@@ -22,7 +22,7 @@ interface TopNavProps {
   logoutAction: () => Promise<void>;
 }
 
-export function TopNav({ userName, userEmail, logoutAction }: TopNavProps) {
+export function TopNav({ userName, logoutAction }: TopNavProps) {
   const pathname = usePathname();
   const initials = userName
     .split(" ")

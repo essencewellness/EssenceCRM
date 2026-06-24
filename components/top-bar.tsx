@@ -40,6 +40,7 @@ export function TopBar() {
 
   useEffect(() => {
     const now = new Date();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHoje({
       label: capitalize(formatDatePT(now)),
       iso: now.toISOString().split("T")[0],

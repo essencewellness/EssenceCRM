@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { PageTransition } from "@/components/page-transition"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { ToastProvider } from "@/components/ui/toast-nuit"
 
 async function logoutAction() {
   "use server"
@@ -27,19 +28,21 @@ export default async function DashboardLayout({
   })
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: "var(--nuit-midnight)" }}>
-      {/* Sidebar — visível em desktop */}
-      <Sidebar mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
+    <ToastProvider>
+      <div className="min-h-screen flex" style={{ backgroundColor: "var(--nuit-midnight)" }}>
+        {/* Sidebar — visível em desktop */}
+        <Sidebar mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
 
-      {/* Conteúdo principal */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <main id="main-content" className="flex-1 overflow-auto pb-20 lg:pb-0">
-          <PageTransition>{children}</PageTransition>
-        </main>
+        {/* Conteúdo principal */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <main id="main-content" className="flex-1 overflow-auto pb-20 lg:pb-0">
+            <PageTransition>{children}</PageTransition>
+          </main>
+        </div>
+
+        {/* Bottom nav — visível em mobile */}
+        <BottomNav mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
       </div>
-
-      {/* Bottom nav — visível em mobile */}
-      <BottomNav mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
-    </div>
+    </ToastProvider>
   )
 }

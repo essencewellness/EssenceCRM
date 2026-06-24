@@ -120,6 +120,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
                     paddingLeft: active ? "10px" : "12px",
                     transition: "background-color 150ms",
                   }}
+                  className={!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}
                 >
                   <Icon
                     size={15}

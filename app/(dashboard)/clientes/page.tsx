@@ -43,8 +43,10 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
 
   // Filtro de inactividade (dias sem sessão)
   const inativoDias = inativo ? parseInt(inativo, 10) : null
+  // eslint-disable-next-line react-hooks/purity
+  const agora = Date.now()
   const inativoWhere: Prisma.ClienteWhereInput = inativoDias
-    ? { ultimaSessao: { lt: new Date(Date.now() - inativoDias * 86_400_000) } }
+    ? { ultimaSessao: { lt: new Date(agora - inativoDias * 86_400_000) } }
     : {}
 
   const where: Prisma.ClienteWhereInput = {

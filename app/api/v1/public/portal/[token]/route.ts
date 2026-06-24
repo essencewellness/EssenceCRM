@@ -3,18 +3,6 @@ import { prisma } from "@/lib/prisma"
 import { respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { serializarDecimais } from "@/lib/serialize"
 
-// Campos clínicos e pessoais sensíveis NUNCA expostos no portal (FR-020)
-const CAMPOS_EXCLUIDOS = [
-  "historicoCondicoesAlergias",
-  "historicoEstadoEmocional",
-  "historicoZonasTensao",
-  "historicoAromasPreferidos",
-  "historicoUltimaPausa",
-  "notasPessoais",
-  "email",
-  "telefone",
-]
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }

@@ -117,8 +117,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
   const { filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeuta);
   const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput;
 
-  const agora = new Date();
-
   const [clientesPorValor, clientesPorSessoes, clientesEmRisco, resumo] = await Promise.all([
     prisma.cliente.findMany({
       where: { totalGasto: { gt: 0 }, ...filtroCliente },

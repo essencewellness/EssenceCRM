@@ -198,7 +198,7 @@ export function SessoesTab({ sessoes }: Props) {
                   {sessao.terapeuta}
                 </TableCell>
                 <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#b9a07a", textAlign: "right" }}>
-                  {formatCurrency(sessao.preco)}
+                  {formatCurrency(sessao.preco ?? 0)}
                 </TableCell>
                 <TableCell>
                   <SessaoEstadoBadge estado={sessao.estado} />
@@ -286,7 +286,7 @@ export function SessoesTab({ sessoes }: Props) {
                 padding: "18px",
               }}>
                 <DetailItem label="Terapeuta" value={sessaoAberta.terapeuta} />
-                <DetailItem label="Preço" value={formatCurrency(sessaoAberta.preco)} />
+                <DetailItem label="Preço" value={formatCurrency(sessaoAberta.preco ?? 0)} />
                 {sessaoAberta.dataRecomendadaRegresso && (
                   <DetailItem
                     label="Regresso Recomendado"

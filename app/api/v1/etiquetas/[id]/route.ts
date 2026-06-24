@@ -69,7 +69,7 @@ export async function GET(
     if (!etiqueta) return respostaErro("Etiqueta não encontrada", "NOT_FOUND", 404)
 
     return respostaSucesso({ ...etiqueta, totalClientes: etiqueta._count.clientes })
-  } catch (e) {
+  } catch {
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
   }
 }

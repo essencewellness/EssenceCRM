@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!v.ok) return v.resposta
 
   try {
-    let etiqueta = v.data.etiquetaId
+    const etiqueta = v.data.etiquetaId
       ? await prisma.etiqueta.findUnique({ where: { id: v.data.etiquetaId } })
       : await prisma.etiqueta.findFirst({ where: { nome: v.data.etiquetaNome } })
 

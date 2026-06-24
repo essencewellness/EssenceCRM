@@ -57,6 +57,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
     }
   }, [filtroEstado, filtroPrioridade, filtroTipo, filtroTerapeuta])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { carregar() }, [carregar])
 
   const tarefasAtivas = tarefas.filter(

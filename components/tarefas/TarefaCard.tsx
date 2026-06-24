@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { CheckSquare, X, Pencil, Calendar, User } from "lucide-react"
+import { CheckSquare, X, Calendar, User } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 

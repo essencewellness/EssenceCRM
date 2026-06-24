@@ -212,7 +212,7 @@ export default async function BlacklistPage() {
                             padding: "4px 8px", borderRadius: "6px",
                             fontFamily: "var(--font-sans, sans-serif)",
                             fontSize: "10px", fontWeight: 500,
-                            color: "rgba(157,157,154,0.6)",
+                            color: "var(--nuit-smoke)",
                             letterSpacing: "0.06em",
                             transition: "all 150ms",
                           }}
@@ -233,7 +233,7 @@ export default async function BlacklistPage() {
       {/* Disclaimer */}
       <p style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "10px", color: "rgba(157,157,154,0.5)",
+        fontSize: "10px", color: "var(--nuit-smoke)",
         textAlign: "center", marginTop: "20px",
         fontStyle: "italic",
       }}>

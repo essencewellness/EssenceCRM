@@ -14,7 +14,6 @@ import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
 import { ObservacoesTimeline } from "@/components/observacoes-timeline"
-import { AnimatedSection } from "@/components/stagger"
 import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
 import { TerapeutaEditor } from "./TerapeutaEditor"
@@ -24,32 +23,6 @@ interface ClientePageProps {
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-
-function EstadoBadge({ estado }: { estado: string }) {
-  const map: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    lead:            { label: "Lead",         color: "#b9a07a", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.28)" },
-    novo:            { label: "Nova",         color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
-    ativa_recente:   { label: "Ativa",        color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
-    ativa_frequente: { label: "Frequente",    color: "#7a9e7e", bg: "rgba(122,158,126,0.10)", border: "rgba(122,158,126,0.28)" },
-    vip_embaixadora: { label: "VIP ✦",        color: "#b9a07a", bg: "rgba(185,160,122,0.13)", border: "rgba(185,160,122,0.35)" },
-    vip_em_risco:    { label: "Em Risco",     color: "#d4956b", bg: "rgba(212,149,107,0.10)", border: "rgba(212,149,107,0.28)" },
-    reativacao:      { label: "Reativação",   color: "#b06050", bg: "rgba(176,96,80,0.08)",  border: "rgba(176,96,80,0.22)" },
-    perdida:         { label: "Perdida",      color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" },
-    blacklist:       { label: "Blacklist",    color: "#b06050", bg: "rgba(176,96,80,0.12)",  border: "rgba(176,96,80,0.30)" },
-  }
-  const cfg = map[estado] ?? { label: estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center",
-      padding: "4px 12px", borderRadius: "100px",
-      fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em",
-      fontFamily: "var(--font-sans, sans-serif)",
-      color: cfg.color, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`,
-    }}>
-      {cfg.label}
-    </span>
-  )
-}
 
 function MensagemEstadoBadge({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {

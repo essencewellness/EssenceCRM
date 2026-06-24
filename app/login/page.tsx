@@ -95,7 +95,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p
             style={{
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-              color: "#7a7e8a",
+              color: "var(--nuit-smoke)",
               fontSize: "13px",
               marginBottom: "28px",
               lineHeight: 1.6,
@@ -114,7 +114,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             fontSize: "10px",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "rgba(122,126,138,0.55)",
+            color: "var(--nuit-smoke)",
           }}
         >
           Essence Wellness · Uso exclusivo interno
