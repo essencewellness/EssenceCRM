@@ -24,7 +24,7 @@ export async function GET(
 
     return respostaSucesso(template)
   } catch (error) {
-    console.error("GET /api/v1/templates/[id]:", error)
+    console.error("GET /api/v1/templates/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -70,7 +70,7 @@ export async function PATCH(
 
     return respostaSucesso(atualizado)
   } catch (error) {
-    console.error("PATCH /api/v1/templates/[id]:", error)
+    console.error("PATCH /api/v1/templates/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

@@ -57,7 +57,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error("GET /api/v1/sessoes/[id]/pdf:", error)
+    console.error("GET /api/v1/sessoes/[id]/pdf:", (error as Error).message)
     return respostaErro("Erro ao gerar PDF", "ERRO_PDF", 500)
   }
 }

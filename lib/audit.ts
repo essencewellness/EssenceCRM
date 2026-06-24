@@ -24,7 +24,7 @@ export function auditar(evento: EventoAuditoria): void {
         ip: evento.ip ?? null,
       },
     })
-    .catch((e) => console.error("[audit] falha ao registar:", e?.message ?? e))
+    .catch((e) => console.error("[audit] falha ao registar:", (e as Error).message ?? String(e)))
 }
 
 /** Conta logins falhados recentes para um email (proteção brute-force). */

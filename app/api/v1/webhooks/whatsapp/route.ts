@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       timestamp: timestamp ?? new Date().toISOString(),
     })
   } catch (error) {
-    console.error("POST /api/v1/webhooks/whatsapp:", error)
+    console.error("POST /api/v1/webhooks/whatsapp:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

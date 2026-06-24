@@ -27,7 +27,7 @@ export async function GET(
 
     return respostaSucesso(serializarDecimais(sessao))
   } catch (error) {
-    console.error("GET /api/v1/sessoes/[id]:", error)
+    console.error("GET /api/v1/sessoes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -164,7 +164,7 @@ export async function PATCH(
       clienteAtualizado ? { clienteAtualizado: serializarDecimais(clienteAtualizado) } : undefined
     )
   } catch (error) {
-    console.error("PATCH /api/v1/sessoes/[id]:", error)
+    console.error("PATCH /api/v1/sessoes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

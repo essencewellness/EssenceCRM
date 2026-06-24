@@ -47,7 +47,7 @@ export async function DELETE(
 
     return respostaSucesso({ eliminada: true, clientesAfetados: totalClientes })
   } catch (e) {
-    console.error("[etiqueta-delete]", e)
+    console.error("[etiqueta-delete]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
   }
 }

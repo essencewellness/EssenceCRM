@@ -25,7 +25,7 @@ export async function DELETE(
 
     return respostaSucesso({ clienteId, etiquetaId, removida: true })
   } catch (error) {
-    console.error("DELETE /api/v1/clientes/[id]/etiquetas/[etiquetaId]:", error)
+    console.error("DELETE /api/v1/clientes/[id]/etiquetas/[etiquetaId]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

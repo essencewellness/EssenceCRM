@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     return respostaSucesso({ ...resultado, mensagensExpiradas }, { duracaoMs: Date.now() - inicio })
   } catch (error) {
-    console.error("GET /api/cron/estados:", error)
+    console.error("GET /api/cron/estados:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

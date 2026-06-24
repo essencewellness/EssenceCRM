@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     return respostaSucesso(serializarDecimais(servicos), { total: servicos.length })
   } catch (error) {
-    console.error("GET /api/v1/servicos:", error)
+    console.error("GET /api/v1/servicos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso(serializarDecimais(servico))
   } catch (error) {
-    console.error("POST /api/v1/servicos:", error)
+    console.error("POST /api/v1/servicos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

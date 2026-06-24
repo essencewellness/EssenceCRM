@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       estado: "pendente",
     })
   } catch (error) {
-    console.error("POST /api/v1/mensagens:", error)
+    console.error("POST /api/v1/mensagens:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     return respostaSucesso(mensagens, { total: mensagens.length })
   } catch (error) {
-    console.error("GET /api/v1/mensagens:", error)
+    console.error("GET /api/v1/mensagens:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -148,7 +148,7 @@ export async function PATCH(request: NextRequest) {
 
     return respostaSucesso(mensagem)
   } catch (error) {
-    console.error("PATCH /api/v1/mensagens:", error)
+    console.error("PATCH /api/v1/mensagens:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

@@ -152,7 +152,7 @@ export async function GET(
 
     return respostaSucesso(paginados, { total: paginados.length })
   } catch (e) {
-    console.error("[timeline]", e)
+    console.error("[timeline]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
   }
 }

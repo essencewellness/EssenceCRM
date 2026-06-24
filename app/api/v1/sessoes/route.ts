@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       { total: sessoes.length, ...(nextCursor ? { nextCursor } : {}) }
     )
   } catch (error) {
-    console.error("GET /api/v1/sessoes:", error)
+    console.error("GET /api/v1/sessoes:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso(serializarDecimais({ ...sessao, clienteNome: cliente.nome }))
   } catch (error) {
-    console.error("POST /api/v1/sessoes:", error)
+    console.error("POST /api/v1/sessoes:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

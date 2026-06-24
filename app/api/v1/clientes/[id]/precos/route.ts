@@ -26,7 +26,7 @@ export async function GET(
 
     return respostaSucesso(serializarDecimais(precos), { total: precos.length })
   } catch (error) {
-    console.error("GET /api/v1/clientes/[id]/precos:", error)
+    console.error("GET /api/v1/clientes/[id]/precos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -72,7 +72,7 @@ export async function POST(
 
     return respostaSucesso(serializarDecimais(preco))
   } catch (error) {
-    console.error("POST /api/v1/clientes/[id]/precos:", error)
+    console.error("POST /api/v1/clientes/[id]/precos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -101,7 +101,7 @@ export async function DELETE(
 
     return respostaSucesso({ removido: true })
   } catch (error) {
-    console.error("DELETE /api/v1/clientes/[id]/precos:", error)
+    console.error("DELETE /api/v1/clientes/[id]/precos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

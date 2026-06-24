@@ -44,7 +44,7 @@ export async function GET(
       dados: serializarDecimais(cliente),
     })
   } catch (error) {
-    console.error("GET /api/v1/clientes/[id]/rgpd:", error)
+    console.error("GET /api/v1/clientes/[id]/rgpd:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -123,7 +123,7 @@ export async function DELETE(
       nota: "PII e dados clínicos removidos; métricas agregadas preservadas para contabilidade.",
     })
   } catch (error) {
-    console.error("DELETE /api/v1/clientes/[id]/rgpd:", error)
+    console.error("DELETE /api/v1/clientes/[id]/rgpd:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

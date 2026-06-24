@@ -39,7 +39,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return respostaSucesso({ clienteId, etiquetaId: etiqueta.id, nome: etiqueta.nome })
   } catch (error) {
-    console.error("POST /api/v1/clientes/[id]/etiquetas:", error)
+    console.error("POST /api/v1/clientes/[id]/etiquetas:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

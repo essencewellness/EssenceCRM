@@ -34,7 +34,7 @@ export async function GET(
 
     return respostaSucesso(pagina, { proximoCursor, temMais })
   } catch (e) {
-    console.error("[audit-log]", e)
+    console.error("[audit-log]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
   }
 }

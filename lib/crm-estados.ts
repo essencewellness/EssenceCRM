@@ -149,7 +149,7 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
         }
       } catch (e) {
         // Não bloquear o motor se a criação de tarefa falhar
-        console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, e)
+        console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
       }
     }
   }

@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ clienteId: cliente.id, created })
   } catch (error) {
-    console.error("POST /api/v1/public/lead:", error)
+    console.error("POST /api/v1/public/lead:", (error as Error).message)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }

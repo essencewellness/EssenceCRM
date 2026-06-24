@@ -72,7 +72,7 @@ export async function GET(
       })
     )
   } catch (error) {
-    console.error("GET /api/v1/public/portal/[token]:", error)
+    console.error("GET /api/v1/public/portal/[token]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

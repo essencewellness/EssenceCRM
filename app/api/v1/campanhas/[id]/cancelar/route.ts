@@ -49,7 +49,7 @@ export async function PATCH(
       mensagensCanceladas: mensagensCanceladas.count,
     })
   } catch (error) {
-    console.error("PATCH /api/v1/campanhas/[id]/cancelar:", error)
+    console.error("PATCH /api/v1/campanhas/[id]/cancelar:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso({ acao, afetados, etiquetaId })
   } catch (e) {
-    console.error("[bulk-etiquetas]", e)
+    console.error("[bulk-etiquetas]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
   }
 }

@@ -41,7 +41,7 @@ export async function GET(
 
     return respostaSucesso(serializarDecimais(packsComRestantes), { total: packs.length })
   } catch (error) {
-    console.error("GET /api/v1/clientes/[id]/packs:", error)
+    console.error("GET /api/v1/clientes/[id]/packs:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -81,7 +81,7 @@ export async function POST(
 
     return respostaSucesso(serializarDecimais({ ...pack, sessoesRestantes: pack.totalSessoes }))
   } catch (error) {
-    console.error("POST /api/v1/clientes/[id]/packs:", error)
+    console.error("POST /api/v1/clientes/[id]/packs:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

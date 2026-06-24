@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     return respostaSucesso(terapeutas)
   } catch (error) {
-    console.error("GET /api/v1/terapeutas:", error)
+    console.error("GET /api/v1/terapeutas:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

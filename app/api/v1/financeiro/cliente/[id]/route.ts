@@ -59,7 +59,7 @@ export async function GET(
       })
     )
   } catch (error) {
-    console.error("GET /api/v1/financeiro/cliente/[id]:", error)
+    console.error("GET /api/v1/financeiro/cliente/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

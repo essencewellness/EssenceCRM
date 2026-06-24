@@ -62,7 +62,7 @@ export async function PATCH(
       sessoesRestantes: packAtualizado.totalSessoes - packAtualizado.sessoesUsadas,
     }))
   } catch (error) {
-    console.error("PATCH /api/v1/clientes/[id]/packs/[packId]:", error)
+    console.error("PATCH /api/v1/clientes/[id]/packs/[packId]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

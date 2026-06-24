@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso({ mensagemId, estado: mensagem.estado, sucesso })
   } catch (error) {
-    console.error("POST /api/v1/webhooks/confirmacao-envio:", error)
+    console.error("POST /api/v1/webhooks/confirmacao-envio:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

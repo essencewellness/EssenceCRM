@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
       })
     )
   } catch (error) {
-    console.error("GET /api/v1/dashboard/kpis:", error)
+    console.error("GET /api/v1/dashboard/kpis:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

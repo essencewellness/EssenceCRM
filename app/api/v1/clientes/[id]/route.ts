@@ -38,7 +38,7 @@ export async function GET(
 
     return respostaSucesso(serializarDecimais(cliente))
   } catch (error) {
-    console.error("GET /api/v1/clientes/[id]:", error)
+    console.error("GET /api/v1/clientes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -101,7 +101,7 @@ export async function PATCH(
 
     return respostaSucesso(serializarDecimais(cliente))
   } catch (error) {
-    console.error("PATCH /api/v1/clientes/[id]:", error)
+    console.error("PATCH /api/v1/clientes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
@@ -139,7 +139,7 @@ export async function DELETE(
 
     return respostaSucesso({ id, apagado: true })
   } catch (error) {
-    console.error("DELETE /api/v1/clientes/[id]:", error)
+    console.error("DELETE /api/v1/clientes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

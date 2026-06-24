@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true, feedbackId: feedback.id, encaminharGoogle: encaminhadoGoogle })
   } catch (error) {
-    console.error("POST /api/v1/public/feedback:", error)
+    console.error("POST /api/v1/public/feedback:", (error as Error).message)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
