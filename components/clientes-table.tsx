@@ -54,7 +54,7 @@ const HEADERS = [
   { label: "Telefone",    align: "left"   as const },
   { label: "Email",       align: "left"   as const },
   { label: "Actividade",  align: "left"   as const },
-  { label: "Concluídas",  align: "center" as const },
+  { label: "Sessões Concluídas",  align: "center" as const },
   { label: "Total Gasto", align: "center" as const },
   { label: "Estado",      align: "center" as const },
 ]
