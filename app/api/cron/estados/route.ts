@@ -6,6 +6,7 @@ import { timingSafeEqual } from "node:crypto"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { executarMotorEstados } from "@/lib/crm-estados"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 
 function validarCronSecret(request: NextRequest): boolean {
@@ -27,6 +28,22 @@ export async function GET(request: NextRequest) {
 
   try {
     const inicio = Date.now()
+
+    // Auto-concluir sessões agendadas cuja data já passou
+    const agora = new Date()
+    const sessoesPassadas = await prisma.sessao.findMany({
+      where: { estado: "agendada", data: { lt: agora }, apagadoEm: null },
+      select: { id: true, clienteId: true },
+    })
+    if (sessoesPassadas.length > 0) {
+      await prisma.sessao.updateMany({
+        where: { id: { in: sessoesPassadas.map(s => s.id) } },
+        data: { estado: "realizada" },
+      })
+      const clientesAfetados = [...new Set(sessoesPassadas.map(s => s.clienteId))]
+      await Promise.all(clientesAfetados.map(id => recalcularMetricasCliente(prisma, id)))
+    }
+
     const resultado = await executarMotorEstados()
 
     // Expirar mensagens pendentes com mais de 3 dias sem aprovação
@@ -49,12 +66,13 @@ export async function GET(request: NextRequest) {
       detalhe: {
         analisados: resultado.analisados,
         alterados: resultado.alterados,
+        sessoesConcluidas: sessoesPassadas.length,
         mensagensExpiradas,
         duracaoMs: Date.now() - inicio,
       },
     })
 
-    return respostaSucesso({ ...resultado, mensagensExpiradas }, { duracaoMs: Date.now() - inicio })
+    return respostaSucesso({ ...resultado, sessoesConcluidas: sessoesPassadas.length, mensagensExpiradas }, { duracaoMs: Date.now() - inicio })
   } catch (error) {
     console.error("GET /api/cron/estados:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

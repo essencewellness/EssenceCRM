@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { auditar } from "@/lib/audit"
 import { EstadoSessao, Prisma } from "@prisma/client"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 
 // Apagamento DEFINITIVO do cliente (hard delete). A cascata do schema remove
 // sessões, mensagens, etiquetas, observações, preços, packs e portal token.
