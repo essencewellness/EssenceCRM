@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — Drenagem Linfática</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./essence-forms.css">
+</head>
+<body>
+
+<div class="card">
+
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title" id="header-title">Drenagem <em>Linfática</em></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="progress">
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:33%"></div></div>
+    <div class="progress-labels">
+      <span class="prog-label" id="pl-1">Sobre ti</span>
+      <span class="prog-label" id="pl-2">O teu objetivo</span>
+      <span class="prog-label" id="pl-3">Antes da sessão</span>
+    </div>
+  </div>
+
+  <div class="form-body">
+    <div class="gerr" id="gerr"></div>
+    <div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+
+    <!-- STEP 1 — Identidade -->
+    <div class="step active" id="step-1" data-identity>
+      <div class="eyebrow" data-sub="~1 minuto"></div>
+      <h1 class="heading">Olá, <em>quem és?</em></h1>
+      <div class="accent-line"></div>
+      <p class="desc">Faremos a avaliação completa contigo na consulta. Aqui só precisamos do essencial.</p>
+
+      <div class="fg">
+        <div class="fl" id="fl-nome">
+          <input type="text" id="nome" placeholder=" " autocomplete="name" aria-required="true">
+          <label for="nome">Nome completo *</label>
+        </div>
+        <div class="f-err" id="err-nome">Por favor, indica o teu nome.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-email">
+          <input type="email" id="email" placeholder=" " autocomplete="email" inputmode="email" aria-required="true">
+          <label for="email">Email *</label>
+        </div>
+        <div class="f-hint">Apenas a Bea terá acesso. Total confidencialidade.</div>
+        <div class="f-err" id="err-email">Por favor, indica um email válido.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-tel">
+          <input type="tel" id="telefone" placeholder=" " autocomplete="tel" inputmode="tel">
+          <label for="telefone">Telemóvel <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para confirmar a tua sessão pelo WhatsApp.</div>
+      </div>
+
+      <div class="nav"><button class="btn-primary" data-next><span>Continuar →</span></button></div>
+    </div>
+
+    <!-- STEP 2 — O teu objetivo -->
+    <div class="step" id="step-2">
+      <div class="eyebrow"></div>
+      <h2 class="heading">O que <em>te traz?</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Ajuda-nos a perceber o teu foco para adaptarmos o acompanhamento a ti.</p>
+
+      <div class="fg">
+        <span class="slabel">Qual o teu principal objetivo?</span>
+        <div class="chips" id="chips-motivo">
+          <div class="chip single" data-value="Retenção de líquidos">Retenção de líquidos</div>
+          <div class="chip single" data-value="Pernas pesadas / circulação">Pernas pesadas / circulação</div>
+          <div class="chip single" data-value="Pós-operatório">Recuperação pós-operatória</div>
+          <div class="chip single" data-value="Pós-parto">Pós-parto</div>
+          <div class="chip single" data-value="Bem-estar geral">Bem-estar geral</div>
+          <div class="chip single outra-trigger" data-value="Outro" data-target="outra-motivo">Outro</div>
+        </div>
+        <div class="outra-field" id="outra-motivo">
+          <input type="text" class="outra-input" id="outra-motivo-input" placeholder="Conta-nos o teu objetivo…" maxlength="200">
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" data-next><span>Continuar →</span></button>
+        <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — Antes da sessão (segurança mínima) -->
+    <div class="step" id="step-3">
+      <div class="eyebrow"></div>
+      <h2 class="heading">Antes de <em>te recebermos</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Apenas para garantir que a sessão é segura para ti. A avaliação completa é feita na consulta.</p>
+
+      <div class="fg">
+        <span class="slabel">Estás grávida ou a tentar engravidar?</span>
+        <div class="chips" id="chips-gravidez">
+          <div class="chip single" data-value="Não">Não</div>
+          <div class="chip single" data-value="Grávida">Sim, grávida</div>
+          <div class="chip single" data-value="A tentar engravidar">A tentar engravidar</div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Tens alguma destas situações? <span class="opt">(cirurgia recente, tratamento oncológico, problema renal ou cardíaco, trombose ou infeção/febre)</span></span>
+        <div class="chips">
+          <div class="chip single" data-reveal="bloco-redflag" data-reveal-value="nao">Não</div>
+          <div class="chip single" data-reveal="bloco-redflag" data-reveal-value="sim">Sim</div>
+        </div>
+        <div class="reveal-block" id="bloco-redflag">
+          <div class="fg" style="margin-bottom:0">
+            <div class="fl" id="fl-redflag">
+              <textarea id="redflag-input" placeholder=" " style="min-height:60px;"></textarea>
+              <label for="redflag-input">Conta-nos brevemente</label>
+            </div>
+            <div class="f-hint">Vamos confirmar contigo antes da sessão para garantir a tua segurança.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="consent-box">
+          <input type="checkbox" id="consentimento-saude" checked>
+          <label for="consentimento-saude"><strong>Autorizo a Bea a guardar estas informações no meu perfil</strong> — para um acompanhamento seguro e personalizado. Podes retirar este consentimento a qualquer momento.</label>
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="consent-box">
+          <input type="checkbox" id="consentimento-marketing" checked>
+          <label for="consentimento-marketing"><strong>Quero receber mimos e novidades da Essence</strong> — campanhas exclusivas, lembretes e pequenas surpresas. Sem spam, e podes sair quando quiseres.</label>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" data-submit><span>Enviar ✦</span></button>
+        <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success" id="success">
+      <div class="success-ring">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M16 29C16 29 5 22 5 13C5 7.477 9.925 3 16 3C22.075 3 27 7.477 27 13C27 22 16 29 16 29Z" stroke="#D4B886" stroke-width="0.9" fill="none"/>
+          <path d="M16 29V15" stroke="#D4B886" stroke-width="0.9"/>
+          <path d="M16 19C16 19 9 15 7 10" stroke="#D4B886" stroke-width="0.75" opacity="0.5"/>
+          <path d="M16 19C16 19 23 15 25 10" stroke="#D4B886" stroke-width="0.75" opacity="0.5"/>
+        </svg>
+      </div>
+      <h2>Recebido, <span id="nome-ok"></span>.</h2>
+      <p>Estamos a preparar a tua sessão. Na consulta faremos a avaliação completa, com tempo e atenção só para ti.</p>
+      <p class="success-tag">Até já.</p>
+    </div>
+
+  </div>
+
+  <footer class="footer">Os teus dados são tratados com total confidencialidade — apenas a terapeuta tem acesso à tua ficha.</footer>
+</div>
+
+<script src="./essence-forms.js"></script>
+<script>
+  window.buildPayload = function () {
+    const EF = window.EF;
+
+    const motivo = EF.chipsCom("chips-motivo", "outra-motivo-input", "Outro").join(", ");
+    const gravidez = EF.chip1("chips-gravidez");
+
+    const redflagOn = document.getElementById("bloco-redflag")?.classList.contains("show");
+    const redflagTxt = EF.val("redflag-input");
+
+    const condAlerg = [
+      gravidez ? "Gravidez: " + gravidez : "",
+      redflagOn
+        ? "⚠️ A CONFIRMAR antes da sessão: " + (redflagTxt || "(situação assinalada sem detalhe)")
+        : "Sem contraindicações assinaladas no formulário",
+    ].filter(Boolean).join("\n") || null;
+
+    return {
+      nome:     !EF.PERSONAL ? (EF.val("nome") || undefined) : undefined,
+      email:    !EF.PERSONAL ? (EF.val("email") || undefined) : undefined,
+      telefone: !EF.PERSONAL ? (EF.val("telefone") || null) : null,
+      historicoCondicoesAlergias: condAlerg,
+      notasPessoais: motivo ? "Objetivo (drenagem): " + motivo : null,
+      consentimentoSaude: document.getElementById("consentimento-saude").checked,
+      aceitaMarketing: document.getElementById("consentimento-marketing").checked,
+    };
+  };
+</script>
+</body>
+</html>

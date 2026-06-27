@@ -229,6 +229,7 @@ export const onboardingPublicSchema = z.object({
   notasPessoais: textoOpcional,
   voucherCodigo: z.string().trim().max(40).optional().nullable(),
   consentimentoSaude: z.boolean().optional(),
+  aceitaMarketing: z.boolean().optional(),
   website: z.string().max(0).optional(), // honeypot
 }).strict()
 

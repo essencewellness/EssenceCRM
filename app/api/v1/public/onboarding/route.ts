@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const {
     clienteId, sessaoId, nome, email, telefone, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
-    historicoAromasPreferidos, notasPessoais, voucherCodigo, consentimentoSaude, website,
+    historicoAromasPreferidos, notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
   } = v.data
 
   // Honeypot preenchido = bot
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
           fonte: "formulario",
           comoNosConheceu: comoNosConheceu ?? null,
           estado: "novo",
-          aceitaMarketing: true,
-          consentimentoMarketingEm: new Date(),
+          aceitaMarketing: aceitaMarketing ?? true,
+          ...(aceitaMarketing === false ? {} : { consentimentoMarketingEm: new Date() }),
         },
       })
       created = true
@@ -89,6 +89,13 @@ export async function POST(request: NextRequest) {
         ...(consentimentoSaude && historicoEstadoEmocional ? { historicoEstadoEmocional } : {}),
         ...(consentimentoSaude && historicoAromasPreferidos ? { historicoAromasPreferidos } : {}),
         ...(notasPessoais ? { notasPessoais } : {}),
+        // Consentimento de marketing explícito (quando o form o envia)
+        ...(typeof aceitaMarketing === "boolean"
+          ? {
+              aceitaMarketing,
+              ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
+            }
+          : {}),
       },
     })
 
