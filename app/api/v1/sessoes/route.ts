@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     // Idempotência: se já existe sessão com este calendlyEventId, devolvê-la
     // (evita duplicados e 500 por violação de @unique ao reprocessar a marcação)
     if (calendlyEventId) {
-      const existente = await prisma.sessao.findUnique({ where: { calendlyEventId } })
+      const existente = await prisma.sessao.findFirst({ where: { calendlyEventId, apagadoEm: null } })
       if (existente) {
         return respostaSucesso(serializarDecimais({ ...existente, clienteNome: cliente.nome, created: false }))
       }

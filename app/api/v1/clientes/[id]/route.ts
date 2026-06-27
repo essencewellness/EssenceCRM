@@ -124,10 +124,19 @@ export async function DELETE(
     })
     if (!cliente) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
 
-    await prisma.cliente.update({
-      where: { id },
-      data: { apagadoEm: new Date() },
-    })
+    const agora = new Date()
+    await prisma.$transaction([
+      prisma.cliente.update({
+        where: { id },
+        data: { apagadoEm: agora },
+      }),
+      // Arrastar as sessões: soft-delete + libertar o calendlyEventId
+      // (senão o @unique impede recriar a sessão se a marcação voltar a entrar)
+      prisma.sessao.updateMany({
+        where: { clienteId: id, apagadoEm: null },
+        data: { apagadoEm: agora, calendlyEventId: null },
+      }),
+    ])
 
     auditar({
       quem: "api:n8n",
