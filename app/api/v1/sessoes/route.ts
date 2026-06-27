@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
   const {
     clienteId, telefone, email,
     data, hora, duracao, servico, preco, terapeuta,
-    estado, aromaSessao, resumoSessao, linkDocumento,
+    estado, aromaSessao, resumoSessao, linkDocumento, calendlyEventId,
   } = v.data
 
   try {
@@ -147,6 +147,7 @@ export async function POST(request: NextRequest) {
         aromaSessao: aromaSessao ?? null,
         resumoSessao: resumoSessao ?? null,
         linkDocumento: linkDocumento ?? null,
+        ...(calendlyEventId ? { calendlyEventId } : {}),
       },
     })
 

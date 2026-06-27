@@ -104,6 +104,7 @@ export const sessaoCreateSchema = z.object({
   aromaSessao: z.string().trim().max(120).optional().nullable(),
   resumoSessao: textoOpcional,
   linkDocumento: z.string().trim().url().max(500).optional().nullable(),
+  calendlyEventId: z.string().trim().max(128).optional().nullable(),
 }).strict()
 
 export const sessaoUpdateSchema = z.object({
