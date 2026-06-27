@@ -113,7 +113,6 @@ export async function GET(request: NextRequest) {
           select: { servico: true, estado: true, data: true },
           orderBy: { data: "asc" as const },
         },
-        _count: { select: { sessoes: { where: { apagadoEm: null } } } },
       },
       orderBy: { nome: "asc" },
       take: limit + 1,
@@ -126,7 +125,7 @@ export async function GET(request: NextRequest) {
     const total = await prisma.cliente.count({ where })
 
     const agora = new Date()
-    const clientesEnriquecidos = clientes.map(({ sessoes, _count, ...c }) => {
+    const clientesEnriquecidos = clientes.map(({ sessoes, ...c }) => {
       const contagem = new Map<string, number>()
       let proximaSessaoData: string | null = null
       for (const s of sessoes) {
@@ -141,7 +140,7 @@ export async function GET(request: NextRequest) {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
         .map(([servico, count]) => ({ servico, count }))
-      return { ...c, servicosAfinidade, totalSessoes: _count.sessoes, proximaSessaoData }
+      return { ...c, servicosAfinidade, proximaSessaoData }
     })
 
     return respostaSucesso(serializarDecimais(clientesEnriquecidos), {
