@@ -56,10 +56,20 @@ export async function atualizarObservacoesSessao(
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
 
+  const sessaoAntes = await prisma.sessao.findUnique({
+    where: { id: sessaoId },
+    select: { estado: true },
+  })
+
   await prisma.sessao.update({
     where: { id: sessaoId },
     data: dados as Prisma.SessaoUpdateInput,
   })
+
+  // Quando passa a "realizada", recalcular totalSessoes e totalGasto do cliente
+  if (dados.estado === "realizada" && sessaoAntes?.estado !== "realizada") {
+    await recalcularMetricasCliente(prisma, clienteId)
+  }
 
   auditar({
     quem: session.user.email ?? "dashboard",
@@ -69,4 +79,5 @@ export async function atualizarObservacoesSessao(
   })
 
   revalidatePath(`/clientes/${clienteId}`)
+  revalidatePath("/clientes")
 }

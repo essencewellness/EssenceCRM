@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { atualizarObservacoesSessao } from "./actions"
 
 function safeUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined
@@ -118,12 +119,30 @@ function DetailBlock({ title, icon: Icon, content, color }: {
   )
 }
 
+const ESTADOS_SESSAO = [
+  { value: "agendada",  label: "Agendada",  cor: "#b9a07a" },
+  { value: "realizada", label: "Realizada", cor: "#a0a996" },
+  { value: "cancelada", label: "Cancelada", cor: "#b06050" },
+  { value: "falta",     label: "Falta",     cor: "#b06050" },
+]
+
 interface Props {
   sessoes: Sessao[]
+  clienteId: string
 }
 
-export function SessoesTab({ sessoes }: Props) {
+export function SessoesTab({ sessoes, clienteId }: Props) {
   const [sessaoAberta, setSessaoAberta] = useState<Sessao | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  function mudarEstado(novoEstado: string) {
+    if (!sessaoAberta || novoEstado === sessaoAberta.estado) return
+    const atualizada = { ...sessaoAberta, estado: novoEstado }
+    setSessaoAberta(atualizada)
+    startTransition(async () => {
+      await atualizarObservacoesSessao(sessaoAberta.id, clienteId, { estado: novoEstado as "agendada" | "realizada" | "cancelada" | "falta" })
+    })
+  }
 
   if (sessoes.length === 0) {
     return (
@@ -242,8 +261,31 @@ export function SessoesTab({ sessoes }: Props) {
             }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ marginBottom: "8px" }}>
+                  <div style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
                     <SessaoEstadoBadge estado={sessaoAberta.estado} />
+                    <select
+                      value={sessaoAberta.estado}
+                      onChange={(e) => mudarEstado(e.target.value)}
+                      disabled={isPending}
+                      style={{
+                        fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
+                        fontWeight: 600, letterSpacing: "0.08em",
+                        padding: "3px 8px", borderRadius: "6px",
+                        backgroundColor: "rgba(212,184,134,0.08)",
+                        border: "1px solid rgba(212,184,134,0.22)",
+                        color: "var(--nuit-bone)", cursor: "pointer",
+                        opacity: isPending ? 0.5 : 1,
+                      }}
+                    >
+                      {ESTADOS_SESSAO.map(e => (
+                        <option key={e.value} value={e.value}>{e.label}</option>
+                      ))}
+                    </select>
+                    {isPending && (
+                      <span style={{ fontSize: "10px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans)" }}>
+                        A guardar…
+                      </span>
+                    )}
                   </div>
                   <h2 id="sessao-drawer-titulo" style={{
                     fontFamily: "var(--font-heading, Georgia, serif)",

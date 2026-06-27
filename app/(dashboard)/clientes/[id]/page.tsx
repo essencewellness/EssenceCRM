@@ -441,7 +441,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             label: "Sessões",
             badge: cliente.sessoes.length,
             content: (
-              <SessoesTab sessoes={cliente.sessoes.map((s) => ({ ...s, preco: s.preco === null ? null : Number(s.preco) }))} />
+              <SessoesTab clienteId={cliente.id} sessoes={cliente.sessoes.map((s) => ({ ...s, preco: s.preco === null ? null : Number(s.preco) }))} />
             ),
           },
           {
