@@ -30,6 +30,7 @@
       -webkit-text-size-adjust: 100%;
       scroll-behavior: smooth;
       scroll-padding-top: 1.5rem;
+      scroll-padding-bottom: 80px;
     }
 
     body {
@@ -37,6 +38,7 @@
       color: var(--bone);
       font-family: 'Lato', sans-serif;
       min-height: 100dvh;
+      overscroll-behavior: none;
     }
 
     /* ═══════════════════════════════════════════════════
@@ -699,15 +701,6 @@
         <div class="f-hint">Ex: óleos essenciais, aromas, látex, frutos secos...</div>
       </div>
 
-      <div class="fg">
-        <div class="consent-box">
-          <input type="checkbox" id="consentimento-saude" checked>
-          <label for="consentimento-saude">
-            <strong>Autorizo a Bea a guardar estes dados de saúde no meu perfil</strong> — para que a sessão seja sempre personalizada e segura. Podes retirar este consentimento a qualquer momento.
-          </label>
-        </div>
-      </div>
-
       <div class="nav">
         <button class="btn-primary" onclick="goTo(4)"><span>Continuar →</span></button>
         <button class="btn-back" onclick="goTo(2)">
@@ -920,16 +913,6 @@
     return document.querySelector(`#${id} .chip.sel`)?.textContent.trim() || null;
   }
 
-  // ── Viewport keyboard adjust ──────────────────────
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      const active = document.activeElement;
-      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
-        setTimeout(() => active.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-      }
-    });
-  }
-
   // ── Navegação ─────────────────────────────────────
   function goTo(n) {
     if (PERSONAL && n === 1) return;
@@ -991,8 +974,6 @@
     const alergias     = document.getElementById('alergias').value.trim();
     const foco         = document.getElementById('foco').value.trim();
     const voucherCodigo = _isGC ? document.getElementById('voucherCodigo').value.trim() : null;
-    const consentimentoSaude = document.getElementById('consentimento-saude').checked;
-
     // Mente: chips + texto "outra"
     const menteChips = chips('chips-mente').filter(t => t !== 'Outra');
     const menteOutraText = document.getElementById('outra-mente-input').value.trim();
@@ -1052,7 +1033,6 @@
           historicoAromasPreferidos:  aromaChips.length ? aromaChips.join(', ') : null,
           notasPessoais:              foco,
           voucherCodigo:              voucherCodigo || null,
-          consentimentoSaude:         consentimentoSaude,
         }),
       });
 

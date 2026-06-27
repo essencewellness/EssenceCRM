@@ -137,16 +137,6 @@
       </div>
 
       <div class="fg">
-        <span class="slabel">Que pressão preferes?</span>
-        <div class="chips" id="chips-pressao">
-          <div class="chip single" data-value="Suave">Suave</div>
-          <div class="chip single" data-value="Média">Média</div>
-          <div class="chip single" data-value="Firme">Firme</div>
-          <div class="chip single" data-value="Sem preferência">Sem preferência</div>
-        </div>
-      </div>
-
-      <div class="fg">
         <div class="fl" id="fl-cond">
           <textarea id="condicoes" placeholder=" "></textarea>
           <label for="condicoes">Condições clínicas <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
@@ -160,13 +150,6 @@
           <label for="alergias">Alergias ou sensibilidades <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Ex: óleos essenciais, látex, frutos secos...</div>
-      </div>
-
-      <div class="fg">
-        <div class="consent-box">
-          <input type="checkbox" id="consentimento-saude" checked>
-          <label for="consentimento-saude"><strong>Autorizo a Bea a guardar estes dados de saúde no meu perfil</strong> — para que a sessão seja sempre personalizada e segura. Podes retirar este consentimento a qualquer momento.</label>
-        </div>
       </div>
 
       <div class="nav">
@@ -221,16 +204,6 @@
           </div>
 
           <div class="fg">
-            <span class="slabel">Que pressão prefere?</span>
-            <div class="chips" id="chips-pressao2">
-              <div class="chip single" data-value="Suave">Suave</div>
-              <div class="chip single" data-value="Média">Média</div>
-              <div class="chip single" data-value="Firme">Firme</div>
-              <div class="chip single" data-value="Sem preferência">Sem preferência</div>
-            </div>
-          </div>
-
-          <div class="fg">
             <div class="fl" id="fl-alergia2">
               <textarea id="alergias2" placeholder=" " style="min-height:60px;"></textarea>
               <label for="alergias2">Alergias ou sensibilidades dela <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
@@ -245,13 +218,6 @@
           <label for="dataNascimento">A tua data de aniversário <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
         </div>
         <div class="f-hint">Para te surpreendermos no teu dia especial.</div>
-      </div>
-
-      <div class="fg">
-        <div class="consent-box">
-          <input type="checkbox" id="consentimento-marketing" checked>
-          <label for="consentimento-marketing"><strong>Quero receber mimos e novidades da Essence</strong> — campanhas exclusivas, lembretes e pequenas surpresas. Sem spam, e podes sair quando quiseres.</label>
-        </div>
       </div>
 
       <div class="nav">
@@ -294,7 +260,6 @@
     const mente    = EF.chipsCom("chips-mente", "outra-mente-input", "Outra");
     const ultima1h = EF.chip1("chips-1h");
     const tensao   = EF.chipsCom("chips-tensao", "outra-tensao-input", "Outro");
-    const pressao  = EF.chip1("chips-pressao");
     const condicoes = EF.val("condicoes");
     const alergias  = EF.val("alergias");
 
@@ -303,10 +268,7 @@
       ultima1h ? "Última hora para si: " + ultima1h : "",
     ].filter(Boolean).join("\n") || null;
 
-    const zonas = [
-      tensao.length ? "Zonas: " + tensao.join(", ") : "",
-      pressao ? "Pressão preferida: " + pressao : "",
-    ].filter(Boolean).join(" · ") || null;
+    const zonas = tensao.length ? "Zonas: " + tensao.join(", ") : null;
 
     const condAlerg = [
       condicoes ? "Condições: " + condicoes : "",
@@ -319,13 +281,11 @@
     if (inclui2) {
       const nome2     = EF.val("nome2");
       const tensao2   = EF.chips("chips-tensao2");
-      const pressao2  = EF.chip1("chips-pressao2");
       const alergias2 = EF.val("alergias2");
       const bloco = [
         "— 2.ª pessoa —",
         nome2 ? "Nome: " + nome2 : "",
         tensao2.length ? "Zonas de tensão: " + tensao2.join(", ") : "",
-        pressao2 ? "Pressão: " + pressao2 : "",
         alergias2 ? "Alergias: " + alergias2 : "",
       ].filter(Boolean).join("\n");
       if (bloco.replace("— 2.ª pessoa —", "").trim()) notas = foco + "\n\n" + bloco;
@@ -340,8 +300,6 @@
       historicoZonasTensao: zonas,
       historicoCondicoesAlergias: condAlerg,
       notasPessoais: notas,
-      consentimentoSaude: document.getElementById("consentimento-saude").checked,
-      aceitaMarketing: document.getElementById("consentimento-marketing").checked,
     };
   };
 </script>

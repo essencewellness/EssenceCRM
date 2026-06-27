@@ -186,15 +186,8 @@
     });
   });
 
-  // ── Viewport / teclado mobile ─────────────────────────────────
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", () => {
-      const a = document.activeElement;
-      if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) {
-        setTimeout(() => a.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
-      }
-    });
-  }
+  // Scroll mobile: o browser gere nativamente o scroll para o elemento em foco.
+  // Interferir com scrollIntoView no resize do visualViewport causa jitter — não usar.
 
   // ── Helpers expostos aos formulários ──────────────────────────
   function chips(id) {
