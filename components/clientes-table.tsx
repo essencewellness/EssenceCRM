@@ -14,6 +14,7 @@ interface ClienteRow {
   email: string | null
   ultimaSessao: string | null
   totalSessoes: number
+  proximaSessaoData: string | null
   totalGasto: number
   estado: string
   etiquetas: { etiqueta: Etiqueta }[]
@@ -99,7 +100,11 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
         {clientes.map((cliente, idx) => {
           const cfg = estadoMap[cliente.estado] ?? { label: cliente.estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
           const tagsSaude = cliente.etiquetas.filter(e => e.etiqueta.tipo === "saude")
-          const actividade = calcularTagActividade(cliente.ultimaSessao)
+          const actividade = cliente.ultimaSessao
+            ? calcularTagActividade(cliente.ultimaSessao)
+            : cliente.proximaSessaoData
+              ? { label: "Agendada", cor: "#b9a07a", dias: null }
+              : { label: "Sem sessões", cor: "#9d9d9a", dias: null }
           const isSelec = selecionados.includes(cliente.id)
 
           return (

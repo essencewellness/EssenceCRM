@@ -10,6 +10,7 @@ interface ClienteRow {
   email: string | null
   ultimaSessao: string | null
   totalSessoes: number
+  proximaSessaoData: string | null
   totalGasto: number
   estado: string
   etiquetas: { etiqueta: Etiqueta }[]
@@ -53,6 +54,7 @@ export function ClientesInfiniteList({
         email: c.email as string | null,
         ultimaSessao: c.ultimaSessao as string | null,
         totalSessoes: c.totalSessoes as number,
+        proximaSessaoData: (c.proximaSessaoData as string | null) ?? null,
         totalGasto: Number(c.totalGasto),
         estado: c.estado as string,
         etiquetas: (c.etiquetas as { etiqueta: Etiqueta }[]) ?? [],

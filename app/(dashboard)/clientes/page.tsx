@@ -73,6 +73,13 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
       take: PAGE_SIZE + 1,
       include: {
         etiquetas: { include: { etiqueta: true } },
+        _count: { select: { sessoes: { where: { apagadoEm: null } } } },
+        sessoes: {
+          where: { apagadoEm: null, estado: "agendada", data: { gte: new Date() } },
+          orderBy: { data: "asc" },
+          take: 1,
+          select: { data: true },
+        },
       },
     }),
     prisma.cliente.count({ where }),
@@ -98,7 +105,8 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
     telefone: c.telefone,
     email: c.email,
     ultimaSessao: c.ultimaSessao?.toISOString() ?? null,
-    totalSessoes: c.totalSessoes,
+    totalSessoes: c._count.sessoes,
+    proximaSessaoData: c.sessoes[0]?.data?.toISOString() ?? null,
     totalGasto: Number(c.totalGasto),
     estado: c.estado,
     etiquetas: c.etiquetas.map(e => ({

@@ -52,3 +52,5 @@ next-env.d.ts
 clientes_backup.txt
 *.backup.txt
 CREDENCIAIS-PRIVADAS.local.md
+
+.env*

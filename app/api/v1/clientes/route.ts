@@ -109,9 +109,11 @@ export async function GET(request: NextRequest) {
         historicoEstadoEmocional: true, notasPessoais: true,
         etiquetas: { include: { etiqueta: true } },
         sessoes: {
-          where: { estado: "realizada", servico: { not: null } },
-          select: { servico: true },
+          where: { apagadoEm: null },
+          select: { servico: true, estado: true, data: true },
+          orderBy: { data: "asc" as const },
         },
+        _count: { select: { sessoes: { where: { apagadoEm: null } } } },
       },
       orderBy: { nome: "asc" },
       take: limit + 1,
@@ -123,17 +125,23 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.cliente.count({ where })
 
-    // Calcular afinidade de serviço (top 3 serviços por sessões realizadas)
-    const clientesEnriquecidos = clientes.map(({ sessoes, ...c }) => {
+    const agora = new Date()
+    const clientesEnriquecidos = clientes.map(({ sessoes, _count, ...c }) => {
       const contagem = new Map<string, number>()
+      let proximaSessaoData: string | null = null
       for (const s of sessoes) {
-        if (s.servico) contagem.set(s.servico, (contagem.get(s.servico) ?? 0) + 1)
+        if (s.estado === "realizada" && s.servico) {
+          contagem.set(s.servico, (contagem.get(s.servico) ?? 0) + 1)
+        }
+        if (s.estado === "agendada" && new Date(s.data) >= agora && !proximaSessaoData) {
+          proximaSessaoData = new Date(s.data).toISOString()
+        }
       }
       const servicosAfinidade = [...contagem.entries()]
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
         .map(([servico, count]) => ({ servico, count }))
-      return { ...c, servicosAfinidade }
+      return { ...c, servicosAfinidade, totalSessoes: _count.sessoes, proximaSessaoData }
     })
 
     return respostaSucesso(serializarDecimais(clientesEnriquecidos), {
