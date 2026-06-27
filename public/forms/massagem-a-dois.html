@@ -198,6 +198,14 @@
           </div>
 
           <div class="fg">
+            <div class="fl" id="fl-tel2">
+              <input type="tel" id="telefone2" placeholder=" " autocomplete="off" inputmode="tel">
+              <label for="telefone2">Telemóvel da 2.ª pessoa <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+            </div>
+            <div class="f-hint">Para a Bea poder confirmar a sessão com ela também.</div>
+          </div>
+
+          <div class="fg">
             <span class="slabel">Onde sente mais tensão? <span class="opt">(podes escolher mais do que uma)</span></span>
             <div class="chips" id="chips-tensao2">
               <div class="chip sage-chip" data-value="Pescoço">Pescoço</div>
@@ -273,11 +281,13 @@
     const inclui2 = document.getElementById("bloco-2pessoa")?.classList.contains("show");
     if (inclui2) {
       const nome2     = EF.val("nome2");
+      const telefone2 = EF.val("telefone2");
       const tensao2   = EF.chips("chips-tensao2");
       const alergias2 = EF.val("alergias2");
       const bloco = [
         "Preferências da 2.ª pessoa:",
         nome2 ? "Nome: " + nome2 : "",
+        telefone2 ? "Telemóvel: " + telefone2 : "",
         tensao2.length ? "Zonas de tensão: " + tensao2.join(", ") : "",
         alergias2 ? "Alergias: " + alergias2 : "",
       ].filter(Boolean).join("\n");
