@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     const cliente = await prisma.cliente.create({
       data: {
         nome,
-        telefone: telefone ?? null,
+        telefone: telefone ? normalizarTelefone(telefone) : null,
         email: email ?? null,
         fonte: fonte ?? "api",
         comoNosConheceu: comoNosConheceu ?? null,

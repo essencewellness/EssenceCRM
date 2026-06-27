@@ -127,10 +127,18 @@ export default async function ClientePage({ params }: ClientePageProps) {
     return `há ${Math.abs(diff)} dia${Math.abs(diff) === 1 ? "" : "s"}`
   }
 
+  const totalSessoesDisplay = cliente.sessoes.length
+  const proximaSessao = cliente.sessoes.find(s => s.estado === "agendada" && new Date(s.data) >= new Date())
+  const ultimaSessaoRealizada = cliente.sessoes.find(s => s.estado === "realizada")
+
   const statCards = [
-    { label: "Total de Sessões", value: cliente.totalSessoes.toString(), Icon: CalendarDays, color: "#b9a07a" },
+    { label: "Total de Sessões", value: totalSessoesDisplay.toString(), Icon: CalendarDays, color: "#b9a07a" },
     { label: "Total Gasto", value: formatCurrency(Number(cliente.totalGasto)), Icon: Wallet, color: "#a0a996" },
-    { label: "Última Sessão", value: diasRelativos(cliente.ultimaSessao), Icon: CalendarDays, color: "#b9a07a" },
+    {
+      label: proximaSessao ? "Próxima Sessão" : "Última Sessão",
+      value: proximaSessao ? diasRelativos(proximaSessao.data) : diasRelativos(cliente.ultimaSessao),
+      Icon: CalendarDays, color: "#b9a07a",
+    },
     { label: "Canal Preferido", value: canalLabel[cliente.canalPreferido] ?? cliente.canalPreferido, Icon: MessageSquare, color: "#a0a996" },
   ]
 
@@ -319,9 +327,10 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   </div>
                 </div>
 
-                {/* Última sessão */}
+                {/* Última/Próxima sessão */}
                 {cliente.sessoes.length > 0 && (() => {
                   const s = cliente.sessoes[0]
+                  const isProxima = s.estado === "agendada" && new Date(s.data) >= new Date()
                   return (
                     <div style={{
                       backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
@@ -335,7 +344,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                           fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
                           color: "var(--nuit-smoke)", textTransform: "uppercase",
                         }}>
-                          Última Sessão
+                          {isProxima ? "Próxima Sessão" : "Última Sessão"}
                         </h2>
                         <div style={{ marginLeft: "auto" }}>
                           {(() => {
@@ -413,7 +422,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                             fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)",
                             gridColumn: "1/-1",
                           }}>
-                            Sessão agendada — sem notas clínicas ainda
+                            Sessão ainda não realizada — notas clínicas disponíveis após a sessão
                           </p>
                         )}
                       </div>
