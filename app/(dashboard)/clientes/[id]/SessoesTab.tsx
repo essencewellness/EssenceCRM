@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { atualizarObservacoesSessao } from "./actions"
+import { atualizarObservacoesSessao, eliminarSessao } from "./actions"
 
 function safeUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined
@@ -11,7 +11,7 @@ function safeUrl(url: string | null | undefined): string | undefined {
   } catch {}
   return undefined
 }
-import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText } from "lucide-react"
+import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2 } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -134,6 +134,22 @@ interface Props {
 export function SessoesTab({ sessoes, clienteId }: Props) {
   const [sessaoAberta, setSessaoAberta] = useState<Sessao | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false)
+
+  function fecharDrawer() {
+    setSessaoAberta(null)
+    setConfirmarEliminar(false)
+  }
+
+  function apagarSessao() {
+    if (!sessaoAberta) return
+    const id = sessaoAberta.id
+    startTransition(async () => {
+      await eliminarSessao(id, clienteId)
+      setSessaoAberta(null)
+      setConfirmarEliminar(false)
+    })
+  }
 
   function mudarEstado(novoEstado: string) {
     if (!sessaoAberta || novoEstado === sessaoAberta.estado) return
@@ -236,14 +252,14 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
             backgroundColor: "rgba(22,26,38,0.4)",
             display: "flex", alignItems: "stretch", justifyContent: "flex-end",
           }}
-          onClick={(e) => { if (e.target === e.currentTarget) setSessaoAberta(null) }}
+          onClick={(e) => { if (e.target === e.currentTarget) fecharDrawer() }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="sessao-drawer-titulo"
             tabIndex={-1}
-            onKeyDown={(e) => { if (e.key === "Escape") setSessaoAberta(null) }}
+            onKeyDown={(e) => { if (e.key === "Escape") fecharDrawer() }}
             style={{
               backgroundColor: "var(--nuit-deep)",
               width: "100%", maxWidth: "500px",
@@ -303,16 +319,65 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                     {sessaoAberta.duracao ? ` · ${sessaoAberta.duracao} min` : ""}
                   </p>
                 </div>
-                <button
-                  onClick={() => setSessaoAberta(null)}
-                  aria-label="Fechar detalhe da sessão"
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    color: "var(--nuit-smoke)", padding: "4px", flexShrink: 0,
-                  }}
-                >
-                  <X size={18} />
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                  {!confirmarEliminar ? (
+                    <button
+                      onClick={() => setConfirmarEliminar(true)}
+                      aria-label="Eliminar sessão"
+                      title="Eliminar sessão"
+                      style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        color: "#b06050", padding: "4px", opacity: 0.7,
+                        transition: "opacity 0.15s",
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = "0.7")}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  ) : (
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "11px", color: "#b06050", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
+                        Eliminar?
+                      </span>
+                      <button
+                        onClick={apagarSessao}
+                        disabled={isPending}
+                        style={{
+                          padding: "4px 10px", fontSize: "10px", fontWeight: 700,
+                          fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
+                          background: "#b06050", color: "#fff", border: "none",
+                          borderRadius: "4px", cursor: "pointer",
+                          opacity: isPending ? 0.5 : 1,
+                        }}
+                      >
+                        Sim
+                      </button>
+                      <button
+                        onClick={() => setConfirmarEliminar(false)}
+                        style={{
+                          padding: "4px 10px", fontSize: "10px", fontWeight: 600,
+                          fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
+                          background: "transparent", color: "var(--nuit-smoke)",
+                          border: "1px solid rgba(212,184,134,0.22)", borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Não
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    onClick={fecharDrawer}
+                    aria-label="Fechar detalhe da sessão"
+                    style={{
+                      background: "none", border: "none", cursor: "pointer",
+                      color: "var(--nuit-smoke)", padding: "4px",
+                    }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
               </div>
             </div>
 

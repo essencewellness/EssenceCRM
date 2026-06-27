@@ -42,6 +42,34 @@ export async function eliminarCliente(clienteId: string, apagarSessoes = false) 
   redirect("/clientes")
 }
 
+// Apagamento DEFINITIVO de uma sessão (hard delete)
+export async function eliminarSessao(sessaoId: string, clienteId: string) {
+  const session = await auth()
+  if (!session?.user) throw new Error("Não autorizado")
+
+  const sessao = await prisma.sessao.findUnique({
+    where: { id: sessaoId },
+    select: { estado: true },
+  })
+  if (!sessao) throw new Error("Sessão não encontrada")
+
+  await prisma.sessao.delete({ where: { id: sessaoId } })
+
+  if (sessao.estado === "realizada") {
+    await recalcularMetricasCliente(prisma, clienteId)
+  }
+
+  auditar({
+    quem: session.user.email ?? "dashboard",
+    acao: "sessao.apagada_definitivo",
+    entidade: "Sessao",
+    entidadeId: sessaoId,
+  })
+
+  revalidatePath(`/clientes/${clienteId}`)
+  revalidatePath("/clientes")
+}
+
 // Atualizar estado/notas de uma sessão (SessoesTab)
 export async function atualizarObservacoesSessao(
   sessaoId: string,
