@@ -332,8 +332,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
                 {/* Última/Próxima sessão */}
                 {cliente.sessoes.length > 0 && (() => {
-                  const s = cliente.sessoes[0]
-                  const isProxima = s.estado === "agendada" && new Date(s.data) >= new Date()
+                  const s = proximaSessao ?? cliente.sessoes.find(s => s.estado === "realizada") ?? cliente.sessoes[0]
+                  const isProxima = s.estado === "agendada" && new Date(s.data) >= agora
                   return (
                     <div style={{
                       backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
