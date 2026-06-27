@@ -128,7 +128,10 @@ export default async function ClientePage({ params }: ClientePageProps) {
   }
 
   const totalSessoesDisplay = cliente.sessoes.length
-  const proximaSessao = cliente.sessoes.find(s => s.estado === "agendada" && new Date(s.data) >= new Date())
+  const agora = new Date()
+  const proximaSessao = [...cliente.sessoes]
+    .filter(s => s.estado === "agendada" && new Date(s.data) >= agora)
+    .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())[0] ?? null
   const ultimaSessaoRealizada = cliente.sessoes.find(s => s.estado === "realizada")
 
   const statCards = [
