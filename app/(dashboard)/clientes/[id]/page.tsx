@@ -204,6 +204,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 <DeleteClienteButton
                   clienteId={cliente.id}
                   primeiroNome={cliente.nome.split(" ")[0]}
+                  sessoesCount={cliente.sessoes.length}
                 />
               </div>
             </div>

@@ -7,18 +7,35 @@ import { eliminarCliente } from "./actions"
 interface Props {
   clienteId: string
   primeiroNome: string
+  sessoesCount: number
 }
 
-export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
+export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: Props) {
   const [aberto, setAberto] = useState(false)
   const [input, setInput] = useState("")
+  const [apagarSessoes, setApagarSessoes] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const confirmado = input.trim().toLowerCase() === primeiroNome.trim().toLowerCase()
+  const temSessoes = sessoesCount > 0
+  const nomeOk = input.trim().toLowerCase() === primeiroNome.trim().toLowerCase()
+  // Se há sessões, a caixa tem de estar marcada (a cascata apaga-as na mesma)
+  const confirmado = nomeOk && (!temSessoes || apagarSessoes)
+
+  function fechar() {
+    setAberto(false); setInput(""); setApagarSessoes(false); setErro(null)
+  }
 
   function handleApagar() {
     if (!confirmado) return
-    startTransition(() => eliminarCliente(clienteId))
+    setErro(null)
+    startTransition(async () => {
+      const res = await eliminarCliente(clienteId, apagarSessoes)
+      // Só regressa valor em caso de bloqueio (sucesso faz redirect)
+      if (res && !res.ok) {
+        setErro(`Este cliente tem ${res.sessoes} sessão(ões). Marca a opção para apagar tudo.`)
+      }
+    })
   }
 
   return (
@@ -50,8 +67,8 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "20px",
           }}
-          onClick={(e) => { if (e.target === e.currentTarget) { setAberto(false); setInput("") } }}
-          onKeyDown={(e) => { if (e.key === "Escape") { setAberto(false); setInput("") } }}
+          onClick={(e) => { if (e.target === e.currentTarget) fechar() }}
+          onKeyDown={(e) => { if (e.key === "Escape") fechar() }}
         >
           <div
             role="dialog"
@@ -76,7 +93,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
                 <Trash2 size={16} color="#b06050" />
               </div>
               <button
-                onClick={() => { setAberto(false); setInput("") }}
+                onClick={() => fechar()}
                 style={{ background: "none", border: "none", cursor: "pointer", color: "#9d9d9a", padding: "4px" }}
               >
                 <X size={16} />
@@ -96,7 +113,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
               fontSize: "13px", color: "var(--nuit-smoke)", lineHeight: 1.6,
               marginBottom: "20px",
             }}>
-              Esta ação é <strong>irreversível</strong>. Todas as sessões e mensagens associadas serão também eliminadas.
+              Esta ação é <strong>irreversível</strong> — o contacto é apagado definitivamente da base de dados.
             </p>
 
             {/* Confirmação por nome */}
@@ -129,10 +146,48 @@ export function DeleteClienteButton({ clienteId, primeiroNome }: Props) {
               />
             </div>
 
+            {/* Checkbox: apagar sessões (a cascata apaga-as na mesma) */}
+            {temSessoes && (
+              <label
+                htmlFor="apagar-sessoes"
+                style={{
+                  display: "flex", alignItems: "flex-start", gap: "10px",
+                  padding: "12px 14px", borderRadius: "8px",
+                  backgroundColor: "rgba(176,96,80,0.05)",
+                  border: `1px solid ${apagarSessoes ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
+                  marginBottom: "16px", cursor: "pointer", transition: "border-color 150ms",
+                }}
+              >
+                <input
+                  id="apagar-sessoes"
+                  type="checkbox"
+                  checked={apagarSessoes}
+                  onChange={(e) => setApagarSessoes(e.target.checked)}
+                  style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "#b06050", cursor: "pointer", flexShrink: 0 }}
+                />
+                <span style={{
+                  fontFamily: "var(--font-body, sans-serif)",
+                  fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+                }}>
+                  Apagar também as <strong>{sessoesCount} sessão(ões)</strong> deste cliente
+                </span>
+              </label>
+            )}
+
+            {/* Erro do servidor */}
+            {erro && (
+              <p style={{
+                fontFamily: "var(--font-body, sans-serif)",
+                fontSize: "12.5px", color: "#b06050", lineHeight: 1.5, marginBottom: "16px",
+              }}>
+                {erro}
+              </p>
+            )}
+
             {/* Botões */}
             <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
               <button
-                onClick={() => { setAberto(false); setInput("") }}
+                onClick={() => fechar()}
                 style={{
                   padding: "9px 18px", borderRadius: "8px",
                   backgroundColor: "transparent",

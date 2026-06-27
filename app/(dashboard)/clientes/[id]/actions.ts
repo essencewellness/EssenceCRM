@@ -7,21 +7,34 @@ import { auth } from "@/lib/auth"
 import { auditar } from "@/lib/audit"
 import { EstadoSessao, Prisma } from "@prisma/client"
 
-// Soft delete — preserva histórico clínico; apagamento RGPD definitivo é via API /rgpd
-export async function eliminarCliente(clienteId: string) {
+// Apagamento DEFINITIVO do cliente (hard delete). A cascata do schema remove
+// sessões, mensagens, etiquetas, observações, preços, packs e portal token.
+// Como Sessao.clienteId é obrigatório, apagar o cliente implica apagar as sessões:
+// se o cliente tiver sessões, exige-se confirmação explícita (apagarSessoes).
+export async function eliminarCliente(clienteId: string, apagarSessoes = false) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
 
-  await prisma.cliente.update({
+  const cliente = await prisma.cliente.findUnique({
     where: { id: clienteId },
-    data: { apagadoEm: new Date() },
+    select: { id: true, nome: true, _count: { select: { sessoes: true } } },
   })
+  if (!cliente) throw new Error("Cliente não encontrado")
+
+  // Se há sessões e não foi confirmado apagá-las, bloquear (a cascata removê-las-ia)
+  if (cliente._count.sessoes > 0 && !apagarSessoes) {
+    return { ok: false as const, motivo: "TEM_SESSOES" as const, sessoes: cliente._count.sessoes }
+  }
+
+  // Hard delete — onDelete: Cascade no schema remove tudo o que depende do cliente
+  await prisma.cliente.delete({ where: { id: clienteId } })
 
   auditar({
     quem: session.user.email ?? "dashboard",
-    acao: "cliente.apagado_soft",
+    acao: "cliente.apagado_definitivo",
     entidade: "Cliente",
     entidadeId: clienteId,
+    detalhe: { nome: cliente.nome, sessoesApagadas: cliente._count.sessoes },
   })
 
   revalidatePath("/clientes")
