@@ -173,10 +173,13 @@ model Cliente {
   // Histórico clínico — DADOS DE SAÚDE (RGPD Art. 9: categoria especial)
   historicoAromasPreferidos     String?
   historicoCondicoesAlergias    String?
-  historicoEstadoEmocional      String?
-  historicoZonasTensao          String?
+  historicoEstadoEmocional      String?   // deprecated: passa a ficar na Sessao
+  historicoZonasTensao          String?   // deprecated: passa a ficar na Sessao
   historicoUltimaPausa          String?
-  notasPessoais                 String?
+  notasPessoais                 String?   // deprecated: passa a ficar na Sessao
+
+  // Ficha clínica acumulativa gerada por IA (atualizada a cada onboarding)
+  fichaClinica                  String?
 
   // Preferências de contacto
   canalPreferido      Canal     @default(whatsapp)
@@ -229,12 +232,19 @@ model Sessao {
   preco       Decimal?  @db.Decimal(10, 2)
   terapeuta   String    @default("bea")
 
-  // Conteúdo clínico
+  // Conteúdo clínico (preenchido pela Bea no form pós-sessão)
   aromaSessao         String?
   estadoEmocional     String?
   resumoSessao        String?
   notasPosSessao      String?
   linkDocumento       String?
+
+  // Ficha de onboarding desta sessão (preenchida pela cliente antes da sessão)
+  fichaEstadoEmocional    String?
+  fichaZonasTensao        String?
+  fichaFoco               String?
+  fichaCondicoesAlergias  String?
+  fichaAromasPreferidos   String?
 
   // Terapeuta que realizou a sessão
   terapeutaId  String?

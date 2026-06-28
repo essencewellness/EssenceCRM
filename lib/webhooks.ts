@@ -85,6 +85,7 @@ export const webhooks = {
     condicoesAlergias?: string | null
     objetivo?: string | null
     voucherCodigo?: string | null
+    fichaClinicaAtual?: string | null  // ficha clínica anterior (contexto para o n8n/Groq gerar a nova)
   }) => dispararWebhook("onboarding.submetido", payload),
 
   servicoCriado: (payload: {

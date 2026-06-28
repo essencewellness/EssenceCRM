@@ -71,6 +71,12 @@ export async function POST(request: NextRequest) {
       created = true
     }
 
+    // Buscar fichaClinica atual antes de atualizar (contexto para o n8n gerar nova)
+    const clienteCompleto = await prisma.cliente.findFirst({
+      where: { id: cliente.id },
+      select: { fichaClinica: true },
+    })
+
     // Atualizar dados de identidade + consentimento de dados de saúde (RGPD Art. 9)
     await prisma.cliente.update({
       where: { id: cliente.id },
@@ -81,15 +87,10 @@ export async function POST(request: NextRequest) {
           ? { dataNascimento: new Date(dataNascimento) }
           : {}),
         ...(comoNosConheceu && !cliente.comoNosConheceu ? { comoNosConheceu } : {}),
-        // Submeter a ficha clínica com a checkbox marcada = consentimento explícito
         ...(consentimentoSaude ? { consentimentoSaudeEm: new Date() } : {}),
-        // Dados clínicos — só persistem com consentimento explícito (RGPD Art. 9)
+        // Dados permanentes no cliente (não mudam sessão a sessão)
         ...(consentimentoSaude && historicoCondicoesAlergias ? { historicoCondicoesAlergias } : {}),
-        ...(consentimentoSaude && historicoZonasTensao ? { historicoZonasTensao } : {}),
-        ...(consentimentoSaude && historicoEstadoEmocional ? { historicoEstadoEmocional } : {}),
         ...(consentimentoSaude && historicoAromasPreferidos ? { historicoAromasPreferidos } : {}),
-        ...(notasPessoais ? { notasPessoais } : {}),
-        // Consentimento de marketing explícito (quando o form o envia)
         ...(typeof aceitaMarketing === "boolean"
           ? {
               aceitaMarketing,
@@ -98,6 +99,27 @@ export async function POST(request: NextRequest) {
           : {}),
       },
     })
+
+    // Gravar dados específicos desta sessão na Sessao (snapshot do dia)
+    let sessao = null
+    if (sessaoId) {
+      sessao = await prisma.sessao.findFirst({
+        where: { id: sessaoId, apagadoEm: null },
+        select: { id: true, servico: true, data: true, hora: true },
+      })
+      if (sessao && consentimentoSaude) {
+        await prisma.sessao.update({
+          where: { id: sessao.id },
+          data: {
+            ...(historicoEstadoEmocional ? { fichaEstadoEmocional: historicoEstadoEmocional } : {}),
+            ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
+            ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),
+            ...(historicoCondicoesAlergias ? { fichaCondicoesAlergias: historicoCondicoesAlergias } : {}),
+            ...(historicoAromasPreferidos ? { fichaAromasPreferidos: historicoAromasPreferidos } : {}),
+          },
+        })
+      }
+    }
 
     auditar({
       quem: "publico",
@@ -108,16 +130,7 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Obter dados da sessão para o webhook (sem actualizar — OnboardingB trata disso)
-    let sessao = null
-    if (sessaoId) {
-      sessao = await prisma.sessao.findFirst({
-        where: { id: sessaoId, apagadoEm: null },
-        select: { id: true, servico: true, data: true, hora: true },
-      })
-    }
-
-    // Disparar webhook (sempre — não apenas para clientes novas)
+    // Disparar webhook — inclui fichaClinicaAtual para o n8n/Groq gerar o resumo atualizado
     void webhooks.onboardingSubmetido({
       clienteId: cliente.id,
       sessaoId: sessaoId ?? null,
@@ -133,6 +146,7 @@ export async function POST(request: NextRequest) {
       condicoesAlergias: historicoCondicoesAlergias ?? null,
       objetivo: notasPessoais ?? null,
       voucherCodigo: voucherCodigo ?? null,
+      fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
     })
 
     // Notificar N8N também se for cliente nova

@@ -331,57 +331,40 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   </div>
                 </div>
 
-                {/* Ficha Clínica — preenchida pela cliente no onboarding */}
-                {(() => {
-                  const ficha = [
-                    { label: "Condições / Alergias", value: cliente.historicoCondicoesAlergias },
-                    { label: "Zonas de Tensão", value: cliente.historicoZonasTensao },
-                    { label: "Estado Emocional", value: cliente.historicoEstadoEmocional },
-                    { label: "Aromas Preferidos", value: cliente.historicoAromasPreferidos },
-                    { label: "Foco / Objetivo da Sessão", value: cliente.notasPessoais },
-                  ].filter((f) => f.value)
-                  return (
-                    <div style={{
-                      backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
-                      border: "1px solid rgba(212,184,134,0.16)", padding: "24px", marginTop: "12px",
-                      boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
+                {/* Ficha Clínica — resumo acumulativo gerado por IA (N8N + Groq) */}
+                <div style={{
+                  backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
+                  border: "1px solid rgba(212,184,134,0.16)", padding: "24px", marginTop: "12px",
+                  boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
+                    <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
+                    <h2 style={{
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+                      color: "var(--nuit-smoke)", textTransform: "uppercase",
                     }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
-                        <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                        <h2 style={{
-                          fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-                          color: "var(--nuit-smoke)", textTransform: "uppercase",
-                        }}>
-                          Ficha Clínica
-                        </h2>
-                        {cliente.consentimentoSaudeEm && (
-                          <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)" }}>
-                            Recebida {formatDate(cliente.consentimentoSaudeEm)}
-                          </span>
-                        )}
-                      </div>
-                      {ficha.length === 0 ? (
-                        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)" }}>
-                          A cliente ainda não preencheu a ficha de onboarding.
-                        </p>
-                      ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "12px" }}>
-                          {ficha.map(({ label, value }) => (
-                            <div key={label} style={{
-                              padding: "12px 14px", borderRadius: "8px",
-                              backgroundColor: "rgba(185,160,122,0.04)", border: "1px solid rgba(185,160,122,0.15)",
-                              gridColumn: label === "Foco / Objetivo da Sessão" ? "1/-1" : undefined,
-                            }}>
-                              <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#b9a07a", textTransform: "uppercase", marginBottom: "4px" }}>{label}</p>
-                              <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })()}
+                      Ficha Clínica
+                    </h2>
+                    {cliente.consentimentoSaudeEm && (
+                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)" }}>
+                        Atualizada {formatDate(cliente.consentimentoSaudeEm)}
+                      </span>
+                    )}
+                  </div>
+                  {cliente.fichaClinica ? (
+                    <p style={{
+                      fontFamily: "var(--font-body)", fontSize: "14px", color: "var(--nuit-bone-soft)",
+                      lineHeight: 1.8, whiteSpace: "pre-wrap",
+                    }}>
+                      {cliente.fichaClinica}
+                    </p>
+                  ) : (
+                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)" }}>
+                      A ficha clínica é gerada automaticamente após a cliente preencher o formulário de onboarding.
+                    </p>
+                  )}
+                </div>
 
                 {/* Última/Próxima sessão */}
                 {cliente.sessoes.length > 0 && (() => {

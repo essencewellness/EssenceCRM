@@ -32,6 +32,12 @@ type Sessao = {
   estado: string
   dataRecomendadaRegresso: Date | string | null
   criadoEm: Date | string
+  // Ficha preenchida pela cliente no onboarding desta sessão
+  fichaEstadoEmocional: string | null
+  fichaZonasTensao: string | null
+  fichaFoco: string | null
+  fichaCondicoesAlergias: string | null
+  fichaAromasPreferidos: string | null
 }
 
 function SessaoEstadoBadge({ estado }: { estado: string }) {
@@ -402,7 +408,31 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                 )}
               </div>
 
-              {/* Estado emocional */}
+              {/* Ficha da cliente (preenchida no onboarding) */}
+              {(sessaoAberta.fichaEstadoEmocional || sessaoAberta.fichaZonasTensao || sessaoAberta.fichaFoco || sessaoAberta.fichaCondicoesAlergias || sessaoAberta.fichaAromasPreferidos) && (
+                <div style={{
+                  borderRadius: "10px", border: "1px solid rgba(185,160,122,0.25)",
+                  padding: "16px", marginBottom: "20px",
+                  backgroundColor: "rgba(185,160,122,0.04)",
+                }}>
+                  <p style={{
+                    fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                    letterSpacing: "0.18em", color: "#b9a07a", textTransform: "uppercase",
+                    marginBottom: "14px",
+                  }}>
+                    Ficha preenchida pela cliente
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {sessaoAberta.fichaEstadoEmocional && <DetailItem label="Estado emocional / mente" value={sessaoAberta.fichaEstadoEmocional} />}
+                    {sessaoAberta.fichaZonasTensao && <DetailItem label="Zonas de tensão" value={sessaoAberta.fichaZonasTensao} />}
+                    {sessaoAberta.fichaCondicoesAlergias && <DetailItem label="Condições / alergias" value={sessaoAberta.fichaCondicoesAlergias} />}
+                    {sessaoAberta.fichaAromasPreferidos && <DetailItem label="Aromas preferidos" value={sessaoAberta.fichaAromasPreferidos} />}
+                    {sessaoAberta.fichaFoco && <DetailItem label="Foco / objetivo da sessão" value={sessaoAberta.fichaFoco} />}
+                  </div>
+                </div>
+              )}
+
+              {/* Estado emocional (Bea) */}
               {sessaoAberta.estadoEmocional && (
                 <DetailBlock
                   title="Estado Emocional"
@@ -433,7 +463,8 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
               )}
 
               {/* Sem notas */}
-              {!sessaoAberta.estadoEmocional && !sessaoAberta.resumoSessao && !sessaoAberta.notasPosSessao && (
+              {!sessaoAberta.fichaEstadoEmocional && !sessaoAberta.fichaZonasTensao && !sessaoAberta.fichaFoco
+                && !sessaoAberta.estadoEmocional && !sessaoAberta.resumoSessao && !sessaoAberta.notasPosSessao && (
                 <div style={{
                   textAlign: "center", padding: "32px",
                   backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",

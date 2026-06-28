@@ -58,6 +58,7 @@ export const clienteUpdateSchema = z.object({
   historicoZonasTensao: textoOpcional,
   historicoUltimaPausa: textoOpcional,
   notasPessoais: textoOpcional,
+  fichaClinica: textoOpcional,
   canalPreferido: z.enum(CANAIS).optional(),
   temWhatsapp: z.boolean().optional(),
   aceitaMarketing: z.boolean().optional(),
