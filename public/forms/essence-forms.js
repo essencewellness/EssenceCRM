@@ -207,6 +207,25 @@
 
   window.EF = { CTX, PERSONAL, chips, chip1, chipsCom, val, goTo, next, back };
 
+  // ── Aviso de tratamento de dados (consentimento implícito no envio) ──
+  (function injetarAvisoRGPD() {
+    const btn = document.querySelector("[data-submit]");
+    if (!btn || document.getElementById("aviso-rgpd")) return;
+    const p = document.createElement("p");
+    p.id = "aviso-rgpd";
+    p.style.cssText =
+      "margin:10px auto 0;max-width:340px;text-align:center;" +
+      "font-size:10px;line-height:1.4;color:rgba(157,157,154,0.55);";
+    const a = document.createElement("a");
+    a.href = "https://essencewellnesspt.com/privacidade/";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Política de Privacidade";
+    a.style.cssText = "color:inherit;text-decoration:underline;";
+    p.append("Ao enviar, aceitas que tratamos os teus dados para preparar a tua sessão. ", a);
+    btn.insertAdjacentElement("afterend", p);
+  })();
+
   // ── Submissão ─────────────────────────────────────────────────
   async function submeter() {
     const btn = document.querySelector("[data-submit]");
@@ -230,6 +249,10 @@
     payload.website = hp ? hp.value : "";
     if (CTX.clienteId) payload.clienteId = CTX.clienteId;
     if (CTX.sessaoId)  payload.sessaoId = CTX.sessaoId;
+    // Consentimento implícito: ao enviar, a cliente aceita o tratamento dos
+    // dados de saúde (aviso visível por baixo do botão). Sem esta flag, a API
+    // descarta toda a ficha clínica (RGPD Art. 9).
+    payload.consentimentoSaude = true;
 
     try {
       const res = await fetch(API_BASE + "/api/v1/public/onboarding", {
