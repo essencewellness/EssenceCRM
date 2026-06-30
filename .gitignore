@@ -54,3 +54,4 @@ clientes_backup.txt
 CREDENCIAIS-PRIVADAS.local.md
 
 .env*
+.vercel

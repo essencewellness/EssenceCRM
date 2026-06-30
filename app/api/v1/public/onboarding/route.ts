@@ -2,7 +2,10 @@
 // Sem autenticação — recebe dados do formulário HTML antes da primeira sessão
 // Aceita clienteId + sessaoId quando o link é personalizado (sem precisar de email)
 // Proteções: rate limit, Zod estrito, honeypot, registo de consentimento RGPD.
-import { NextRequest, NextResponse } from "next/server"
+// fra1 = Frankfurt — mesmo datacenter que o n8n (Hetzner), evita bloqueio transatlântico
+export const preferredRegion = "fra1"
+
+import { NextRequest, NextResponse, after } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { onboardingPublicSchema, validarBody } from "@/lib/validations"
@@ -130,35 +133,36 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Disparar webhook — inclui fichaClinicaAtual para o n8n/Groq gerar o resumo atualizado
-    void webhooks.onboardingSubmetido({
-      clienteId: cliente.id,
-      sessaoId: sessaoId ?? null,
-      nomeCliente: cliente.nome,
-      email: cliente.email,
-      telefone: cliente.telefone,
-      servico: sessao?.servico ?? null,
-      sessaoData: sessao?.data?.toISOString() ?? null,
-      sessaoHora: sessao?.hora ?? null,
-      aroma: historicoAromasPreferidos ?? null,
-      estadoEmocional: historicoEstadoEmocional ?? null,
-      zonasTensao: historicoZonasTensao ?? null,
-      condicoesAlergias: historicoCondicoesAlergias ?? null,
-      objetivo: notasPessoais ?? null,
-      voucherCodigo: voucherCodigo ?? null,
-      fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
-    })
-
-    // Notificar N8N também se for cliente nova
-    if (created) {
-      void webhooks.leadCriado({
+    // Disparar webhook após resposta — after() garante execução mesmo em serverless
+    after(async () => {
+      await webhooks.onboardingSubmetido({
         clienteId: cliente.id,
+        sessaoId: sessaoId ?? null,
         nomeCliente: cliente.nome,
         email: cliente.email,
         telefone: cliente.telefone,
-        servicoInteresse: "onboarding",
+        servico: sessao?.servico ?? null,
+        sessaoData: sessao?.data?.toISOString() ?? null,
+        sessaoHora: sessao?.hora ?? null,
+        aroma: historicoAromasPreferidos ?? null,
+        estadoEmocional: historicoEstadoEmocional ?? null,
+        zonasTensao: historicoZonasTensao ?? null,
+        condicoesAlergias: historicoCondicoesAlergias ?? null,
+        objetivo: notasPessoais ?? null,
+        voucherCodigo: voucherCodigo ?? null,
+        fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
       })
-    }
+
+      if (created) {
+        await webhooks.leadCriado({
+          clienteId: cliente.id,
+          nomeCliente: cliente.nome,
+          email: cliente.email,
+          telefone: cliente.telefone,
+          servicoInteresse: "onboarding",
+        })
+      }
+    })
 
     return NextResponse.json({ clienteId: cliente.id, sessaoId: sessaoId ?? null, created })
   } catch (error) {
