@@ -16,6 +16,7 @@ async function dispararWebhook(evento: string, payload: object): Promise<void> {
   const secret = process.env.WEBHOOK_SECRET ?? ""
   const body = JSON.stringify({ evento, payload, timestamp: new Date().toISOString() })
 
+  console.log(`[webhooks] a disparar ${evento} → ${url}`)
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     try {
       const res = await fetch(url, {
@@ -28,9 +29,13 @@ async function dispararWebhook(evento: string, payload: object): Promise<void> {
         body,
         signal: AbortSignal.timeout(5000),
       })
-      if (res.ok) return
-    } catch {
-      // Ignorar — não bloquear resposta ao utilizador
+      if (res.ok) {
+        console.log(`[webhooks] ${evento} enviado com sucesso (tentativa ${tentativa + 1})`)
+        return
+      }
+      console.error(`[webhooks] ${evento} HTTP ${res.status} (tentativa ${tentativa + 1})`)
+    } catch (err) {
+      console.error(`[webhooks] ${evento} erro tentativa ${tentativa + 1}:`, (err as Error).message)
     }
     // backoff simples entre tentativas (1s, 2s)
     if (tentativa < 2) await new Promise((r) => setTimeout(r, (tentativa + 1) * 1000))
