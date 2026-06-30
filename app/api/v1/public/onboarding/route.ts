@@ -15,7 +15,7 @@ import { auditar } from "@/lib/audit"
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
     recurso: "onboarding",
-    limite: 10,
+    limite: 30,
     janelaSeg: 3600,
   })
   if (bloqueio) return bloqueio
