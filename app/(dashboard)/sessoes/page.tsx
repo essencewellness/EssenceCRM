@@ -32,6 +32,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
   const whereBase: Prisma.SessaoWhereInput = {
     apagadoEm: null,
+    cliente: { apagadoEm: null },
     ...filtroSessao,
   };
 
@@ -55,7 +56,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
     }),
     prisma.sessao.groupBy({
       by: ["estado"],
-      where: { apagadoEm: null, ...filtroSessao },
+      where: { apagadoEm: null, cliente: { apagadoEm: null }, ...filtroSessao },
       _count: { estado: true },
     }),
   ]);
