@@ -211,8 +211,12 @@ export const leadPublicSchema = z.object({
   servico_interesse: z.string().trim().max(120).optional().nullable(),
   como_nos_conheceu: z.string().trim().max(120).optional().nullable(),
   consentimento_marketing: z.boolean().optional(),
-  // Honeypot anti-bot: campo invisível no form — se vier preenchido, é bot
-  website: z.string().max(0).optional(),
+  // Honeypot anti-bot: campo invisível no form — se vier preenchido, é bot.
+  // Sem limite de tamanho aqui: a decisão de tratar como bot é feita na rota
+  // (if (website) ...), não no schema — um .max(0) rejeitava com 400 antes
+  // de essa lógica correr, incluindo para utilizadoras reais cujo browser/
+  // gestor de passwords preenche campos escondidos por nome ("website").
+  website: z.string().max(500).optional(),
 }).strict()
 
 export const onboardingPublicSchema = z.object({
@@ -231,7 +235,8 @@ export const onboardingPublicSchema = z.object({
   voucherCodigo: z.string().trim().max(40).optional().nullable(),
   consentimentoSaude: z.boolean().optional(),
   aceitaMarketing: z.boolean().optional(),
-  website: z.string().max(0).optional(), // honeypot
+  // honeypot: sem limite de tamanho — ver comentário equivalente em leadPublicSchema
+  website: z.string().max(500).optional(),
 }).strict()
 
 // ── Serviços ──────────────────────────────────────────────────
