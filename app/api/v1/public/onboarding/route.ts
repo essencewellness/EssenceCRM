@@ -133,9 +133,8 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Disparar webhook de forma síncrona (diagnóstico: after() não funciona no plano Hobby)
-    console.log("[onboarding] a disparar webhook para clienteId:", cliente.id)
-    try {
+    // Disparar webhook após resposta — after() garante execução mesmo em serverless
+    after(async () => {
       await webhooks.onboardingSubmetido({
         clienteId: cliente.id,
         sessaoId: sessaoId ?? null,
@@ -153,13 +152,8 @@ export async function POST(request: NextRequest) {
         voucherCodigo: voucherCodigo ?? null,
         fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
       })
-      console.log("[onboarding] webhook onboardingSubmetido concluído")
-    } catch (e) {
-      console.error("[onboarding] webhook falhou:", (e as Error).message)
-    }
 
-    if (created) {
-      try {
+      if (created) {
         await webhooks.leadCriado({
           clienteId: cliente.id,
           nomeCliente: cliente.nome,
@@ -167,10 +161,8 @@ export async function POST(request: NextRequest) {
           telefone: cliente.telefone,
           servicoInteresse: "onboarding",
         })
-      } catch (e) {
-        console.error("[onboarding] leadCriado falhou:", (e as Error).message)
       }
-    }
+    })
 
     return NextResponse.json({ clienteId: cliente.id, sessaoId: sessaoId ?? null, created })
   } catch (error) {
