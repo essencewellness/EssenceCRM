@@ -107,9 +107,19 @@
       <div class="fg">
         <span class="slabel">Estás grávida ou a tentar engravidar?</span>
         <div class="chips" id="chips-gravidez">
-          <div class="chip single" data-value="Não">Não</div>
-          <div class="chip single" data-value="Grávida">Sim, grávida</div>
-          <div class="chip single" data-value="A tentar engravidar">A tentar engravidar</div>
+          <div class="chip single" data-reveal="bloco-semanas-gravidez" data-reveal-value="nao">Não</div>
+          <div class="chip single" data-reveal="bloco-semanas-gravidez" data-reveal-value="sim">Sim, grávida</div>
+          <div class="chip single" data-reveal="bloco-semanas-gravidez" data-reveal-value="nao">A tentar engravidar</div>
+        </div>
+        <div class="reveal-block" id="bloco-semanas-gravidez">
+          <div class="fg" style="margin-bottom:0">
+            <div class="fl" id="fl-semanas-gravidez">
+              <input type="text" id="semanas-gravidez-input" inputmode="numeric" maxlength="2" placeholder=" ">
+              <label for="semanas-gravidez-input">De quantas semanas estás?</label>
+            </div>
+            <div class="f-err" id="err-semanas-gravidez">Por favor, indica de quantas semanas estás.</div>
+            <div class="f-hint">A técnica de drenagem varia consoante o trimestre — ajuda-nos a preparar a sessão em segurança.</div>
+          </div>
         </div>
       </div>
 
@@ -156,12 +166,24 @@
 
     const motivo = EF.chipsCom("chips-motivo", "outra-motivo-input", "Outro").join(", ");
     const gravidez = EF.chip1("chips-gravidez");
+    const semanasGravidez = EF.val("semanas-gravidez-input");
+
+    if (gravidez === "Sim, grávida" && !semanasGravidez) {
+      document.getElementById("fl-semanas-gravidez")?.classList.add("has-err");
+      document.getElementById("semanas-gravidez-input")?.classList.add("err");
+      document.getElementById("err-semanas-gravidez")?.classList.add("show");
+      throw { focusEl: document.getElementById("semanas-gravidez-input") };
+    }
+
+    const gravidezTxt = gravidez === "Sim, grávida" && semanasGravidez
+      ? `Gravidez: Grávida (${semanasGravidez} semanas)`
+      : gravidez ? "Gravidez: " + gravidez : "";
 
     const redflagOn = document.getElementById("bloco-redflag")?.classList.contains("show");
     const redflagTxt = EF.val("redflag-input");
 
     const condAlerg = [
-      gravidez ? "Gravidez: " + gravidez : "",
+      gravidezTxt,
       redflagOn
         ? "⚠️ A CONFIRMAR antes da sessão: " + (redflagTxt || "(situação assinalada sem detalhe)")
         : "Sem contraindicações assinaladas no formulário",
