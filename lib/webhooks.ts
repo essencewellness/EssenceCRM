@@ -10,7 +10,10 @@ function assinarPayload(body: string, secret: string): string {
 
 async function dispararWebhook(evento: string, payload: object): Promise<void> {
   const chaveEnv = `WEBHOOK_N8N_${evento.toUpperCase().replace(/\./g, "_")}`
-  const url = process.env[chaveEnv]
+  // trim + remoção de BOM: variáveis de ambiente coladas de ficheiros Windows
+  // por vezes trazem um caractere invisível (U+FEFF) que faz o fetch() falhar
+  // com "Failed to parse URL" sem qualquer pista no erro.
+  const url = process.env[chaveEnv]?.trim().replace(/^﻿/, "")
   if (!url) return // webhook não configurado — silencioso
 
   const secret = process.env.WEBHOOK_SECRET ?? ""
