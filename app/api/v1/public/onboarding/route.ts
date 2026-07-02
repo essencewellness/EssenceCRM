@@ -74,12 +74,6 @@ export async function POST(request: NextRequest) {
       created = true
     }
 
-    // Buscar fichaClinica atual antes de atualizar (contexto para o n8n gerar nova)
-    const clienteCompleto = await prisma.cliente.findFirst({
-      where: { id: cliente.id },
-      select: { fichaClinica: true },
-    })
-
     // Atualizar dados de identidade + consentimento de dados de saúde (RGPD Art. 9)
     await prisma.cliente.update({
       where: { id: cliente.id },
@@ -100,6 +94,18 @@ export async function POST(request: NextRequest) {
               ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
             }
           : {}),
+      },
+    })
+
+    // Buscar perfil completo já atualizado — contexto extra para o n8n/Groq
+    const clienteCompleto = await prisma.cliente.findFirst({
+      where: { id: cliente.id },
+      select: {
+        fichaClinica: true,
+        dataNascimento: true,
+        totalSessoes: true,
+        historicoCondicoesAlergias: true,
+        historicoAromasPreferidos: true,
       },
     })
 
@@ -151,6 +157,10 @@ export async function POST(request: NextRequest) {
         objetivo: notasPessoais ?? null,
         voucherCodigo: voucherCodigo ?? null,
         fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
+        clienteDataNascimento: clienteCompleto?.dataNascimento?.toISOString() ?? null,
+        clienteTotalSessoes: clienteCompleto?.totalSessoes ?? null,
+        clienteHistoricoCondicoesAlergias: clienteCompleto?.historicoCondicoesAlergias ?? null,
+        clienteHistoricoAromasPreferidos: clienteCompleto?.historicoAromasPreferidos ?? null,
       })
 
       if (created) {

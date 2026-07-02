@@ -94,6 +94,11 @@ export const webhooks = {
     objetivo?: string | null
     voucherCodigo?: string | null
     fichaClinicaAtual?: string | null  // ficha clínica anterior (contexto para o n8n/Groq gerar a nova)
+    // Perfil permanente da cliente — contexto extra para a IA gerar a recomendação
+    clienteDataNascimento?: string | null
+    clienteTotalSessoes?: number | null
+    clienteHistoricoCondicoesAlergias?: string | null
+    clienteHistoricoAromasPreferidos?: string | null
   }) => dispararWebhook("onboarding.submetido", payload),
 
   servicoCriado: (payload: {
