@@ -25,14 +25,20 @@ export async function GET(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, servico: true, data: true, hora: true, duracao: true, preco: true,
-      cliente: { select: { nome: true, telefone: true } },
+      clienteId: true,
+      cliente: {
+        select: {
+          nome: true, telefone: true, totalSessoes: true, criadoEm: true,
+          terapeutaPrincipal: { select: { id: true, name: true } },
+        },
+      },
     },
   })
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
 
-  const [terapeutas, servicoCatalogo] = await Promise.all([
+  const [terapeutas, servicoCatalogo, sessoesAnteriores, notas] = await Promise.all([
     prisma.user.findMany({
       where: { ativo: true, role: "terapeuta" },
       select: { id: true, name: true },
@@ -41,16 +47,32 @@ export async function GET(request: NextRequest) {
     sessao.servico
       ? prisma.servico.findFirst({ where: { nome: sessao.servico }, select: { precoBase: true } })
       : null,
+    prisma.sessao.count({
+      where: { clienteId: sessao.clienteId, apagadoEm: null, id: { not: sessao.id } },
+    }),
+    prisma.observacao.findMany({
+      where: { clienteId: sessao.clienteId },
+      select: { texto: true, autor: true, criadoEm: true },
+      orderBy: { criadoEm: "desc" },
+      take: 5,
+    }),
   ])
 
   return NextResponse.json({
-    cliente: { nome: sessao.cliente.nome, telefone: sessao.cliente.telefone },
+    cliente: {
+      nome: sessao.cliente.nome,
+      telefone: sessao.cliente.telefone,
+      primeiraVisita: sessoesAnteriores === 0,
+      totalSessoesAnteriores: sessoesAnteriores,
+      terapeutaHabitual: sessao.cliente.terapeutaPrincipal,
+    },
     sessao: {
       servico: sessao.servico, data: sessao.data, hora: sessao.hora, duracao: sessao.duracao,
       precoAtual: sessao.preco,
     },
     precoBase: servicoCatalogo?.precoBase ?? sessao.preco ?? null,
     terapeutas,
+    notas,
   })
 }
 
