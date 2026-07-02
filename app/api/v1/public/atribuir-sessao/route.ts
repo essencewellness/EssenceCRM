@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
   try {
     const sessao = await prisma.sessao.findFirst({
       where: { id: sessaoId, apagadoEm: null },
-      select: { id: true, clienteId: true },
+      select: { id: true, clienteId: true, cliente: { select: { terapeutaPrincipalId: true } } },
     })
     if (!sessao) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
@@ -98,6 +98,14 @@ export async function POST(request: NextRequest) {
         preco,
       },
     })
+
+    // Se a cliente ainda não tem terapeuta principal, esta atribuição define-a
+    if (!sessao.cliente.terapeutaPrincipalId) {
+      await prisma.cliente.update({
+        where: { id: sessao.clienteId },
+        data: { terapeutaPrincipalId: terapeuta.id },
+      })
+    }
 
     if (nota) {
       await prisma.observacao.create({
