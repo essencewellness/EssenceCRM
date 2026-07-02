@@ -262,6 +262,9 @@ model Sessao {
   nutricao7dEnviado    Boolean   @default(false)
   googleDocLink        String?
 
+  // Ficha de sessão para a terapeuta — relatório clínico estruturado (Groq), gerado 24h antes
+  briefingJson         Json?
+
   // Catálogo de serviços (FK opcional — retrocompatível com sessões antigas)
   servicoId        String?
   // Idempotência Calendly — UUID único do evento, impede sessões duplicadas

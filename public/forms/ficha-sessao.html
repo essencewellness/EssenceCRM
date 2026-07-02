@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — Ficha de Sessão</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./essence-forms.css">
+  <style>
+    .state-msg { text-align: center; padding: 60px 24px; font-family: 'Libre Baskerville', serif; font-style: italic; color: var(--smoke); }
+
+    .booking-card {
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 6px; padding: 16px 18px; margin-bottom: 28px;
+    }
+    .booking-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+    .booking-row span:first-child { color: var(--smoke); }
+    .booking-row span:last-child { color: var(--bone); font-weight: 500; text-align: right; }
+
+    .visita-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 100px; font-family: 'Montserrat', sans-serif; font-size: 10px;
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 18px;
+      background: rgba(212,184,134,0.1); color: var(--champagne); border: 1px solid var(--border-input);
+    }
+
+    .alerta-box {
+      border-left: 2px solid var(--terra);
+      background: rgba(176,96,80,0.08);
+      color: var(--terra);
+      padding: 14px 16px;
+      font-size: 13.5px; line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .alerta-box strong { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+
+    .ficha-section { margin-bottom: 26px; }
+    .ficha-section-titulo {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne-soft);
+      margin-bottom: 10px;
+    }
+    .ficha-section-corpo { font-size: 14px; line-height: 1.75; color: var(--bone-soft); }
+
+    .zona-item {
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 6px; padding: 12px 16px; margin-bottom: 10px;
+    }
+    .zona-nome { font-family: 'Libre Baskerville', serif; font-size: 15px; color: var(--bone); margin-bottom: 4px; }
+    .zona-meta { font-size: 11.5px; color: var(--smoke); margin-bottom: 6px; }
+    .zona-meta strong { color: var(--champagne-soft); font-weight: 600; }
+    .zona-abordagem { font-size: 13px; color: var(--bone-soft); line-height: 1.6; }
+
+    .recomendacao-item {
+      display: flex; gap: 10px; margin-bottom: 10px; font-size: 13.5px; line-height: 1.6; color: var(--bone-soft);
+    }
+    .recomendacao-num {
+      flex-shrink: 0; font-family: 'Libre Baskerville', serif; font-style: italic;
+      color: var(--champagne); font-size: 14px;
+    }
+
+    .btn-print {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 16px 24px; margin-top: 8px;
+      background: transparent; color: var(--champagne);
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      border: 1px solid var(--border-input); border-radius: 2px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-print:hover { background: var(--overlay); }
+
+    @media print {
+      body { background: #fff !important; }
+      .header::before, .header::after { display: none !important; }
+      .btn-print { display: none !important; }
+      .card { box-shadow: none !important; border: none !important; }
+      .header, .form-body, .footer { background: #fff !important; }
+      .header-name, .heading em, .ficha-section-titulo, .zona-meta strong, .recomendacao-num { color: #8a6f42 !important; }
+      .header-title, .heading, .zona-nome { color: #1a1a1a !important; }
+      .ficha-section-corpo, .zona-abordagem, .recomendacao-item, .booking-row span:last-child, .desc { color: #333 !important; }
+      .booking-row span:first-child, .zona-meta, .smoke { color: #666 !important; }
+      .booking-card, .zona-item { background: #f7f5f0 !important; border-color: #ddd !important; }
+      .alerta-box { background: #fdeeec !important; border-left-color: #b06050 !important; color: #8a3c2e !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title">Ficha de <em>Sessão</em></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-body">
+    <div id="loading" class="state-msg">A carregar a ficha…</div>
+    <div id="erro-carregar" class="state-msg" style="display:none;">Ainda não há ficha disponível para esta sessão. Verifica o link ou tenta mais tarde.</div>
+
+    <div id="ficha" style="display:none;">
+      <div id="visita-badge"></div>
+      <div class="booking-card" id="booking-card"></div>
+
+      <div id="alerta-box"></div>
+
+      <div class="ficha-section" id="sec-resumo" style="display:none;">
+        <div class="ficha-section-titulo">Resumo da cliente</div>
+        <div class="ficha-section-corpo" id="resumo-corpo"></div>
+      </div>
+
+      <div class="ficha-section" id="sec-objetivo" style="display:none;">
+        <div class="ficha-section-titulo">Objetivo da sessão</div>
+        <div class="ficha-section-corpo" id="objetivo-corpo"></div>
+      </div>
+
+      <div class="ficha-section" id="sec-continuidade" style="display:none;">
+        <div class="ficha-section-titulo">Continuidade com sessão anterior</div>
+        <div class="ficha-section-corpo" id="continuidade-corpo"></div>
+      </div>
+
+      <div class="ficha-section" id="sec-mapa" style="display:none;">
+        <div class="ficha-section-titulo">Mapa corporal de foco</div>
+        <div id="mapa-corpo"></div>
+      </div>
+
+      <div class="ficha-section" id="sec-recomendacoes" style="display:none;">
+        <div class="ficha-section-titulo">Recomendações</div>
+        <div id="recomendacoes-corpo"></div>
+      </div>
+
+      <div class="ficha-section" id="sec-nota" style="display:none;">
+        <div class="ficha-section-titulo">Nota para próxima visita</div>
+        <div class="ficha-section-corpo" id="nota-corpo" style="font-style: italic;"></div>
+      </div>
+
+      <button type="button" class="btn-print" id="btn-print">Imprimir / Guardar PDF ✦</button>
+    </div>
+  </div>
+
+  <footer class="footer">Essence Wellness — uso interno.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
+  const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+
+  const elLoading = document.getElementById("loading");
+  const elErro = document.getElementById("erro-carregar");
+  const elFicha = document.getElementById("ficha");
+
+  function formatarData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-PT", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  function preencherTexto(id, valor) {
+    const el = document.getElementById(id);
+    el.textContent = valor;
+  }
+
+  function mostrarSeccao(secId, temConteudo) {
+    document.getElementById(secId).style.display = temConteudo ? "block" : "none";
+  }
+
+  async function carregar() {
+    if (!sessaoId) {
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/ficha-sessao?sessaoId=${encodeURIComponent(sessaoId)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      const b = data.briefing;
+
+      const visitaBadge = document.getElementById("visita-badge");
+      visitaBadge.replaceChildren();
+      if (b.tipo_cliente) {
+        const badge = document.createElement("span");
+        badge.className = "visita-badge";
+        const jaMencionaVisita = /visita/i.test(b.tipo_cliente);
+        badge.textContent = `${b.tipo_cliente}${!jaMencionaVisita && b.contagem_visitas ? " · " + b.contagem_visitas + "ª visita" : ""}`;
+        visitaBadge.appendChild(badge);
+      }
+
+      const bookingCard = document.getElementById("booking-card");
+      bookingCard.replaceChildren();
+      const rows = [
+        ["Cliente", data.cliente.nome],
+        ["Serviço", data.sessao.servico || "—"],
+        ["Data", data.sessao.data ? formatarData(data.sessao.data) : "—"],
+        ["Hora", data.sessao.hora || "—"],
+      ];
+      rows.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "booking-row";
+        const l = document.createElement("span");
+        l.textContent = label;
+        const v = document.createElement("span");
+        v.textContent = value;
+        row.append(l, v);
+        bookingCard.appendChild(row);
+      });
+
+      const alertaBox = document.getElementById("alerta-box");
+      alertaBox.replaceChildren();
+      if (b.alertas) {
+        const box = document.createElement("div");
+        box.className = "alerta-box";
+        const titulo = document.createElement("strong");
+        titulo.textContent = "⚠ Alertas de segurança";
+        const texto = document.createElement("div");
+        texto.textContent = b.alertas;
+        box.append(titulo, texto);
+        alertaBox.appendChild(box);
+      }
+
+      mostrarSeccao("sec-resumo", !!b.resumo_cliente);
+      if (b.resumo_cliente) preencherTexto("resumo-corpo", b.resumo_cliente);
+
+      mostrarSeccao("sec-objetivo", !!b.objetivo_sessao);
+      if (b.objetivo_sessao) preencherTexto("objetivo-corpo", b.objetivo_sessao);
+
+      mostrarSeccao("sec-continuidade", !!b.continuidade_sessao_anterior);
+      if (b.continuidade_sessao_anterior) preencherTexto("continuidade-corpo", b.continuidade_sessao_anterior);
+
+      const mapaCorpo = document.getElementById("mapa-corpo");
+      mapaCorpo.replaceChildren();
+      const temMapa = Array.isArray(b.mapa_corporal) && b.mapa_corporal.length > 0;
+      mostrarSeccao("sec-mapa", temMapa);
+      if (temMapa) {
+        b.mapa_corporal.forEach((z) => {
+          const item = document.createElement("div");
+          item.className = "zona-item";
+          const nome = document.createElement("div");
+          nome.className = "zona-nome";
+          nome.textContent = z.zona || "";
+          const meta = document.createElement("div");
+          meta.className = "zona-meta";
+          const prio = document.createElement("strong");
+          prio.textContent = z.prioridade || "";
+          meta.append(prio, document.createTextNode(z.motivo ? " · " + z.motivo : ""));
+          const abordagem = document.createElement("div");
+          abordagem.className = "zona-abordagem";
+          abordagem.textContent = z.abordagem || "";
+          item.append(nome, meta, abordagem);
+          mapaCorpo.appendChild(item);
+        });
+      }
+
+      const recCorpo = document.getElementById("recomendacoes-corpo");
+      recCorpo.replaceChildren();
+      const temRec = Array.isArray(b.recomendacoes) && b.recomendacoes.length > 0;
+      mostrarSeccao("sec-recomendacoes", temRec);
+      if (temRec) {
+        b.recomendacoes.forEach((r, i) => {
+          const item = document.createElement("div");
+          item.className = "recomendacao-item";
+          const num = document.createElement("span");
+          num.className = "recomendacao-num";
+          num.textContent = (i + 1) + ".";
+          const texto = document.createElement("span");
+          texto.textContent = r;
+          item.append(num, texto);
+          recCorpo.appendChild(item);
+        });
+      }
+
+      mostrarSeccao("sec-nota", !!b.nota_proxima_visita);
+      if (b.nota_proxima_visita) preencherTexto("nota-corpo", b.nota_proxima_visita);
+
+      elLoading.style.display = "none";
+      elFicha.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+    }
+  }
+
+  document.getElementById("btn-print").addEventListener("click", function () {
+    window.print();
+  });
+
+  carregar();
+})();
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { webhooks } from "@/lib/webhooks"
@@ -48,7 +49,7 @@ export async function PATCH(
     aromaSessao, estadoEmocional, linkDocumento,
     dataRecomendadaRegresso, preco, servico,
     briefingEnviado, lembreteEnviado, confirmacaoPresenca,
-    nutricao14dEnviado, nutricao7dEnviado, googleDocLink,
+    nutricao14dEnviado, nutricao7dEnviado, googleDocLink, briefingJson,
     estadoPagamento, valorPago, metodoPagamento, pagamentoEm,
     calendarEventId, pdfUrl, calendlyEventUri,
     avaliacaoNota, avaliacaoComentario, avaliacaoEnviadaEm, avaliacaoRespondidaEm,
@@ -82,6 +83,7 @@ export async function PATCH(
         ...(nutricao14dEnviado  !== undefined ? { nutricao14dEnviado }  : {}),
         ...(nutricao7dEnviado   !== undefined ? { nutricao7dEnviado }   : {}),
         ...(googleDocLink       !== undefined ? { googleDocLink }       : {}),
+        ...(briefingJson        !== undefined ? { briefingJson: (briefingJson ?? Prisma.JsonNull) as Prisma.InputJsonValue } : {}),
         // Pagamento
         ...(estadoPagamento !== undefined ? { estadoPagamento } : {}),
         ...(valorPago       !== undefined ? { valorPago }       : {}),

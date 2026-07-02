@@ -125,6 +125,7 @@ export const sessaoUpdateSchema = z.object({
   nutricao14dEnviado:  z.boolean().optional(),
   nutricao7dEnviado:   z.boolean().optional(),
   googleDocLink:       z.string().trim().max(500).nullable().optional(),
+  briefingJson:        z.record(z.string(), z.unknown()).nullable().optional(),
   // Pagamento
   estadoPagamento:  z.enum(ESTADOS_PAGAMENTO).optional(),
   valorPago:        z.coerce.number().min(0).max(10_000).optional().nullable(),
@@ -243,6 +244,13 @@ export const onboardingPublicSchema = z.object({
 // pelo Calendly. Público (sem login) para funcionar a partir de um link WhatsApp no
 // telemóvel; protegido só pelo sessaoId ser um cuid impossível de adivinhar.
 export const atribuirSessaoQuerySchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+})
+
+// Ficha de sessão para a terapeuta (relatório clínico Groq, gerado 24h antes).
+// Mesmo modelo de confiança que atribuir-sessao: sem login, protegido só pelo
+// sessaoId ser um cuid — pensado para abrir a partir de um link WhatsApp.
+export const fichaSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
 })
 
