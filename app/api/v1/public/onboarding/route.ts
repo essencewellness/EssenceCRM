@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const {
     clienteId, sessaoId, nome, email, telefone, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
-    historicoAromasPreferidos, notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
+    notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
   } = v.data
 
   // Honeypot preenchido = bot
@@ -87,25 +87,12 @@ export async function POST(request: NextRequest) {
         ...(consentimentoSaude ? { consentimentoSaudeEm: new Date() } : {}),
         // Dados permanentes no cliente (não mudam sessão a sessão)
         ...(consentimentoSaude && historicoCondicoesAlergias ? { historicoCondicoesAlergias } : {}),
-        ...(consentimentoSaude && historicoAromasPreferidos ? { historicoAromasPreferidos } : {}),
         ...(typeof aceitaMarketing === "boolean"
           ? {
               aceitaMarketing,
               ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
             }
           : {}),
-      },
-    })
-
-    // Buscar perfil completo já atualizado — contexto extra para o n8n/Groq
-    const clienteCompleto = await prisma.cliente.findFirst({
-      where: { id: cliente.id },
-      select: {
-        fichaClinica: true,
-        dataNascimento: true,
-        totalSessoes: true,
-        historicoCondicoesAlergias: true,
-        historicoAromasPreferidos: true,
       },
     })
 
@@ -124,7 +111,6 @@ export async function POST(request: NextRequest) {
             ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
             ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),
             ...(historicoCondicoesAlergias ? { fichaCondicoesAlergias: historicoCondicoesAlergias } : {}),
-            ...(historicoAromasPreferidos ? { fichaAromasPreferidos: historicoAromasPreferidos } : {}),
           },
         })
       }
@@ -150,17 +136,11 @@ export async function POST(request: NextRequest) {
         servico: sessao?.servico ?? null,
         sessaoData: sessao?.data?.toISOString() ?? null,
         sessaoHora: sessao?.hora ?? null,
-        aroma: historicoAromasPreferidos ?? null,
         estadoEmocional: historicoEstadoEmocional ?? null,
         zonasTensao: historicoZonasTensao ?? null,
         condicoesAlergias: historicoCondicoesAlergias ?? null,
         objetivo: notasPessoais ?? null,
         voucherCodigo: voucherCodigo ?? null,
-        fichaClinicaAtual: clienteCompleto?.fichaClinica ?? null,
-        clienteDataNascimento: clienteCompleto?.dataNascimento?.toISOString() ?? null,
-        clienteTotalSessoes: clienteCompleto?.totalSessoes ?? null,
-        clienteHistoricoCondicoesAlergias: clienteCompleto?.historicoCondicoesAlergias ?? null,
-        clienteHistoricoAromasPreferidos: clienteCompleto?.historicoAromasPreferidos ?? null,
       })
 
       if (created) {

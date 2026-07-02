@@ -37,7 +37,6 @@ type Sessao = {
   fichaZonasTensao: string | null
   fichaFoco: string | null
   fichaCondicoesAlergias: string | null
-  fichaAromasPreferidos: string | null
 }
 
 function SessaoEstadoBadge({ estado }: { estado: string }) {
@@ -409,7 +408,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
               </div>
 
               {/* Ficha da cliente (preenchida no onboarding) */}
-              {(sessaoAberta.fichaEstadoEmocional || sessaoAberta.fichaZonasTensao || sessaoAberta.fichaFoco || sessaoAberta.fichaCondicoesAlergias || sessaoAberta.fichaAromasPreferidos) && (
+              {(sessaoAberta.fichaEstadoEmocional || sessaoAberta.fichaZonasTensao || sessaoAberta.fichaFoco || sessaoAberta.fichaCondicoesAlergias) && (
                 <div style={{
                   borderRadius: "10px", border: "1px solid rgba(185,160,122,0.25)",
                   padding: "16px", marginBottom: "20px",
@@ -426,7 +425,6 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                     {sessaoAberta.fichaEstadoEmocional && <DetailItem label="Estado emocional / mente" value={sessaoAberta.fichaEstadoEmocional} />}
                     {sessaoAberta.fichaZonasTensao && <DetailItem label="Zonas de tensão" value={sessaoAberta.fichaZonasTensao} />}
                     {sessaoAberta.fichaCondicoesAlergias && <DetailItem label="Condições / alergias" value={sessaoAberta.fichaCondicoesAlergias} />}
-                    {sessaoAberta.fichaAromasPreferidos && <DetailItem label="Aromas preferidos" value={sessaoAberta.fichaAromasPreferidos} />}
                     {sessaoAberta.fichaFoco && <DetailItem label="Foco / objetivo da sessão" value={sessaoAberta.fichaFoco} />}
                   </div>
                 </div>

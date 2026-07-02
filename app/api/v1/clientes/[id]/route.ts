@@ -22,6 +22,8 @@ export async function GET(
         sessoes: { where: { apagadoEm: null }, orderBy: { data: "desc" }, take: 10 },
         etiquetas: { include: { etiqueta: true } },
         mensagens: { orderBy: { geradaEm: "desc" }, take: 5 },
+        observacoes: { orderBy: { criadoEm: "desc" }, take: 10 },
+        tarefas: { orderBy: { criadoEm: "desc" }, take: 10 },
         precos: {
           include: { servico: { select: { nome: true, precoBase: true } } },
           orderBy: { criadoEm: "desc" },

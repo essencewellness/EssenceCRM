@@ -87,18 +87,14 @@ export const webhooks = {
     servico?: string | null
     sessaoData?: string | null
     sessaoHora?: string | null
-    aroma?: string | null
     estadoEmocional?: string | null
     zonasTensao?: string | null
     condicoesAlergias?: string | null
     objetivo?: string | null
     voucherCodigo?: string | null
-    fichaClinicaAtual?: string | null  // ficha clínica anterior (contexto para o n8n/Groq gerar a nova)
-    // Perfil permanente da cliente — contexto extra para a IA gerar a recomendação
-    clienteDataNascimento?: string | null
-    clienteTotalSessoes?: number | null
-    clienteHistoricoCondicoesAlergias?: string | null
-    clienteHistoricoAromasPreferidos?: string | null
+    // Nota: o n8n busca o perfil completo (fichaClinica, histórico, notas, tarefas,
+    // mensagens) diretamente via GET /api/v1/clientes/{clienteId} — não é preciso
+    // duplicar esses dados aqui.
   }) => dispararWebhook("onboarding.submetido", payload),
 
   servicoCriado: (payload: {

@@ -107,7 +107,7 @@ interface PageProps {
 const clienteSelect = {
   id: true, nome: true, telefone: true, email: true, estado: true,
   totalSessoes: true, totalGasto: true, ultimaSessao: true,
-  historicoAromasPreferidos: true, historicoCondicoesAlergias: true,
+  historicoCondicoesAlergias: true,
   notasPessoais: true, canalPreferido: true, dataNascimento: true,
   etiquetas: { include: { etiqueta: true } },
 } as const;
@@ -255,8 +255,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                 const pct = maxGasto > 0 ? (Number(cliente.totalGasto) / maxGasto) * 100 : 0;
                 const progressColor = i === 0 ? "#b9a07a" : i < 3 ? "#a0a996" : "#ddd6c4";
                 const dias = diasDesdeUltimaSessao(cliente.ultimaSessao);
-                const aromas = cliente.historicoAromasPreferidos;
-                const aromasTrunc = aromas && aromas.length > 60 ? aromas.slice(0, 60) + "…" : aromas;
                 // Top 3 entram com scale, resto com fadeUp stagger
                 const animClass = i < 3 ? "anim-scale-in" : "anim-fade-up";
                 const delay = i < 3 ? `${0.6 + i * 0.1}s` : `${0.65 + i * 0.04}s`;
@@ -311,7 +309,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
                         {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
-                        {aromasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{aromasTrunc}</span>}
                       </div>
                     </div>
                   </Link>
@@ -346,8 +343,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                 const maxSessoes = clientesPorSessoes[0]?.totalSessoes ?? 1;
                 const pct = (cliente.totalSessoes / maxSessoes) * 100;
                 const dias = diasDesdeUltimaSessao(cliente.ultimaSessao);
-                const aromas = cliente.historicoAromasPreferidos;
-                const aromasTrunc = aromas && aromas.length > 60 ? aromas.slice(0, 60) + "…" : aromas;
                 const animClass = i < 3 ? "anim-scale-in" : "anim-fade-up";
                 const delay = i < 3 ? `${0.6 + i * 0.1}s` : `${0.65 + i * 0.04}s`;
                 return (
@@ -390,7 +385,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
                         {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
-                        {aromasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{aromasTrunc}</span>}
                       </div>
                     </div>
                   </Link>
@@ -437,7 +431,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                 const dias = diasDesdeUltimaSessao(cliente.ultimaSessao);
                 const urgente = dias > 90 || dias === 9999;
                 const notasTrunc = cliente.notasPessoais && cliente.notasPessoais.length > 80 ? cliente.notasPessoais.slice(0, 80) + "…" : cliente.notasPessoais;
-                const aromasTrunc = cliente.historicoAromasPreferidos && cliente.historicoAromasPreferidos.length > 60 ? cliente.historicoAromasPreferidos.slice(0, 60) + "…" : cliente.historicoAromasPreferidos;
                 return (
                   <Link key={cliente.id} href={`/clientes/${cliente.id}`} style={{ textDecoration: "none", display: "block" }}>
                     <div
@@ -484,7 +477,6 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
                         {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 600, color: "#b06050" }}>Sem sessão há {dias} dias</span>}
-                        {aromasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{aromasTrunc}</span>}
                         {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)", fontStyle: "italic" }}>{notasTrunc}</span>}
                       </div>
                     </div>
