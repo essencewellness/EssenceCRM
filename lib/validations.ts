@@ -239,6 +239,21 @@ export const onboardingPublicSchema = z.object({
   website: z.string().max(500).optional(),
 }).strict()
 
+// Formulário interno da Bea — atribuir terapeuta/preço/nota a uma sessão recém-criada
+// pelo Calendly. Público (sem login) para funcionar a partir de um link WhatsApp no
+// telemóvel; protegido só pelo sessaoId ser um cuid impossível de adivinhar.
+export const atribuirSessaoQuerySchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+})
+
+export const atribuirSessaoSchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+  terapeutaId: z.string().trim().max(64),
+  preco: precoSchema,
+  nota: z.string().trim().max(2000).optional().nullable(),
+  website: z.string().max(500).optional(), // honeypot
+}).strict()
+
 // ── Serviços ──────────────────────────────────────────────────
 
 export const servicoCreateSchema = z.object({

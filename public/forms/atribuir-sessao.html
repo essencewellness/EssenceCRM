@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — Atribuir Sessão</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./essence-forms.css">
+  <style>
+    .plain-fg { margin-bottom: 22px; }
+    .plain-label {
+      display: block; margin-bottom: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--smoke);
+    }
+    .plain-input, .plain-select, .plain-textarea {
+      width: 100%; background: var(--field-bg); border: 1px solid var(--border-input);
+      border-radius: 4px; color: var(--bone); font-family: 'Lato', sans-serif;
+      font-size: 15px; padding: 12px 14px; outline: none;
+    }
+    .plain-textarea { resize: vertical; min-height: 90px; }
+    .plain-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
+    .plain-input:focus, .plain-select:focus, .plain-textarea:focus { border-color: var(--champagne); }
+    .booking-card {
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 6px; padding: 16px 18px; margin-bottom: 28px;
+    }
+    .booking-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+    .booking-row span:first-child { color: var(--smoke); }
+    .booking-row span:last-child { color: var(--bone); font-weight: 500; text-align: right; }
+    .price-prefix { position: relative; }
+    .price-prefix::before {
+      content: '€'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--champagne-soft); font-size: 15px; pointer-events: none;
+    }
+    .price-prefix .plain-input { padding-left: 28px; }
+    .state-msg { text-align: center; padding: 60px 24px; font-family: 'Libre Baskerville', serif; font-style: italic; color: var(--smoke); }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title">Atribuir <em>Sessão</em></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-body">
+    <div class="gerr" id="gerr"></div>
+
+    <div id="loading" class="state-msg">A carregar a marcação…</div>
+    <div id="erro-carregar" class="state-msg" style="display:none;">Não foi possível carregar esta marcação. Verifica o link.</div>
+
+    <form id="form-atribuir" style="display:none;">
+      <div class="booking-card" id="booking-card"></div>
+
+      <div class="plain-fg">
+        <label class="plain-label" for="terapeuta">Quem vai fazer a massagem *</label>
+        <select id="terapeuta" class="plain-select"></select>
+      </div>
+
+      <div class="plain-fg">
+        <label class="plain-label" for="preco">Preço da sessão *</label>
+        <div class="price-prefix">
+          <input type="number" id="preco" class="plain-input" step="0.01" min="0" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="plain-fg">
+        <label class="plain-label" for="nota">Nota sobre esta cliente <span style="font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+        <textarea id="nota" class="plain-textarea" placeholder="Ex: já falámos no WhatsApp, ela pediu para experimentar aromaterapia com bergamota…"></textarea>
+      </div>
+
+      <div class="hp" aria-hidden="true"><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+
+      <div class="nav"><button type="submit" class="btn-primary" id="btn-submit"><span>Guardar ✦</span></button></div>
+    </form>
+
+    <div class="success" id="success" style="display:none;">
+      <h2>Guardado.</h2>
+      <p>A sessão foi atribuída e a nota ficou registada no perfil da cliente.</p>
+    </div>
+  </div>
+
+  <footer class="footer">Essence Wellness — uso interno.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
+  const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+
+  const elLoading = document.getElementById("loading");
+  const elErro = document.getElementById("erro-carregar");
+  const elForm = document.getElementById("form-atribuir");
+  const elSuccess = document.getElementById("success");
+  const elGerr = document.getElementById("gerr");
+
+  function formatarData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" });
+  }
+
+  async function carregar() {
+    if (!sessaoId) {
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/atribuir-sessao?sessaoId=${encodeURIComponent(sessaoId)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+
+      const bookingCard = document.getElementById("booking-card");
+      bookingCard.replaceChildren();
+      const rows = [
+        ["Cliente", data.cliente.nome],
+        ["Telefone", data.cliente.telefone || "—"],
+        ["Serviço", data.sessao.servico || "—"],
+        ["Data", data.sessao.data ? formatarData(data.sessao.data) : "—"],
+        ["Hora", data.sessao.hora || "—"],
+      ];
+      rows.forEach(([label, value]) => {
+        const row = document.createElement("div");
+        row.className = "booking-row";
+        const l = document.createElement("span");
+        l.textContent = label;
+        const v = document.createElement("span");
+        v.textContent = value;
+        row.append(l, v);
+        bookingCard.appendChild(row);
+      });
+
+      const selTerapeuta = document.getElementById("terapeuta");
+      selTerapeuta.replaceChildren();
+      if (data.terapeutas && data.terapeutas.length) {
+        data.terapeutas.forEach((t) => {
+          const opt = document.createElement("option");
+          opt.value = t.id;
+          opt.textContent = t.name || t.id;
+          selTerapeuta.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Sem terapeutas ativas";
+        selTerapeuta.appendChild(opt);
+      }
+
+      const precoInicial = data.precoBase ?? data.sessao.precoAtual ?? "";
+      document.getElementById("preco").value = precoInicial !== null ? precoInicial : "";
+
+      elLoading.style.display = "none";
+      elForm.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+    }
+  }
+
+  document.getElementById("form-atribuir").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    elGerr.classList.remove("show");
+
+    const btn = document.getElementById("btn-submit");
+    const span = btn.querySelector("span");
+    const original = span.textContent;
+    span.textContent = "A guardar…";
+    btn.disabled = true;
+
+    const payload = {
+      sessaoId,
+      terapeutaId: document.getElementById("terapeuta").value,
+      preco: document.getElementById("preco").value,
+      nota: document.getElementById("nota").value.trim() || null,
+      website: document.getElementById("website").value,
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/atribuir-sessao`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      elForm.style.display = "none";
+      elSuccess.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      elGerr.textContent = "Ocorreu um erro ao guardar. Por favor, tenta novamente.";
+      elGerr.classList.add("show");
+      span.textContent = original;
+      btn.disabled = false;
+    }
+  });
+
+  carregar();
+})();
+</script>
+</body>
+</html>
