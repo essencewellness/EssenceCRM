@@ -16,8 +16,17 @@
     sessaoId:  P.get("sessaoId")  || null,
     nome:      P.get("n")         || null,
     voucher:   P.get("sv") === "gc" || P.get("voucher") === "1",
+    temNascimento: P.get("tb") === "1",
   };
   const PERSONAL = !!(CTX.clienteId && CTX.sessaoId);
+
+  // Já temos a data de nascimento desta cliente (vem assinalado pelo N8N
+  // via ?tb=1) — não faz sentido voltar a perguntar
+  if (CTX.temNascimento) {
+    const nascInput = document.getElementById("dataNascimento");
+    const nascGroup = nascInput ? nascInput.closest(".fg") : null;
+    if (nascGroup) nascGroup.style.display = "none";
+  }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
