@@ -399,6 +399,11 @@ export const bulkEtiquetasSchema = z.object({
   acao:       z.enum(["aplicar", "remover"]),
 }).strict()
 
+export const bulkEliminarSchema = z.object({
+  clienteIds:    z.array(z.string().trim().min(1)).min(1),
+  apagarSessoes: z.boolean().optional().default(false),
+}).strict()
+
 // ── Feedback público (24h pós-sessão) ────────────────────────
 
 export const feedbackPublicSchema = z.object({

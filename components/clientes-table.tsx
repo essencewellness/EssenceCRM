@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { calcularTagActividade } from "@/lib/etiquetas"
 import { BulkActionsBar } from "@/components/clientes/BulkActionsBar"
@@ -221,6 +222,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
 }
 
 export function ClientesTable({ clientes, todasEtiquetas = [] }: { clientes: ClienteRow[]; todasEtiquetas?: Etiqueta[] }) {
+  const router = useRouter()
   const [selecionados, setSelecionados] = useState<string[]>([])
 
   function toggleCliente(id: string) {
@@ -252,7 +254,7 @@ export function ClientesTable({ clientes, todasEtiquetas = [] }: { clientes: Cli
         selecionados={selecionados}
         etiquetas={todasEtiquetas}
         onClear={() => setSelecionados([])}
-        onRefresh={() => {}}
+        onRefresh={() => router.refresh()}
       />
     </>
   )

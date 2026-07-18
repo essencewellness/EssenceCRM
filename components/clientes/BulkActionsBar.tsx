@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
-import { Tag, X, Plus } from "lucide-react"
+import { Tag, X, Plus, Trash2 } from "lucide-react"
+import { BulkDeleteModal } from "@/components/clientes/BulkDeleteModal"
 
 interface Etiqueta {
   id: string
@@ -19,6 +20,7 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
   const [loading, setLoading] = useState(false)
   const [mostrarEtiquetas, setMostrarEtiquetas] = useState(false)
   const [acaoEtiqueta, setAcaoEtiqueta] = useState<"aplicar" | "remover">("aplicar")
+  const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false)
 
   if (selecionados.length === 0) return null
 
@@ -87,6 +89,18 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
 
         <div className="w-px h-5 bg-white/20" />
 
+        {/* Eliminar selecionados */}
+        <button
+          onClick={() => setMostrarDeleteModal(true)}
+          style={{ color: "#b06050" }}
+          className="flex items-center gap-1.5 text-sm bg-[rgba(176,96,80,0.10)] hover:bg-[rgba(176,96,80,0.20)] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Eliminar selecionados
+        </button>
+
+        <div className="w-px h-5 bg-white/20" />
+
         <button
           onClick={onClear}
           className="text-white/70 hover:text-white cursor-pointer transition-colors"
@@ -95,6 +109,18 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
           <X className="w-4 h-4" />
         </button>
       </div>
+
+      {mostrarDeleteModal && (
+        <BulkDeleteModal
+          clienteIds={selecionados}
+          onClose={() => setMostrarDeleteModal(false)}
+          onSuccess={() => {
+            setMostrarDeleteModal(false)
+            onClear()
+            onRefresh()
+          }}
+        />
+      )}
     </div>
   )
 }
