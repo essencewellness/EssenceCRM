@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   const q = validarQuery(request.url, sessoesQuerySchema)
   if (!q.ok) return q.resposta
   const {
-    clienteId, estado, status, data: dataFiltro,
+    clienteId, calendlyEventId, estado, status, data: dataFiltro,
     briefingEnviado, lembreteEnviado, nutricao14dEnviado, nutricao7dEnviado,
     proxima, terapeuta, de, ate, limit, cursor,
   } = q.data
@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
   try {
     const where: Prisma.SessaoWhereInput = { apagadoEm: null }
     if (clienteId) where.clienteId = clienteId
+    if (calendlyEventId) where.calendlyEventId = calendlyEventId
     if (terapeuta) where.terapeuta = terapeuta
 
     // Estado (com alias status)

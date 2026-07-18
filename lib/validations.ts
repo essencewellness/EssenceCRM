@@ -148,6 +148,7 @@ export const sessaoUpdateSchema = z.object({
 
 export const sessoesQuerySchema = z.object({
   clienteId:          z.string().trim().max(64).optional(),
+  calendlyEventId:    z.string().trim().max(128).optional(),
   estado:             z.enum(ESTADOS_SESSAO).optional(),
   status:             z.enum(ESTADOS_SESSAO).optional(),
   data:               z.enum(["hoje", "amanha"]).optional(),
