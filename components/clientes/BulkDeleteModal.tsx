@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { createPortal } from "react-dom"
 import { Trash2, X } from "lucide-react"
 
 interface ClienteComSessoes {
@@ -60,7 +61,10 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
 
   const totalSessoes = clientesComSessoes?.reduce((soma, c) => soma + c.sessoes, 0) ?? 0
 
-  return (
+  // Portal para document.body: a barra de ações tem um transform (-translate-x-1/2),
+  // que cria um containing block novo — sem isto, este overlay "position: fixed"
+  // ficava preso dentro da barra em vez de cobrir o ecrã inteiro
+  return createPortal(
     <div
       style={{
         position: "fixed", inset: 0, zIndex: 50,
@@ -219,6 +223,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
