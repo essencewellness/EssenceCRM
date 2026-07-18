@@ -140,6 +140,14 @@
         </div>
       </div>
 
+      <div class="fg">
+        <div class="fl" id="fl-nasc">
+          <input type="date" id="dataNascimento" autocomplete="bday">
+          <label for="dataNascimento">Data de nascimento <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para te surpreendermos no teu dia especial.</div>
+      </div>
+
       <div class="nav">
         <button class="btn-primary" data-submit><span>Enviar ✦</span></button>
         <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
@@ -195,6 +203,7 @@
       telefone: !EF.PERSONAL ? (EF.val("telefone") || null) : null,
       historicoCondicoesAlergias: condAlerg,
       notasPessoais: motivo ? "Objetivo (drenagem): " + motivo : null,
+      dataNascimento: EF.val("dataNascimento") || null,
     };
   };
 </script>
