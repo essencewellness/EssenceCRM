@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — Confirmar Presença</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./essence-forms.css">
+  <style>
+    .state-msg { text-align: center; padding: 60px 24px; font-family: 'Libre Baskerville', serif; font-style: italic; color: var(--smoke); }
+
+    .booking-card {
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 6px; padding: 16px 18px; margin-bottom: 28px;
+    }
+    .booking-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+    .booking-row span:first-child { color: var(--smoke); }
+    .booking-row span:last-child { color: var(--bone); font-weight: 500; text-align: right; }
+
+    .info-section { margin-bottom: 24px; }
+    .info-titulo {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne-soft);
+      margin-bottom: 10px;
+    }
+    .info-corpo { font-size: 13.5px; line-height: 1.7; color: var(--bone-soft); }
+    .info-corpo a { color: var(--champagne); }
+
+    .prep-item { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13.5px; line-height: 1.6; color: var(--bone-soft); }
+    .prep-dot { flex-shrink: 0; color: var(--champagne); }
+
+    .link-remarcar {
+      display: block; text-align: center; margin-top: 16px;
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; color: var(--smoke); text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title">Confirmar <em>Presença</em></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="form-body">
+    <div id="loading" class="state-msg">A carregar a tua marcação…</div>
+    <div id="erro-carregar" class="state-msg" style="display:none;">Não foi possível encontrar esta marcação. Verifica o link ou contacta-nos diretamente.</div>
+    <div id="ja-terminada" class="state-msg" style="display:none;"></div>
+
+    <div id="confirmacao" style="display:none;">
+      <div class="eyebrow">A tua sessão</div>
+      <h1 class="heading">Confirmas a tua <em>presença</em>?</h1>
+      <div class="accent-line"></div>
+
+      <div class="booking-card" id="booking-card"></div>
+
+      <p class="desc" id="desc-texto">Se puderes vir, carrega em confirmar. Se não puderes, usa o link de remarcação que recebeste na tua marcação.</p>
+
+      <button type="button" class="btn-primary" id="btn-confirmar"><span>Confirmar presença ✦</span></button>
+      <a id="link-remarcar" class="link-remarcar" href="#" target="_blank" rel="noopener" style="display:none;">Não posso ir — remarcar no Calendly</a>
+
+      <div class="gerr" id="erro-confirmar">Não foi possível confirmar agora. Tenta novamente ou contacta-nos por WhatsApp.</div>
+    </div>
+
+    <div class="success" id="sucesso" style="display:none;">
+      <div class="success-ring">✓</div>
+      <h2>Presença confirmada</h2>
+      <p>Até já! Ficamos à tua espera.</p>
+      <div class="success-tag">Essence Wellness 🤍</div>
+
+      <div style="text-align:left; margin-top: 32px;">
+        <div class="info-section">
+          <div class="info-titulo">Morada</div>
+          <div class="info-corpo">
+            Av. da República nº 2208, Piso 2 Sala 2 Esquerda, 4430-192 Vila Nova de Gaia<br>
+            <a href="https://maps.app.goo.gl/vSxdC4zvjeoYJwzMA" target="_blank" rel="noopener">Ver no Google Maps →</a>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-titulo">Antes da sessão</div>
+          <div>
+            <div class="prep-item"><span class="prep-dot">✦</span><span>Chega com 5 a 10 minutos de antecedência.</span></div>
+            <div class="prep-item"><span class="prep-dot">✦</span><span>Vem com roupa confortável e fácil de trocar.</span></div>
+            <div class="prep-item"><span class="prep-dot">✦</span><span>Bebe água depois da sessão para te sentires ainda mais leve.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">Essence Wellness · Dúvidas? Fala connosco por WhatsApp.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
+  const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+
+  const elLoading = document.getElementById("loading");
+  const elErro = document.getElementById("erro-carregar");
+  const elJaTerminada = document.getElementById("ja-terminada");
+  const elConfirmacao = document.getElementById("confirmacao");
+  const elSucesso = document.getElementById("sucesso");
+  const elErroConfirmar = document.getElementById("erro-confirmar");
+  const elBtnConfirmar = document.getElementById("btn-confirmar");
+  const elLinkRemarcar = document.getElementById("link-remarcar");
+
+  function formatarData(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString("pt-PT", { weekday: "long", day: "2-digit", month: "long" });
+  }
+
+  function preencherBookingCard(dados) {
+    const bookingCard = document.getElementById("booking-card");
+    bookingCard.replaceChildren();
+    const rows = [
+      ["Cliente", dados.cliente.nome],
+      ["Serviço", dados.servico || "—"],
+      ["Data", dados.data ? formatarData(dados.data) : "—"],
+      ["Hora", dados.hora || "—"],
+    ];
+    rows.forEach(([label, value]) => {
+      const row = document.createElement("div");
+      row.className = "booking-row";
+      const l = document.createElement("span");
+      l.textContent = label;
+      const v = document.createElement("span");
+      v.textContent = value;
+      row.append(l, v);
+      bookingCard.appendChild(row);
+    });
+  }
+
+  async function carregar() {
+    if (!sessaoId) {
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/confirmar-sessao?sessaoId=${encodeURIComponent(sessaoId)}`);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const dados = await res.json();
+
+      elLoading.style.display = "none";
+
+      if (dados.estado === "realizada" || dados.estado === "cancelada" || dados.estado === "falta") {
+        elJaTerminada.textContent = "Esta sessão já não está agendada. Se achas que é um engano, fala connosco por WhatsApp.";
+        elJaTerminada.style.display = "block";
+        return;
+      }
+
+      preencherBookingCard(dados);
+
+      if (dados.calendlyRescheduleUrl) {
+        elLinkRemarcar.href = dados.calendlyRescheduleUrl;
+        elLinkRemarcar.style.display = "block";
+      }
+
+      if (dados.confirmacaoPresenca) {
+        elConfirmacao.style.display = "none";
+        elSucesso.style.display = "block";
+        elSucesso.querySelector("h2").textContent = "Já confirmaste";
+        elSucesso.querySelector(".success p").textContent = "A tua presença já está confirmada. Até já!";
+        return;
+      }
+
+      elConfirmacao.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      elLoading.style.display = "none";
+      elErro.style.display = "block";
+    }
+  }
+
+  elBtnConfirmar.addEventListener("click", async function () {
+    elErroConfirmar.classList.remove("show");
+    elBtnConfirmar.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/public/confirmar-sessao`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessaoId }),
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      elConfirmacao.style.display = "none";
+      elSucesso.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      elErroConfirmar.classList.add("show");
+      elBtnConfirmar.disabled = false;
+    }
+  });
+
+  carregar();
+})();
+</script>
+</body>
+</html>

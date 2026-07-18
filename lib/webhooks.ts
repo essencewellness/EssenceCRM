@@ -136,4 +136,13 @@ export const webhooks = {
     pontosMelhorar?: string | null
     comentario?: string | null
   }) => dispararWebhook("feedback.negativo", payload),
+
+  sessaoConfirmada: (payload: {
+    sessaoId: string
+    clienteId: string
+    nomeCliente: string
+    servico?: string | null
+    data?: string | null
+    hora?: string | null
+  }) => dispararWebhook("sessao.confirmada", payload),
 }

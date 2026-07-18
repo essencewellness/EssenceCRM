@@ -286,6 +286,10 @@ model Sessao {
   calendarEventId  String?
   pdfUrl           String?
   calendlyEventUri String?
+  // Links nativos do Calendly para remarcar/cancelar — usados na página pública
+  // de confirmação em vez de reinventarmos essa lógica
+  calendlyRescheduleUrl String?
+  calendlyCancelUrl     String?
 
   apagadoEm   DateTime?
   criadoEm    DateTime  @default(now())

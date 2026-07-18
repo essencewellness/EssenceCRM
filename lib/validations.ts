@@ -106,6 +106,8 @@ export const sessaoCreateSchema = z.object({
   resumoSessao: textoOpcional,
   linkDocumento: z.string().trim().url().max(500).optional().nullable(),
   calendlyEventId: z.string().trim().max(128).optional().nullable(),
+  calendlyRescheduleUrl: z.string().trim().url().max(500).optional().nullable(),
+  calendlyCancelUrl:     z.string().trim().url().max(500).optional().nullable(),
 }).strict()
 
 export const sessaoUpdateSchema = z.object({
@@ -135,6 +137,8 @@ export const sessaoUpdateSchema = z.object({
   calendarEventId:  z.string().trim().max(256).optional().nullable(),
   pdfUrl:           z.string().trim().url().max(500).optional().nullable(),
   calendlyEventUri: z.string().trim().max(500).optional().nullable(),
+  calendlyRescheduleUrl: z.string().trim().url().max(500).optional().nullable(),
+  calendlyCancelUrl:     z.string().trim().url().max(500).optional().nullable(),
   // Avaliação
   avaliacaoNota:         z.coerce.number().int().min(1).max(5).optional().nullable(),
   avaliacaoComentario:   z.string().trim().max(1000).optional().nullable(),
@@ -253,6 +257,17 @@ export const atribuirSessaoQuerySchema = z.object({
 export const fichaSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
 })
+
+// Confirmação de presença pela cliente — mesmo modelo de confiança que
+// atribuir-sessao/ficha-sessao: sem login, protegido só pelo sessaoId ser um
+// cuid, pensado para abrir a partir do link enviado por WhatsApp.
+export const confirmarSessaoQuerySchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+})
+
+export const confirmarSessaoBodySchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+}).strict()
 
 export const atribuirSessaoSchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
