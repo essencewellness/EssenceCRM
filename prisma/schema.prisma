@@ -258,6 +258,9 @@ model Sessao {
   briefingEnviado      Boolean   @default(false)
   lembreteEnviado      Boolean   @default(false)
   confirmacaoPresenca  Boolean?
+  // Os 3 flags nutricao* rastreiam os 3 toques do fluxo de nutrição pré-sessão:
+  // boas-vindas (+2d após marcação), meio do caminho (14d antes), reta final (7d antes)
+  nutricaoBoasVindasEnviado Boolean @default(false)
   nutricao14dEnviado   Boolean   @default(false)
   nutricao7dEnviado    Boolean   @default(false)
   googleDocLink        String?

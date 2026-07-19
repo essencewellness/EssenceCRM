@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   if (!q.ok) return q.resposta
   const {
     clienteId, calendlyEventId, estado, status, data: dataFiltro,
-    briefingEnviado, lembreteEnviado, nutricao14dEnviado, nutricao7dEnviado,
+    briefingEnviado, lembreteEnviado, nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado,
     proxima, terapeuta, de, ate, limit, cursor,
   } = q.data
 
@@ -78,6 +78,7 @@ export async function GET(request: NextRequest) {
     // Filtros de rastreio de comunicações
     if (briefingEnviado    !== undefined) where.briefingEnviado    = briefingEnviado    === "true"
     if (lembreteEnviado    !== undefined) where.lembreteEnviado    = lembreteEnviado    === "true"
+    if (nutricaoBoasVindasEnviado !== undefined) where.nutricaoBoasVindasEnviado = nutricaoBoasVindasEnviado === "true"
     if (nutricao14dEnviado !== undefined) where.nutricao14dEnviado = nutricao14dEnviado === "true"
     if (nutricao7dEnviado  !== undefined) where.nutricao7dEnviado  = nutricao7dEnviado  === "true"
 
