@@ -64,12 +64,17 @@ export async function POST(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, clienteId: true, servico: true, data: true, hora: true, estado: true,
-      cliente: { select: { nome: true } },
+      cliente: { select: { nome: true, estado: true } },
     },
   })
 
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
+
+  // Blacklist: confirma a sessão no CRM mas não dispara nenhuma automação a jusante
+  if (sessao.cliente.estado === "blacklist") {
+    return NextResponse.json({ sessaoId: sessao.id, estado: sessao.estado, jaAtualizada: false })
   }
 
   // Sessão já concluída/cancelada — nada a confirmar, devolve o estado tal como está

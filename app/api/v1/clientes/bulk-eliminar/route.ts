@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { bulkEliminarSchema, validarBody } from "@/lib/validations"
+import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 
 // Apagamento DEFINITIVO em massa (hard delete). Mesma lógica de eliminarCliente()
@@ -10,6 +11,13 @@ import { auditar } from "@/lib/audit"
 export async function POST(request: NextRequest) {
   const erro = await validarApiKeyOuSessao(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "bulk-eliminar",
+    limite: 5,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const parseado = await validarBody(request, bulkEliminarSchema)
   if (!parseado.ok) return parseado.resposta

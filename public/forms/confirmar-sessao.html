@@ -162,7 +162,7 @@
 
       preencherBookingCard(dados);
 
-      if (dados.calendlyRescheduleUrl) {
+      if (dados.calendlyRescheduleUrl && /^https:\/\//i.test(dados.calendlyRescheduleUrl)) {
         elLinkRemarcar.href = dados.calendlyRescheduleUrl;
         elLinkRemarcar.style.display = "block";
       }
