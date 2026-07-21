@@ -11,7 +11,7 @@ function safeUrl(url: string | null | undefined): string | undefined {
   } catch {}
   return undefined
 }
-import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2 } from "lucide-react"
+import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2, AlertTriangle, Target, MapPin, ListChecks, Sparkles } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -37,6 +37,8 @@ type Sessao = {
   fichaZonasTensao: string | null
   fichaFoco: string | null
   fichaCondicoesAlergias: string | null
+  // Ficha clínica gerada por IA (Groq) para a terapeuta, 24h antes da sessão
+  briefingJson: unknown
 }
 
 function SessaoEstadoBadge({ estado }: { estado: string }) {
@@ -121,6 +123,120 @@ function DetailBlock({ title, icon: Icon, content, color }: {
       }}>
         {content}
       </p>
+    </div>
+  )
+}
+
+interface MapaCorporalItem {
+  zona?: string
+  motivo?: string
+  abordagem?: string
+  prioridade?: string
+}
+
+interface BriefingTerapeuta {
+  tipo_cliente?: string
+  contagem_visitas?: number
+  alertas?: string | null
+  resumo_cliente?: string | null
+  objetivo_sessao?: string | null
+  continuidade_sessao_anterior?: string | null
+  mapa_corporal?: MapaCorporalItem[]
+  recomendacoes?: string[]
+  nota_proxima_visita?: string | null
+}
+
+function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
+  if (!briefingJson || typeof briefingJson !== "object") return null
+  const b = briefingJson as BriefingTerapeuta
+
+  const temConteudo = Boolean(
+    b.resumo_cliente || b.objetivo_sessao || b.continuidade_sessao_anterior || b.alertas
+    || b.nota_proxima_visita || b.mapa_corporal?.length || b.recomendacoes?.length
+  )
+  if (!temConteudo) return null
+
+  const rotulo = { fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase" as const, marginBottom: "10px" }
+
+  return (
+    <div style={{
+      borderRadius: "10px", border: "1px solid rgba(185,160,122,0.25)",
+      padding: "18px", marginBottom: "20px",
+      backgroundColor: "rgba(185,160,122,0.04)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+        <Sparkles size={13} color="#b9a07a" />
+        <p style={{ ...rotulo, marginBottom: 0, color: "#b9a07a" }}>Ficha da terapeuta (gerada por IA)</p>
+        {b.tipo_cliente && (
+          <span style={{ marginLeft: "auto", fontSize: "10px", fontWeight: 600, color: "var(--nuit-smoke)", fontFamily: "var(--font-sans)" }}>
+            {b.tipo_cliente}{b.contagem_visitas ? ` · ${b.contagem_visitas}ª visita` : ""}
+          </span>
+        )}
+      </div>
+
+      {b.alertas && (
+        <div style={{
+          borderLeft: "2px solid #b06050", backgroundColor: "rgba(176,96,80,0.08)",
+          color: "#b06050", padding: "12px 14px", fontSize: "13px", lineHeight: 1.6,
+          marginBottom: "16px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <AlertTriangle size={12} /> Alertas de segurança
+          </div>
+          {b.alertas}
+        </div>
+      )}
+
+      {b.resumo_cliente && <div style={{ marginBottom: "14px" }}><DetailItem label="Resumo da cliente" value={b.resumo_cliente} /></div>}
+      {b.objetivo_sessao && <div style={{ marginBottom: "14px" }}><DetailItem label="Objetivo da sessão" value={b.objetivo_sessao} /></div>}
+      {b.continuidade_sessao_anterior && <div style={{ marginBottom: "14px" }}><DetailItem label="Continuidade com sessão anterior" value={b.continuidade_sessao_anterior} /></div>}
+
+      {Array.isArray(b.mapa_corporal) && b.mapa_corporal.length > 0 && (
+        <div style={{ marginBottom: "14px" }}>
+          <p style={rotulo}>Mapa corporal de foco</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {b.mapa_corporal.map((z, i) => (
+              <div key={i} style={{ backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.14)", borderRadius: "8px", padding: "10px 12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+                  <MapPin size={11} color="#b9a07a" />
+                  <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>{z.zona}</span>
+                </div>
+                {(z.prioridade || z.motivo) && (
+                  <div style={{ fontSize: "11px", color: "var(--nuit-smoke)", marginBottom: "4px" }}>
+                    {z.prioridade && <strong style={{ color: "#b9a07a" }}>{z.prioridade}</strong>}
+                    {z.prioridade && z.motivo ? " · " : ""}
+                    {z.motivo}
+                  </div>
+                )}
+                {z.abordagem && <div style={{ fontSize: "12.5px", color: "var(--nuit-bone-soft)" }}>{z.abordagem}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {Array.isArray(b.recomendacoes) && b.recomendacoes.length > 0 && (
+        <div style={{ marginBottom: "14px" }}>
+          <p style={rotulo}>Recomendações</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {b.recomendacoes.map((r, i) => (
+              <div key={i} style={{ display: "flex", gap: "8px", fontSize: "12.5px", color: "var(--nuit-bone-soft)", lineHeight: 1.6 }}>
+                <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", color: "#b9a07a", flexShrink: 0 }}>{i + 1}.</span>
+                <span>{r}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {b.nota_proxima_visita && (
+        <div>
+          <p style={rotulo}>Nota para próxima visita</p>
+          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", fontStyle: "italic", lineHeight: 1.6 }}>
+            {b.nota_proxima_visita}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -413,6 +529,9 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                 )}
               </div>
 
+              {/* Ficha da terapeuta gerada por IA (Groq), mesma fonte da ficha-sessao.html */}
+              <FichaTerapeutaSection briefingJson={sessaoAberta.briefingJson} />
+
               {/* Ficha da cliente (preenchida no onboarding) */}
               {(sessaoAberta.fichaEstadoEmocional || sessaoAberta.fichaZonasTensao || sessaoAberta.fichaFoco || sessaoAberta.fichaCondicoesAlergias) && (
                 <div style={{
@@ -468,7 +587,8 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
 
               {/* Sem notas */}
               {!sessaoAberta.fichaEstadoEmocional && !sessaoAberta.fichaZonasTensao && !sessaoAberta.fichaFoco
-                && !sessaoAberta.estadoEmocional && !sessaoAberta.resumoSessao && !sessaoAberta.notasPosSessao && (
+                && !sessaoAberta.estadoEmocional && !sessaoAberta.resumoSessao && !sessaoAberta.notasPosSessao
+                && !sessaoAberta.briefingJson && (
                 <div style={{
                   textAlign: "center", padding: "32px",
                   backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
