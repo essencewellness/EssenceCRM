@@ -11,6 +11,7 @@ import { verificarRateLimit } from "@/lib/rate-limit"
 import { serializarDecimais } from "@/lib/serialize"
 import { processarSessaoRealizada } from "@/lib/sessoes"
 import { auditar } from "@/lib/audit"
+import { validarLinkToken } from "@/lib/link-token"
 
 export async function GET(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -22,7 +23,10 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, posSessaoQuerySchema)
   if (!q.ok) return q.resposta
-  const { sessaoId } = q.data
+  const { sessaoId, t } = q.data
+
+  const erroToken = validarLinkToken(request, sessaoId, "pos-sessao-get", t)
+  if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
     where: { id: sessaoId, apagadoEm: null },
@@ -70,7 +74,10 @@ export async function PATCH(request: NextRequest) {
 
   const v = await validarBody(request, posSessaoPatchSchema)
   if (!v.ok) return v.resposta
-  const { sessaoId, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso } = v.data
+  const { sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso } = v.data
+
+  const erroToken = validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
+  if (erroToken) return erroToken
 
   try {
     const sessaoAntes = await prisma.sessao.findFirst({

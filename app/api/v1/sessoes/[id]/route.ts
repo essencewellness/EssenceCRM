@@ -7,6 +7,7 @@ import { serializarDecimais } from "@/lib/serialize"
 import { processarSessaoRealizada } from "@/lib/sessoes"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
+import { gerarLinkToken } from "@/lib/link-token"
 
 
 export async function GET(
@@ -26,7 +27,8 @@ export async function GET(
 
     if (!sessao) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
 
-    return respostaSucesso(serializarDecimais(sessao))
+    // linkToken: para o N8N construir links públicos seguros (&t=<token>)
+    return respostaSucesso(serializarDecimais({ ...sessao, linkToken: gerarLinkToken(sessao.id) }))
   } catch (error) {
     console.error("GET /api/v1/sessoes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

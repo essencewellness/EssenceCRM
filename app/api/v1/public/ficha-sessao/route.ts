@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { fichaSessaoQuerySchema, validarQuery } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
+import { validarLinkToken } from "@/lib/link-token"
 
 export async function GET(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -17,7 +18,10 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, fichaSessaoQuerySchema)
   if (!q.ok) return q.resposta
-  const { sessaoId } = q.data
+  const { sessaoId, t } = q.data
+
+  const erroToken = validarLinkToken(request, sessaoId, "ficha-sessao", t)
+  if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
     where: { id: sessaoId, apagadoEm: null },

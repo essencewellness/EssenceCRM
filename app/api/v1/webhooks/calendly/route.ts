@@ -8,6 +8,7 @@ import { createHmac, timingSafeEqual } from "node:crypto"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auditar } from "@/lib/audit"
+import { gerarLinkToken } from "@/lib/link-token"
 
 // Formato Calendly: "t=1234567890,v1=abcdef..." — HMAC-SHA256 de `${t}.${rawBody}`
 function verificarAssinaturaCalendly(rawBody: string, header: string | null): boolean {
@@ -180,6 +181,8 @@ export async function POST(request: NextRequest) {
       clienteId: cliente.id,
       sessaoId: sessao.id,
       clienteCriado,
+      // Token assinado para o N8N anexar aos links públicos (&t=<token>)
+      linkToken: gerarLinkToken(sessao.id),
     })
   } catch (error) {
     console.error("POST /api/v1/webhooks/calendly:", (error as Error).message)

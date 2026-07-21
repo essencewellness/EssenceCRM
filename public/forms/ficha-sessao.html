@@ -151,6 +151,8 @@
   "use strict";
   const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
   const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+  const linkToken = new URLSearchParams(location.search).get("t");
+  const tokenQS = linkToken ? `&t=${encodeURIComponent(linkToken)}` : "";
 
   const elLoading = document.getElementById("loading");
   const elErro = document.getElementById("erro-carregar");
@@ -177,7 +179,7 @@
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/v1/public/ficha-sessao?sessaoId=${encodeURIComponent(sessaoId)}`);
+      const res = await fetch(`${API_BASE}/api/v1/public/ficha-sessao?sessaoId=${encodeURIComponent(sessaoId)}${tokenQS}`);
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       const b = data.briefing;

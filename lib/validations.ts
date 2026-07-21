@@ -257,6 +257,7 @@ export const onboardingPublicSchema = z.object({
 // telemóvel; protegido só pelo sessaoId ser um cuid impossível de adivinhar.
 export const atribuirSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado (ver lib/link-token.ts)
 })
 
 // Ficha de sessão para a terapeuta (relatório clínico Groq, gerado 24h antes).
@@ -264,6 +265,7 @@ export const atribuirSessaoQuerySchema = z.object({
 // sessaoId ser um cuid — pensado para abrir a partir de um link WhatsApp.
 export const fichaSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
 })
 
 // Confirmação de presença pela cliente — mesmo modelo de confiança que
@@ -271,14 +273,17 @@ export const fichaSessaoQuerySchema = z.object({
 // cuid, pensado para abrir a partir do link enviado por WhatsApp.
 export const confirmarSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
 })
 
 export const confirmarSessaoBodySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
 }).strict()
 
 export const atribuirSessaoSchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
   terapeutaId: z.string().trim().max(64),
   preco: precoSchema,
   nota: z.string().trim().max(2000).optional().nullable(),
@@ -291,10 +296,12 @@ export const atribuirSessaoSchema = z.object({
 // logo após o fim do tratamento (Workflow 05).
 export const posSessaoQuerySchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
 })
 
 export const posSessaoPatchSchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
+  t: z.string().trim().max(128).optional(), // link token assinado
   servico: z.string().trim().max(120),
   preco: precoSchema.optional().nullable(),
   aromaSessao: z.string().trim().max(120).optional().nullable(),

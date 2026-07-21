@@ -22,13 +22,12 @@ export async function POST(request: NextRequest) {
 
   // Honeypot preenchido = bot. Responder 200 falso para não dar pistas.
   if (website) {
-    return NextResponse.json({ clienteId: "ok", created: false })
+    return NextResponse.json({ ok: true })
   }
 
   try {
     // Upsert por email — não criar leads duplicados
     let cliente = await prisma.cliente.findFirst({ where: { email, apagadoEm: null } })
-    let created = false
 
     if (!cliente) {
       const aceita = consentimento_marketing ?? true
@@ -44,7 +43,6 @@ export async function POST(request: NextRequest) {
           ...(aceita ? { consentimentoMarketingEm: new Date() } : {}),
         },
       })
-      created = true
 
       auditar({
         quem: "publico",
@@ -63,7 +61,9 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({ clienteId: cliente.id, created })
+    // Resposta uniforme: não revelar se o email já era cliente (anti-enumeração).
+    // O clienteId real segue no webhook lead.criado para o N8N.
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("POST /api/v1/public/lead:", (error as Error).message)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

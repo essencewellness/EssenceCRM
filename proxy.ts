@@ -27,29 +27,38 @@ function buildCsp(nonce: string): string {
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
+  const ehPublico = PREFIXOS_PUBLICOS.some((p) => pathname.startsWith(p))
 
-  if (PREFIXOS_PUBLICOS.some((p) => pathname.startsWith(p))) {
+  if (!ehPublico) {
+    const token = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === "production",
+    })
+
+    if (!token) {
+      const loginUrl = new URL("/login", req.url)
+      if (pathname !== "/") loginUrl.searchParams.set("callbackUrl", pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  // API e formulários estáticos não recebem CSP com nonce aqui:
+  // a API devolve JSON; os /forms têm CSP própria no next.config.ts
+  if (pathname.startsWith("/api") || pathname.startsWith("/forms")) {
     return NextResponse.next()
   }
 
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production",
-  })
-
-  if (!token) {
-    const loginUrl = new URL("/login", req.url)
-    if (pathname !== "/") loginUrl.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // Nonce único por request — CSP sem unsafe-inline em produção
+  // Nonce único por request — CSP sem unsafe-inline em produção.
+  // Aplica-se a TODAS as páginas Next (dashboard e /login).
   const nonce = crypto.randomUUID()
   const csp = buildCsp(nonce)
 
   const requestHeaders = new Headers(req.headers)
   requestHeaders.set("x-nonce", nonce)
+  // O Next lê o nonce do header CSP do REQUEST para o aplicar aos scripts
+  // que ele próprio injeta — sem isto, strict-dynamic bloqueava a hidratação.
+  requestHeaders.set("Content-Security-Policy", csp)
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },

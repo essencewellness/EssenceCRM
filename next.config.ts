@@ -10,6 +10,22 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
+// CSP para os formulários HTML estáticos em /forms — não podem receber nonce
+// (são servidos tal e qual de public/), por isso permitem inline scripts mas
+// bloqueiam qualquer origem externa além das fontes Google que os forms usam.
+const cspForms = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data:",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client"],
   poweredByHeader: false,
@@ -18,6 +34,10 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/forms/:path*",
+        headers: [{ key: "Content-Security-Policy", value: cspForms }],
       },
     ];
   },

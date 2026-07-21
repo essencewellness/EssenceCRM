@@ -904,12 +904,13 @@
 
       if (sessaoId) {
         // ── Modo sessaoId: a sessão já existe (Calendly) — marcar como realizada
-        // Endpoint público (sem X-API-Key) — protegido só pelo sessaoId ser um cuid.
+        // Endpoint público (sem X-API-Key) — protegido pelo link token assinado (?t=).
         const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sessaoId,
+            ...(window.__linkToken ? { t: window.__linkToken } : {}),
             servico,
             ...(precoServico != null ? { preco: precoServico } : {}),
             ...camposClinicos,
@@ -1004,6 +1005,9 @@
   const params = new URLSearchParams(window.location.search);
   const cidParam    = params.get('clienteId');
   const sessaoParam = params.get('sessaoId');
+  const linkToken   = params.get('t');
+  const tokenQS     = linkToken ? `&t=${encodeURIComponent(linkToken)}` : '';
+  window.__linkToken = linkToken;
 
   if (sessaoParam) {
     carregarSessaoExistente(sessaoParam);
@@ -1021,8 +1025,8 @@
 
   async function carregarSessaoExistente(id) {
     try {
-      // Endpoint público (sem X-API-Key) — protegido só pelo sessaoId ser um cuid.
-      const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao?sessaoId=${encodeURIComponent(id)}`);
+      // Endpoint público (sem X-API-Key) — protegido pelo link token assinado (?t=).
+      const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao?sessaoId=${encodeURIComponent(id)}${tokenQS}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const { sessao, cliente, servicos, terapeutas } = await res.json();
       if (!sessao) throw new Error('Sessão sem dados');

@@ -2,11 +2,21 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { serializarDecimais } from "@/lib/serialize"
+import { verificarRateLimit } from "@/lib/rate-limit"
+import { auditar } from "@/lib/audit"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  // Rate limit por IP — trava tentativas de adivinhar tokens por força bruta
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "portal-get",
+    limite: 30,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
+
   const { token } = await params
 
   try {
@@ -43,6 +53,15 @@ export async function GET(
     }
 
     const { cliente } = portalToken
+
+    // Registo de acesso ao portal — visibilidade sobre quem consulta os dados
+    auditar({
+      quem: "publico",
+      acao: "portal.acedido",
+      entidade: "Cliente",
+      entidadeId: cliente.id,
+      ip: request.headers.get("x-forwarded-for"),
+    })
 
     const documentos = cliente.sessoes
       .filter((s) => s.pdfUrl)

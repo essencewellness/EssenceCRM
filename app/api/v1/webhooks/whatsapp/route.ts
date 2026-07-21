@@ -4,6 +4,14 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { whatsappInboundSchema, validarBody, normalizarTelefone } from "@/lib/validations"
+import { auditar } from "@/lib/audit"
+
+// Direito de oposição (RGPD Art. 21): pedido claro de paragem de mensagens
+// → desliga aceitaMarketing automaticamente, sem intervenção da Bea.
+function pedeParagem(texto: string): boolean {
+  const t = texto.toLowerCase()
+  return /\b(n[aã]o (quero|desejo) (receber|mais mensagens)|para(r|em)? de (enviar|mandar)|deixem? de (enviar|mandar)|remove(r|-me)?|remova[m]?-me|unsubscribe|stop)\b/.test(t)
+}
 
 type Intencao = "marcar" | "nao_interessada" | "pergunta" | "avaliacao" | "outro"
 
@@ -47,6 +55,23 @@ export async function POST(request: NextRequest) {
 
     const intencao = classificarIntencao(mensagem)
     let avaliacaoRegistada = false
+    let optOutRegistado = false
+
+    // Opt-out: pedido explícito de paragem → desligar marketing já
+    if (cliente && pedeParagem(mensagem)) {
+      await prisma.cliente.update({
+        where: { id: cliente.id },
+        data: { aceitaMarketing: false, consentimentoMarketingEm: null },
+      })
+      optOutRegistado = true
+      auditar({
+        quem: "whatsapp",
+        acao: "cliente.opt_out_marketing",
+        entidade: "Cliente",
+        entidadeId: cliente.id,
+        detalhe: { mensagem: mensagem.slice(0, 200) },
+      })
+    }
 
     // Avaliação de satisfação: guardar na sessão mais recente sem nota
     if (intencao === "avaliacao" && cliente) {
@@ -94,6 +119,7 @@ export async function POST(request: NextRequest) {
       intencao,
       acaoSugerida: acaoSugerida[intencao],
       avaliacaoRegistada,
+      optOutRegistado,
       mensagemOriginal: mensagem,
       tipo: tipo ?? "texto",
       timestamp: timestamp ?? new Date().toISOString(),

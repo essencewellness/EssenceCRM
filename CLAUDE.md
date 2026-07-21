@@ -70,17 +70,44 @@ Modelos `Servico`, `PrecoPersonalizado` e `Pack` adicionados ao schema. Endpoint
 - `totalSessoes` e `totalGasto` são campos calculados — não expor como editáveis via PATCH cliente
 - Transições de estado de mensagem só pela máquina de estados: `pendente → aprovada → em_fila → enviada | falhada`
 
+## Segurança e RGPD (spec-009, implementado 2026-07-21)
+
+- **Link tokens** (`lib/link-token.ts`): links públicos de sessão levam `?t=<exp>.<hmac>`
+  (7 dias). Fornecidos ao N8N em `linkToken` (resposta do webhook Calendly + GET sessões).
+  Modo transição: `LINK_TOKEN_OBRIGATORIO !== "true"` → pedidos sem token passam mas ficam
+  auditados (`link_token.ausente_transicao`). Ativar o enforcement DEPOIS de os workflows
+  N8N anexarem `&t={{linkToken}}` aos links.
+- **Chave admin** (`API_KEY_ADMIN`): obrigatória para `DELETE /clientes/[id]/rgpd` e
+  `POST /clientes/bulk-eliminar` via API. A `API_KEY_N8N` já não autoriza operações
+  destrutivas. Sessão de dashboard continua a autorizar.
+- **RGPD**: anonimização limpa TUDO (fichaClinica, ficha*, briefingJson, feedbacks,
+  tarefas, gift cards, portal token); exportação inclui feedbacks/tarefas/giftcards/audit.
+- **Opt-out automático**: resposta WhatsApp com pedido de paragem → `aceitaMarketing=false`.
+- **CSP**: `proxy.ts` (nonce, dashboard + /login) e `next.config.ts` (estática, /forms).
+- **Consentimento**: texto explícito no envio (essence-forms.js), versão registada no
+  audit log (`CONSENT_VERSAO` em public/onboarding). Decisão do Nuno: sem checkboxes.
+- **Cron retenção** (`/api/cron/retencao`, mensal): purga AuditLog >12 meses + portal
+  tokens expirados. NÃO toca em dados de clientes.
+- **Anti-enumeração**: `/public/lead` e `/public/onboarding` devolvem `{ ok: true }`
+  uniforme — os IDs reais seguem nos webhooks para o N8N.
+- Registo de tratamento (Art. 30): `02_DOCUMENTACAO/rgpd/REGISTO-TRATAMENTO.md`.
+
+Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via API),
+`LINK_TOKEN_SECRET` (opcional, cai para `WEBHOOK_SECRET`), `LINK_TOKEN_OBRIGATORIO`
+("true" para exigir tokens nos links públicos).
+
 ## Problemas conhecidos ativos (por resolver)
 
 | Prioridade | Problema | Localização |
 |---|---|---|
 | ~~🔴 CRÍTICO~~ | ~~`AUTH_URL` no Vercel por confirmar~~ | ✅ Resolvido — `https://crm.essencewellness.pt` |
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
-| 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel |
+| 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel (código pronto, falta config) |
+| 🟠 ALTO | Password da Neon exposta anteriormente — rotar na consola Neon | Vercel env `DATABASE_URL` |
 | 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |
+| 🟡 MÉDIO | Workflows N8N ainda não anexam `&t=` aos links (enforcement de link tokens desligado) | `03_WORKFLOWS_N8N/` |
 | 🟡 MÉDIO | `confirmacao-envio` não bloqueia double-delivery | `app/api/v1/webhooks/confirmacao-envio/route.ts` |
 | 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |
-| 🟡 MÉDIO | `clientes_backup.txt` não está em `.gitignore` | raiz do repositório |
 
 ## Resolvido nesta fase (spec-002)
 

@@ -105,6 +105,8 @@
   "use strict";
   const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
   const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+  const linkToken = new URLSearchParams(location.search).get("t");
+  const tokenQS = linkToken ? `&t=${encodeURIComponent(linkToken)}` : "";
 
   const elLoading = document.getElementById("loading");
   const elErro = document.getElementById("erro-carregar");
@@ -148,7 +150,7 @@
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/v1/public/confirmar-sessao?sessaoId=${encodeURIComponent(sessaoId)}`);
+      const res = await fetch(`${API_BASE}/api/v1/public/confirmar-sessao?sessaoId=${encodeURIComponent(sessaoId)}${tokenQS}`);
       if (!res.ok) throw new Error("HTTP " + res.status);
       const dados = await res.json();
 
@@ -190,7 +192,7 @@
       const res = await fetch(`${API_BASE}/api/v1/public/confirmar-sessao`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessaoId }),
+        body: JSON.stringify({ sessaoId, ...(linkToken ? { t: linkToken } : {}) }),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
       elConfirmacao.style.display = "none";

@@ -10,6 +10,7 @@ import { webhooks } from "@/lib/webhooks"
 import { confirmarSessaoQuerySchema, confirmarSessaoBodySchema, validarQuery, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
+import { validarLinkToken } from "@/lib/link-token"
 
 export async function GET(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -21,7 +22,10 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, confirmarSessaoQuerySchema)
   if (!q.ok) return q.resposta
-  const { sessaoId } = q.data
+  const { sessaoId, t } = q.data
+
+  const erroToken = validarLinkToken(request, sessaoId, "confirmar-sessao-get", t)
+  if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
     where: { id: sessaoId, apagadoEm: null },
@@ -58,7 +62,10 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, confirmarSessaoBodySchema)
   if (!v.ok) return v.resposta
-  const { sessaoId } = v.data
+  const { sessaoId, t } = v.data
+
+  const erroToken = validarLinkToken(request, sessaoId, "confirmar-sessao-post", t)
+  if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
     where: { id: sessaoId, apagadoEm: null },

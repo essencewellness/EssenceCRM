@@ -5,6 +5,7 @@ import { sessaoCreateSchema, sessoesQuerySchema, validarBody, validarQuery, norm
 import { serializarDecimais } from "@/lib/serialize"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
+import { gerarLinkToken } from "@/lib/link-token"
 import type { Prisma } from "@prisma/client"
 
 // Devolve o intervalo [início do dia, fim do dia] em UTC para o fuso de Lisboa
@@ -103,8 +104,12 @@ export async function GET(request: NextRequest) {
       ? sessoes[sessoes.length - 1]?.id
       : undefined
 
+    // linkToken: token assinado para o N8N construir links públicos seguros
+    // (?sessaoId=X&t=<token>) para ficha-sessao/pos-sessao/confirmar-sessao/atribuir-sessao
+    const sessoesComToken = sessoes.map((s) => ({ ...s, linkToken: gerarLinkToken(s.id) }))
+
     return respostaSucesso(
-      serializarDecimais(sessoes),
+      serializarDecimais(sessoesComToken),
       { total: sessoes.length, ...(nextCursor ? { nextCursor } : {}) }
     )
   } catch (error) {

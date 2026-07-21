@@ -216,7 +216,10 @@
 
   window.EF = { CTX, PERSONAL, chips, chip1, chipsCom, val, goTo, next, back };
 
-  // ── Aviso de tratamento de dados (consentimento implícito no envio) ──
+  // ── Aviso de tratamento de dados (consentimento no acto de envio) ──
+  // Declaração explícita: enviar o formulário é o acto afirmativo de
+  // consentimento (RGPD Art. 9). A versão deste texto fica registada no
+  // audit log do CRM (ver CONSENT_VERSAO em /api/v1/public/onboarding).
   (function injetarAvisoRGPD() {
     const btn = document.querySelector("[data-submit]");
     if (!btn || document.getElementById("aviso-rgpd")) return;
@@ -231,7 +234,13 @@
     a.rel = "noopener";
     a.textContent = "Política de Privacidade";
     a.style.cssText = "color:inherit;text-decoration:underline;";
-    p.append("Ao enviar, aceitas que tratamos os teus dados para preparar a tua sessão. ", a);
+    p.append(
+      "Ao enviar esta ficha dás o teu consentimento explícito à Essence Wellness " +
+      "para tratar os dados que partilhas — incluindo dados de saúde — apenas para " +
+      "preparar e personalizar as tuas sessões. Podes retirar o consentimento ou " +
+      "pedir o apagamento dos teus dados a qualquer momento. ",
+      a
+    );
     btn.insertAdjacentElement("afterend", p);
   })();
 

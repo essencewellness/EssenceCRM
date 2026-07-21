@@ -12,6 +12,11 @@ import { onboardingPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 
+// Versão do texto de consentimento mostrado no formulário (essence-forms.js,
+// injetarAvisoRGPD). Incrementar sempre que o texto mudar — fica no audit log
+// como prova de QUE declaração a cliente consentiu ao enviar.
+const CONSENT_VERSAO = "v2-2026-07-21"
+
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
     recurso: "onboarding",
@@ -30,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   // Honeypot preenchido = bot
   if (website) {
-    return NextResponse.json({ clienteId: "ok", created: false })
+    return NextResponse.json({ ok: true })
   }
 
   try {
@@ -48,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Blacklist: rejeitar silenciosamente sem revelar o motivo
     if (cliente?.estado === "blacklist") {
-      return NextResponse.json({ clienteId: cliente.id, sessaoId: sessaoId ?? null, created: false })
+      return NextResponse.json({ ok: true })
     }
 
     if (!cliente) {
@@ -121,7 +126,7 @@ export async function POST(request: NextRequest) {
       acao: "onboarding.submetido",
       entidade: "Cliente",
       entidadeId: cliente.id,
-      detalhe: { consentimentoSaude: !!consentimentoSaude, temVoucher: !!voucherCodigo },
+      detalhe: { consentimentoSaude: !!consentimentoSaude, temVoucher: !!voucherCodigo, consentVersao: CONSENT_VERSAO },
       ip: request.headers.get("x-forwarded-for"),
     })
 
@@ -154,7 +159,9 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ clienteId: cliente.id, sessaoId: sessaoId ?? null, created })
+    // Resposta uniforme: não revelar se o email já era cliente (anti-enumeração).
+    // Os IDs reais seguem no webhook onboarding.submetido para o N8N.
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("POST /api/v1/public/onboarding:", (error as Error).message)
     return NextResponse.json(
