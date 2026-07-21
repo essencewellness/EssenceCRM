@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react"
 import { Pencil } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { formatDate, formatPhone, formatCurrency } from "@/lib/utils"
+import { useEdicaoPerfilOpcional } from "./EdicaoPerfilContext"
 
 type TipoCampo = "text" | "email" | "tel" | "date" | "time" | "number" | "currency" | "select" | "toggle" | "textarea"
 
@@ -51,32 +52,52 @@ const inputBaseStyle: React.CSSProperties = {
   padding: "5px 8px", outline: "none", width: "100%",
 }
 
-// Edição inline campo-a-campo — clicar para editar, Enter/blur grava, Esc cancela.
-// Uma única primitiva para todo o CRM em vez de um editor dedicado por campo
-// (mesmo padrão otimista/rollback do EstadoEditor, generalizado).
+// Edição inline — duas formas de controlar quando fica editável:
+// 1. Dentro de <EdicaoPerfilProvider> (perfil do cliente): um único botão
+//    "Editar" liga o modo de edição para TODOS os campos ao mesmo tempo.
+//    Fora desse modo, mostra só texto simples — sem lápis, sem clique.
+// 2. Sem provider (ex: drawer de sessões): mantém o comportamento antigo,
+//    clicar em cada campo individualmente abre-o para edição.
 export function InlineEditField({
   label, value, type = "text", options, placeholder, readOnly, hideLabel, valueStyle, onSave,
 }: Props) {
-  const [editando, setEditando] = useState(false)
+  const ctxEdicaoPerfil = useEdicaoPerfilOpcional()
+  const controlado = ctxEdicaoPerfil !== null
+  const [editandoInterno, setEditandoInterno] = useState(false)
+  const editando = controlado ? ctxEdicaoPerfil.editing : editandoInterno
+
   const [valorLocal, setValorLocal] = useState<Valor>(value)
   const [rascunho, setRascunho] = useState(value == null ? "" : String(value))
   const [isPending, startTransition] = useTransition()
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null)
   const { toast } = useToast()
 
+  // Ao entrar em edição, repor o rascunho a partir do valor atual — ajustado
+  // durante o render (comparando com o render anterior via estado, nunca
+  // via ref: refs não podem ser lidas/escritas durante o render), não num
+  // efeito, já que não há nenhum sistema externo a sincronizar aqui.
+  const [editandoAnterior, setEditandoAnterior] = useState(editando)
+  if (editando !== editandoAnterior) {
+    setEditandoAnterior(editando)
+    if (editando) setRascunho(valorLocal == null ? "" : String(valorLocal))
+  }
+
+  // Focar o input só faz sentido no modo antigo (um único campo abre de cada
+  // vez); no modo controlado vários campos abrem ao mesmo tempo — focar
+  // qualquer um deles seria arbitrário.
   useEffect(() => {
-    if (editando) inputRef.current?.focus()
-  }, [editando])
+    if (editando && !controlado) inputRef.current?.focus()
+  }, [editando, controlado])
 
   function abrir() {
-    if (readOnly || isPending) return
+    if (readOnly || isPending || controlado) return
     setRascunho(valorLocal == null ? "" : String(valorLocal))
-    setEditando(true)
+    setEditandoInterno(true)
   }
 
   function cancelar() {
     setRascunho(valorLocal == null ? "" : String(valorLocal))
-    setEditando(false)
+    if (!controlado) setEditandoInterno(false)
   }
 
   function converterRascunho(): Valor {
@@ -103,18 +124,28 @@ export function InlineEditField({
   }
 
   function gravar() {
-    setEditando(false)
+    if (!controlado) setEditandoInterno(false)
     persistir(converterRascunho())
   }
 
   function gravarToggle() {
-    if (readOnly || isPending) return
+    if (readOnly || isPending || (controlado && !editando)) return
     persistir(!valorLocal)
   }
 
   const textoExibido = formatarExibicao(valorLocal, type, options)
 
   if (type === "toggle") {
+    if (controlado && !editando) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+          {!hideLabel && <span style={rotuloStyle}>{label}</span>}
+          <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", ...valueStyle }}>
+            {valorLocal ? "Sim" : "Não"}
+          </span>
+        </div>
+      )
+    }
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
         {!hideLabel && <span style={rotuloStyle}>{label}</span>}
@@ -157,8 +188,8 @@ export function InlineEditField({
         <select
           ref={inputRef}
           value={rascunho}
-          onChange={(e) => setRascunho(e.target.value)}
-          onBlur={gravar}
+          onChange={(e) => { setRascunho(e.target.value); if (controlado) persistir(e.target.value) }}
+          onBlur={() => { if (!controlado) gravar() }}
           onKeyDown={(e) => { if (e.key === "Escape") cancelar() }}
           style={{ ...inputBaseStyle, ...valueStyle, cursor: "pointer" }}
         >
@@ -215,6 +246,26 @@ export function InlineEditField({
     )
   }
 
+  // Fechado, modo controlado (perfil do cliente): texto simples, sem
+  // lápis nem clique — só o botão global "Editar" abre a edição.
+  if (controlado) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+        {!hideLabel && <span style={rotuloStyle}>{label}</span>}
+        <span style={{
+          fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
+          color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
+          fontStyle: textoExibido ? "normal" : "italic",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          ...valueStyle,
+        }}>
+          {textoExibido || "—"}
+        </span>
+      </div>
+    )
+  }
+
+  // Fechado, modo antigo (sem provider): clicar abre a edição deste campo.
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
       {!hideLabel && <span style={rotuloStyle}>{label}</span>}

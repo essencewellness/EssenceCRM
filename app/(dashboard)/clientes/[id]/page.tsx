@@ -18,6 +18,8 @@ import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
 import { TerapeutaEditor } from "./TerapeutaEditor"
 import { InlineEditField } from "@/components/clientes/InlineEditField"
+import { EdicaoPerfilProvider } from "@/components/clientes/EdicaoPerfilContext"
+import { EdicaoPerfilToggle } from "@/components/clientes/EdicaoPerfilToggle"
 import { atualizarCampoCliente } from "../actions"
 
 interface ClientePageProps {
@@ -165,6 +167,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
         </Link>
       </div>
 
+      <EdicaoPerfilProvider>
       {/* Profile header — scale in */}
       <div className="anim-scale-in" style={{
         backgroundColor: "var(--nuit-overlay)", borderRadius: "12px",
@@ -206,7 +209,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 terapeutas={terapeutas.map((t) => ({ id: t.id, name: t.name }))}
                 podeEditar={ctx.isAdmin}
               />
-              <div style={{ marginLeft: "auto" }}>
+              <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
+                <EdicaoPerfilToggle />
                 <DeleteClienteButton
                   clienteId={cliente.id}
                   primeiroNome={cliente.nome.split(" ")[0]}
@@ -244,7 +248,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   hideLabel
                   type="tel"
                   value={cliente.telefone}
-                  placeholder="Adicionar telefone"
+                  placeholder="+351 911 150 025"
                   valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
                   onSave={atualizarCampoCliente.bind(null, cliente.id, "telefone")}
                 />
@@ -349,6 +353,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       label="Telefone"
                       type="tel"
                       value={cliente.telefone}
+                      placeholder="+351 911 150 025"
                       onSave={atualizarCampoCliente.bind(null, cliente.id, "telefone")}
                     />
                     <InlineEditField
@@ -777,6 +782,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
         ]}
       />
       </div>
+      </EdicaoPerfilProvider>
     </div>
   )
 }

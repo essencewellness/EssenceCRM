@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 import { webhooks } from "@/lib/webhooks"
-import { clienteUpdateSchema } from "@/lib/validations"
+import { clienteUpdateSchema, normalizarTelefone } from "@/lib/validations"
 import type { EstadoCliente, Prisma } from "@prisma/client"
 
 async function verificarSessao() {
@@ -138,7 +138,19 @@ export async function atualizarCampoCliente(
   if (!parsed.success) {
     return { ok: false, erro: parsed.error.issues[0]?.message ?? "Valor inválido" }
   }
-  const valorValidado = (parsed.data as Record<string, unknown>)[campo]
+  let valorValidado = (parsed.data as Record<string, unknown>)[campo]
+
+  // Indicativo obrigatório — evita ambiguidade entre números nacionais e
+  // internacionais quando alguém escreve o telefone à mão no dashboard.
+  if (campo === "telefone" && valorValidado) {
+    const telefoneStr = String(valorValidado).trim()
+    if (!telefoneStr.startsWith("+")) {
+      return { ok: false, erro: "O telefone tem de incluir o indicativo do país (ex: +351 911 150 025)." }
+    }
+    // Guarda no mesmo formato normalizado que o resto do sistema já usa
+    // (webhook Calendly, WhatsApp) — nunca duplicar formatos na mesma coluna.
+    valorValidado = normalizarTelefone(telefoneStr)
+  }
 
   // Guarda anti-colisão — clientes são upsert por telefone/email, nunca duplicar (CLAUDE.md)
   if ((campo === "telefone" || campo === "email") && valorValidado) {
