@@ -42,7 +42,7 @@ GET /api/v1/clientes/{{payload.clienteId}}
 IF cliente.estado == "blacklist"  →  STOP
     ↓
 Construir URL do formulário:
-  https://crm.essencewellness.pt/forms/feedback.html
+  https://crm.essencewellnesspt.com/forms/feedback.html
     ?c={{payload.clienteId}}
     &s={{payload.sessaoId}}
     ↓

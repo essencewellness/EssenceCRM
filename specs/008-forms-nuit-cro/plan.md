@@ -16,7 +16,7 @@
 ## Inputs do utilizador — RESOLVIDOS ✅
 
 1. **`GOOGLE_REVIEW_URL`** = `https://g.page/r/CUpYz4Jwxqw3EBM/review` — usar no CTA positivo do feedback (C3).
-2. **Domínio de produção** = `https://crm.essencewellness.pt` (ATIVO — domínio principal do CRM). Usar como `API_BASE` de produção nos 3 forms. ⚠️ Corrigir o onboarding que aponta para `crm.essencewellnesspt.com` (errado, sem ponto). Manter deteção localhost para dev.
+2. **Domínio de produção** = `https://crm.essencewellnesspt.com` (ATIVO — domínio principal do CRM). Usar como `API_BASE` de produção nos 3 forms. ⚠️ Corrigir o onboarding que aponta para `crm.essencewellnesspt.com` (errado, sem ponto). Manter deteção localhost para dev.
 3. **Utilizadores** = 2 terapeutas + 1 admin: **Beatriz Leão**, **Cristina Martins**, **Admin**.
    - `GET /api/v1/terapeutas` devolve os users com perfil de terapeuta.
    - Seletor do pós-sessão (C2) mostra **apenas Beatriz e Cristina** (quem realiza sessões); o Admin não aparece como terapeuta executante.

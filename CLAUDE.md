@@ -100,7 +100,7 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 
 | Prioridade | Problema | Localização |
 |---|---|---|
-| ~~🔴 CRÍTICO~~ | ~~`AUTH_URL` no Vercel por confirmar~~ | ✅ Resolvido — `https://crm.essencewellness.pt` |
+| ~~🔴 CRÍTICO~~ | ~~`AUTH_URL` no Vercel por confirmar~~ | ✅ Resolvido — `https://crm.essencewellnesspt.com` |
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
 | 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel (código pronto, falta config) |
 | 🟠 ALTO | Password da Neon exposta anteriormente — rotar na consola Neon | Vercel env `DATABASE_URL` |
