@@ -706,10 +706,6 @@
     }
   }
 
-  // Guardar a promise para o modo sessaoId poder esperar pelo catálogo antes de pré-selecionar
-  const servicosProntos = carregarServicos();
-  carregarTerapeutas();
-
   // ── Estado emocional ──────────────────────────────
   document.querySelectorAll('.emocional-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -908,11 +904,12 @@
 
       if (sessaoId) {
         // ── Modo sessaoId: a sessão já existe (Calendly) — marcar como realizada
-        const res = await fetch(`${API_BASE}/api/v1/sessoes/${sessaoId}`, {
+        // Endpoint público (sem X-API-Key) — protegido só pelo sessaoId ser um cuid.
+        const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao`, {
           method: 'PATCH',
-          headers: authHeaders,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            estado: 'realizada',
+            sessaoId,
             servico,
             ...(precoServico != null ? { preco: precoServico } : {}),
             ...camposClinicos,
@@ -1010,29 +1007,33 @@
 
   if (sessaoParam) {
     carregarSessaoExistente(sessaoParam);
-  } else if (cidParam) {
-    fetch(`${API_BASE}/api/v1/clientes/${cidParam}`, { headers: authHeaders })
-      .then(r => r.json())
-      .then(j => { if (j.data) selecionarCliente(j.data); })
-      .catch(() => {});
+  } else {
+    // Modo manual/clienteId: catálogo interno, requer sessão aberta no dashboard
+    carregarServicos();
+    carregarTerapeutas();
+    if (cidParam) {
+      fetch(`${API_BASE}/api/v1/clientes/${cidParam}`, { headers: authHeaders })
+        .then(r => r.json())
+        .then(j => { if (j.data) selecionarCliente(j.data); })
+        .catch(() => {});
+    }
   }
 
   async function carregarSessaoExistente(id) {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/sessoes/${id}`, { headers: authHeaders });
+      // Endpoint público (sem X-API-Key) — protegido só pelo sessaoId ser um cuid.
+      const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao?sessaoId=${encodeURIComponent(id)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const { data: sessao } = await res.json();
+      const { sessao, cliente, servicos, terapeutas } = await res.json();
       if (!sessao) throw new Error('Sessão sem dados');
 
       document.getElementById('sessao-id').value = sessao.id;
 
       // Cliente fixo — vem da sessão; esconder pesquisa e botão de trocar
-      clienteSelecionado = sessao.cliente || null;
+      clienteSelecionado = { id: sessao.clienteId, nome: cliente.nome };
       document.getElementById('cliente-id').value = sessao.clienteId;
-      if (sessao.cliente) {
-        document.getElementById('display-nome').textContent = sessao.cliente.nome;
-        document.getElementById('avatar-inicial').textContent = (sessao.cliente.nome || '?')[0].toUpperCase();
-      }
+      document.getElementById('display-nome').textContent = cliente.nome;
+      document.getElementById('avatar-inicial').textContent = (cliente.nome || '?')[0].toUpperCase();
 
       const dataSessao = sessao.data ? sessao.data.split('T')[0] : '';
       const horaSessao = sessao.hora || (sessao.data ? new Date(sessao.data).toTimeString().slice(0, 5) : '');
@@ -1048,30 +1049,47 @@
       document.getElementById('data-sessao').readOnly = true;
       document.getElementById('hora-sessao').readOnly = true;
 
-      // Serviço: esperar pelo catálogo; se o serviço da sessão não existir lá, acrescentá-lo
-      await servicosProntos;
+      // Serviços: já vêm no bundle público (sem precisar de X-API-Key)
+      const selServico = document.getElementById('servico');
+      selServico.innerHTML = '<option value="">Seleciona o serviço…</option>';
+      servicos.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.nome;
+        opt.dataset.preco = s.precoBase;
+        opt.textContent = `${s.nome} (${Number(s.precoBase).toFixed(0)}€)`;
+        selServico.appendChild(opt);
+      });
       if (sessao.servico) {
-        const sel = document.getElementById('servico');
-        const existe = Array.from(sel.options).some(o => o.value === sessao.servico);
+        const existe = Array.from(selServico.options).some(o => o.value === sessao.servico);
         if (!existe) {
           const opt = document.createElement('option');
           opt.value = sessao.servico;
           opt.textContent = sessao.servico;
           if (sessao.preco != null) opt.dataset.preco = sessao.preco;
-          sel.appendChild(opt);
+          selServico.appendChild(opt);
         }
-        sel.value = sessao.servico;
+        selServico.value = sessao.servico;
       }
 
-      // O PATCH não altera a terapeuta — desativar o seletor neste modo
-      document.getElementById('terapeuta').disabled = true;
+      // Terapeutas: idem, vêm no bundle público. O PATCH não altera a terapeuta.
+      const selTerapeuta = document.getElementById('terapeuta');
+      selTerapeuta.innerHTML = '';
+      terapeutas.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name || 'Terapeuta';
+        selTerapeuta.appendChild(opt);
+      });
+      selTerapeuta.disabled = true;
     } catch (err) {
       console.error(err);
-      // Fallback: sem sessão carregada, o formulário volta ao modo manual (POST)
+      // Fallback: sem sessão carregada, o formulário volta ao modo manual
       document.getElementById('sessao-id').value = '';
       const ge = document.getElementById('global-error');
       ge.textContent = 'Não foi possível carregar a sessão agendada. Podes registar a sessão manualmente.';
       ge.classList.add('visible');
+      carregarServicos();
+      carregarTerapeutas();
     }
   }
 </script>

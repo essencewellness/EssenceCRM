@@ -2,10 +2,9 @@ import { NextRequest } from "next/server"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
-import { webhooks } from "@/lib/webhooks"
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
-import { serializarDecimais, paraNumero } from "@/lib/serialize"
-import { recalcularMetricasCliente } from "@/lib/metricas"
+import { serializarDecimais } from "@/lib/serialize"
+import { processarSessaoRealizada } from "@/lib/sessoes"
 import { auditar } from "@/lib/audit"
 
 
@@ -105,53 +104,10 @@ export async function PATCH(
 
     let clienteAtualizado = null
 
-    // Quando passa a "realizada" — recalcular métricas (fonte única: lib/metricas)
+    // Quando passa a "realizada" — recalcular métricas + webhook + avaliação (lib/sessoes)
     if (estado === "realizada" && sessaoAntes.estado !== "realizada") {
-      const metricas = await recalcularMetricasCliente(prisma, sessaoAntes.clienteId)
+      const metricas = await processarSessaoRealizada(sessaoAntes, sessao.preco)
       clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
-
-      void webhooks.sessaoRealizada({
-        sessaoId: id,
-        clienteId: sessaoAntes.clienteId,
-        preco: paraNumero(sessao.preco),
-        servico: sessao.servico,
-        terapeuta: sessao.terapeuta,
-      })
-
-      // Agendar mensagem de avaliação de satisfação (fire-and-forget)
-      const templateAvaliacao = await prisma.templateMensagem.findUnique({
-        where: { nome: "avaliacao_pos_sessao" },
-        select: { id: true, texto: true },
-      })
-      const clienteParaAvaliacao = await prisma.cliente.findUnique({
-        where: { id: sessaoAntes.clienteId },
-        select: { nome: true, estado: true },
-      })
-
-      if (
-        templateAvaliacao &&
-        clienteParaAvaliacao &&
-        clienteParaAvaliacao.estado !== "blacklist"
-      ) {
-        const textoAvaliacao = templateAvaliacao.texto.replace(
-          /\{\{nome\}\}/g,
-          clienteParaAvaliacao.nome ?? ""
-        )
-        // Agendada para 2 horas após a sessão
-        const enviarApos = new Date(Date.now() + 4 * 60 * 60 * 1000)
-        void prisma.mensagemIA.create({
-          data: {
-            clienteId: sessaoAntes.clienteId,
-            canal: "whatsapp",
-            tipo: "avaliacao",
-            estado: "em_fila",
-            mensagemGerada: textoAvaliacao,
-            mensagemFinal: textoAvaliacao,
-            aprovadaEm: new Date(),
-            enviarApos,
-          },
-        })
-      }
     }
 
     auditar({

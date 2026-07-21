@@ -282,6 +282,25 @@ export const atribuirSessaoSchema = z.object({
   website: z.string().max(500).optional(), // honeypot
 }).strict()
 
+// Registo de sessão pela terapeuta — mesmo modelo de confiança que
+// atribuir-sessao/ficha-sessao/confirmar-sessao: sem login, protegido só pelo
+// sessaoId ser um cuid, pensado para abrir a partir do link WhatsApp enviado
+// logo após o fim do tratamento (Workflow 05).
+export const posSessaoQuerySchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+})
+
+export const posSessaoPatchSchema = z.object({
+  sessaoId: z.string().trim().min(1).max(64),
+  servico: z.string().trim().max(120),
+  preco: precoSchema.optional().nullable(),
+  aromaSessao: z.string().trim().max(120).optional().nullable(),
+  estadoEmocional: z.string().trim().max(200).optional().nullable(),
+  resumoSessao: textoOpcional,
+  notasPosSessao: textoOpcional,
+  dataRecomendadaRegresso: dataISO.optional().nullable(),
+}).strict()
+
 // ── Serviços ──────────────────────────────────────────────────
 
 export const servicoCreateSchema = z.object({
