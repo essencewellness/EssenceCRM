@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
   const {
     clienteId, calendlyEventId, estado, status, data: dataFiltro,
     briefingEnviado, lembreteEnviado, nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado,
-    proxima, terapeuta, de, ate, limit, cursor,
+    lembretePosSessaoEnviado, proxima, terapeuta, de, ate, limit, cursor,
   } = q.data
 
   // proxima=true requer clienteId
@@ -81,6 +81,7 @@ export async function GET(request: NextRequest) {
     if (nutricaoBoasVindasEnviado !== undefined) where.nutricaoBoasVindasEnviado = nutricaoBoasVindasEnviado === "true"
     if (nutricao14dEnviado !== undefined) where.nutricao14dEnviado = nutricao14dEnviado === "true"
     if (nutricao7dEnviado  !== undefined) where.nutricao7dEnviado  = nutricao7dEnviado  === "true"
+    if (lembretePosSessaoEnviado !== undefined) where.lembretePosSessaoEnviado = lembretePosSessaoEnviado === "true"
 
     // proxima=true → próxima sessão futura do cliente (take: 1, orderBy asc)
     if (proxima === "true") {
@@ -92,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     const sessoes = await prisma.sessao.findMany({
       where,
-      include: { cliente: { select: { id: true, nome: true, telefone: true } } },
+      include: { cliente: { select: { id: true, nome: true, telefone: true, email: true, temWhatsapp: true } } },
       orderBy: proxima === "true" ? { data: "asc" } : { data: "desc" },
       take: proxima === "true" ? 1 : limit,
       ...(cursorClause ? { cursor: cursorClause, skip: 1 } : {}),

@@ -127,6 +127,7 @@ export const sessaoUpdateSchema = z.object({
   nutricaoBoasVindasEnviado: z.boolean().optional(),
   nutricao14dEnviado:  z.boolean().optional(),
   nutricao7dEnviado:   z.boolean().optional(),
+  lembretePosSessaoEnviado: z.boolean().optional(),
   googleDocLink:       z.string().trim().max(500).nullable().optional(),
   briefingJson:        z.record(z.string(), z.unknown()).nullable().optional(),
   // Pagamento
@@ -158,6 +159,7 @@ export const sessoesQuerySchema = z.object({
   nutricaoBoasVindasEnviado: z.enum(["true", "false"]).optional(),
   nutricao14dEnviado: z.enum(["true", "false"]).optional(),
   nutricao7dEnviado:  z.enum(["true", "false"]).optional(),
+  lembretePosSessaoEnviado: z.enum(["true", "false"]).optional(),
   proxima:            z.enum(["true"]).optional(),
   terapeuta:          z.string().trim().max(60).optional(),
   de:                 z.string().optional(),

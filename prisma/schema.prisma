@@ -264,6 +264,9 @@ model Sessao {
   nutricao14dEnviado   Boolean   @default(false)
   nutricao7dEnviado    Boolean   @default(false)
   googleDocLink        String?
+  // Lembrete à terapeuta para registar a sessão — enviado logo após o fim
+  // do tratamento (data + hora + duração + 10 min), não num lote diário
+  lembretePosSessaoEnviado Boolean @default(false)
 
   // Ficha de sessão para a terapeuta — relatório clínico estruturado (Groq), gerado 24h antes
   briefingJson         Json?
