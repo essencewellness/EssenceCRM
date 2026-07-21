@@ -41,11 +41,12 @@ type Sessao = {
 
 function SessaoEstadoBadge({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
-    realizada: { label: "Realizada", color: "#a0a996", bg: "rgba(160,169,150,0.12)", Icon: CheckCircle2 },
-    agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)", Icon: Clock },
-    cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
-    concluida: { label: "Concluída", color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", Icon: CheckCircle2 },
-    falta:     { label: "Falta",     color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
+    realizada:  { label: "Realizada",  color: "#a0a996", bg: "rgba(160,169,150,0.12)", Icon: CheckCircle2 },
+    agendada:   { label: "Agendada",   color: "#b9a07a", bg: "rgba(185,160,122,0.10)", Icon: Clock },
+    confirmada: { label: "Confirmada", color: "#8a9bb0", bg: "rgba(138,155,176,0.12)", Icon: CheckCircle2 },
+    cancelada:  { label: "Cancelada",  color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
+    concluida:  { label: "Concluída",  color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", Icon: CheckCircle2 },
+    falta:      { label: "Falta",      color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
   }
   const cfg = map[estado] ?? { label: estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", Icon: Clock }
   return (
@@ -125,10 +126,11 @@ function DetailBlock({ title, icon: Icon, content, color }: {
 }
 
 const ESTADOS_SESSAO = [
-  { value: "agendada",  label: "Agendada",  cor: "#b9a07a" },
-  { value: "realizada", label: "Realizada", cor: "#a0a996" },
-  { value: "cancelada", label: "Cancelada", cor: "#b06050" },
-  { value: "falta",     label: "Falta",     cor: "#b06050" },
+  { value: "agendada",   label: "Agendada",   cor: "#b9a07a" },
+  { value: "confirmada", label: "Confirmada", cor: "#8a9bb0" },
+  { value: "realizada",  label: "Realizada",  cor: "#a0a996" },
+  { value: "cancelada",  label: "Cancelada",  cor: "#b06050" },
+  { value: "falta",      label: "Falta",      cor: "#b06050" },
 ]
 
 interface Props {
@@ -161,7 +163,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
     const atualizada = { ...sessaoAberta, estado: novoEstado }
     setSessaoAberta(atualizada)
     startTransition(async () => {
-      await atualizarObservacoesSessao(sessaoAberta.id, clienteId, { estado: novoEstado as "agendada" | "realizada" | "cancelada" | "falta" })
+      await atualizarObservacoesSessao(sessaoAberta.id, clienteId, { estado: novoEstado as "agendada" | "confirmada" | "realizada" | "cancelada" | "falta" })
     })
   }
 
@@ -283,7 +285,6 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <SessaoEstadoBadge estado={sessaoAberta.estado} />
                     <select
                       value={sessaoAberta.estado}
                       onChange={(e) => mudarEstado(e.target.value)}
@@ -299,7 +300,12 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                       }}
                     >
                       {ESTADOS_SESSAO.map(e => (
-                        <option key={e.value} value={e.value}>{e.label}</option>
+                        <option
+                          key={e.value} value={e.value}
+                          style={{ backgroundColor: "var(--nuit-deep, #0E1119)", color: "var(--nuit-bone, #ECE6D6)" }}
+                        >
+                          {e.label}
+                        </option>
                       ))}
                     </select>
                     {isPending && (
