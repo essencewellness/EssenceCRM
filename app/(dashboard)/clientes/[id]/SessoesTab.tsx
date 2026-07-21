@@ -578,14 +578,12 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   label="Preço"
                   type="currency"
                   value={sessaoAberta.preco}
-                  formatDisplay={(v) => formatCurrency(Number(v ?? 0))}
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "preco", v)}
                 />
                 <InlineEditField
                   label="Data"
                   type="date"
                   value={new Date(sessaoAberta.data).toISOString().split("T")[0]}
-                  formatDisplay={(v) => formatDate(v as string)}
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "data", v)}
                 />
                 <InlineEditField
@@ -613,7 +611,6 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   type="date"
                   value={sessaoAberta.dataRecomendadaRegresso ? new Date(sessaoAberta.dataRecomendadaRegresso).toISOString().split("T")[0] : null}
                   placeholder="Adicionar data"
-                  formatDisplay={(v) => formatDate(v as string)}
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "dataRecomendadaRegresso", v)}
                 />
               </div>

@@ -6,7 +6,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { prisma } from "@/lib/prisma"
-import { formatDate, formatCurrency, formatPhone, getInitials } from "@/lib/utils"
+import { formatDate, formatCurrency, getInitials } from "@/lib/utils"
 import { ClientePerfilTabs } from "@/components/clientes/ClientePerfilTabs"
 import { ClienteTimeline } from "@/components/clientes/ClienteTimeline"
 import { construirEventosTimeline } from "@/lib/timeline"
@@ -197,7 +197,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   fontFamily: "var(--font-heading, Georgia, serif)",
                   fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
                 }}
-                onSave={(v) => atualizarCampoCliente(cliente.id, "nome", v)}
+                onSave={atualizarCampoCliente.bind(null, cliente.id, "nome")}
               />
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
               <TerapeutaEditor
@@ -245,9 +245,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   type="tel"
                   value={cliente.telefone}
                   placeholder="Adicionar telefone"
-                  formatDisplay={(v) => formatPhone(v as string | null)}
                   valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
-                  onSave={(v) => atualizarCampoCliente(cliente.id, "telefone", v)}
+                  onSave={atualizarCampoCliente.bind(null, cliente.id, "telefone")}
                 />
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -259,7 +258,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   value={cliente.email}
                   placeholder="Adicionar email"
                   valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
-                  onSave={(v) => atualizarCampoCliente(cliente.id, "email", v)}
+                  onSave={atualizarCampoCliente.bind(null, cliente.id, "email")}
                 />
               </span>
             </div>
@@ -338,51 +337,48 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       label="Data de Nascimento"
                       type="date"
                       value={cliente.dataNascimento ? cliente.dataNascimento.toISOString().split("T")[0] : null}
-                      formatDisplay={(v) => formatDate(v as string | null)}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "dataNascimento", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "dataNascimento")}
                     />
                     <InlineEditField
                       label="Email"
                       type="email"
                       value={cliente.email}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "email", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "email")}
                     />
                     <InlineEditField
                       label="Telefone"
                       type="tel"
                       value={cliente.telefone}
-                      formatDisplay={(v) => formatPhone(v as string | null)}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "telefone", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "telefone")}
                     />
                     <InlineEditField
                       label="Aceita Marketing"
                       type="toggle"
                       value={cliente.aceitaMarketing}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "aceitaMarketing", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "aceitaMarketing")}
                     />
                     <InlineEditField
                       label="Tem WhatsApp"
                       type="toggle"
                       value={cliente.temWhatsapp}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "temWhatsapp", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "temWhatsapp")}
                     />
                     <InlineEditField
                       label="Melhor dia para contacto"
                       value={cliente.melhorDiaContacto}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "melhorDiaContacto", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "melhorDiaContacto")}
                     />
                     <InlineEditField
                       label="Como nos conheceu"
                       value={cliente.comoNosConheceu}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "comoNosConheceu", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "comoNosConheceu")}
                     />
                     <InlineEditField
                       label="Fonte"
                       type="select"
                       value={cliente.fonte}
                       options={Object.entries(fonteLabel).map(([value, label]) => ({ value, label }))}
-                      formatDisplay={(v) => fonteLabel[v as string] ?? (v as string) ?? "—"}
-                      onSave={(v) => atualizarCampoCliente(cliente.id, "fonte", v)}
+                      onSave={atualizarCampoCliente.bind(null, cliente.id, "fonte")}
                     />
                     <InfoRow label="Cliente desde" value={formatDate(cliente.criadoEm)} />
                   </div>

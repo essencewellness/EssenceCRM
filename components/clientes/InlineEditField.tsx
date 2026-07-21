@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react"
 import { Pencil } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
+import { formatDate, formatPhone, formatCurrency } from "@/lib/utils"
 
 type TipoCampo = "text" | "email" | "tel" | "date" | "time" | "number" | "currency" | "select" | "toggle" | "textarea"
 
@@ -22,8 +23,19 @@ interface Props {
   readOnly?: boolean
   hideLabel?: boolean
   valueStyle?: React.CSSProperties
-  formatDisplay?: (value: Valor) => string
   onSave: (novoValor: Valor) => Promise<{ ok: true } | { ok: false; erro: string }>
+}
+
+// Formatação de exibição derivada do `type` — nunca uma função passada por
+// prop (um Server Component não consegue passar closures a um Client
+// Component; só dados/strings atravessam essa fronteira).
+function formatarExibicao(v: Valor, type: TipoCampo, options?: Opcao[]): string {
+  if (v === null || v === undefined || v === "") return ""
+  if (type === "tel") return formatPhone(String(v))
+  if (type === "date") return formatDate(String(v))
+  if (type === "currency") return formatCurrency(Number(v))
+  if (type === "select") return options?.find(o => o.value === v)?.label ?? String(v)
+  return String(v)
 }
 
 const rotuloStyle: React.CSSProperties = {
@@ -43,7 +55,7 @@ const inputBaseStyle: React.CSSProperties = {
 // Uma única primitiva para todo o CRM em vez de um editor dedicado por campo
 // (mesmo padrão otimista/rollback do EstadoEditor, generalizado).
 export function InlineEditField({
-  label, value, type = "text", options, placeholder, readOnly, hideLabel, valueStyle, formatDisplay, onSave,
+  label, value, type = "text", options, placeholder, readOnly, hideLabel, valueStyle, onSave,
 }: Props) {
   const [editando, setEditando] = useState(false)
   const [valorLocal, setValorLocal] = useState<Valor>(value)
@@ -100,9 +112,7 @@ export function InlineEditField({
     persistir(!valorLocal)
   }
 
-  const textoExibido = formatDisplay
-    ? formatDisplay(valorLocal)
-    : (valorLocal === null || valorLocal === undefined || valorLocal === "" ? "" : String(valorLocal))
+  const textoExibido = formatarExibicao(valorLocal, type, options)
 
   if (type === "toggle") {
     return (
