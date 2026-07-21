@@ -112,6 +112,9 @@ export const sessaoCreateSchema = z.object({
 
 export const sessaoUpdateSchema = z.object({
   estado: z.enum(ESTADOS_SESSAO).optional(),
+  data: dataISO.optional(),
+  hora: z.string().trim().max(10).optional().nullable(),
+  duracao: z.coerce.number().int().min(5).max(480).optional().nullable(),
   resumoSessao: textoOpcional,
   notasPosSessao: textoOpcional,
   aromaSessao: z.string().trim().max(120).optional().nullable(),

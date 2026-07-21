@@ -5,7 +5,8 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 import { webhooks } from "@/lib/webhooks"
-import type { EstadoCliente } from "@prisma/client"
+import { clienteUpdateSchema } from "@/lib/validations"
+import type { EstadoCliente, Prisma } from "@prisma/client"
 
 async function verificarSessao() {
   const session = await auth()
@@ -105,6 +106,86 @@ export async function atualizarEstadoCliente(clienteId: string, estado: EstadoCl
 
   revalidatePath(`/clientes/${clienteId}`)
   revalidatePath("/clientes")
+}
+
+// ── Edição inline de campos do perfil ────────────────────────────
+// Uma única action genérica para todos os campos editáveis (InlineEditField),
+// em vez de um editor dedicado por campo. Valida contra o mesmo Zod schema
+// da API (clienteUpdateSchema) — nunca duplica regras. totalSessoes/totalGasto/
+// ultimaSessao ficam de fora (calculados); estado e terapeutaPrincipalId já têm
+// as suas próprias actions acima (com webhook e permissão de admin).
+const CAMPOS_CLIENTE_EDITAVEIS = [
+  "nome", "telefone", "email", "dataNascimento", "comoNosConheceu", "fonte",
+  "canalPreferido", "temWhatsapp", "aceitaMarketing", "melhorDiaContacto",
+  "historicoAromasPreferidos", "historicoCondicoesAlergias", "historicoEstadoEmocional",
+  "historicoZonasTensao", "historicoUltimaPausa", "notasPessoais", "fichaClinica",
+] as const
+type CampoClienteEditavel = typeof CAMPOS_CLIENTE_EDITAVEIS[number]
+
+export async function atualizarCampoCliente(
+  clienteId: string,
+  campo: CampoClienteEditavel,
+  valor: unknown
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  const session = await verificarSessao()
+
+  if (!CAMPOS_CLIENTE_EDITAVEIS.includes(campo)) {
+    return { ok: false, erro: "Campo não editável" }
+  }
+
+  // Validação campo-a-campo contra o schema partilhado com a API (sem duplicar regras)
+  const parsed = clienteUpdateSchema.safeParse({ [campo]: valor })
+  if (!parsed.success) {
+    return { ok: false, erro: parsed.error.issues[0]?.message ?? "Valor inválido" }
+  }
+  const valorValidado = (parsed.data as Record<string, unknown>)[campo]
+
+  // Guarda anti-colisão — clientes são upsert por telefone/email, nunca duplicar (CLAUDE.md)
+  if ((campo === "telefone" || campo === "email") && valorValidado) {
+    const existente = await prisma.cliente.findFirst({
+      where: { id: { not: clienteId }, apagadoEm: null, [campo]: valorValidado as string },
+      select: { id: true, nome: true },
+    })
+    if (existente) {
+      return {
+        ok: false,
+        erro: `Já existe outra cliente (${existente.nome}) com este ${campo === "telefone" ? "telefone" : "email"}.`,
+      }
+    }
+  }
+
+  const clienteAntes = await prisma.cliente.findUnique({
+    where: { id: clienteId },
+    select: { [campo]: true } as Prisma.ClienteSelect,
+  })
+
+  const dataUpdate: Record<string, unknown> = { [campo]: valorValidado }
+  if (campo === "dataNascimento" && typeof valorValidado === "string") {
+    dataUpdate[campo] = new Date(valorValidado)
+  }
+
+  await prisma.cliente.update({
+    where: { id: clienteId },
+    data: dataUpdate as Prisma.ClienteUpdateInput,
+  })
+
+  const valorAntes = (clienteAntes as Record<string, unknown> | null)?.[campo] ?? null
+
+  auditar({
+    quem: session.user?.email ?? "dashboard",
+    acao: "cliente.campo_atualizado",
+    entidade: "Cliente",
+    entidadeId: clienteId,
+    detalhe: {
+      campo,
+      de: (valorAntes instanceof Date ? valorAntes.toISOString() : valorAntes) as Prisma.InputJsonValue,
+      para: (valorValidado ?? null) as Prisma.InputJsonValue,
+    },
+  })
+
+  revalidatePath(`/clientes/${clienteId}`)
+  revalidatePath("/clientes")
+  return { ok: true }
 }
 
 // ── Terapeuta responsável ───────────────────────────────────────

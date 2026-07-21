@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { atualizarObservacoesSessao, eliminarSessao } from "./actions"
+import { atualizarObservacoesSessao, atualizarCampoSessao, eliminarSessao } from "./actions"
+import { InlineEditField } from "@/components/clientes/InlineEditField"
 
 function safeUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined
@@ -30,6 +31,7 @@ type Sessao = {
   notasPosSessao: string | null
   linkDocumento: string | null
   estado: string
+  aromaSessao: string | null
   dataRecomendadaRegresso: Date | string | null
   criadoEm: Date | string
   // Ficha preenchida pela cliente no onboarding desta sessão
@@ -123,6 +125,52 @@ function DetailBlock({ title, icon: Icon, content, color }: {
       }}>
         {content}
       </p>
+    </div>
+  )
+}
+
+// Mesmo visual do DetailBlock, mas editável — usado para resumo/notas
+function EditableDetailBlock({ title, icon: Icon, value, color, placeholder, onSave }: {
+  title: string
+  icon: React.ElementType
+  value: string | null
+  color: string
+  placeholder: string
+  onSave: (v: string | number | boolean | null) => Promise<{ ok: true } | { ok: false; erro: string }>
+}) {
+  return (
+    <div style={{
+      borderRadius: "10px",
+      border: "1px solid rgba(212,184,134,0.16)", padding: "16px",
+      marginBottom: "12px",
+      backgroundColor: color + "06",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+        <div style={{
+          width: "26px", height: "26px", borderRadius: "7px",
+          backgroundColor: color + "14",
+          border: `1px solid ${color}28`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Icon size={13} color={color} />
+        </div>
+        <span style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone)",
+          letterSpacing: "0.02em",
+        }}>
+          {title}
+        </span>
+      </div>
+      <InlineEditField
+        label={title}
+        hideLabel
+        type="textarea"
+        value={value}
+        placeholder={placeholder}
+        valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.7 }}
+        onSave={onSave}
+      />
     </div>
   )
 }
@@ -430,13 +478,19 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                       </span>
                     )}
                   </div>
-                  <h2 id="sessao-drawer-titulo" style={{
-                    fontFamily: "var(--font-heading, Georgia, serif)",
-                    fontSize: "22px", fontWeight: 400, color: "var(--nuit-bone)",
-                    marginBottom: "4px",
-                  }}>
-                    {sessaoAberta.servico ?? "Sessão"}
-                  </h2>
+                  <div id="sessao-drawer-titulo" style={{ marginBottom: "4px" }}>
+                    <InlineEditField
+                      label="Serviço"
+                      hideLabel
+                      value={sessaoAberta.servico}
+                      placeholder="Sessão"
+                      valueStyle={{
+                        fontFamily: "var(--font-heading, Georgia, serif)",
+                        fontSize: "22px", fontWeight: 400, color: "var(--nuit-bone)",
+                      }}
+                      onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "servico", v)}
+                    />
+                  </div>
                   <p style={{
                     fontFamily: "var(--font-body, sans-serif)",
                     fontSize: "13px", color: "var(--nuit-smoke)",
@@ -520,13 +574,48 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                 padding: "18px",
               }}>
                 <DetailItem label="Terapeuta" value={sessaoAberta.terapeuta} />
-                <DetailItem label="Preço" value={formatCurrency(sessaoAberta.preco ?? 0)} />
-                {sessaoAberta.dataRecomendadaRegresso && (
-                  <DetailItem
-                    label="Regresso Recomendado"
-                    value={formatDate(sessaoAberta.dataRecomendadaRegresso as Date)}
-                  />
-                )}
+                <InlineEditField
+                  label="Preço"
+                  type="currency"
+                  value={sessaoAberta.preco}
+                  formatDisplay={(v) => formatCurrency(Number(v ?? 0))}
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "preco", v)}
+                />
+                <InlineEditField
+                  label="Data"
+                  type="date"
+                  value={new Date(sessaoAberta.data).toISOString().split("T")[0]}
+                  formatDisplay={(v) => formatDate(v as string)}
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "data", v)}
+                />
+                <InlineEditField
+                  label="Hora"
+                  type="time"
+                  value={sessaoAberta.hora}
+                  placeholder="Adicionar hora"
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "hora", v)}
+                />
+                <InlineEditField
+                  label="Duração (min)"
+                  type="number"
+                  value={sessaoAberta.duracao}
+                  placeholder="Adicionar duração"
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "duracao", v)}
+                />
+                <InlineEditField
+                  label="Aroma"
+                  value={sessaoAberta.aromaSessao}
+                  placeholder="Adicionar aroma"
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "aromaSessao", v)}
+                />
+                <InlineEditField
+                  label="Regresso Recomendado"
+                  type="date"
+                  value={sessaoAberta.dataRecomendadaRegresso ? new Date(sessaoAberta.dataRecomendadaRegresso).toISOString().split("T")[0] : null}
+                  placeholder="Adicionar data"
+                  formatDisplay={(v) => formatDate(v as string)}
+                  onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "dataRecomendadaRegresso", v)}
+                />
               </div>
 
               {/* Ficha da terapeuta gerada por IA (Groq), mesma fonte da ficha-sessao.html */}
@@ -566,42 +655,24 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
               )}
 
               {/* Observações da terapeuta */}
-              {sessaoAberta.resumoSessao && (
-                <DetailBlock
-                  title="Observações da Terapeuta"
-                  icon={MessageSquare}
-                  content={sessaoAberta.resumoSessao}
-                  color="#a0a996"
-                />
-              )}
+              <EditableDetailBlock
+                title="Observações da Terapeuta"
+                icon={MessageSquare}
+                value={sessaoAberta.resumoSessao}
+                color="#a0a996"
+                placeholder="Adicionar observações"
+                onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "resumoSessao", v)}
+              />
 
               {/* Notas para próxima sessão */}
-              {sessaoAberta.notasPosSessao && (
-                <DetailBlock
-                  title="Notas para a Próxima Sessão"
-                  icon={Star}
-                  content={sessaoAberta.notasPosSessao}
-                  color="#b9a07a"
-                />
-              )}
-
-              {/* Sem notas */}
-              {!sessaoAberta.fichaEstadoEmocional && !sessaoAberta.fichaZonasTensao && !sessaoAberta.fichaFoco
-                && !sessaoAberta.estadoEmocional && !sessaoAberta.resumoSessao && !sessaoAberta.notasPosSessao
-                && !sessaoAberta.briefingJson && (
-                <div style={{
-                  textAlign: "center", padding: "32px",
-                  backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
-                  border: "1px solid rgba(212,184,134,0.16)",
-                }}>
-                  <p style={{
-                    fontFamily: "var(--font-heading, Georgia, serif)",
-                    fontStyle: "italic", fontSize: "13px", color: "var(--nuit-smoke-deep)",
-                  }}>
-                    Sem notas clínicas registadas para esta sessão
-                  </p>
-                </div>
-              )}
+              <EditableDetailBlock
+                title="Notas para a Próxima Sessão"
+                icon={Star}
+                value={sessaoAberta.notasPosSessao}
+                color="#b9a07a"
+                placeholder="Adicionar notas"
+                onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "notasPosSessao", v)}
+              />
 
               {/* Link documento */}
               {safeUrl(sessaoAberta.linkDocumento) && (

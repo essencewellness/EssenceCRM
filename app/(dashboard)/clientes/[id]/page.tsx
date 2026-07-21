@@ -17,6 +17,8 @@ import { ObservacoesTimeline } from "@/components/observacoes-timeline"
 import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
 import { TerapeutaEditor } from "./TerapeutaEditor"
+import { InlineEditField } from "@/components/clientes/InlineEditField"
+import { atualizarCampoCliente } from "../actions"
 
 interface ClientePageProps {
   params: Promise<{ id: string }>
@@ -187,12 +189,16 @@ export default async function ClientePage({ params }: ClientePageProps) {
           {/* Name + meta */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px", flexWrap: "wrap" }}>
-              <h1 style={{
-                fontFamily: "var(--font-heading, Georgia, serif)",
-                fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
-              }}>
-                {cliente.nome}
-              </h1>
+              <InlineEditField
+                label="Nome"
+                hideLabel
+                value={cliente.nome}
+                valueStyle={{
+                  fontFamily: "var(--font-heading, Georgia, serif)",
+                  fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
+                }}
+                onSave={(v) => atualizarCampoCliente(cliente.id, "nome", v)}
+              />
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
               <TerapeutaEditor
                 clienteId={cliente.id}
@@ -231,22 +237,31 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
             {/* Contact */}
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-              {cliente.telefone && (
-                <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Phone size={13} color="var(--nuit-smoke)" />
-                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                    {formatPhone(cliente.telefone)}
-                  </span>
-                </span>
-              )}
-              {cliente.email && (
-                <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Mail size={13} color="var(--nuit-smoke)" />
-                  <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                    {cliente.email}
-                  </span>
-                </span>
-              )}
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Phone size={13} color="var(--nuit-smoke)" />
+                <InlineEditField
+                  label="Telefone"
+                  hideLabel
+                  type="tel"
+                  value={cliente.telefone}
+                  placeholder="Adicionar telefone"
+                  formatDisplay={(v) => formatPhone(v as string | null)}
+                  valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
+                  onSave={(v) => atualizarCampoCliente(cliente.id, "telefone", v)}
+                />
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Mail size={13} color="var(--nuit-smoke)" />
+                <InlineEditField
+                  label="Email"
+                  hideLabel
+                  type="email"
+                  value={cliente.email}
+                  placeholder="Adicionar email"
+                  valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
+                  onSave={(v) => atualizarCampoCliente(cliente.id, "email", v)}
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -319,14 +334,56 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     </h2>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "20px" }}>
-                    <InfoRow label="Data de Nascimento" value={formatDate(cliente.dataNascimento)} />
-                    <InfoRow label="Email" value={cliente.email} />
-                    <InfoRow label="Telefone" value={formatPhone(cliente.telefone)} />
-                    <InfoRow label="Aceita Marketing" value={cliente.aceitaMarketing ? "Sim" : "Não"} />
-                    <InfoRow label="Tem WhatsApp" value={cliente.temWhatsapp ? "Sim" : "Não"} />
-                    <InfoRow label="Melhor dia para contacto" value={cliente.melhorDiaContacto} />
-                    <InfoRow label="Como nos conheceu" value={cliente.comoNosConheceu} />
-                    <InfoRow label="Fonte" value={fonteLabel[cliente.fonte] ?? cliente.fonte} />
+                    <InlineEditField
+                      label="Data de Nascimento"
+                      type="date"
+                      value={cliente.dataNascimento ? cliente.dataNascimento.toISOString().split("T")[0] : null}
+                      formatDisplay={(v) => formatDate(v as string | null)}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "dataNascimento", v)}
+                    />
+                    <InlineEditField
+                      label="Email"
+                      type="email"
+                      value={cliente.email}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "email", v)}
+                    />
+                    <InlineEditField
+                      label="Telefone"
+                      type="tel"
+                      value={cliente.telefone}
+                      formatDisplay={(v) => formatPhone(v as string | null)}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "telefone", v)}
+                    />
+                    <InlineEditField
+                      label="Aceita Marketing"
+                      type="toggle"
+                      value={cliente.aceitaMarketing}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "aceitaMarketing", v)}
+                    />
+                    <InlineEditField
+                      label="Tem WhatsApp"
+                      type="toggle"
+                      value={cliente.temWhatsapp}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "temWhatsapp", v)}
+                    />
+                    <InlineEditField
+                      label="Melhor dia para contacto"
+                      value={cliente.melhorDiaContacto}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "melhorDiaContacto", v)}
+                    />
+                    <InlineEditField
+                      label="Como nos conheceu"
+                      value={cliente.comoNosConheceu}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "comoNosConheceu", v)}
+                    />
+                    <InlineEditField
+                      label="Fonte"
+                      type="select"
+                      value={cliente.fonte}
+                      options={Object.entries(fonteLabel).map(([value, label]) => ({ value, label }))}
+                      formatDisplay={(v) => fonteLabel[v as string] ?? (v as string) ?? "—"}
+                      onSave={(v) => atualizarCampoCliente(cliente.id, "fonte", v)}
+                    />
                     <InfoRow label="Cliente desde" value={formatDate(cliente.criadoEm)} />
                   </div>
                 </div>

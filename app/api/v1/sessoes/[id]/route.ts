@@ -5,6 +5,7 @@ import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { processarSessaoRealizada } from "@/lib/sessoes"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 
 
@@ -44,7 +45,7 @@ export async function PATCH(
   const v = await validarBody(request, sessaoUpdateSchema)
   if (!v.ok) return v.resposta
   const {
-    estado, resumoSessao, notasPosSessao,
+    estado, data, hora, duracao, resumoSessao, notasPosSessao,
     aromaSessao, estadoEmocional, linkDocumento,
     dataRecomendadaRegresso, preco, servico,
     briefingEnviado, lembreteEnviado, confirmacaoPresenca,
@@ -66,6 +67,9 @@ export async function PATCH(
       where: { id },
       data: {
         ...(estado !== undefined ? { estado } : {}),
+        ...(data !== undefined ? { data: new Date(data) } : {}),
+        ...(hora !== undefined ? { hora } : {}),
+        ...(duracao !== undefined ? { duracao } : {}),
         ...(resumoSessao !== undefined ? { resumoSessao } : {}),
         ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
         ...(aromaSessao !== undefined ? { aromaSessao } : {}),
@@ -104,9 +108,16 @@ export async function PATCH(
 
     let clienteAtualizado = null
 
-    // Quando passa a "realizada" — recalcular métricas + webhook + avaliação (lib/sessoes)
-    if (estado === "realizada" && sessaoAntes.estado !== "realizada") {
+    const eraRealizada = sessaoAntes.estado === "realizada"
+    const ficaRealizada = (estado ?? sessaoAntes.estado) === "realizada"
+
+    if (ficaRealizada && !eraRealizada) {
+      // Transição para "realizada" — recalcular métricas + webhook + avaliação (lib/sessoes)
       const metricas = await processarSessaoRealizada(sessaoAntes, sessao.preco)
+      clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
+    } else if (eraRealizada && (preco !== undefined || data !== undefined || estado !== undefined)) {
+      // Já realizada e um campo que afeta as métricas mudou (preço, data, ou saiu de "realizada")
+      const metricas = await recalcularMetricasCliente(prisma, sessaoAntes.clienteId)
       clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
     }
 

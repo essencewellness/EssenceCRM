@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth"
 import { auditar } from "@/lib/audit"
 import { EstadoSessao, Prisma } from "@prisma/client"
 import { recalcularMetricasCliente } from "@/lib/metricas"
+import { sessaoUpdateSchema } from "@/lib/validations"
 
 // Apagamento DEFINITIVO do cliente (hard delete). A cascata do schema remove
 // sessões, mensagens, etiquetas, observações, preços, packs e portal token.
@@ -70,17 +71,25 @@ export async function eliminarSessao(sessaoId: string, clienteId: string) {
   revalidatePath("/clientes")
 }
 
-// Atualizar estado/notas de uma sessão (SessoesTab)
-export async function atualizarObservacoesSessao(
-  sessaoId: string,
-  clienteId: string,
-  dados: {
-    resumoSessao?: string
-    notasPosSessao?: string
-    estadoEmocional?: string
-    estado?: EstadoSessao
-  }
-) {
+// Campos de sessão editáveis a partir do dashboard (estado + InlineEditField)
+type DadosSessao = {
+  resumoSessao?: string | null
+  notasPosSessao?: string | null
+  estadoEmocional?: string | null
+  estado?: EstadoSessao
+  servico?: string | null
+  preco?: number | null
+  data?: string
+  hora?: string | null
+  duracao?: number | null
+  aromaSessao?: string | null
+  dataRecomendadaRegresso?: string | null
+}
+
+// Núcleo partilhado: aplica a atualização + recalcula métricas quando um
+// campo que afeta totalGasto/totalSessoes muda (transição para "realizada",
+// preço, data, ou saída de "realizada") — na hora, sem esperar pelo cron.
+async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dados: DadosSessao) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
 
@@ -88,14 +97,27 @@ export async function atualizarObservacoesSessao(
     where: { id: sessaoId },
     select: { estado: true },
   })
+  if (!sessaoAntes) throw new Error("Sessão não encontrada")
+
+  const { data: dataSessao, dataRecomendadaRegresso, ...resto } = dados
 
   await prisma.sessao.update({
     where: { id: sessaoId },
-    data: dados as Prisma.SessaoUpdateInput,
+    data: {
+      ...resto,
+      ...(dataSessao ? { data: new Date(dataSessao) } : {}),
+      ...(dataRecomendadaRegresso !== undefined
+        ? { dataRecomendadaRegresso: dataRecomendadaRegresso ? new Date(dataRecomendadaRegresso) : null }
+        : {}),
+    } as Prisma.SessaoUpdateInput,
   })
 
-  // Quando passa a "realizada", recalcular totalSessoes e totalGasto do cliente
-  if (dados.estado === "realizada" && sessaoAntes?.estado !== "realizada") {
+  const eraRealizada = sessaoAntes.estado === "realizada"
+  const ficaRealizada = (dados.estado ?? sessaoAntes.estado) === "realizada"
+  const afetaMetricas = (ficaRealizada && !eraRealizada)
+    || (eraRealizada && (dados.preco !== undefined || dados.data !== undefined || dados.estado !== undefined))
+
+  if (afetaMetricas) {
     await recalcularMetricasCliente(prisma, clienteId)
   }
 
@@ -104,8 +126,45 @@ export async function atualizarObservacoesSessao(
     acao: "sessao.atualizada",
     entidade: "Sessao",
     entidadeId: sessaoId,
+    detalhe: { campos: Object.keys(dados) },
   })
 
   revalidatePath(`/clientes/${clienteId}`)
   revalidatePath("/clientes")
+}
+
+// Atualizar estado/notas de uma sessão (dropdown de estado no SessoesTab)
+export async function atualizarObservacoesSessao(sessaoId: string, clienteId: string, dados: DadosSessao) {
+  await aplicarAtualizacaoSessao(sessaoId, clienteId, dados)
+}
+
+// Edição inline campo-a-campo (InlineEditField) — valida contra o mesmo
+// schema partilhado com a API (sessaoUpdateSchema), sem duplicar regras.
+const CAMPOS_SESSAO_EDITAVEIS = [
+  "servico", "preco", "data", "hora", "duracao", "aromaSessao",
+  "resumoSessao", "notasPosSessao", "dataRecomendadaRegresso",
+] as const
+type CampoSessaoEditavel = typeof CAMPOS_SESSAO_EDITAVEIS[number]
+
+export async function atualizarCampoSessao(
+  sessaoId: string,
+  clienteId: string,
+  campo: CampoSessaoEditavel,
+  valor: unknown
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  if (!CAMPOS_SESSAO_EDITAVEIS.includes(campo)) {
+    return { ok: false, erro: "Campo não editável" }
+  }
+
+  const parsed = sessaoUpdateSchema.safeParse({ [campo]: valor })
+  if (!parsed.success) {
+    return { ok: false, erro: parsed.error.issues[0]?.message ?? "Valor inválido" }
+  }
+
+  try {
+    await aplicarAtualizacaoSessao(sessaoId, clienteId, parsed.data as DadosSessao)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, erro: e instanceof Error ? e.message : "Erro ao guardar" }
+  }
 }
