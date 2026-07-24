@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
@@ -8,7 +8,7 @@ import { auditar } from "@/lib/audit";
 import { MensagensBulk, type MensagemPendente } from "@/components/mensagens-bulk";
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/lib/prisma-client";
 import {
   MessageSquare, Clock, CheckCircle2, XCircle, TrendingUp,
   Hourglass, AlertTriangle, Send, RotateCcw,

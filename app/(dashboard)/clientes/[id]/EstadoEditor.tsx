@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
 import { AnimatePresence, motion } from "motion/react"
@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react"
 import { ESTADO_CRM_CONFIG } from "@/lib/etiquetas"
 import { atualizarEstadoCliente } from "../actions"
 import { useToast } from "@/components/ui/toast-nuit"
-import type { EstadoCliente } from "@prisma/client"
+import type { EstadoCliente } from "@/lib/prisma-client"
 
 const ESTADOS = Object.entries(ESTADO_CRM_CONFIG) as [EstadoCliente, typeof ESTADO_CRM_CONFIG[string]][]
 

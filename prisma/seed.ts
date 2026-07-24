@@ -1,8 +1,8 @@
-import "dotenv/config";
-import { PrismaClient, Prisma } from "@prisma/client";
+﻿import "dotenv/config";
+import { Prisma } from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌿 A iniciar seed da Essence Wellness...");

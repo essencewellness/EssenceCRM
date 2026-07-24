@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { packCreateSchema, validarBody, validarQuery } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/prisma-client"
 import { z } from "zod"
 
 const packsQuerySchema = z.object({

@@ -1,4 +1,4 @@
-// Motor de transição automática dos 9 estados CRM.
+﻿// Motor de transição automática dos 9 estados CRM.
 // Corre diariamente (Vercel Cron → /api/cron/estados) — o CRM deixa de
 // depender do N8N para manter os estados corretos.
 //
@@ -16,7 +16,7 @@ import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { auditar } from "@/lib/audit"
 import { getConfigNegocio } from "@/lib/config-negocio"
-import type { EstadoCliente } from "@prisma/client"
+import type { EstadoCliente } from "@/lib/prisma-client"
 
 const VIP_MIN_SESSOES = 8
 const VIP_MIN_GASTO = 300

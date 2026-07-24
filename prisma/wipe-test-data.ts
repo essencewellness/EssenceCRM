@@ -1,4 +1,4 @@
-// Remove APENAS os dados de teste do CRM — preserva os logins
+﻿// Remove APENAS os dados de teste do CRM — preserva os logins
 // (User/Account/Session/VerificationToken) e o catálogo de serviços.
 //
 // Pensado para a transição de clientes-teste → clientes reais: corre isto para
@@ -7,9 +7,8 @@
 //
 // Correr:  DATABASE_URL="<url>" npx tsx prisma/wipe-test-data.ts
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 async function main() {
   console.log("🧹 A remover dados de teste do CRM (logins preservados)…\n");

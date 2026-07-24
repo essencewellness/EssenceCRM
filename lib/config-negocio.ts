@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import type { ConfiguracaoNegocio } from "@prisma/client";
+﻿import { prisma } from "@/lib/prisma";
+import type { ConfiguracaoNegocio } from "@/lib/prisma-client";
 
 let cache: ConfiguracaoNegocio | null = null;
 let cacheExpiresAt = 0;

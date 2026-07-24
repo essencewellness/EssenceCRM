@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
+﻿import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao } from "@/lib/api-auth"
 import { validarBody, validarQuery, tarefaCreateSchema, tarefaQuerySchema } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
   const apiKeyError = await validarApiKeyOuSessao(request)

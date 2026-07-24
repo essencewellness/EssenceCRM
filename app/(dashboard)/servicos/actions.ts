@@ -1,7 +1,7 @@
-"use server"
+﻿"use server"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/prisma-client"
 
 export async function criarServico(formData: FormData) {
   const nome = formData.get("nome") as string

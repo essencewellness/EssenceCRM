@@ -1,4 +1,4 @@
-// Recalcula as métricas (totalSessoes, totalGasto, ultimaSessao) de TODOS os
+﻿// Recalcula as métricas (totalSessoes, totalGasto, ultimaSessao) de TODOS os
 // clientes a partir das suas sessões realizadas — a fonte única de verdade.
 //
 // Útil agora (corrigir dados desalinhados) e na importação de clientes reais,
@@ -6,10 +6,9 @@
 //
 // Correr:  DATABASE_URL="<url>" npx tsx prisma/recalcular-metricas.ts
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { recalcularMetricasCliente } from "../lib/metricas";
 
-const prisma = new PrismaClient();
 
 async function main() {
   const clientes = await prisma.cliente.findMany({

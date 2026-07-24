@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { validarBody, validarQuery, campanhaCreateSchema, campanhasQuerySchema } from "@/lib/validations"
 import { aprovarEAgendar } from "@/lib/fila-envio"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
   const erro = validarApiKey(request)

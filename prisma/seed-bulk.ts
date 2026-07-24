@@ -1,7 +1,6 @@
-import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+﻿import "dotenv/config";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 // Datas relativas a 2026-05-21
 const hoje = new Date("2026-05-21");

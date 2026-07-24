@@ -1,6 +1,6 @@
-import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
-const p = new PrismaClient();
+﻿import "dotenv/config";
+import { prisma } from "@/lib/prisma";
+const p = prisma;
 
 async function main() {
   // Apagar mensagem de teste do n8n

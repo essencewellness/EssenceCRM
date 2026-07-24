@@ -1,7 +1,7 @@
-// Script temporário: apaga sessões órfãs (clientes apagados mas sessões ficaram ativas)
-import { PrismaClient } from "@prisma/client"
+﻿// Script temporário: apaga sessões órfãs (clientes apagados mas sessões ficaram ativas)
+import { } from "@/lib/prisma-client"
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient()
 
 async function main() {
   // Encontrar sessões cujo cliente está apagado (apagadoEm != null) ou não existe

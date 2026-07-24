@@ -1,4 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
+﻿// ─────────────────────────────────────────────────────────────────────────────
 // SEED DEMO — dados de teste coerentes para a Essence Wellness CRM
 //
 // Princípio: as SESSÕES são a fonte única de verdade. Para cada cliente geramos
@@ -15,10 +15,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import "dotenv/config";
 import crypto from "node:crypto";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { recalcularMetricasCliente } from "../lib/metricas";
 
-const prisma = new PrismaClient();
 
 // ── Aleatoriedade utilitária ────────────────────────────────────────────────
 function pick<T>(arr: T[]): T {

@@ -1,8 +1,7 @@
-import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+﻿import "dotenv/config";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
 
 const UTILIZADORES = [
   { name: "Nuno",     email: "nuno@essencewellness.pt",     role: "admin" },

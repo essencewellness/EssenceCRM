@@ -1,11 +1,11 @@
-"use server"
+﻿"use server"
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { auditar } from "@/lib/audit"
-import { EstadoSessao, Prisma } from "@prisma/client"
+import { EstadoSessao, Prisma } from "@/lib/prisma-client"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { sessaoUpdateSchema } from "@/lib/validations"
 

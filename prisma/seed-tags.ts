@@ -1,9 +1,9 @@
-// Seed idempotente do catálogo inicial de etiquetas (Spec 005)
+﻿// Seed idempotente do catálogo inicial de etiquetas (Spec 005)
 // Corre em dev e prod: DATABASE_URL="..." npx tsx prisma/seed-tags.ts
 
-import { PrismaClient } from "@prisma/client"
+import { } from "@/lib/prisma-client"
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient()
 
 const TAGS = [
   // Saúde — bloqueiam automações

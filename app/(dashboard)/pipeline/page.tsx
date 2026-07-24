@@ -1,9 +1,9 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
 import { BarChart2, Users, AlertTriangle, TrendingUp, MessageSquare, Calendar } from "lucide-react";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/lib/prisma-client";
 
 export const revalidate = 60;
 

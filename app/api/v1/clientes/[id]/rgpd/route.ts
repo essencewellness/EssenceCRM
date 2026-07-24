@@ -1,10 +1,10 @@
-// RGPD — direitos da titular dos dados:
+﻿// RGPD — direitos da titular dos dados:
 // GET    → exportação completa (Art. 15/20: acesso e portabilidade)
 // DELETE → anonimização irreversível (Art. 17: direito ao apagamento)
 //          Mantém métricas agregadas sem qualquer dado pessoal/clínico.
 //          Restrito: sessão de dashboard ou API_KEY_ADMIN (não a chave N8N).
 import { NextRequest } from "next/server"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@/lib/prisma-client"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, validarApiKeyAdminOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { serializarDecimais } from "@/lib/serialize"

@@ -1,4 +1,4 @@
-"use server"
+﻿"use server"
 
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 import { webhooks } from "@/lib/webhooks"
 import { clienteUpdateSchema, normalizarTelefone } from "@/lib/validations"
-import type { EstadoCliente, Prisma } from "@prisma/client"
+import type { EstadoCliente, Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
   const session = await auth()

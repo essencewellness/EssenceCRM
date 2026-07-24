@@ -1,4 +1,4 @@
-// Fonte única de verdade para as métricas agregadas do cliente.
+﻿// Fonte única de verdade para as métricas agregadas do cliente.
 //
 // `totalSessoes`, `totalGasto` e `ultimaSessao` derivam SEMPRE das sessões
 // realizadas — nunca são escritos à mão. Qualquer via que crie ou conclua uma
@@ -7,7 +7,7 @@
 //
 // Aceita um `db` explícito (o singleton da app OU um PrismaClient próprio de um
 // script/seed) para funcionar tanto no Next.js como em `tsx` standalone.
-import type { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@/lib/prisma-client"
 import { paraNumero } from "./serialize"
 
 type DbCliente = Pick<PrismaClient, "sessao" | "cliente">

@@ -12,6 +12,10 @@ const JANELA_MINUTOS = 15;
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt", maxAge: 12 * 60 * 60 }, // sessão expira em 12h
+  // Explícito (não auto-detetado): tem de corresponder ao secureCookie do
+  // proxy.ts, senão o middleware procura o nome de cookie errado quando um
+  // proxy à frente injeta x-forwarded-proto: https em dev.
+  useSecureCookies: process.env.NODE_ENV === "production",
   pages: {
     signIn: "/login",
   },

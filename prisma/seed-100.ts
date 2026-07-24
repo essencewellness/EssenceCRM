@@ -1,5 +1,6 @@
-import "dotenv/config";
-import { PrismaClient, Prisma } from "@prisma/client";
+﻿import "dotenv/config";
+import { Prisma } from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 /**
@@ -16,7 +17,6 @@ import bcrypt from "bcryptjs";
  *   $env:DATABASE_URL="postgresql://...pooler..."; npx tsx prisma/seed-100.ts
  */
 
-const prisma = new PrismaClient();
 
 // ── Datas relativas a hoje (dashboard fica sempre "vivo") ──────────────────
 const HOJE = new Date();

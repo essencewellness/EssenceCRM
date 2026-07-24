@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { sessaoCreateSchema, sessoesQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
@@ -6,7 +6,7 @@ import { serializarDecimais } from "@/lib/serialize"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/lib/prisma-client"
 
 // Devolve o intervalo [início do dia, fim do dia] em UTC para o fuso de Lisboa
 // offsetDias=0 → hoje; offsetDias=1 → amanhã

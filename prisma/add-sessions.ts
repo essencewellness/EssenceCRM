@@ -1,7 +1,6 @@
-import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+﻿import "dotenv/config";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
 
 async function main() {
   // Buscar clientes para criar sessões futuras

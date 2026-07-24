@@ -1,4 +1,4 @@
-import Link from "next/link"
+﻿import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
@@ -6,7 +6,7 @@ import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/lib/prisma-client"
 
 const GOLD = "#d4b886"
 const CREAM = "#ece6d6"

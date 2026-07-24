@@ -1,11 +1,11 @@
-import { NextRequest } from "next/server"
+﻿import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auth } from "@/lib/auth"
 import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
-import type { Prisma } from "@prisma/client"
+import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
   const erro = await validarApiKeyOuSessao(request)

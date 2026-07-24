@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useTransition } from "react"
 import { X, Zap } from "lucide-react"
 import { ESTADO_CRM_CONFIG, TIPO_ETIQUETA_LABELS } from "@/lib/etiquetas"
 import { criarCampanhaFromFiltro } from "./actions"
-import type { EstadoCliente } from "@prisma/client"
+import type { EstadoCliente } from "@/lib/prisma-client"
 
 interface EtiquetaOpcao { id: string; nome: string; cor: string; tipo: string }
 interface TemplateOpcao { id: string; nome: string; texto: string }

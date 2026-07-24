@@ -1,5 +1,5 @@
-import { NextRequest } from "next/server"
-import { Prisma } from "@prisma/client"
+﻿import { NextRequest } from "next/server"
+import { Prisma } from "@/lib/prisma-client"
 import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"

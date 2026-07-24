@@ -1,10 +1,10 @@
-// Seed 100% FICTÍCIO — para desenvolvimento e demonstração local.
+﻿// Seed 100% FICTÍCIO — para desenvolvimento e demonstração local.
 // Nenhum dado real de cliente. Cobre os 9 estados CRM, fila de envio,
 // mensagens pendentes (para testar aprovação em massa) e consentimentos RGPD.
-import { PrismaClient, type EstadoCliente, type EstadoMensagem } from "@prisma/client";
+import { type EstadoCliente, type EstadoMensagem } from "@/lib/prisma-client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
 
 function d(diasOffset: number, hora = 10): Date {
   const x = new Date();
