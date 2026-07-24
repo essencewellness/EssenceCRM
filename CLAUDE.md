@@ -11,7 +11,8 @@ npm run lint                         # eslint
 npx tsc --noEmit --skipLibCheck      # verificar tipos sem compilar
 
 npm run db:generate                  # regenerar cliente Prisma após schema changes
-npm run db:migrate                   # criar migration e aplicar (dev)
+npm run db:push                      # sincronizar schema com a BD (dev) — projeto usa db push, não migrations
+npm run db:reset                     # apagar tudo + recriar schema + seed (dev)
 npm run db:seed                      # 9 clientes detalhados
 npm run db:studio                    # UI visual da BD → porta 5555
 
