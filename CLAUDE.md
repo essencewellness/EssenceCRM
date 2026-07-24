@@ -54,7 +54,7 @@ Queries Prisma usam cursor-based pagination (não offset). SQLite em dev **não 
 
 ### Formulários HTML públicos
 
-`public/forms/onboarding.html` — enviado às clientes via link personalizado WhatsApp. Suporta `?clienteId=`, `?sessaoId=`, `?n=` (nome pré-preenchido), `?sv=gc` (ativa campo de voucher). XSS via `?n=` corrigido: usa `textContent + createElement` em vez de `innerHTML`.
+Não existe um único `onboarding.html` — cada serviço tem o seu próprio ficheiro em `public/forms/` (`massagem.html`, `massagem-a-dois.html`, `drenagem.html`, `voucher.html`), todos a partilhar a lógica de submissão em `public/forms/essence-forms.js`, que faz `POST /api/v1/public/onboarding`. Suportam `?clienteId=`, `?sessaoId=`, `?n=` (nome pré-preenchido), `?sv=gc` (ativa campo de voucher). XSS via `?n=` corrigido: usa `textContent + createElement` em vez de `innerHTML`.
 
 `public/forms/pos-sessao.html` — uso interno da Bea. Sem API key no browser: usa `validarApiKeyOuSessao()` nos endpoints que consulta (`servicos` GET, `clientes/[id]` GET, `sessoes` POST) — o cookie de sessão NextAuth do dashboard é enviado automaticamente por ser same-origin.
 
@@ -105,7 +105,7 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel (código pronto, falta config) |
 | 🟠 ALTO | Password da Neon exposta anteriormente — rotar na consola Neon | Vercel env `DATABASE_URL` |
 | 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |
-| 🟡 MÉDIO | Workflows N8N ainda não anexam `&t=` aos links (enforcement de link tokens desligado) | `03_WORKFLOWS_N8N/` |
+| 🟡 MÉDIO | Workflows N8N (incluindo o motor de envio) ainda não existem como ficheiros exportados no repositório — só um template vazio em `03_WORKFLOWS_N8N/_TEMPLATE/`. Sem workflow real, não há como confirmar que anexam `&t=` aos links (enforcement de link tokens continua desligado) | `03_WORKFLOWS_N8N/` |
 | 🟡 MÉDIO | `confirmacao-envio` não bloqueia double-delivery | `app/api/v1/webhooks/confirmacao-envio/route.ts` |
 | 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |
 
@@ -113,7 +113,7 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 
 | ✅ | Problema resolvido | Como |
 |---|---|---|
-| ✅ | API key hardcoded em `pos-sessao.html` | Substituída por `window.CRM_API_KEY ?? ''` |
+| ✅ | API key hardcoded em `pos-sessao.html` | Removida a chave por completo — endpoints de apoio usam `validarApiKeyOuSessao()` + cookie de sessão same-origin |
 | ✅ | XSS via `?n=` em `onboarding.html` | `textContent + createElement` |
 | ✅ | Calendly webhook sem idempotência | `calendlyEventId @unique` no schema |
 | ✅ | Sem blacklist guard nos webhooks | Guard em Calendly, WhatsApp, onboarding |
