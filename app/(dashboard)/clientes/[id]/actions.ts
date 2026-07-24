@@ -190,6 +190,9 @@ export async function atualizarCampoSessao(
     await aplicarAtualizacaoSessao(sessaoId, clienteId, parsed.data as DadosSessao)
     return { ok: true }
   } catch (e) {
-    return { ok: false, erro: e instanceof Error ? e.message : "Erro ao guardar" }
+    // Nunca expor o erro interno (Prisma/JS) à Bea — pode incluir nomes de
+    // colunas/detalhes de constraints. Log completo fica só no servidor.
+    console.error("atualizarCampoSessao:", e)
+    return { ok: false, erro: "Erro ao guardar. Tenta novamente." }
   }
 }
