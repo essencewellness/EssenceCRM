@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
-import type { Prisma } from "@/lib/prisma-client"
+import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
   const erro = await validarApiKeyOuSessao(request)
@@ -203,6 +203,12 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso(serializarDecimais({ ...cliente, created: true }))
   } catch (error) {
+    // Corrida rara: o findFirst acima não viu o duplicado a tempo (outro
+    // upsert/edição concorrente ganhou), mas o @unique na BD apanha-o —
+    // devolver 409 claro em vez de um 500 genérico.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return respostaErro("Já existe uma cliente com este telefone ou email.", "CLIENTE_DUPLICADO", 409)
+    }
     console.error("POST /api/v1/clientes:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }

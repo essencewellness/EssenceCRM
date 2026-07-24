@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 import { webhooks } from "@/lib/webhooks"
 import { clienteUpdateSchema, normalizarTelefone } from "@/lib/validations"
-import type { EstadoCliente, Prisma } from "@/lib/prisma-client"
+import { Prisma } from "@/lib/prisma-client"
+import type { EstadoCliente } from "@/lib/prisma-client"
 
 async function verificarSessao() {
   const session = await auth()
@@ -200,10 +201,25 @@ export async function atualizarCampoCliente(
     dataUpdate[campo] = new Date(valorValidado)
   }
 
-  await prisma.cliente.update({
-    where: { id: clienteId },
-    data: dataUpdate as Prisma.ClienteUpdateInput,
-  })
+  // O findFirst acima cobre o caso comum (feedback imediato ao utilizador);
+  // o @unique na BD (schema.prisma) apanha a corrida rara entre duas edições
+  // concorrentes que ambas passem a verificação antes de qualquer update
+  // acontecer — aqui convertemos essa violação (P2002) numa mensagem amigável
+  // em vez de deixar rebentar como erro genérico.
+  try {
+    await prisma.cliente.update({
+      where: { id: clienteId },
+      data: dataUpdate as Prisma.ClienteUpdateInput,
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return {
+        ok: false,
+        erro: `Já existe outra cliente com este ${campo === "telefone" ? "telefone" : "email"}.`,
+      }
+    }
+    throw error
+  }
 
   const valorAntes = (clienteAntes as Record<string, unknown> | null)?.[campo] ?? null
 

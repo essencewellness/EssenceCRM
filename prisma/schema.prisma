@@ -155,8 +155,8 @@ enum Canal {
 model Cliente {
   id          String    @id @default(cuid())
   nome        String
-  telefone    String?
-  email       String?
+  telefone    String?   @unique
+  email       String?   @unique
 
   // Dados pessoais
   dataNascimento      DateTime?
@@ -215,8 +215,6 @@ model Cliente {
   feedbacks           Feedback[]
 
   @@index([estado])
-  @@index([telefone])
-  @@index([email])
   @@index([apagadoEm])
   @@index([terapeutaPrincipalId])
 }
