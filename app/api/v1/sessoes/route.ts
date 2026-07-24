@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { sessaoCreateSchema, sessoesQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { recalcularMetricasCliente } from "@/lib/metricas"
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const erro = validarApiKey(request)
+  const erro = await validarApiKeyOuSessao(request)
   if (erro) return erro
 
   const v = await validarBody(request, sessaoCreateSchema)

@@ -56,7 +56,7 @@ Queries Prisma usam cursor-based pagination (não offset). SQLite em dev **não 
 
 `public/forms/onboarding.html` — enviado às clientes via link personalizado WhatsApp. Suporta `?clienteId=`, `?sessaoId=`, `?n=` (nome pré-preenchido), `?sv=gc` (ativa campo de voucher). XSS via `?n=` corrigido: usa `textContent + createElement` em vez de `innerHTML`.
 
-`public/forms/pos-sessao.html` — uso interno da Bea. API key hardcoded removida: usa `window.CRM_API_KEY ?? ''` (definida pelo servidor ao servir o ficheiro).
+`public/forms/pos-sessao.html` — uso interno da Bea. Sem API key no browser: usa `validarApiKeyOuSessao()` nos endpoints que consulta (`servicos` GET, `clientes/[id]` GET, `sessoes` POST) — o cookie de sessão NextAuth do dashboard é enviado automaticamente por ser same-origin.
 
 ### Catálogo de Serviços
 

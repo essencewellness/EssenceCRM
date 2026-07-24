@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { webhooks } from "@/lib/webhooks"
 import { clienteUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
@@ -10,7 +10,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const erro = validarApiKey(request)
+  const erro = await validarApiKeyOuSessao(request)
   if (erro) return erro
 
   const { id } = await params

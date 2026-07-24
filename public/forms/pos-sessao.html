@@ -646,11 +646,13 @@
     ? 'http://localhost:3000'
     : '';
 
-  const API_KEY = window.CRM_API_KEY ?? '';
-
+  // Autenticação: sem API key no browser (nunca é seguro num ficheiro estático —
+  // ver lib/api-auth.ts validarApiKeyOuSessao). As chamadas autenticadas usam o
+  // cookie de sessão NextAuth do dashboard, enviado automaticamente pelo fetch
+  // same-origin quando a Bea abre este formulário já com sessão iniciada em
+  // crm.essencewellnesspt.com.
   const authHeaders = {
     'Content-Type': 'application/json',
-    ...(API_KEY ? { 'X-API-Key': API_KEY } : {}),
   };
 
   // Preencher data/hora com "agora"
