@@ -149,15 +149,17 @@ export async function DELETE(
       prisma.feedback.deleteMany({ where: { clienteId: id } }),
       prisma.portalToken.deleteMany({ where: { clienteId: id } }),
       // Tarefas ligadas à cliente podem conter PII no título/descrição
+      // atualizadoEm definido à mão: @updatedAt não dispara em updateMany()
       prisma.tarefa.updateMany({
         where: { clienteId: id },
-        data: { titulo: "Tarefa anonimizada", descricao: null },
+        data: { titulo: "Tarefa anonimizada", descricao: null, atualizadoEm: new Date() },
       }),
       // Gift cards ligados à cliente: limpar identificação do beneficiário E do
       // comprador — uma cliente que compra E usa um gift card ligado ao seu
       // próprio clienteId mantinha os dados de comprador após anonimização.
       // compradorNome é obrigatório no schema (não aceita null), por isso
       // segue o mesmo padrão do cliente.nome acima ("Cliente anonimizada").
+      // atualizadoEm definido à mão: @updatedAt não dispara em updateMany()
       prisma.giftCard.updateMany({
         where: { clienteId: id },
         data: {
@@ -167,6 +169,7 @@ export async function DELETE(
           compradorTelefone: null,
           compradorEmail: null,
           notas: null,
+          atualizadoEm: new Date(),
         },
       }),
     ])
