@@ -41,13 +41,20 @@ export async function POST(request: NextRequest) {
         }
       }
     } else {
-      // Remover
+      // Remover — apurar primeiro quais clientes têm mesmo a etiqueta,
+      // para não auditar "removida" em clientes que nunca a tiveram
+      // (deleteMany() só devolve { count }, não os registos apagados)
+      const existentes = await prisma.clienteEtiqueta.findMany({
+        where: { clienteId: { in: clienteIds }, etiquetaId },
+        select: { clienteId: true },
+      })
+
       const resultado = await prisma.clienteEtiqueta.deleteMany({
         where: { clienteId: { in: clienteIds }, etiquetaId },
       })
       afetados = resultado.count
 
-      for (const clienteId of clienteIds) {
+      for (const { clienteId } of existentes) {
         auditar({
           quem: "api:bulk",
           acao: "etiqueta.removida",
