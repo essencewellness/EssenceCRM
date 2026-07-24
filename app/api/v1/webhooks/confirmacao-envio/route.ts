@@ -15,10 +15,31 @@ export async function POST(request: NextRequest) {
   const { mensagemId, sucesso, erroDescricao } = v.data
 
   try {
+    const atual = await prisma.mensagemIA.findUnique({
+      where: { id: mensagemId },
+      select: { id: true, estado: true, clienteId: true },
+    })
+    if (!atual) return respostaErro("Mensagem não encontrada", "MENSAGEM_NAO_ENCONTRADA", 404)
+
+    const estadoAlvo = sucesso ? "enviada" : "falhada"
+
+    // Idempotência: o N8N pode reenviar a mesma confirmação (retry de rede).
+    // Se a mensagem já está no estado alvo, ou já saiu de "em_fila" (só daí
+    // é suposto transitar para enviada/falhada), não repetir a escrita nem
+    // o audit log — devolve sucesso sem reprocessar.
+    if (atual.estado === estadoAlvo || atual.estado !== "em_fila") {
+      return respostaSucesso({
+        mensagemId,
+        estado: atual.estado,
+        sucesso,
+        jaProcessada: true,
+      })
+    }
+
     const mensagem = await prisma.mensagemIA.update({
       where: { id: mensagemId },
       data: {
-        estado: sucesso ? "enviada" : "falhada",
+        estado: estadoAlvo,
         ...(sucesso ? { enviadaEm: new Date() } : {}),
         ...(!sucesso ? { erroEnvio: erroDescricao ?? "Falha sem descrição" } : {}),
       },
