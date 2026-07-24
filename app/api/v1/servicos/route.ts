@@ -4,6 +4,7 @@ import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } f
 import { servicoCreateSchema, servicoQuerySchema, validarBody, validarQuery } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { webhooks } from "@/lib/webhooks"
+import { verificarRateLimit } from "@/lib/rate-limit"
 import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -34,6 +35,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const erro = validarApiKey(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "servico-post",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const v = await validarBody(request, servicoCreateSchema)
   if (!v.ok) return v.resposta

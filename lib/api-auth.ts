@@ -86,7 +86,7 @@ export async function validarApiKeyAdminOuSessao(request: NextRequest): Promise<
 }
 
 export function respostaErro(mensagem: string, code: string, status: number) {
-  return NextResponse.json({ error: mensagem, code, status }, { status })
+  return NextResponse.json({ error: mensagem, code }, { status })
 }
 
 export function respostaSucesso(data: unknown, meta?: Record<string, unknown>) {

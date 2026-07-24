@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { validarBody, validarQuery, campanhaCreateSchema, campanhasQuerySchema } from "@/lib/validations"
 import { aprovarEAgendar } from "@/lib/fila-envio"
+import { verificarRateLimit } from "@/lib/rate-limit"
 import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -43,6 +44,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const erro = validarApiKey(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "campanha-post",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const v = await validarBody(request, campanhaCreateSchema)
   if (!v.ok) return v.resposta

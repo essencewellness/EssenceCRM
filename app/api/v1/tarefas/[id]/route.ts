@@ -4,6 +4,7 @@ import { validarApiKeyOuSessao } from "@/lib/api-auth"
 import { validarBody, tarefaUpdateSchema } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
+import { verificarRateLimit } from "@/lib/rate-limit"
 
 const TRANSICOES_INVALIDAS: Record<string, string[]> = {
   concluida: ["pendente", "em_progresso"],
@@ -16,6 +17,13 @@ export async function PATCH(
 ) {
   const apiKeyError = await validarApiKeyOuSessao(request)
   if (apiKeyError) return apiKeyError
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "tarefa-patch",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const { id } = await params
 

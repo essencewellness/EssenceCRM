@@ -5,6 +5,8 @@ import { webhooks } from "@/lib/webhooks"
 import { clienteUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
+import { verificarRateLimit } from "@/lib/rate-limit"
+import { auth } from "@/lib/auth"
 
 export async function GET(
   request: NextRequest,
@@ -38,6 +40,19 @@ export async function GET(
 
     if (!cliente) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
 
+    // RGPD Art. 30 (responsabilização): registar quem consultou a ficha
+    // clínica completa de uma cliente, não só quem a alterou/exportou.
+    // Este GET aceita chave N8N OU sessão de dashboard — identifica a
+    // sessão quando existe, para não misturar tudo debaixo de "api:n8n".
+    const sessaoAtual = await auth()
+    auditar({
+      quem: sessaoAtual?.user?.email ?? "api:n8n",
+      acao: "cliente.consultado",
+      entidade: "Cliente",
+      entidadeId: id,
+      ip: request.headers.get("x-forwarded-for"),
+    })
+
     return respostaSucesso(serializarDecimais(cliente))
   } catch (error) {
     console.error("GET /api/v1/clientes/[id]:", (error as Error).message)
@@ -51,6 +66,13 @@ export async function PATCH(
 ) {
   const erro = validarApiKey(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "cliente-patch",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const { id } = await params
 

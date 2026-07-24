@@ -4,6 +4,7 @@ import { validarApiKeyOuSessao } from "@/lib/api-auth"
 import { validarBody, validarQuery, tarefaCreateSchema, tarefaQuerySchema } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
+import { verificarRateLimit } from "@/lib/rate-limit"
 import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -69,6 +70,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const apiKeyError = await validarApiKeyOuSessao(request)
   if (apiKeyError) return apiKeyError
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "tarefa-post",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const validacao = await validarBody(request, tarefaCreateSchema)
   if (!validacao.ok) return validacao.resposta

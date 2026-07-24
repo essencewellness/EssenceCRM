@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auditar } from "@/lib/audit"
+import { verificarRateLimit } from "@/lib/rate-limit"
 
 export async function DELETE(
   request: NextRequest,
@@ -9,6 +10,13 @@ export async function DELETE(
 ) {
   const erro = validarApiKey(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "etiqueta-delete",
+    limite: 100,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const { id } = await params
   const url = new URL(request.url)
