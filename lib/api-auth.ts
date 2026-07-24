@@ -89,9 +89,12 @@ export function respostaErro(mensagem: string, code: string, status: number) {
   return NextResponse.json({ error: mensagem, code }, { status })
 }
 
-export function respostaSucesso(data: unknown, meta?: Record<string, unknown>) {
-  return NextResponse.json({
-    data,
-    meta: { timestamp: new Date().toISOString(), ...meta },
-  })
+export function respostaSucesso(data: unknown, meta?: Record<string, unknown>, status = 200) {
+  return NextResponse.json(
+    {
+      data,
+      meta: { timestamp: new Date().toISOString(), ...meta },
+    },
+    { status }
+  )
 }

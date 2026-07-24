@@ -79,7 +79,7 @@ export async function POST(
       include: { servico: { select: { nome: true } } },
     })
 
-    return respostaSucesso(serializarDecimais({ ...pack, sessoesRestantes: pack.totalSessoes }))
+    return respostaSucesso(serializarDecimais({ ...pack, sessoesRestantes: pack.totalSessoes }), undefined, 201)
   } catch (error) {
     console.error("POST /api/v1/clientes/[id]/packs:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

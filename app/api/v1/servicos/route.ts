@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       duracaoMinutos: servico.duracaoMinutos,
     })
 
-    return respostaSucesso(serializarDecimais(servico))
+    return respostaSucesso(serializarDecimais(servico), undefined, 201)
   } catch (error) {
     console.error("POST /api/v1/servicos:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

@@ -141,7 +141,8 @@ export async function POST(request: NextRequest) {
 
     return respostaSucesso(
       { campanha, agendadas: resultadoFila.agendadas.length },
-      { totalClientes: clientes.length }
+      { totalClientes: clientes.length },
+      201
     )
   } catch (error) {
     console.error("POST /api/v1/campanhas:", (error as Error).message)

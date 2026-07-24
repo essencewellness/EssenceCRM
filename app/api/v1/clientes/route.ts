@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    return respostaSucesso(serializarDecimais({ ...cliente, created: true }))
+    return respostaSucesso(serializarDecimais({ ...cliente, created: true }), undefined, 201)
   } catch (error) {
     // Corrida rara: o findFirst acima não viu o duplicado a tempo (outro
     // upsert/edição concorrente ganhou), mas o @unique na BD apanha-o —
