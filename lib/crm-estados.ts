@@ -57,6 +57,7 @@ export function calcularEstado(
 export interface ResultadoMotor {
   analisados: number
   alterados: number
+  falhas: number
   transicoes: Array<{ clienteId: string; nome: string; de: string; para: string }>
 }
 
@@ -77,80 +78,89 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
     },
   })
 
-  const resultado: ResultadoMotor = { analisados: clientes.length, alterados: 0, transicoes: [] }
+  const resultado: ResultadoMotor = { analisados: clientes.length, alterados: 0, falhas: 0, transicoes: [] }
   const hoje = new Date()
 
   for (const c of clientes) {
-    const novoEstado = calcularEstado(
-      { ...c, totalGasto: Number(c.totalGasto) },
-      hoje,
-      diasReativacao
-    )
-    if (novoEstado === c.estado) continue
+    // Isolamento por cliente: uma falha (constraint, blip de ligação) não pode
+    // abortar o lote inteiro e deixar os clientes seguintes sem recálculo.
+    try {
+      const novoEstado = calcularEstado(
+        { ...c, totalGasto: Number(c.totalGasto) },
+        hoje,
+        diasReativacao
+      )
+      if (novoEstado === c.estado) continue
 
-    await prisma.cliente.update({
-      where: { id: c.id },
-      data: { estado: novoEstado },
-    })
+      await prisma.cliente.update({
+        where: { id: c.id },
+        data: { estado: novoEstado },
+      })
 
-    resultado.alterados++
-    resultado.transicoes.push({ clienteId: c.id, nome: c.nome, de: c.estado, para: novoEstado })
+      resultado.alterados++
+      resultado.transicoes.push({ clienteId: c.id, nome: c.nome, de: c.estado, para: novoEstado })
 
-    auditar({
-      quem: "sistema",
-      acao: "cliente.estado_alterado",
-      entidade: "Cliente",
-      entidadeId: c.id,
-      detalhe: { de: c.estado, para: novoEstado, motor: true },
-    })
+      auditar({
+        quem: "sistema",
+        acao: "cliente.estado_alterado",
+        entidade: "Cliente",
+        entidadeId: c.id,
+        detalhe: { de: c.estado, para: novoEstado, motor: true },
+      })
 
-    void webhooks.clienteEstadoAlterado({
-      clienteId: c.id,
-      nomeCliente: c.nome,
-      estadoAnterior: c.estado,
-      estadoNovo: novoEstado,
-    })
+      void webhooks.clienteEstadoAlterado({
+        clienteId: c.id,
+        nomeCliente: c.nome,
+        estadoAnterior: c.estado,
+        estadoNovo: novoEstado,
+      })
 
-    // Criar tarefa automática de follow-up quando cliente entra em reativacao
-    if (novoEstado === "reativacao" && c.estado !== "reativacao") {
-      try {
-        const ultimaSessao = await prisma.sessao.findFirst({
-          where: { clienteId: c.id, estado: "realizada" },
-          orderBy: { data: "desc" },
-          select: { terapeutaId: true },
-        })
-        const dataLimite = new Date(hoje)
-        dataLimite.setDate(dataLimite.getDate() + 7)
-
-        // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
-        let criadoPor = ultimaSessao?.terapeutaId
-        if (!criadoPor) {
-          const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
-          criadoPor = admin?.id ?? "sistema"
-        }
-
-        // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
-        const jaExiste = await prisma.tarefa.findFirst({
-          where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
-        })
-        if (!jaExiste) {
-          await prisma.tarefa.create({
-            data: {
-              clienteId:  c.id,
-              titulo:     `Contactar ${c.nome}`,
-              tipo:       "follow_up",
-              prioridade: "alta",
-              estado:     "pendente",
-              dataLimite,
-              criadoPor,
-              ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
-            },
+      // Criar tarefa automática de follow-up quando cliente entra em reativacao
+      if (novoEstado === "reativacao" && c.estado !== "reativacao") {
+        try {
+          const ultimaSessao = await prisma.sessao.findFirst({
+            where: { clienteId: c.id, estado: "realizada" },
+            orderBy: { data: "desc" },
+            select: { terapeutaId: true },
           })
+          const dataLimite = new Date(hoje)
+          dataLimite.setDate(dataLimite.getDate() + 7)
+
+          // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
+          let criadoPor = ultimaSessao?.terapeutaId
+          if (!criadoPor) {
+            const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
+            criadoPor = admin?.id ?? "sistema"
+          }
+
+          // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
+          const jaExiste = await prisma.tarefa.findFirst({
+            where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
+          })
+          if (!jaExiste) {
+            await prisma.tarefa.create({
+              data: {
+                clienteId:  c.id,
+                titulo:     `Contactar ${c.nome}`,
+                tipo:       "follow_up",
+                prioridade: "alta",
+                estado:     "pendente",
+                dataLimite,
+                criadoPor,
+                ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
+              },
+            })
+          }
+        } catch (e) {
+          // Não bloquear o motor se a criação de tarefa falhar
+          console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
         }
-      } catch (e) {
-        // Não bloquear o motor se a criação de tarefa falhar
-        console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
       }
+    } catch (e) {
+      // Isola a falha a este cliente; o motor continua para os restantes e
+      // reporta a contagem de falhas para ficar visível nos logs do Vercel.
+      resultado.falhas++
+      console.error(`[motor] falha ao recalcular estado do cliente ${c.id}:`, e)
     }
   }
 

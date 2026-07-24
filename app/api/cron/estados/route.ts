@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
       detalhe: {
         analisados: resultado.analisados,
         alterados: resultado.alterados,
+        falhas: resultado.falhas,
         sessoesConcluidas: sessoesPassadas.length,
         mensagensExpiradas,
         duracaoMs: Date.now() - inicio,
