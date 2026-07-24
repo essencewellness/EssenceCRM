@@ -142,10 +142,21 @@ export async function DELETE(
         where: { clienteId: id },
         data: { titulo: "Tarefa anonimizada", descricao: null },
       }),
-      // Gift cards resgatados pela cliente: limpar identificação do beneficiário
+      // Gift cards ligados à cliente: limpar identificação do beneficiário E do
+      // comprador — uma cliente que compra E usa um gift card ligado ao seu
+      // próprio clienteId mantinha os dados de comprador após anonimização.
+      // compradorNome é obrigatório no schema (não aceita null), por isso
+      // segue o mesmo padrão do cliente.nome acima ("Cliente anonimizada").
       prisma.giftCard.updateMany({
         where: { clienteId: id },
-        data: { beneficiarioNome: null, beneficiarioTelefone: null, notas: null },
+        data: {
+          beneficiarioNome: null,
+          beneficiarioTelefone: null,
+          compradorNome: "Comprador anonimizado",
+          compradorTelefone: null,
+          compradorEmail: null,
+          notas: null,
+        },
       }),
     ])
 
