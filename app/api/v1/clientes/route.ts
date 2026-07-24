@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
           orderBy: { data: "asc" as const },
         },
       },
-      orderBy: { nome: "asc" },
+      orderBy: [{ nome: "asc" }, { id: "asc" }],
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     })
