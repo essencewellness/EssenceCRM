@@ -77,11 +77,17 @@ export async function eliminarSessao(sessaoId: string, clienteId: string) {
   if (!sessao) throw new Error("Sessão não encontrada")
   if (sessao.clienteId !== clienteId) throw new Error("Sessão não pertence a este cliente")
 
-  await prisma.sessao.delete({ where: { id: sessaoId } })
+  // Apagar a sessão e recalcular as métricas na mesma transação — evita a
+  // janela de corrida em que duas edições concorrentes no mesmo cliente (ex:
+  // Bea e Cris a mexer em sessões diferentes ao mesmo tempo) leem/escrevem
+  // totalGasto/totalSessoes fora de ordem.
+  await prisma.$transaction(async (tx) => {
+    await tx.sessao.delete({ where: { id: sessaoId } })
 
-  if (sessao.estado === "realizada") {
-    await recalcularMetricasCliente(prisma, clienteId)
-  }
+    if (sessao.estado === "realizada") {
+      await recalcularMetricasCliente(tx, clienteId)
+    }
+  })
 
   auditar({
     quem: session.user.email ?? "dashboard",
@@ -126,25 +132,31 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
 
   const { data: dataSessao, dataRecomendadaRegresso, ...resto } = dados
 
-  await prisma.sessao.update({
-    where: { id: sessaoId },
-    data: {
-      ...resto,
-      ...(dataSessao ? { data: new Date(dataSessao) } : {}),
-      ...(dataRecomendadaRegresso !== undefined
-        ? { dataRecomendadaRegresso: dataRecomendadaRegresso ? new Date(dataRecomendadaRegresso) : null }
-        : {}),
-    } as Prisma.SessaoUpdateInput,
-  })
-
   const eraRealizada = sessaoAntes.estado === "realizada"
   const ficaRealizada = (dados.estado ?? sessaoAntes.estado) === "realizada"
   const afetaMetricas = (ficaRealizada && !eraRealizada)
     || (eraRealizada && (dados.preco !== undefined || dados.data !== undefined || dados.estado !== undefined))
 
-  if (afetaMetricas) {
-    await recalcularMetricasCliente(prisma, clienteId)
-  }
+  // O update da sessão e o recálculo de totalGasto/totalSessoes correm na
+  // mesma transação: sem isto, duas edições concorrentes de sessões diferentes
+  // do mesmo cliente podiam intercalar leitura+escrita das métricas e deixar
+  // o cliente com valores desatualizados até à próxima edição ou ao cron das 07h.
+  await prisma.$transaction(async (tx) => {
+    await tx.sessao.update({
+      where: { id: sessaoId },
+      data: {
+        ...resto,
+        ...(dataSessao ? { data: new Date(dataSessao) } : {}),
+        ...(dataRecomendadaRegresso !== undefined
+          ? { dataRecomendadaRegresso: dataRecomendadaRegresso ? new Date(dataRecomendadaRegresso) : null }
+          : {}),
+      } as Prisma.SessaoUpdateInput,
+    })
+
+    if (afetaMetricas) {
+      await recalcularMetricasCliente(tx, clienteId)
+    }
+  })
 
   auditar({
     quem: session.user.email ?? "dashboard",
