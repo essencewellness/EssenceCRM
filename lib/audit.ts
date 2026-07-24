@@ -1,4 +1,4 @@
-﻿// Trilho de auditoria — quem fez o quê, quando, a que entidade.
+// Trilho de auditoria — quem fez o quê, quando, a que entidade.
 // Fire-and-forget: nunca bloqueia nem rebenta a operação principal.
 import { prisma } from "@/lib/prisma"
 import type { Prisma } from "@/lib/prisma-client"

@@ -1,4 +1,4 @@
-﻿// Seed 100% FICTÍCIO — para desenvolvimento e demonstração local.
+// Seed 100% FICTÍCIO — para desenvolvimento e demonstração local.
 // Nenhum dado real de cliente. Cobre os 9 estados CRM, fila de envio,
 // mensagens pendentes (para testar aprovação em massa) e consentimentos RGPD.
 import { type EstadoCliente, type EstadoMensagem } from "@/lib/prisma-client";

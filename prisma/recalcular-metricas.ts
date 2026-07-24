@@ -1,4 +1,4 @@
-﻿// Recalcula as métricas (totalSessoes, totalGasto, ultimaSessao) de TODOS os
+// Recalcula as métricas (totalSessoes, totalGasto, ultimaSessao) de TODOS os
 // clientes a partir das suas sessões realizadas — a fonte única de verdade.
 //
 // Útil agora (corrigir dados desalinhados) e na importação de clientes reais,

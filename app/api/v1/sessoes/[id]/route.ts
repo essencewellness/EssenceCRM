@@ -1,4 +1,4 @@
-﻿import { NextRequest } from "next/server"
+import { NextRequest } from "next/server"
 import { Prisma } from "@/lib/prisma-client"
 import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"

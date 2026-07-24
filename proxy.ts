@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { isSecureCookieEnv } from "@/lib/env"
 
 // Rotas que NÃO exigem sessão de dashboard:
 // - /login e /api/auth: fluxo de autenticação
@@ -33,7 +34,7 @@ export async function proxy(req: NextRequest) {
     const token = await getToken({
       req,
       secret: process.env.AUTH_SECRET,
-      secureCookie: process.env.NODE_ENV === "production",
+      secureCookie: isSecureCookieEnv(),
     })
 
     if (!token) {

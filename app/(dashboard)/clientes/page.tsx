@@ -1,4 +1,4 @@
-﻿import Link from "next/link"
+import Link from "next/link"
 import { Search, Users } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import type { Prisma, EstadoCliente } from "@/lib/prisma-client"

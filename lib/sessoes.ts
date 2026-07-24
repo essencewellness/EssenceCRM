@@ -1,4 +1,4 @@
-﻿// Efeitos colaterais de marcar uma sessão como "realizada" — partilhados entre
+// Efeitos colaterais de marcar uma sessão como "realizada" — partilhados entre
 // o PATCH interno (/api/v1/sessoes/[id]) e o PATCH público (/api/v1/public/pos-sessao),
 // para as duas vias nunca divergirem: recalcular métricas, disparar o webhook
 // sessao.realizada e agendar a mensagem de avaliação de satisfação.

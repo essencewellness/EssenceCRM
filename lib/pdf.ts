@@ -1,4 +1,4 @@
-﻿import { PDFDocument, rgb, StandardFonts } from "pdf-lib"
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib"
 import type { Sessao, Cliente } from "@/lib/prisma-client"
 
 type DadosSessao = Pick<

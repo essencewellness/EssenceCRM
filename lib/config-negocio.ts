@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type { ConfiguracaoNegocio } from "@/lib/prisma-client";
 
 let cache: ConfiguracaoNegocio | null = null;

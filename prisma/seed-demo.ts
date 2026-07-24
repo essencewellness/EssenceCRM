@@ -1,4 +1,4 @@
-﻿// ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // SEED DEMO — dados de teste coerentes para a Essence Wellness CRM
 //
 // Princípio: as SESSÕES são a fonte única de verdade. Para cada cliente geramos

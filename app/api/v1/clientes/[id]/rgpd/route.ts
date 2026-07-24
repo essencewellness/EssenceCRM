@@ -1,4 +1,4 @@
-﻿// RGPD — direitos da titular dos dados:
+// RGPD — direitos da titular dos dados:
 // GET    → exportação completa (Art. 15/20: acesso e portabilidade)
 // DELETE → anonimização irreversível (Art. 17: direito ao apagamento)
 //          Mantém métricas agregadas sem qualquer dado pessoal/clínico.

@@ -4,6 +4,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { auditar, loginsFalhadosRecentes, loginsFalhadosPorIp } from "@/lib/audit";
+import { isSecureCookieEnv } from "@/lib/env";
 
 // Proteção brute-force: 5 tentativas falhadas em 15 min → conta bloqueada 15 min
 const MAX_TENTATIVAS = 5;
@@ -12,10 +13,9 @@ const JANELA_MINUTOS = 15;
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt", maxAge: 12 * 60 * 60 }, // sessão expira em 12h
-  // Explícito (não auto-detetado): tem de corresponder ao secureCookie do
-  // proxy.ts, senão o middleware procura o nome de cookie errado quando um
-  // proxy à frente injeta x-forwarded-proto: https em dev.
-  useSecureCookies: process.env.NODE_ENV === "production",
+  // Partilhado com proxy.ts via lib/env.ts — as duas condições já
+  // andaram desalinhadas, daí não repetir a expressão em cada ficheiro.
+  useSecureCookies: isSecureCookieEnv(),
   pages: {
     signIn: "/login",
   },

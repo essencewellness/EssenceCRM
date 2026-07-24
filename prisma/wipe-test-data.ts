@@ -1,4 +1,4 @@
-﻿// Remove APENAS os dados de teste do CRM — preserva os logins
+// Remove APENAS os dados de teste do CRM — preserva os logins
 // (User/Account/Session/VerificationToken) e o catálogo de serviços.
 //
 // Pensado para a transição de clientes-teste → clientes reais: corre isto para

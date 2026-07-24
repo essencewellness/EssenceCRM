@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import { Users, TrendingUp, Crown, AlertTriangle, Star, MessageCircle, Mail } from "lucide-react";

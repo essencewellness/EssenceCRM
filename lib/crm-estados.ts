@@ -1,4 +1,4 @@
-﻿// Motor de transição automática dos 9 estados CRM.
+// Motor de transição automática dos 9 estados CRM.
 // Corre diariamente (Vercel Cron → /api/cron/estados) — o CRM deixa de
 // depender do N8N para manter os estados corretos.
 //

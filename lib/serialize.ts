@@ -1,4 +1,4 @@
-﻿// Converte tipos Prisma não-serializáveis (Decimal) em números simples
+// Converte tipos Prisma não-serializáveis (Decimal) em números simples
 // antes de atravessar a fronteira servidor → cliente ou sair na API JSON.
 import type { Prisma } from "@/lib/prisma-client"
 

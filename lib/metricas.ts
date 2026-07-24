@@ -1,4 +1,4 @@
-﻿// Fonte única de verdade para as métricas agregadas do cliente.
+// Fonte única de verdade para as métricas agregadas do cliente.
 //
 // `totalSessoes`, `totalGasto` e `ultimaSessao` derivam SEMPRE das sessões
 // realizadas — nunca são escritos à mão. Qualquer via que crie ou conclua uma
