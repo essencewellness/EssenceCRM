@@ -6,16 +6,27 @@
 import { NextRequest } from "next/server"
 import { Prisma } from "@/lib/prisma-client"
 import { prisma } from "@/lib/prisma"
-import { validarApiKey, validarApiKeyAdminOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { validarApiKeyAdminOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
+import { verificarRateLimit } from "@/lib/rate-limit"
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const erro = validarApiKey(request)
+  // Exportação completa de dados clínicos é tão sensível como a anonimização
+  // (Art. 17) — exige a mesma autenticação forte (sessão de dashboard ou
+  // API_KEY_ADMIN), não a API_KEY_N8N partilhada com todos os workflows.
+  const erro = await validarApiKeyAdminOuSessao(request)
   if (erro) return erro
+
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "rgpd-exportacao",
+    limite: 5,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
 
   const { id } = await params
 
@@ -45,7 +56,7 @@ export async function GET(
     if (!cliente) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
 
     auditar({
-      quem: "api:n8n",
+      quem: "admin",
       acao: "rgpd.exportacao",
       entidade: "Cliente",
       entidadeId: id,
