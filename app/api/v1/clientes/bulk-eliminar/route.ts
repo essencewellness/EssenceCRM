@@ -48,21 +48,37 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Eliminação sequencial (não $transaction em array): até 500 clientes
+    // por pedido (limite do schema Zod), cada um com cascade a sessões,
+    // mensagens, etiquetas, observações, etc. — uma transação única com
+    // 500 cascades arriscaria exceder o timeout por omissão do Prisma
+    // (5s) e falhar tudo de uma vez. Em vez disso, cada eliminação corre
+    // isolada: uma falha pontual (erro transitório de ligação, constraint)
+    // não trava as restantes, e a resposta devolve sucessos e falhas
+    // separadamente em vez de um 500 genérico que esconde quantos foram
+    // mesmo apagados.
+    const falhas: { id: string; nome: string; erro: string }[] = []
     let apagados = 0
-    for (const cliente of clientes) {
-      await prisma.cliente.delete({ where: { id: cliente.id } })
 
-      auditar({
-        quem: "api:bulk",
-        acao: "cliente.apagado_definitivo",
-        entidade: "Cliente",
-        entidadeId: cliente.id,
-        detalhe: { nome: cliente.nome, sessoesApagadas: cliente._count.sessoes },
-      })
-      apagados++
+    for (const cliente of clientes) {
+      try {
+        await prisma.cliente.delete({ where: { id: cliente.id } })
+
+        auditar({
+          quem: "api:bulk",
+          acao: "cliente.apagado_definitivo",
+          entidade: "Cliente",
+          entidadeId: cliente.id,
+          detalhe: { nome: cliente.nome, sessoesApagadas: cliente._count.sessoes },
+        })
+        apagados++
+      } catch (erroCliente) {
+        console.error("[bulk-eliminar] falha ao apagar cliente", cliente.id, (erroCliente as Error).message)
+        falhas.push({ id: cliente.id, nome: cliente.nome, erro: (erroCliente as Error).message })
+      }
     }
 
-    return respostaSucesso({ apagados, bloqueado: false })
+    return respostaSucesso({ apagados, falhas, bloqueado: false })
   } catch (e) {
     console.error("[bulk-eliminar]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)
