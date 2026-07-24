@@ -9,6 +9,26 @@ import { EstadoSessao, Prisma } from "@/lib/prisma-client"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { sessaoUpdateSchema } from "@/lib/validations"
 
+// Garante que a terapeuta autenticada é admin OU a dona do cliente
+// (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
+// eliminar/editar clientes e sessões de outra colega só por adivinhar o cuid
+// — estas actions só validavam sessão, nunca posse.
+type SessaoComUser = { user?: { role?: string; id?: string } | null } | null | undefined
+
+async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
+  const role = (session?.user as { role?: string })?.role ?? "terapeuta"
+  if (role === "admin") return
+
+  const userId = (session?.user as { id?: string })?.id
+  const cliente = await prisma.cliente.findUnique({
+    where: { id: clienteId },
+    select: { terapeutaPrincipalId: true },
+  })
+  if (!cliente || !userId || cliente.terapeutaPrincipalId !== userId) {
+    throw new Error("Não tens permissão para aceder a este cliente.")
+  }
+}
+
 // Apagamento DEFINITIVO do cliente (hard delete). A cascata do schema remove
 // sessões, mensagens, etiquetas, observações, preços, packs e portal token.
 // Como Sessao.clienteId é obrigatório, apagar o cliente implica apagar as sessões:
@@ -16,6 +36,7 @@ import { sessaoUpdateSchema } from "@/lib/validations"
 export async function eliminarCliente(clienteId: string, apagarSessoes = false) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
+  await verificarDonoCliente(session, clienteId)
 
   const cliente = await prisma.cliente.findUnique({
     where: { id: clienteId },
@@ -47,12 +68,14 @@ export async function eliminarCliente(clienteId: string, apagarSessoes = false) 
 export async function eliminarSessao(sessaoId: string, clienteId: string) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
+  await verificarDonoCliente(session, clienteId)
 
   const sessao = await prisma.sessao.findUnique({
     where: { id: sessaoId },
-    select: { estado: true },
+    select: { estado: true, clienteId: true },
   })
   if (!sessao) throw new Error("Sessão não encontrada")
+  if (sessao.clienteId !== clienteId) throw new Error("Sessão não pertence a este cliente")
 
   await prisma.sessao.delete({ where: { id: sessaoId } })
 
@@ -92,12 +115,14 @@ type DadosSessao = {
 async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dados: DadosSessao) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
+  await verificarDonoCliente(session, clienteId)
 
   const sessaoAntes = await prisma.sessao.findUnique({
     where: { id: sessaoId },
-    select: { estado: true },
+    select: { estado: true, clienteId: true },
   })
   if (!sessaoAntes) throw new Error("Sessão não encontrada")
+  if (sessaoAntes.clienteId !== clienteId) throw new Error("Sessão não pertence a este cliente")
 
   const { data: dataSessao, dataRecomendadaRegresso, ...resto } = dados
 

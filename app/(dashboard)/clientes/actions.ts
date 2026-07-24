@@ -14,10 +14,31 @@ async function verificarSessao() {
   return session
 }
 
+// Garante que a terapeuta autenticada é admin OU a dona do cliente
+// (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
+// mutar o perfil, etiquetas ou estado CRM de clientes de outra colega só por
+// adivinhar/copiar o cuid — estas actions só validavam sessão, nunca posse.
+type SessaoComUser = { user?: { role?: string; id?: string } | null } | null | undefined
+
+async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
+  const role = (session?.user as { role?: string })?.role ?? "terapeuta"
+  if (role === "admin") return
+
+  const userId = (session?.user as { id?: string })?.id
+  const cliente = await prisma.cliente.findUnique({
+    where: { id: clienteId },
+    select: { terapeutaPrincipalId: true },
+  })
+  if (!cliente || !userId || cliente.terapeutaPrincipalId !== userId) {
+    throw new Error("Não tens permissão para aceder a este cliente.")
+  }
+}
+
 // ── Tags ────────────────────────────────────────────────────────
 
 export async function adicionarEtiqueta(clienteId: string, etiquetaId: string) {
   const session = await verificarSessao()
+  await verificarDonoCliente(session, clienteId)
   const result = await prisma.clienteEtiqueta.upsert({
     where:  { clienteId_etiquetaId: { clienteId, etiquetaId } },
     create: { clienteId, etiquetaId },
@@ -36,6 +57,7 @@ export async function adicionarEtiqueta(clienteId: string, etiquetaId: string) {
 
 export async function removerEtiqueta(clienteId: string, etiquetaId: string) {
   const session = await verificarSessao()
+  await verificarDonoCliente(session, clienteId)
   const etiqueta = await prisma.etiqueta.findUnique({ where: { id: etiquetaId }, select: { nome: true } })
   await prisma.clienteEtiqueta.deleteMany({ where: { clienteId, etiquetaId } })
   auditar({
@@ -84,6 +106,7 @@ export async function criarEtiqueta(dados: {
 
 export async function atualizarEstadoCliente(clienteId: string, estado: EstadoCliente) {
   const session = await verificarSessao()
+  await verificarDonoCliente(session, clienteId)
 
   const anterior = await prisma.cliente.findUnique({ where: { id: clienteId }, select: { estado: true } })
 
@@ -128,6 +151,7 @@ export async function atualizarCampoCliente(
   valor: unknown
 ): Promise<{ ok: true } | { ok: false; erro: string }> {
   const session = await verificarSessao()
+  await verificarDonoCliente(session, clienteId)
 
   if (!CAMPOS_CLIENTE_EDITAVEIS.includes(campo)) {
     return { ok: false, erro: "Campo não editável" }
