@@ -182,6 +182,14 @@ export const mensagemCreateSchema = z.object({
   motivoGeracao: z.string().trim().max(300).optional().nullable(),
 }).strict()
 
+export const mensagensQuerySchema = z.object({
+  estado:    z.enum(ESTADOS_MENSAGEM).default("pendente"),
+  canal:     z.enum(CANAIS).optional(),
+  clienteId: z.string().trim().max(64).optional(),
+  limit:     z.coerce.number().int().min(1).max(200).default(50),
+  cursor:    z.string().trim().max(64).optional(),
+})
+
 export const mensagemPatchSchema = z.object({
   mensagemId: z.string().trim().max(64),
   estado: z.enum(ESTADOS_MENSAGEM),

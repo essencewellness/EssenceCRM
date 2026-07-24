@@ -4,7 +4,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { webhooks } from "@/lib/webhooks"
-import { mensagemCreateSchema, mensagemPatchSchema, validarBody, normalizarTelefone, ESTADOS_MENSAGEM, CANAIS } from "@/lib/validations"
+import { mensagemCreateSchema, mensagemPatchSchema, mensagensQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 
 async function resolverCliente(clienteId?: string, telefone?: string, email?: string) {
@@ -75,33 +75,36 @@ export async function GET(request: NextRequest) {
   const erro = validarApiKey(request)
   if (erro) return erro
 
-  const { searchParams } = new URL(request.url)
-  const estado = searchParams.get("estado") ?? "pendente"
-  const canal = searchParams.get("canal")
-  const clienteId = searchParams.get("clienteId")
-
-  if (!ESTADOS_MENSAGEM.includes(estado as (typeof ESTADOS_MENSAGEM)[number])) {
-    return respostaErro(`Estado inválido. Use: ${ESTADOS_MENSAGEM.join(", ")}`, "ESTADO_INVALIDO", 400)
-  }
-  if (canal && !CANAIS.includes(canal as (typeof CANAIS)[number])) {
-    return respostaErro(`Canal inválido. Use: ${CANAIS.join(", ")}`, "CANAL_INVALIDO", 400)
-  }
+  const q = validarQuery(request.url, mensagensQuerySchema)
+  if (!q.ok) return q.resposta
+  const { estado, canal, clienteId, limit, cursor } = q.data
 
   try {
+    const where = {
+      estado,
+      ...(canal ? { canal } : {}),
+      ...(clienteId ? { clienteId } : {}),
+    }
+
     const mensagens = await prisma.mensagemIA.findMany({
-      where: {
-        estado: estado as (typeof ESTADOS_MENSAGEM)[number],
-        ...(canal ? { canal: canal as (typeof CANAIS)[number] } : {}),
-        ...(clienteId ? { clienteId } : {}),
-      },
+      where,
       include: {
         cliente: { select: { id: true, nome: true, telefone: true, email: true } },
       },
-      orderBy: { geradaEm: "desc" },
-      take: 50,
+      orderBy: [{ geradaEm: "desc" }, { id: "asc" }],
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     })
 
-    return respostaSucesso(mensagens, { total: mensagens.length })
+    const hasMore = mensagens.length > limit
+    if (hasMore) mensagens.pop()
+
+    const total = await prisma.mensagemIA.count({ where })
+
+    return respostaSucesso(mensagens, {
+      nextCursor: hasMore ? mensagens[mensagens.length - 1]?.id : null,
+      total,
+    })
   } catch (error) {
     console.error("GET /api/v1/mensagens:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
