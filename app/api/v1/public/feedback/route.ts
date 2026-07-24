@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { feedbackPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
+import { validarLinkToken } from "@/lib/link-token"
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -17,12 +18,19 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, feedbackPublicSchema)
   if (!v.ok) return v.resposta
-  const { clienteId, sessaoId, rating, pontosPositivos, pontosMelhorar, comentario, website } = v.data
+  const { clienteId, sessaoId, t, rating, pontosPositivos, pontosMelhorar, comentario, website } = v.data
 
   // Honeypot preenchido = bot
   if (website) {
     return NextResponse.json({ ok: true })
   }
+
+  // IDOR: mesmo modelo de confiança que onboarding/confirmar-sessao — exige o
+  // token assinado ligado ao clienteId/sessaoId do link enviado por WhatsApp,
+  // para que um cuid adivinhado não baste para submeter feedback em nome de
+  // outra cliente (e disparar o alerta de rating negativo à Bea por engano).
+  const erroToken = validarLinkToken(request, sessaoId ?? clienteId, "feedback", t)
+  if (erroToken) return erroToken
 
   try {
     // Verificar que o cliente existe e não está na blacklist

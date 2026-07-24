@@ -11,6 +11,7 @@ import { webhooks } from "@/lib/webhooks"
 import { onboardingPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
+import { validarLinkToken } from "@/lib/link-token"
 
 // Versão do texto de consentimento mostrado no formulário (essence-forms.js,
 // injetarAvisoRGPD). Incrementar sempre que o texto mudar — fica no audit log
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
   const v = await validarBody(request, onboardingPublicSchema)
   if (!v.ok) return v.resposta
   const {
-    clienteId, sessaoId, nome, email, telefone, dataNascimento, comoNosConheceu,
+    clienteId, sessaoId, t, nome, email, telefone, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
     notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
   } = v.data
@@ -36,6 +37,17 @@ export async function POST(request: NextRequest) {
   // Honeypot preenchido = bot
   if (website) {
     return NextResponse.json({ ok: true })
+  }
+
+  // IDOR: quando o link identifica cliente/sessão, exige o mesmo token assinado
+  // que os outros endpoints públicos (atribuir-sessao, pos-sessao, confirmar-sessao,
+  // ficha-sessao) — caso contrário qualquer cuid adivinhado bastava para submeter
+  // dados clínicos em nome de outra cliente. Sem clienteId/sessaoId (lead nova só
+  // com nome+email) não há nada para proteger, tal como antes.
+  const idAlvo = sessaoId ?? clienteId
+  if (idAlvo) {
+    const erroToken = validarLinkToken(request, idAlvo, "onboarding", t)
+    if (erroToken) return erroToken
   }
 
   try {

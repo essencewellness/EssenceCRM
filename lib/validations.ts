@@ -235,6 +235,7 @@ export const leadPublicSchema = z.object({
 export const onboardingPublicSchema = z.object({
   clienteId: z.string().trim().max(64).optional().nullable(),
   sessaoId: z.string().trim().max(64).optional().nullable(),
+  t: z.string().trim().max(128).optional().nullable(), // link token assinado (ver lib/link-token.ts)
   nome: texto.max(120).optional().nullable(),
   email: emailSchema.optional().nullable(),
   telefone: telefoneSchema.optional().nullable(),
@@ -458,6 +459,7 @@ export const bulkEliminarSchema = z.object({
 export const feedbackPublicSchema = z.object({
   clienteId:      z.string().trim().max(64),
   sessaoId:       z.string().trim().max(64).optional().nullable(),
+  t:              z.string().trim().max(128).optional().nullable(), // link token assinado (ver lib/link-token.ts)
   rating:         z.coerce.number().int().min(1).max(5),
   pontosPositivos: z.string().trim().max(1000).optional().nullable(),
   pontosMelhorar: z.string().trim().max(2000).optional().nullable(),
