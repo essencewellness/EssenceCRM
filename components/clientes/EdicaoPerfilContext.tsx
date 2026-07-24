@@ -1,10 +1,15 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useRef, useState } from "react"
 
 interface EdicaoPerfilCtx {
   editing: boolean
   setEditing: (v: boolean) => void
+  /** Chamado por cada InlineEditField ao entrar em modo editável. Devolve
+   *  `true` apenas para o primeiro a chamar depois de `editing` passar a
+   *  `true` — esse é quem deve focar-se a si próprio (ver InlineEditField).
+   */
+  consumirFocoInicial: () => boolean
 }
 
 const Ctx = createContext<EdicaoPerfilCtx | null>(null)
@@ -15,8 +20,26 @@ const Ctx = createContext<EdicaoPerfilCtx | null>(null)
 // como prop. Fora do Provider (ex: drawer de sessões), continuam a
 // funcionar no modo antigo (clicar em cada campo individualmente).
 export function EdicaoPerfilProvider({ children }: { children: React.ReactNode }) {
-  const [editing, setEditing] = useState(false)
-  return <Ctx.Provider value={{ editing, setEditing }}>{children}</Ctx.Provider>
+  const [editing, setEditingState] = useState(false)
+  const focoConsumidoRef = useRef(false)
+
+  function setEditing(v: boolean) {
+    // Nova sessão de edição: permite que o primeiro campo volte a focar-se.
+    if (v) focoConsumidoRef.current = false
+    setEditingState(v)
+  }
+
+  function consumirFocoInicial(): boolean {
+    if (focoConsumidoRef.current) return false
+    focoConsumidoRef.current = true
+    return true
+  }
+
+  return (
+    <Ctx.Provider value={{ editing, setEditing, consumirFocoInicial }}>
+      {children}
+    </Ctx.Provider>
+  )
 }
 
 export function useEdicaoPerfilOpcional() {

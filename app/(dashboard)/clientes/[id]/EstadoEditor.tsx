@@ -20,6 +20,8 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
   const [estadoLocal, setEstadoLocal] = useState(estadoAtual)
   const [isPending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const primeiroItemRef = useRef<HTMLButtonElement>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -31,10 +33,22 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
     return () => document.removeEventListener("mousedown", handler)
   }, [aberto])
 
+  // Ao abrir, move o foco para o primeiro item do painel — quem navega por
+  // teclado não devia ter de dar Tab a partir do botão até lá chegar.
+  useEffect(() => {
+    if (aberto) primeiroItemRef.current?.focus()
+  }, [aberto])
+
+  function fechar() {
+    setAberto(false)
+    triggerRef.current?.focus()
+  }
+
   const cfg = ESTADO_CRM_CONFIG[estadoLocal] ?? ESTADO_CRM_CONFIG.novo
 
   function selecionar(estado: EstadoCliente) {
     setAberto(false)
+    triggerRef.current?.focus()
     const anterior = estadoLocal
     setEstadoLocal(estado)
     startTransition(async () => {
@@ -49,8 +63,11 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
   return (
     <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
       <motion.button
+        ref={triggerRef}
         onClick={() => setAberto(o => !o)}
         disabled={isPending}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 400, damping: 22 }}
@@ -95,6 +112,14 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
       <AnimatePresence>
         {aberto && (
           <motion.div
+            role="listbox"
+            aria-label="Estados possíveis"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.stopPropagation()
+                fechar()
+              }
+            }}
             initial={{ opacity: 0, scale: 0.94, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: -4, transition: { duration: 0.14 } }}
@@ -110,6 +135,9 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
             {ESTADOS.map(([estado, c], i) => (
               <motion.button
                 key={estado}
+                ref={i === 0 ? primeiroItemRef : undefined}
+                role="option"
+                aria-selected={estado === estadoLocal}
                 initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.025, duration: 0.18 }}

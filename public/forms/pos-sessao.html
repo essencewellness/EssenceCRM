@@ -149,7 +149,12 @@
     }
 
     .dropdown-item:last-child { border-bottom: none; }
-    .dropdown-item:hover { background: rgba(212,184,134,0.08); }
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+      background: rgba(212,184,134,0.08);
+      outline: none;
+      box-shadow: inset 0 0 0 1px var(--champagne);
+    }
 
     .dropdown-nome {
       font-family: 'Montserrat', sans-serif;
@@ -487,7 +492,7 @@
         autocomplete="off" autocorrect="off" spellcheck="false"
       >
       <button class="search-clear" id="search-clear" onclick="limparBusca()" type="button">×</button>
-      <div class="search-dropdown" id="search-dropdown"></div>
+      <div class="search-dropdown" id="search-dropdown" role="listbox" aria-label="Resultados de pesquisa de clientes"></div>
     </div>
   </header>
 
@@ -507,7 +512,7 @@
     <input type="hidden" id="sessao-id">
 
     <div class="form-body">
-      <div class="global-error" id="global-error"></div>
+      <div class="global-error" id="global-error" role="alert"></div>
 
       <!-- Sessão básica -->
       <div class="section">
@@ -516,10 +521,10 @@
         <div class="field-row">
           <div class="field-group">
             <label class="field-label" for="servico">Serviço *</label>
-            <select id="servico">
+            <select id="servico" required aria-required="true" aria-describedby="err-servico">
               <option value="">A carregar…</option>
             </select>
-            <div class="f-err" id="err-servico">Seleciona o serviço realizado.</div>
+            <div class="f-err" id="err-servico" aria-live="polite">Seleciona o serviço realizado.</div>
           </div>
 
           <div class="field-group">
@@ -545,20 +550,20 @@
       <!-- Estado emocional -->
       <div class="section">
         <div class="section-label">Estado emocional <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
-        <div class="emocional-scale" id="emocional-scale">
-          <button type="button" class="emocional-btn" data-value="muito tensa">
+        <div class="emocional-scale" id="emocional-scale" role="group" aria-label="Estado emocional da cliente">
+          <button type="button" class="emocional-btn" data-value="muito tensa" aria-pressed="false">
             <span class="emocional-emoji">😣</span>Muito tensa
           </button>
-          <button type="button" class="emocional-btn" data-value="tensa">
+          <button type="button" class="emocional-btn" data-value="tensa" aria-pressed="false">
             <span class="emocional-emoji">😤</span>Tensa
           </button>
-          <button type="button" class="emocional-btn" data-value="neutro">
+          <button type="button" class="emocional-btn" data-value="neutro" aria-pressed="false">
             <span class="emocional-emoji">😐</span>Neutro
           </button>
-          <button type="button" class="emocional-btn" data-value="relaxada">
+          <button type="button" class="emocional-btn" data-value="relaxada" aria-pressed="false">
             <span class="emocional-emoji">😌</span>Relaxada
           </button>
-          <button type="button" class="emocional-btn" data-value="muito relaxada">
+          <button type="button" class="emocional-btn" data-value="muito relaxada" aria-pressed="false">
             <span class="emocional-emoji">🌿</span>Muito bem
           </button>
         </div>
@@ -567,15 +572,15 @@
       <!-- Aroma -->
       <div class="section">
         <div class="section-label">Aroma <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
-        <div class="aromas-grid" id="aromas-grid">
-          <button type="button" class="aroma-btn" data-value="Lavanda">🌸 Lavanda</button>
-          <button type="button" class="aroma-btn" data-value="Eucalipto">🌿 Eucalipto</button>
-          <button type="button" class="aroma-btn" data-value="Rosa">🌹 Rosa</button>
-          <button type="button" class="aroma-btn" data-value="Bergamota">🍋 Bergamota</button>
-          <button type="button" class="aroma-btn" data-value="Hortelã">🌱 Hortelã</button>
-          <button type="button" class="aroma-btn" data-value="Sândalo">🪵 Sândalo</button>
-          <button type="button" class="aroma-btn" data-value="Ylang Ylang">✨ Ylang Ylang</button>
-          <button type="button" class="aroma-btn" data-value="Mistura">🧪 Mistura</button>
+        <div class="aromas-grid" id="aromas-grid" role="group" aria-label="Aroma utilizado na sessão">
+          <button type="button" class="aroma-btn" data-value="Lavanda" aria-pressed="false">🌸 Lavanda</button>
+          <button type="button" class="aroma-btn" data-value="Eucalipto" aria-pressed="false">🌿 Eucalipto</button>
+          <button type="button" class="aroma-btn" data-value="Rosa" aria-pressed="false">🌹 Rosa</button>
+          <button type="button" class="aroma-btn" data-value="Bergamota" aria-pressed="false">🍋 Bergamota</button>
+          <button type="button" class="aroma-btn" data-value="Hortelã" aria-pressed="false">🌱 Hortelã</button>
+          <button type="button" class="aroma-btn" data-value="Sândalo" aria-pressed="false">🪵 Sândalo</button>
+          <button type="button" class="aroma-btn" data-value="Ylang Ylang" aria-pressed="false">✨ Ylang Ylang</button>
+          <button type="button" class="aroma-btn" data-value="Mistura" aria-pressed="false">🧪 Mistura</button>
         </div>
         <div class="field-group" style="margin-top:12px;">
           <label class="field-label" for="aroma-custom">Detalhe <span class="opt">(opcional)</span></label>
@@ -613,13 +618,13 @@
       <div class="section">
         <div class="section-label">Retorno recomendado <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
 
-        <div class="return-options" id="return-options">
-          <button type="button" class="return-btn" data-days="7">1 semana</button>
-          <button type="button" class="return-btn" data-days="14">2 semanas</button>
-          <button type="button" class="return-btn" data-days="21">3 semanas</button>
-          <button type="button" class="return-btn" data-days="30">1 mês</button>
-          <button type="button" class="return-btn" data-days="45">45 dias</button>
-          <button type="button" class="return-btn" data-days="60">2 meses</button>
+        <div class="return-options" id="return-options" role="group" aria-label="Retorno recomendado">
+          <button type="button" class="return-btn" data-days="7" aria-pressed="false">1 semana</button>
+          <button type="button" class="return-btn" data-days="14" aria-pressed="false">2 semanas</button>
+          <button type="button" class="return-btn" data-days="21" aria-pressed="false">3 semanas</button>
+          <button type="button" class="return-btn" data-days="30" aria-pressed="false">1 mês</button>
+          <button type="button" class="return-btn" data-days="45" aria-pressed="false">45 dias</button>
+          <button type="button" class="return-btn" data-days="60" aria-pressed="false">2 meses</button>
         </div>
 
         <div class="field-group" style="margin-top:12px;">
@@ -639,7 +644,7 @@
 
 </div><!-- /card -->
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
   const API_BASE = (window.location.protocol === 'file:' || window.location.origin.includes('localhost'))
@@ -711,24 +716,36 @@
   // ── Estado emocional ──────────────────────────────
   document.querySelectorAll('.emocional-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.emocional-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.emocional-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
     });
   });
 
   // ── Aromas ───────────────────────────────────────
   document.querySelectorAll('.aroma-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.aroma-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.aroma-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
     });
   });
 
   // ── Retorno ──────────────────────────────────────
   document.querySelectorAll('.return-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.return-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.return-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
       btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
       const dt = new Date();
       dt.setDate(dt.getDate() + parseInt(btn.dataset.days));
       document.getElementById('data-retorno').value = dt.toISOString().split('T')[0];
@@ -770,6 +787,9 @@
         resultados.forEach(c => {
           const item = document.createElement('div');
           item.className = 'dropdown-item';
+          item.setAttribute('role', 'option');
+          item.setAttribute('aria-selected', 'false');
+          item.tabIndex = 0;
 
           const ultima = c.ultimaSessao
             ? `Última sessão: ${new Date(c.ultimaSessao).toLocaleDateString('pt-PT')}`
@@ -779,9 +799,16 @@
             <div class="dropdown-nome">${c.nome}</div>
             <div class="dropdown-meta">${c.estado || ''} · ${ultima}</div>
           `;
-          item.addEventListener('click', () => {
+          const escolher = () => {
             selecionarCliente(c);
             dropdown.classList.remove('visible');
+          };
+          item.addEventListener('click', escolher);
+          item.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              escolher();
+            }
           });
           dropdown.appendChild(item);
         });
@@ -795,6 +822,50 @@
   document.addEventListener('click', e => {
     if (!e.target.closest('.search-wrap')) {
       document.getElementById('search-dropdown').classList.remove('visible');
+    }
+  });
+
+  // ── Navegação por teclado no dropdown de resultados ─
+  // A partir do input: Seta Baixo entra no primeiro resultado; Escape fecha.
+  document.getElementById('busca-input').addEventListener('keydown', e => {
+    const dropdown = document.getElementById('search-dropdown');
+    if (!dropdown.classList.contains('visible')) return;
+
+    if (e.key === 'ArrowDown') {
+      const primeiro = dropdown.querySelector('.dropdown-item[role="option"]');
+      if (primeiro) {
+        e.preventDefault();
+        primeiro.focus();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      dropdown.classList.remove('visible');
+    }
+  });
+
+  // Dentro do dropdown: Seta Baixo/Cima navega entre resultados, Escape
+  // fecha e devolve o foco ao campo de pesquisa.
+  document.getElementById('search-dropdown').addEventListener('keydown', e => {
+    const dropdown = document.getElementById('search-dropdown');
+    const itens = Array.from(dropdown.querySelectorAll('.dropdown-item[role="option"]'));
+    if (itens.length === 0) return;
+    const indiceAtual = itens.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const proximo = itens[indiceAtual + 1] || itens[0];
+      proximo.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (indiceAtual <= 0) {
+        document.getElementById('busca-input').focus();
+      } else {
+        itens[indiceAtual - 1].focus();
+      }
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      dropdown.classList.remove('visible');
+      document.getElementById('busca-input').focus();
     }
   });
 
@@ -988,7 +1059,10 @@
     document.getElementById('notas-proxima').value = '';
     document.getElementById('aroma-custom').value = '';
     document.getElementById('data-retorno').value = '';
-    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.setAttribute('aria-pressed', 'false');
+    });
     document.getElementById('servico').value = '';
     document.getElementById('servico').classList.remove('err');
     document.getElementById('err-servico').classList.remove('show');

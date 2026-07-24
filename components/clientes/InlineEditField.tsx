@@ -89,6 +89,18 @@ export function InlineEditField({
     if (editando && !controlado) inputRef.current?.focus()
   }, [editando, controlado])
 
+  // Modo controlado: ao ligar o modo de edição para todos os campos de uma
+  // vez (botão "Editar" do perfil), sem isto o foco fica onde estava — a
+  // terapeuta tinha de dar Tab por todo o conteúdo até ao primeiro campo
+  // editável. O primeiro InlineEditField a montar/renderizar em modo
+  // editável reclama o foco inicial (via consumirFocoInicial, que só
+  // devolve `true` uma vez por sessão de edição).
+  useEffect(() => {
+    if (editando && controlado && ctxEdicaoPerfil?.consumirFocoInicial()) {
+      inputRef.current?.focus()
+    }
+  }, [editando, controlado, ctxEdicaoPerfil])
+
   function abrir() {
     if (readOnly || isPending || controlado) return
     setRascunho(valorLocal == null ? "" : String(valorLocal))
