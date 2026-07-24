@@ -6,8 +6,9 @@ import { isSecureCookieEnv } from "@/lib/env"
 // Rotas que NÃO exigem sessão de dashboard:
 // - /login e /api/auth: fluxo de autenticação
 // - /api/v1: protegida por X-API-Key nos próprios handlers (fail-closed em lib/api-auth.ts)
+// - /api/health: monitorização externa (Vercel, UptimeRobot) sem qualquer auth
 // - /forms: formulários públicos (onboarding/pós-sessão) servidos de /public
-const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/forms"]
+const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/api/health", "/forms"]
 
 function buildCsp(nonce: string): string {
   const dev = process.env.NODE_ENV !== "production"
