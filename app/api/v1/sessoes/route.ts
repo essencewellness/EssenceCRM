@@ -151,29 +151,36 @@ export async function POST(request: NextRequest) {
 
     const dataSessao = new Date(data)
 
-    const sessao = await prisma.sessao.create({
-      data: {
-        clienteId: cliente.id,
-        data: dataSessao,
-        hora: hora ?? null,
-        duracao: duracao ?? null,
-        servico: servico ?? null,
-        preco: preco ?? null,
-        terapeuta: terapeuta ?? "bea",
-        estado: estado ?? "agendada",
-        aromaSessao: aromaSessao ?? null,
-        resumoSessao: resumoSessao ?? null,
-        linkDocumento: linkDocumento ?? null,
-        ...(calendlyEventId ? { calendlyEventId } : {}),
-      },
-    })
+    // Criação da sessão + recálculo de métricas na mesma transação — evita a
+    // janela de corrida em que duas escritas concorrentes no mesmo cliente
+    // leem/escrevem totalGasto/totalSessoes fora de ordem.
+    const sessao = await prisma.$transaction(async (tx) => {
+      const sessao = await tx.sessao.create({
+        data: {
+          clienteId: cliente.id,
+          data: dataSessao,
+          hora: hora ?? null,
+          duracao: duracao ?? null,
+          servico: servico ?? null,
+          preco: preco ?? null,
+          terapeuta: terapeuta ?? "bea",
+          estado: estado ?? "agendada",
+          aromaSessao: aromaSessao ?? null,
+          resumoSessao: resumoSessao ?? null,
+          linkDocumento: linkDocumento ?? null,
+          ...(calendlyEventId ? { calendlyEventId } : {}),
+        },
+      })
 
-    // Métricas só mudam quando a sessão entra como "realizada" — fonte única
-    // (lib/metricas). Sessões agendada/confirmada futuras não alteram totalGasto,
-    // totalSessoes nem ultimaSessao.
-    if ((estado ?? "agendada") === "realizada") {
-      await recalcularMetricasCliente(prisma, cliente.id)
-    }
+      // Métricas só mudam quando a sessão entra como "realizada" — fonte única
+      // (lib/metricas). Sessões agendada/confirmada futuras não alteram totalGasto,
+      // totalSessoes nem ultimaSessao.
+      if ((estado ?? "agendada") === "realizada") {
+        await recalcularMetricasCliente(tx, cliente.id)
+      }
+
+      return sessao
+    })
 
     auditar({
       quem: "api:n8n",

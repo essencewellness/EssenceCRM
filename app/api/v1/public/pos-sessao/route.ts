@@ -9,7 +9,8 @@ import { prisma } from "@/lib/prisma"
 import { posSessaoQuerySchema, posSessaoPatchSchema, validarQuery, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { serializarDecimais } from "@/lib/serialize"
-import { processarSessaoRealizada } from "@/lib/sessoes"
+import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
 
@@ -88,22 +89,36 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
     }
 
-    const sessao = await prisma.sessao.update({
-      where: { id: sessaoAntes.id },
-      data: {
-        estado: "realizada",
-        servico,
-        ...(preco !== undefined ? { preco } : {}),
-        ...(aromaSessao !== undefined ? { aromaSessao } : {}),
-        ...(estadoEmocional !== undefined ? { estadoEmocional } : {}),
-        ...(resumoSessao !== undefined ? { resumoSessao } : {}),
-        ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
-        ...(dataRecomendadaRegresso ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) } : {}),
-      },
+    const eraRealizada = sessaoAntes.estado === "realizada"
+
+    // Update da sessão + recálculo de métricas na mesma transação — evita a
+    // janela de corrida com outras escritas concorrentes no mesmo cliente.
+    const sessao = await prisma.$transaction(async (tx) => {
+      const sessao = await tx.sessao.update({
+        where: { id: sessaoAntes.id },
+        data: {
+          estado: "realizada",
+          servico,
+          ...(preco !== undefined ? { preco } : {}),
+          ...(aromaSessao !== undefined ? { aromaSessao } : {}),
+          ...(estadoEmocional !== undefined ? { estadoEmocional } : {}),
+          ...(resumoSessao !== undefined ? { resumoSessao } : {}),
+          ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
+          ...(dataRecomendadaRegresso ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) } : {}),
+        },
+      })
+
+      if (!eraRealizada) {
+        await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
+      }
+
+      return sessao
     })
 
-    if (sessaoAntes.estado !== "realizada") {
-      await processarSessaoRealizada(sessaoAntes, sessao.preco)
+    if (!eraRealizada) {
+      // Webhook + mensagem de avaliação: só depois da transação committar,
+      // fora dela — fire-and-forget (lib/sessoes).
+      await dispararEfeitosSessaoRealizada(sessaoAntes, sessao.preco)
     }
 
     auditar({

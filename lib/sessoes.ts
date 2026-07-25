@@ -1,9 +1,14 @@
 // Efeitos colaterais de marcar uma sessão como "realizada" — partilhados entre
 // o PATCH interno (/api/v1/sessoes/[id]) e o PATCH público (/api/v1/public/pos-sessao),
-// para as duas vias nunca divergirem: recalcular métricas, disparar o webhook
-// sessao.realizada e agendar a mensagem de avaliação de satisfação.
+// para as duas vias nunca divergirem: disparar o webhook sessao.realizada e
+// agendar a mensagem de avaliação de satisfação.
+//
+// O recálculo de métricas (recalcularMetricasCliente) NÃO vive aqui — cada
+// chamador faz o update da sessão + o recálculo dentro do mesmo
+// prisma.$transaction (evita a janela de corrida entre as duas escritas).
+// Esta função só corre DEPOIS da transação committar; os seus efeitos
+// (webhook, criação de MensagemIA) mantêm-se fire-and-forget.
 import { prisma } from "@/lib/prisma"
-import { recalcularMetricasCliente, type MetricasCliente } from "@/lib/metricas"
 import { webhooks } from "@/lib/webhooks"
 import { paraNumero } from "@/lib/serialize"
 import type { Prisma } from "@/lib/prisma-client"
@@ -15,12 +20,10 @@ interface SessaoAntes {
   terapeuta: string | null
 }
 
-export async function processarSessaoRealizada(
+export async function dispararEfeitosSessaoRealizada(
   sessaoAntes: SessaoAntes,
   precoAtualizado: Prisma.Decimal | number | null
-): Promise<MetricasCliente> {
-  const metricas = await recalcularMetricasCliente(prisma, sessaoAntes.clienteId)
-
+): Promise<void> {
   void webhooks.sessaoRealizada({
     sessaoId: sessaoAntes.id,
     clienteId: sessaoAntes.clienteId,
@@ -62,6 +65,4 @@ export async function processarSessaoRealizada(
       },
     })
   }
-
-  return metricas
 }

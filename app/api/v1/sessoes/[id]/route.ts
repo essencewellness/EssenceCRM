@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
-import { processarSessaoRealizada } from "@/lib/sessoes"
+import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
@@ -65,62 +65,72 @@ export async function PATCH(
 
     if (!sessaoAntes) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
 
-    const sessao = await prisma.sessao.update({
-      where: { id },
-      data: {
-        ...(estado !== undefined ? { estado } : {}),
-        ...(data !== undefined ? { data: new Date(data) } : {}),
-        ...(hora !== undefined ? { hora } : {}),
-        ...(duracao !== undefined ? { duracao } : {}),
-        ...(resumoSessao !== undefined ? { resumoSessao } : {}),
-        ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
-        ...(aromaSessao !== undefined ? { aromaSessao } : {}),
-        ...(estadoEmocional !== undefined ? { estadoEmocional } : {}),
-        ...(linkDocumento !== undefined ? { linkDocumento } : {}),
-        ...(preco !== undefined ? { preco } : {}),
-        ...(servico !== undefined ? { servico } : {}),
-        ...(dataRecomendadaRegresso
-          ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) }
-          : {}),
-        ...(briefingEnviado     !== undefined ? { briefingEnviado }     : {}),
-        ...(lembreteEnviado     !== undefined ? { lembreteEnviado }     : {}),
-        ...(confirmacaoPresenca !== undefined ? { confirmacaoPresenca } : {}),
-        ...(nutricaoBoasVindasEnviado !== undefined ? { nutricaoBoasVindasEnviado } : {}),
-        ...(nutricao14dEnviado  !== undefined ? { nutricao14dEnviado }  : {}),
-        ...(nutricao7dEnviado   !== undefined ? { nutricao7dEnviado }   : {}),
-        ...(lembretePosSessaoEnviado !== undefined ? { lembretePosSessaoEnviado } : {}),
-        ...(googleDocLink       !== undefined ? { googleDocLink }       : {}),
-        ...(briefingJson        !== undefined ? { briefingJson: (briefingJson ?? Prisma.JsonNull) as Prisma.InputJsonValue } : {}),
-        // Pagamento
-        ...(estadoPagamento !== undefined ? { estadoPagamento } : {}),
-        ...(valorPago       !== undefined ? { valorPago }       : {}),
-        ...(metodoPagamento !== undefined ? { metodoPagamento } : {}),
-        ...(pagamentoEm     !== undefined ? { pagamentoEm: pagamentoEm ? new Date(pagamentoEm) : null } : {}),
-        // Integrações
-        ...(calendarEventId  !== undefined ? { calendarEventId }  : {}),
-        ...(pdfUrl           !== undefined ? { pdfUrl }           : {}),
-        ...(calendlyEventUri !== undefined ? { calendlyEventUri } : {}),
-        // Avaliação
-        ...(avaliacaoNota         !== undefined ? { avaliacaoNota }         : {}),
-        ...(avaliacaoComentario   !== undefined ? { avaliacaoComentario }   : {}),
-        ...(avaliacaoEnviadaEm    !== undefined ? { avaliacaoEnviadaEm: avaliacaoEnviadaEm ? new Date(avaliacaoEnviadaEm) : null }    : {}),
-        ...(avaliacaoRespondidaEm !== undefined ? { avaliacaoRespondidaEm: avaliacaoRespondidaEm ? new Date(avaliacaoRespondidaEm) : null } : {}),
-      },
-    })
-
-    let clienteAtualizado = null
-
     const eraRealizada = sessaoAntes.estado === "realizada"
     const ficaRealizada = (estado ?? sessaoAntes.estado) === "realizada"
+    const afetaMetricas = (ficaRealizada && !eraRealizada)
+      || (eraRealizada && (preco !== undefined || data !== undefined || estado !== undefined))
+
+    // Update da sessão + recálculo de métricas na mesma transação — evita a
+    // janela de corrida em que duas escritas concorrentes no mesmo cliente
+    // (ex: N8N e dashboard a mexer em sessões diferentes ao mesmo tempo)
+    // leem/escrevem totalGasto/totalSessoes fora de ordem.
+    const { sessao, metricas } = await prisma.$transaction(async (tx) => {
+      const sessao = await tx.sessao.update({
+        where: { id },
+        data: {
+          ...(estado !== undefined ? { estado } : {}),
+          ...(data !== undefined ? { data: new Date(data) } : {}),
+          ...(hora !== undefined ? { hora } : {}),
+          ...(duracao !== undefined ? { duracao } : {}),
+          ...(resumoSessao !== undefined ? { resumoSessao } : {}),
+          ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
+          ...(aromaSessao !== undefined ? { aromaSessao } : {}),
+          ...(estadoEmocional !== undefined ? { estadoEmocional } : {}),
+          ...(linkDocumento !== undefined ? { linkDocumento } : {}),
+          ...(preco !== undefined ? { preco } : {}),
+          ...(servico !== undefined ? { servico } : {}),
+          ...(dataRecomendadaRegresso
+            ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) }
+            : {}),
+          ...(briefingEnviado     !== undefined ? { briefingEnviado }     : {}),
+          ...(lembreteEnviado     !== undefined ? { lembreteEnviado }     : {}),
+          ...(confirmacaoPresenca !== undefined ? { confirmacaoPresenca } : {}),
+          ...(nutricaoBoasVindasEnviado !== undefined ? { nutricaoBoasVindasEnviado } : {}),
+          ...(nutricao14dEnviado  !== undefined ? { nutricao14dEnviado }  : {}),
+          ...(nutricao7dEnviado   !== undefined ? { nutricao7dEnviado }   : {}),
+          ...(lembretePosSessaoEnviado !== undefined ? { lembretePosSessaoEnviado } : {}),
+          ...(googleDocLink       !== undefined ? { googleDocLink }       : {}),
+          ...(briefingJson        !== undefined ? { briefingJson: (briefingJson ?? Prisma.JsonNull) as Prisma.InputJsonValue } : {}),
+          // Pagamento
+          ...(estadoPagamento !== undefined ? { estadoPagamento } : {}),
+          ...(valorPago       !== undefined ? { valorPago }       : {}),
+          ...(metodoPagamento !== undefined ? { metodoPagamento } : {}),
+          ...(pagamentoEm     !== undefined ? { pagamentoEm: pagamentoEm ? new Date(pagamentoEm) : null } : {}),
+          // Integrações
+          ...(calendarEventId  !== undefined ? { calendarEventId }  : {}),
+          ...(pdfUrl           !== undefined ? { pdfUrl }           : {}),
+          ...(calendlyEventUri !== undefined ? { calendlyEventUri } : {}),
+          // Avaliação
+          ...(avaliacaoNota         !== undefined ? { avaliacaoNota }         : {}),
+          ...(avaliacaoComentario   !== undefined ? { avaliacaoComentario }   : {}),
+          ...(avaliacaoEnviadaEm    !== undefined ? { avaliacaoEnviadaEm: avaliacaoEnviadaEm ? new Date(avaliacaoEnviadaEm) : null }    : {}),
+          ...(avaliacaoRespondidaEm !== undefined ? { avaliacaoRespondidaEm: avaliacaoRespondidaEm ? new Date(avaliacaoRespondidaEm) : null } : {}),
+        },
+      })
+
+      const metricas = afetaMetricas
+        ? await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
+        : null
+
+      return { sessao, metricas }
+    })
+
+    const clienteAtualizado = metricas ? { id: sessaoAntes.clienteId, ...metricas } : null
 
     if (ficaRealizada && !eraRealizada) {
-      // Transição para "realizada" — recalcular métricas + webhook + avaliação (lib/sessoes)
-      const metricas = await processarSessaoRealizada(sessaoAntes, sessao.preco)
-      clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
-    } else if (eraRealizada && (preco !== undefined || data !== undefined || estado !== undefined)) {
-      // Já realizada e um campo que afeta as métricas mudou (preço, data, ou saiu de "realizada")
-      const metricas = await recalcularMetricasCliente(prisma, sessaoAntes.clienteId)
-      clienteAtualizado = { id: sessaoAntes.clienteId, ...metricas }
+      // Transição para "realizada" — webhook + mensagem de avaliação, só
+      // depois da transação committar e fora dela (fire-and-forget, lib/sessoes).
+      await dispararEfeitosSessaoRealizada(sessaoAntes, sessao.preco)
     }
 
     auditar({
