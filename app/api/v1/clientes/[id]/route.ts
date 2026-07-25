@@ -7,6 +7,7 @@ import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auth } from "@/lib/auth"
+import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(
   request: NextRequest,
@@ -125,6 +126,11 @@ export async function PATCH(
 
     return respostaSucesso(serializarDecimais(cliente))
   } catch (error) {
+    // telefone/email @unique (schema) — devolver 409 claro em vez de
+    // deixar cair no 500 genérico, mesmo padrão do POST /api/v1/clientes.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return respostaErro("Já existe outra cliente com este telefone ou email.", "CLIENTE_DUPLICADO", 409)
+    }
     console.error("PATCH /api/v1/clientes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }

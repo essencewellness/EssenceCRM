@@ -27,10 +27,33 @@ export async function PATCH(
 
   const { id } = await params
 
-  const tarefa = await prisma.tarefa.findUnique({ where: { id } })
+  const tarefa = await prisma.tarefa.findUnique({
+    where: { id },
+    include: { cliente: { select: { terapeutaPrincipalId: true } } },
+  })
   if (!tarefa) {
     return NextResponse.json({ error: "Tarefa não encontrada", code: "TAREFA_NAO_ENCONTRADA" }, { status: 404 })
   }
+
+  // Isolamento por sessão: mesmo padrão de GET /api/v1/tarefas — uma
+  // terapeuta (não-admin) só pode alterar tarefas dos SEUS clientes ou
+  // atribuídas a si. Sem isto, qualquer terapeuta autenticada conseguia
+  // concluir/cancelar/reatribuir tarefas de outra colega só por
+  // adivinhar o id. Chamadas N8N (X-API-Key sem sessão) não são afetadas.
+  try {
+    const session = await auth()
+    const u = session?.user as { id?: string; role?: string } | undefined
+    if (u?.id && u.role !== "admin") {
+      const donaDoCliente = tarefa.cliente?.terapeutaPrincipalId === u.id
+      const atribuidaAoUtilizador = tarefa.atribuidaA === u.id
+      if (!donaDoCliente && !atribuidaAoUtilizador) {
+        return NextResponse.json(
+          { error: "Não tens permissão para alterar esta tarefa.", code: "SEM_PERMISSAO" },
+          { status: 403 }
+        )
+      }
+    }
+  } catch { /* sem sessão (N8N) — sem scope, comportamento igual ao GET */ }
 
   const validacao = await validarBody(request, tarefaUpdateSchema)
   if (!validacao.ok) return validacao.resposta

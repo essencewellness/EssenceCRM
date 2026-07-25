@@ -46,11 +46,9 @@ jobs:
       - name: Build (Next.js)
         run: npm run build
 
-      # Testes E2E Playwright (tests/e2e/, playwright.config.ts) ainda não
-      # existem neste repo — por isso não foram adicionados aqui.
-      # Quando existirem: vão precisar de uma base de dados Postgres real a
-      # correr neste workflow (serviço `postgres` + `DATABASE_URL` apontado
-      # para ela, seguido de `prisma db push`/migrate antes dos testes), o
-      # que é mais trabalho de configuração do que os passos acima. Ficou
-      # propositadamente por adicionar — não esquecer de o fazer quando os
-      # testes E2E forem introduzidos.
+      # A suite Playwright (tests/e2e/, playwright.config.ts) já existe no
+      # repo mas AINDA NÃO corre aqui — precisa de uma base de dados Postgres
+      # real neste workflow (serviço `postgres` + `DATABASE_URL` apontado
+      # para ela, seguido de `prisma db push` antes dos testes), que é mais
+      # trabalho de configuração do que os passos acima. Ficou
+      # propositadamente por adicionar — não esquecer de o fazer.
