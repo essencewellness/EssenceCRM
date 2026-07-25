@@ -12,7 +12,7 @@ function safeUrl(url: string | null | undefined): string | undefined {
   } catch {}
   return undefined
 }
-import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2, AlertTriangle, Target, MapPin, ListChecks, Sparkles } from "lucide-react"
+import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2, AlertTriangle, MapPin, Sparkles } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,

@@ -136,7 +136,6 @@ export default async function ClientePage({ params }: ClientePageProps) {
   const proximaSessao = [...cliente.sessoes]
     .filter(s => s.estado === "agendada" && new Date(s.data) >= agora)
     .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())[0] ?? null
-  const ultimaSessaoRealizada = cliente.sessoes.find(s => s.estado === "realizada")
 
   const statCards = [
     { label: "Total de Sessões", value: totalSessoesDisplay.toString(), Icon: CalendarDays, color: "#b9a07a" },
