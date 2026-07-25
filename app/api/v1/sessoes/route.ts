@@ -147,7 +147,12 @@ export async function POST(request: NextRequest) {
     if (calendlyEventId) {
       const existente = await prisma.sessao.findFirst({ where: { calendlyEventId, apagadoEm: null } })
       if (existente) {
-        return respostaSucesso(serializarDecimais({ ...existente, clienteNome: cliente.nome, created: false }))
+        return respostaSucesso(serializarDecimais({
+          ...existente,
+          clienteNome: cliente.nome,
+          created: false,
+          linkToken: await gerarLinkToken({ sessaoId: existente.id }),
+        }))
       }
     }
 
@@ -193,7 +198,11 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    return respostaSucesso(serializarDecimais({ ...sessao, clienteNome: cliente.nome }))
+    return respostaSucesso(serializarDecimais({
+      ...sessao,
+      clienteNome: cliente.nome,
+      linkToken: await gerarLinkToken({ sessaoId: sessao.id }),
+    }))
   } catch (error) {
     console.error("POST /api/v1/sessoes:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
