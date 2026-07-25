@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
+import { gerarLinkToken } from "@/lib/link-token"
 import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -143,7 +144,13 @@ export async function GET(request: NextRequest) {
       return { ...c, servicosAfinidade, proximaSessaoData }
     })
 
-    return respostaSucesso(serializarDecimais(clientesEnriquecidos), {
+    // linkToken: código curto para o N8N construir links de onboarding/feedback
+    // sem sessão associada (ex.: reativação — GET ?inactivos_desde_dias=45)
+    const clientesComToken = await Promise.all(
+      clientesEnriquecidos.map(async (c) => ({ ...c, linkToken: await gerarLinkToken({ clienteId: c.id }) }))
+    )
+
+    return respostaSucesso(serializarDecimais(clientesComToken), {
       nextCursor: hasMore ? clientes[clientes.length - 1]?.id : null,
       total,
     })
