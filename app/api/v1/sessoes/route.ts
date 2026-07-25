@@ -104,9 +104,11 @@ export async function GET(request: NextRequest) {
       ? sessoes[sessoes.length - 1]?.id
       : undefined
 
-    // linkToken: token assinado para o N8N construir links públicos seguros
-    // (?sessaoId=X&t=<token>) para ficha-sessao/pos-sessao/confirmar-sessao/atribuir-sessao
-    const sessoesComToken = sessoes.map((s) => ({ ...s, linkToken: gerarLinkToken(s.id) }))
+    // linkToken: código curto para o N8N construir links públicos seguros
+    // (?sessaoId=X&t=<codigo>) para ficha-sessao/pos-sessao/confirmar-sessao/atribuir-sessao
+    const sessoesComToken = await Promise.all(
+      sessoes.map(async (s) => ({ ...s, linkToken: await gerarLinkToken(s.id) }))
+    )
 
     return respostaSucesso(
       serializarDecimais(sessoesComToken),

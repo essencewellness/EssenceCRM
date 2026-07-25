@@ -2,6 +2,7 @@
 // Versão conservadora, decidida em 2026-07-21: NÃO toca em dados de clientes.
 //   1. Purga AuditLog com mais de 12 meses (contém IPs — dado pessoal)
 //   2. Apaga PortalTokens expirados há mais de 30 dias
+//   3. Apaga LinkTokens já expirados (sem período de graça — zero utilidade pós-expiração)
 // A anonimização de clientes continua a ser exclusivamente manual (endpoint RGPD).
 // Segurança: Vercel envia Authorization: Bearer <CRON_SECRET>; aceita também
 // X-API-Key para disparo manual.
@@ -43,13 +44,17 @@ export async function GET(request: NextRequest) {
       where: { expiraEm: { lt: limiteTokens } },
     })
 
+    const { count: linkTokensApagados } = await prisma.linkToken.deleteMany({
+      where: { expiraEm: { lt: new Date() } },
+    })
+
     auditar({
       quem: "sistema",
       acao: "retencao.executada",
-      detalhe: { auditApagados, tokensApagados, duracaoMs: Date.now() - inicio },
+      detalhe: { auditApagados, tokensApagados, linkTokensApagados, duracaoMs: Date.now() - inicio },
     })
 
-    return respostaSucesso({ auditApagados, tokensApagados }, { duracaoMs: Date.now() - inicio })
+    return respostaSucesso({ auditApagados, tokensApagados, linkTokensApagados }, { duracaoMs: Date.now() - inicio })
   } catch (error) {
     console.error("GET /api/cron/retencao:", (error as Error).message)
     Sentry.captureException(error)

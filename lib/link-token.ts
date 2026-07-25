@@ -1,47 +1,27 @@
-// Tokens assinados para links públicos enviados por WhatsApp (ficha-sessao,
-// pos-sessao, atribuir-sessao, confirmar-sessao). Substituem o modelo antigo
-// de confiar apenas no sessaoId ser um cuid: o link passa a levar ?t=<exp>.<sig>
-// onde sig = HMAC-SHA256(secret, sessaoId + "." + exp), com expiração.
+// Tokens curtos e opacos para links públicos enviados por WhatsApp (ficha-sessao,
+// pos-sessao, atribuir-sessao, confirmar-sessao). Substituem o modelo antigo de
+// confiar apenas no sessaoId ser um cuid: o link passa a levar ?t=<codigo>, um
+// código aleatório curto guardado na tabela LinkToken com expiração — mesmo
+// padrão do PortalToken. Preferido a um HMAC longo por ficar muito mais curto
+// no link final enviado por WhatsApp.
 //
 // Migração faseada: enquanto LINK_TOKEN_OBRIGATORIO !== "true", pedidos sem
 // token continuam a passar (os workflows N8N ainda geram links antigos) mas
 // ficam registados no audit log para medir a transição. Com a variável a
 // "true", pedidos sem token válido recebem 401.
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { randomBytes } from "node:crypto"
 import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 
 const DIAS_VALIDADE_DEFAULT = 7
 
-function segredo(): string | null {
-  const s = process.env.LINK_TOKEN_SECRET ?? process.env.WEBHOOK_SECRET
-  return s && s.length >= 16 ? s : null
-}
-
-function assinar(sessaoId: string, exp: number, secret: string): string {
-  return createHmac("sha256", secret).update(`${sessaoId}.${exp}`, "utf8").digest("hex")
-}
-
-/** Gera o token para incluir num link: `<exp>.<sig>`. Null se não há segredo configurado. */
-export function gerarLinkToken(sessaoId: string, diasValidade = DIAS_VALIDADE_DEFAULT): string | null {
-  const secret = segredo()
-  if (!secret) return null
-  const exp = Math.floor(Date.now() / 1000) + diasValidade * 24 * 60 * 60
-  return `${exp}.${assinar(sessaoId, exp, secret)}`
-}
-
-/** Valida um token `<exp>.<sig>` para uma sessão. */
-export function tokenValido(sessaoId: string, token: string | null | undefined): boolean {
-  const secret = segredo()
-  if (!secret || !token) return false
-  const [expStr, sig] = token.split(".")
-  const exp = Number(expStr)
-  if (!expStr || !sig || Number.isNaN(exp)) return false
-  if (exp * 1000 < Date.now()) return false
-  const esperado = assinar(sessaoId, exp, secret)
-  const bufA = Buffer.from(esperado, "utf8")
-  const bufB = Buffer.from(sig, "utf8")
-  return bufA.length === bufB.length && timingSafeEqual(bufA, bufB)
+/** Gera e regista um novo token para incluir num link: `?t=<codigo>`. */
+export async function gerarLinkToken(sessaoId: string, diasValidade = DIAS_VALIDADE_DEFAULT): Promise<string> {
+  const codigo = randomBytes(8).toString("base64url") // ~11 caracteres, 64 bits de entropia
+  const expiraEm = new Date(Date.now() + diasValidade * 24 * 60 * 60 * 1000)
+  await prisma.linkToken.create({ data: { codigo, sessaoId, expiraEm } })
+  return codigo
 }
 
 /**
@@ -50,17 +30,21 @@ export function tokenValido(sessaoId: string, token: string | null | undefined):
  * Em modo transição (LINK_TOKEN_OBRIGATORIO !== "true"), nunca bloqueia —
  * apenas audita pedidos sem token válido.
  */
-export function validarLinkToken(
+export async function validarLinkToken(
   request: NextRequest,
   sessaoId: string,
   recurso: string,
   tokenBody?: string | null
-): NextResponse | null {
-  const token = tokenBody ?? new URL(request.url).searchParams.get("t")
-  const valido = tokenValido(sessaoId, token)
+): Promise<NextResponse | null> {
+  const codigo = tokenBody ?? new URL(request.url).searchParams.get("t")
   const obrigatorio = process.env.LINK_TOKEN_OBRIGATORIO === "true"
 
-  if (valido) return null
+  if (codigo) {
+    const linkToken = await prisma.linkToken.findUnique({ where: { codigo } })
+    if (linkToken && linkToken.sessaoId === sessaoId && linkToken.expiraEm > new Date()) {
+      return null
+    }
+  }
 
   if (obrigatorio) {
     auditar({

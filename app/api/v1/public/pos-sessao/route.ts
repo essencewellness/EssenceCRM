@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   if (!q.ok) return q.resposta
   const { sessaoId, t } = q.data
 
-  const erroToken = validarLinkToken(request, sessaoId, "pos-sessao-get", t)
+  const erroToken = await validarLinkToken(request, sessaoId, "pos-sessao-get", t)
   if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
@@ -77,7 +77,7 @@ export async function PATCH(request: NextRequest) {
   if (!v.ok) return v.resposta
   const { sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso } = v.data
 
-  const erroToken = validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
+  const erroToken = await validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
   if (erroToken) return erroToken
 
   try {

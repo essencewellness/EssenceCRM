@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   // com nome+email) não há nada para proteger, tal como antes.
   const idAlvo = sessaoId ?? clienteId
   if (idAlvo) {
-    const erroToken = validarLinkToken(request, idAlvo, "onboarding", t)
+    const erroToken = await validarLinkToken(request, idAlvo, "onboarding", t)
     if (erroToken) return erroToken
   }
 

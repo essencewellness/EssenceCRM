@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   if (!q.ok) return q.resposta
   const { sessaoId, t } = q.data
 
-  const erroToken = validarLinkToken(request, sessaoId, "atribuir-sessao-get", t)
+  const erroToken = await validarLinkToken(request, sessaoId, "atribuir-sessao-get", t)
   if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true })
   }
 
-  const erroToken = validarLinkToken(request, sessaoId, "atribuir-sessao-post", t)
+  const erroToken = await validarLinkToken(request, sessaoId, "atribuir-sessao-post", t)
   if (erroToken) return erroToken
 
   try {

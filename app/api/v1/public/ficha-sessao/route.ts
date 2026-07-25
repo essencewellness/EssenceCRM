@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   if (!q.ok) return q.resposta
   const { sessaoId, t } = q.data
 
-  const erroToken = validarLinkToken(request, sessaoId, "ficha-sessao", t)
+  const erroToken = await validarLinkToken(request, sessaoId, "ficha-sessao", t)
   if (erroToken) return erroToken
 
   const sessao = await prisma.sessao.findFirst({

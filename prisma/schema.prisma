@@ -301,6 +301,7 @@ model Sessao {
   cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   servico_rel Servico?  @relation(fields: [servicoId], references: [id])
   feedbacks   Feedback[]
+  linkTokens  LinkToken[]
 
   @@index([data])
   @@index([clienteId])
@@ -309,6 +310,22 @@ model Sessao {
   @@index([estadoPagamento])
   @@index([terapeutaId])
   @@index([calendlyEventUri])
+}
+
+// Token curto e opaco para os links públicos de sessão enviados por WhatsApp
+// (ficha-sessao, pos-sessao, atribuir-sessao, confirmar-sessao) — mesmo
+// padrão do PortalToken, só que por sessão em vez de por cliente.
+model LinkToken {
+  id        String   @id @default(cuid())
+  codigo    String   @unique
+  sessaoId  String
+  expiraEm  DateTime
+  criadoEm  DateTime @default(now())
+
+  sessao    Sessao   @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
+
+  @@index([sessaoId])
+  @@index([expiraEm])
 }
 
 model Etiqueta {

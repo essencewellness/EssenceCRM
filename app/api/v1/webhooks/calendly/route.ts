@@ -181,8 +181,8 @@ export async function POST(request: NextRequest) {
       clienteId: cliente.id,
       sessaoId: sessao.id,
       clienteCriado,
-      // Token assinado para o N8N anexar aos links públicos (&t=<token>)
-      linkToken: gerarLinkToken(sessao.id),
+      // Código curto para o N8N anexar aos links públicos (&t=<codigo>)
+      linkToken: await gerarLinkToken(sessao.id),
     })
   } catch (error) {
     console.error("POST /api/v1/webhooks/calendly:", (error as Error).message)

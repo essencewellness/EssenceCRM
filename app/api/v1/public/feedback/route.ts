@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   // token assinado ligado ao clienteId/sessaoId do link enviado por WhatsApp,
   // para que um cuid adivinhado não baste para submeter feedback em nome de
   // outra cliente (e disparar o alerta de rating negativo à Bea por engano).
-  const erroToken = validarLinkToken(request, sessaoId ?? clienteId, "feedback", t)
+  const erroToken = await validarLinkToken(request, sessaoId ?? clienteId, "feedback", t)
   if (erroToken) return erroToken
 
   try {
