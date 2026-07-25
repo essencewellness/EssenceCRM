@@ -15,6 +15,7 @@
     clienteId: P.get("clienteId") || null,
     sessaoId:  P.get("sessaoId")  || null,
     nome:      P.get("n")         || null,
+    linkToken: P.get("t")         || null,
     voucher:   P.get("sv") === "gc" || P.get("voucher") === "1",
     temNascimento: P.get("tb") === "1",
   };
@@ -267,6 +268,7 @@
     payload.website = hp ? hp.value : "";
     if (CTX.clienteId) payload.clienteId = CTX.clienteId;
     if (CTX.sessaoId)  payload.sessaoId = CTX.sessaoId;
+    if (CTX.linkToken) payload.t = CTX.linkToken;
     // Consentimento implícito: ao enviar, a cliente aceita o tratamento dos
     // dados de saúde (aviso visível por baixo do botão). Sem esta flag, a API
     // descarta toda a ficha clínica (RGPD Art. 9).
