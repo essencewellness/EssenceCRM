@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import Link from "next/link"
+import * as Sentry from "@sentry/nextjs"
 
 // Error boundary do grupo (dashboard). Ao contrário de app/error.tsx, este
 // só substitui o conteúdo da página — o DashboardLayout à volta (Sidebar +
@@ -16,6 +17,7 @@ export default function DashboardErrorBoundary({
 }) {
   useEffect(() => {
     console.error("[error-boundary/dashboard]", error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import Link from "next/link"
+import * as Sentry from "@sentry/nextjs"
 
 // Error boundary de root (App Router). Apanha qualquer erro não tratado
 // nas páginas fora do grupo (dashboard) — ex: /login — e evita o ecrã
@@ -17,6 +18,7 @@ export default function ErrorBoundary({
 }) {
   useEffect(() => {
     console.error("[error-boundary/root]", error)
+    Sentry.captureException(error)
   }, [error])
 
   return (

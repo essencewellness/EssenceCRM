@@ -20,7 +20,9 @@ function buildCsp(nonce: string): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    // *.sentry.io: reporte de erros do browser — sem isto o CSP bloqueia os
+    // pedidos do SDK do Sentry em silêncio (nunca chegam a aparecer no painel).
+    "connect-src 'self' https://*.sentry.io",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

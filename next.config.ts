@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // CSP gerida dinamicamente com nonce pelo middleware.ts (um nonce por request).
 // Aqui ficam apenas os headers estáticos que não precisam de nonce.
@@ -43,4 +44,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// org/project/authToken ficam por preencher de propósito — sem eles o
+// plugin só salta o upload de source maps (build continua normal). Definir
+// SENTRY_ORG/SENTRY_PROJECT/SENTRY_AUTH_TOKEN mais tarde ativa stack traces
+// legíveis nos erros de produção em vez de código minificado.
+export default withSentryConfig(nextConfig, {
+  silent: !process.env.CI,
+  disableLogger: true,
+});
