@@ -44,11 +44,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-// org/project/authToken ficam por preencher de propósito — sem eles o
-// plugin só salta o upload de source maps (build continua normal). Definir
-// SENTRY_ORG/SENTRY_PROJECT/SENTRY_AUTH_TOKEN mais tarde ativa stack traces
-// legíveis nos erros de produção em vez de código minificado.
+// authToken fica por preencher de propósito (é um segredo, não vai no
+// código) — sem ele o plugin só salta o upload de source maps (build
+// continua normal). Definir SENTRY_AUTH_TOKEN como variável de ambiente
+// (local + Vercel) ativa stack traces legíveis nos erros de produção em
+// vez de código minificado. Gera-se em sentry.io → Settings → Auth Tokens.
 export default withSentryConfig(nextConfig, {
+  org: "essence-wellness-massages",
+  project: "essence-crm",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   disableLogger: true,
 });
