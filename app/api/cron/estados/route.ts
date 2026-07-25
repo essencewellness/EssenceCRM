@@ -3,6 +3,7 @@
 // Também aceita X-API-Key para disparo manual via N8N/curl.
 import { NextRequest } from "next/server"
 import { timingSafeEqual } from "node:crypto"
+import * as Sentry from "@sentry/nextjs"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { executarMotorEstados } from "@/lib/crm-estados"
@@ -46,6 +47,17 @@ export async function GET(request: NextRequest) {
 
     const resultado = await executarMotorEstados()
 
+    // O motor isola falhas por cliente (não aborta o lote todo) — mas isso
+    // significa que uma falha parcial não gera exceção nenhuma, por isso
+    // nunca chegaria ao Sentry sem isto: alerta explícito quando há falhas,
+    // mesmo o cron continuando a devolver sucesso.
+    if (resultado.falhas > 0) {
+      Sentry.captureMessage(
+        `Motor de estados: ${resultado.falhas} cliente(s) falharam a recalcular estado`,
+        { level: "warning", extra: { analisados: resultado.analisados, alterados: resultado.alterados, falhas: resultado.falhas } }
+      )
+    }
+
     // Expirar mensagens pendentes com mais de 3 dias sem aprovação
     const limiteExpiracao = new Date()
     limiteExpiracao.setDate(limiteExpiracao.getDate() - 3)
@@ -76,6 +88,7 @@ export async function GET(request: NextRequest) {
     return respostaSucesso({ ...resultado, sessoesConcluidas: sessoesPassadas.length, mensagensExpiradas }, { duracaoMs: Date.now() - inicio })
   } catch (error) {
     console.error("GET /api/cron/estados:", (error as Error).message)
+    Sentry.captureException(error)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }

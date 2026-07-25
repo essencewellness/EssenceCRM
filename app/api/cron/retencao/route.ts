@@ -7,6 +7,7 @@
 // X-API-Key para disparo manual.
 import { NextRequest } from "next/server"
 import { timingSafeEqual } from "node:crypto"
+import * as Sentry from "@sentry/nextjs"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auditar } from "@/lib/audit"
@@ -51,6 +52,7 @@ export async function GET(request: NextRequest) {
     return respostaSucesso({ auditApagados, tokensApagados }, { duracaoMs: Date.now() - inicio })
   } catch (error) {
     console.error("GET /api/cron/retencao:", (error as Error).message)
+    Sentry.captureException(error)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }
 }
