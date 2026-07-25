@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
     // linkToken: código curto para o N8N construir links públicos seguros
     // (?sessaoId=X&t=<codigo>) para ficha-sessao/pos-sessao/confirmar-sessao/atribuir-sessao
     const sessoesComToken = await Promise.all(
-      sessoes.map(async (s) => ({ ...s, linkToken: await gerarLinkToken(s.id) }))
+      sessoes.map(async (s) => ({ ...s, linkToken: await gerarLinkToken({ sessaoId: s.id }) }))
     )
 
     return respostaSucesso(

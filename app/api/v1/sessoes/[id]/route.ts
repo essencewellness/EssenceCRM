@@ -28,7 +28,7 @@ export async function GET(
     if (!sessao) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
 
     // linkToken: para o N8N construir links públicos seguros (&t=<codigo>)
-    return respostaSucesso(serializarDecimais({ ...sessao, linkToken: await gerarLinkToken(sessao.id) }))
+    return respostaSucesso(serializarDecimais({ ...sessao, linkToken: await gerarLinkToken({ sessaoId: sessao.id }) }))
   } catch (error) {
     console.error("GET /api/v1/sessoes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

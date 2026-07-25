@@ -8,6 +8,7 @@ import { auditar } from "@/lib/audit"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/prisma-client"
+import { gerarLinkToken } from "@/lib/link-token"
 
 export async function GET(
   request: NextRequest,
@@ -54,7 +55,13 @@ export async function GET(
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    return respostaSucesso(serializarDecimais(cliente))
+    // linkToken: código curto para o N8N construir links públicos (onboarding,
+    // feedback) quando ainda não há sessaoId — ex.: lead a caminho da primeira
+    // marcação. Quando já existe sessão, preferir o linkToken dessa sessão
+    // (mais preciso — GET /sessoes ou o webhook Calendly).
+    return respostaSucesso(
+      serializarDecimais({ ...cliente, linkToken: await gerarLinkToken({ clienteId: cliente.id }) })
+    )
   } catch (error) {
     console.error("GET /api/v1/clientes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)

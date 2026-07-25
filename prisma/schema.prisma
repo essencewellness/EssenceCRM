@@ -213,6 +213,7 @@ model Cliente {
   giftCards           GiftCard[]
   tarefas             Tarefa[]
   feedbacks           Feedback[]
+  linkTokens          LinkToken[]
 
   @@index([estado])
   @@index([apagadoEm])
@@ -312,19 +313,24 @@ model Sessao {
   @@index([calendlyEventUri])
 }
 
-// Token curto e opaco para os links públicos de sessão enviados por WhatsApp
-// (ficha-sessao, pos-sessao, atribuir-sessao, confirmar-sessao) — mesmo
-// padrão do PortalToken, só que por sessão em vez de por cliente.
+// Token curto e opaco para os links públicos enviados por WhatsApp (ficha-sessao,
+// pos-sessao, atribuir-sessao, confirmar-sessao, onboarding, feedback). Liga-se
+// a uma Sessao (caso ideal — mais preciso) ou a um Cliente (quando ainda não há
+// sessão marcada, ex.: onboarding de um lead antes de reservar). Exatamente um
+// dos dois deve estar preenchido.
 model LinkToken {
   id        String   @id @default(cuid())
   codigo    String   @unique
-  sessaoId  String
+  sessaoId  String?
+  clienteId String?
   expiraEm  DateTime
   criadoEm  DateTime @default(now())
 
-  sessao    Sessao   @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
+  sessao    Sessao?  @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
+  cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   @@index([sessaoId])
+  @@index([clienteId])
   @@index([expiraEm])
 }
 

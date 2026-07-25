@@ -1,9 +1,12 @@
 // Tokens curtos e opacos para links públicos enviados por WhatsApp (ficha-sessao,
-// pos-sessao, atribuir-sessao, confirmar-sessao). Substituem o modelo antigo de
-// confiar apenas no sessaoId ser um cuid: o link passa a levar ?t=<codigo>, um
-// código aleatório curto guardado na tabela LinkToken com expiração — mesmo
-// padrão do PortalToken. Preferido a um HMAC longo por ficar muito mais curto
-// no link final enviado por WhatsApp.
+// pos-sessao, atribuir-sessao, confirmar-sessao, onboarding, feedback). O link
+// passa a levar ?t=<codigo>, um código aleatório curto guardado na tabela
+// LinkToken com expiração — mesmo padrão do PortalToken. Preferido a um HMAC
+// longo por ficar muito mais curto no link final enviado por WhatsApp.
+//
+// Cada token liga-se a uma Sessao (caso ideal — mais preciso, usado sempre
+// que já existe sessão) ou a um Cliente (quando ainda não há sessão marcada,
+// ex.: onboarding de um lead antes de reservar).
 //
 // Migração faseada: enquanto LINK_TOKEN_OBRIGATORIO !== "true", pedidos sem
 // token continuam a passar (os workflows N8N ainda geram links antigos) mas
@@ -16,23 +19,32 @@ import { auditar } from "@/lib/audit"
 
 const DIAS_VALIDADE_DEFAULT = 7
 
+type AlvoToken = { sessaoId: string; clienteId?: never } | { sessaoId?: never; clienteId: string }
+
 /** Gera e regista um novo token para incluir num link: `?t=<codigo>`. */
-export async function gerarLinkToken(sessaoId: string, diasValidade = DIAS_VALIDADE_DEFAULT): Promise<string> {
+export async function gerarLinkToken(alvo: AlvoToken, diasValidade = DIAS_VALIDADE_DEFAULT): Promise<string> {
   const codigo = randomBytes(8).toString("base64url") // ~11 caracteres, 64 bits de entropia
   const expiraEm = new Date(Date.now() + diasValidade * 24 * 60 * 60 * 1000)
-  await prisma.linkToken.create({ data: { codigo, sessaoId, expiraEm } })
+  await prisma.linkToken.create({
+    data: {
+      codigo,
+      expiraEm,
+      sessaoId: alvo.sessaoId ?? null,
+      clienteId: alvo.clienteId ?? null,
+    },
+  })
   return codigo
 }
 
 /**
- * Guard para os endpoints públicos de sessão. Retorna null se o pedido pode
- * prosseguir, NextResponse 401 se o token é obrigatório e falta/é inválido.
- * Em modo transição (LINK_TOKEN_OBRIGATORIO !== "true"), nunca bloqueia —
- * apenas audita pedidos sem token válido.
+ * Guard para os endpoints públicos. `alvo` é o sessaoId OU clienteId que o
+ * link diz representar. Retorna null se o pedido pode prosseguir, NextResponse
+ * 401 se o token é obrigatório e falta/é inválido. Em modo transição
+ * (LINK_TOKEN_OBRIGATORIO !== "true"), nunca bloqueia — apenas audita.
  */
 export async function validarLinkToken(
   request: NextRequest,
-  sessaoId: string,
+  alvo: string,
   recurso: string,
   tokenBody?: string | null
 ): Promise<NextResponse | null> {
@@ -41,7 +53,8 @@ export async function validarLinkToken(
 
   if (codigo) {
     const linkToken = await prisma.linkToken.findUnique({ where: { codigo } })
-    if (linkToken && linkToken.sessaoId === sessaoId && linkToken.expiraEm > new Date()) {
+    const corresponde = linkToken && (linkToken.sessaoId === alvo || linkToken.clienteId === alvo)
+    if (corresponde && linkToken.expiraEm > new Date()) {
       return null
     }
   }
@@ -51,7 +64,7 @@ export async function validarLinkToken(
       quem: "publico",
       acao: "link_token.rejeitado",
       entidade: "Sessao",
-      entidadeId: sessaoId,
+      entidadeId: alvo,
       detalhe: { recurso },
       ip: request.headers.get("x-forwarded-for"),
     })
@@ -67,7 +80,7 @@ export async function validarLinkToken(
     quem: "publico",
     acao: "link_token.ausente_transicao",
     entidade: "Sessao",
-    entidadeId: sessaoId,
+    entidadeId: alvo,
     detalhe: { recurso },
     ip: request.headers.get("x-forwarded-for"),
   })
