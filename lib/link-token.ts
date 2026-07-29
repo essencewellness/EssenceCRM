@@ -51,10 +51,22 @@ export async function validarLinkToken(
   const codigo = tokenBody ?? new URL(request.url).searchParams.get("t")
   const obrigatorio = process.env.LINK_TOKEN_OBRIGATORIO === "true"
 
+  // `motivo` separa no audit log um link antigo sem token (esperado durante a
+  // transição, desaparece sozinho) de um token que falhou. Entre estes, o caso
+  // que interessa operacionalmente é "expirado": é uma cliente real com um link
+  // de há mais de 7 dias, que ao ativar o enforcement passa a levar 401. Sem
+  // esta distinção ficava tudo como "ausente" e a decisão de ativar era às cegas.
+  let motivo: "ausente" | "desconhecido" | "outro_alvo" | "expirado" = "ausente"
+
   if (codigo) {
     const linkToken = await prisma.linkToken.findUnique({ where: { codigo } })
-    const corresponde = linkToken && (linkToken.sessaoId === alvo || linkToken.clienteId === alvo)
-    if (corresponde && linkToken.expiraEm > new Date()) {
+    if (!linkToken) {
+      motivo = "desconhecido"
+    } else if (linkToken.sessaoId !== alvo && linkToken.clienteId !== alvo) {
+      motivo = "outro_alvo"
+    } else if (linkToken.expiraEm <= new Date()) {
+      motivo = "expirado"
+    } else {
       return null
     }
   }
@@ -65,7 +77,7 @@ export async function validarLinkToken(
       acao: "link_token.rejeitado",
       entidade: "Sessao",
       entidadeId: alvo,
-      detalhe: { recurso },
+      detalhe: { recurso, motivo },
       ip: request.headers.get("x-forwarded-for"),
     })
     return NextResponse.json(
@@ -78,10 +90,10 @@ export async function validarLinkToken(
   // workflows N8N já enviam todos os links com token.
   auditar({
     quem: "publico",
-    acao: "link_token.ausente_transicao",
+    acao: motivo === "ausente" ? "link_token.ausente_transicao" : "link_token.invalido_transicao",
     entidade: "Sessao",
     entidadeId: alvo,
-    detalhe: { recurso },
+    detalhe: { recurso, motivo },
     ip: request.headers.get("x-forwarded-for"),
   })
   return null
