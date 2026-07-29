@@ -52,9 +52,11 @@ export async function POST(request: NextRequest) {
     if (sessaoId) {
       const sessao = await prisma.sessao.findFirst({
         where: { id: sessaoId, clienteId, apagadoEm: null },
-        select: { id: true },
+        select: { id: true, estado: true },
       })
-      if (!sessao) {
+      // Sessão cancelada: trata-se como não encontrada — não faz sentido feedback
+      // de um serviço que não chegou a acontecer, nem alerta de rating à Bea
+      if (!sessao || sessao.estado === "cancelada") {
         return NextResponse.json({ ok: true })
       }
 

@@ -103,10 +103,15 @@ export async function POST(request: NextRequest) {
   try {
     const sessao = await prisma.sessao.findFirst({
       where: { id: sessaoId, apagadoEm: null },
-      select: { id: true, clienteId: true, cliente: { select: { terapeutaPrincipalId: true } } },
+      select: { id: true, clienteId: true, estado: true, cliente: { select: { terapeutaPrincipalId: true } } },
     })
     if (!sessao) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+    }
+
+    // Sessão cancelada não deve receber atribuição de terapeuta/preço via link antigo
+    if (sessao.estado === "cancelada") {
+      return NextResponse.json({ ok: true, jaAtualizada: false })
     }
 
     const terapeuta = await prisma.user.findFirst({

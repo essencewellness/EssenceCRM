@@ -118,8 +118,13 @@ export async function POST(request: NextRequest) {
     if (sessaoId) {
       sessao = await prisma.sessao.findFirst({
         where: { id: sessaoId, apagadoEm: null },
-        select: { id: true, servico: true, data: true, hora: true },
+        select: { id: true, servico: true, data: true, hora: true, estado: true },
       })
+      // Sessão cancelada não recebe snapshot clínico via link antigo (mas o
+      // cliente continua a ser identificado/atualizado normalmente acima)
+      if (sessao && sessao.estado === "cancelada") {
+        sessao = null
+      }
       if (sessao && consentimentoSaude) {
         await prisma.sessao.update({
           where: { id: sessao.id },

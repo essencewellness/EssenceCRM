@@ -89,6 +89,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
     }
 
+    // Sessão cancelada não pode ser "ressuscitada" como realizada via link antigo
+    // (o link tem 7 dias de validade e pode sobreviver a um cancelamento/reagendamento)
+    if (sessaoAntes.estado === "cancelada") {
+      return NextResponse.json({ sessaoId: sessaoAntes.id, estado: sessaoAntes.estado, jaAtualizada: false })
+    }
+
     const eraRealizada = sessaoAntes.estado === "realizada"
 
     // Update da sessão + recálculo de métricas na mesma transação — evita a
