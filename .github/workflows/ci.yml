@@ -16,6 +16,14 @@ jobs:
     name: Type-check, lint e build
     runs-on: ubuntu-latest
 
+    # lib/prisma.ts falha já no import se DATABASE_URL não existir (fail-fast
+    # intencional em runtime — ver comentário no próprio ficheiro). O "next
+    # build" executa esse import durante "Collecting page data" das rotas
+    # API, mesmo sem nenhuma ligação real acontecer (pg.Pool só liga na
+    # primeira query) — por isso basta um valor sintaticamente válido.
+    env:
+      DATABASE_URL: "postgresql://ci:ci@localhost:5432/ci_dummy"
+
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
