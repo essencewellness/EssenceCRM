@@ -227,8 +227,8 @@
     const p = document.createElement("p");
     p.id = "aviso-rgpd";
     p.style.cssText =
-      "margin:10px auto 0;max-width:340px;text-align:center;" +
-      "font-size:10px;line-height:1.4;color:rgba(157,157,154,0.55);";
+      "margin:16px auto 0;max-width:420px;text-align:center;" +
+      "font-size:10px;line-height:1.5;color:rgba(157,157,154,0.55);";
     const a = document.createElement("a");
     a.href = "https://essencewellnesspt.com/privacidade/";
     a.target = "_blank";
@@ -242,7 +242,10 @@
       "pedir o apagamento dos teus dados a qualquer momento. ",
       a
     );
-    btn.insertAdjacentElement("afterend", p);
+    // Depois do contentor .nav, não do botão: em desktop o .nav é flex row-reverse
+    // (essence-forms.css:511), e inserir aqui logo após o botão fazia do aviso um
+    // terceiro item flex — espremido numa coluna estreita entre "Voltar" e "Enviar".
+    (btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
   })();
 
   // ── Submissão ─────────────────────────────────────────────────

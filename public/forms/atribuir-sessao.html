@@ -133,6 +133,19 @@
     return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
 
+  // Mostra sempre o indicativo — a Bea abre isto no telemóvel e tem de poder
+  // contactar a cliente sem adivinhar o país. 9 dígitos = número nacional
+  // português; qualquer outro comprimento já traz indicativo próprio.
+  function formatarTelefone(tel) {
+    const d = String(tel || "").replace(/\D/g, "");
+    if (!d) return null;
+    const completo = d.length === 9 ? "351" + d : d;
+    const legivel = completo.startsWith("351")
+      ? "+351 " + completo.slice(3).replace(/(\d{3})(?=\d)/g, "$1 ").trim()
+      : "+" + completo;
+    return { legivel, e164: "+" + completo };
+  }
+
   async function carregar() {
     if (!sessaoId) {
       elLoading.style.display = "none";
@@ -161,19 +174,25 @@
 
       const bookingCard = document.getElementById("booking-card");
       bookingCard.replaceChildren();
+      const tel = formatarTelefone(data.cliente.telefone);
       const rows = [
         ["Cliente", data.cliente.nome],
-        ["Telefone", data.cliente.telefone || "—"],
+        ["Telefone", tel ? tel.legivel : "—", tel ? "tel:" + tel.e164 : null],
         ["Serviço", data.sessao.servico || "—"],
         ["Data", data.sessao.data ? formatarData(data.sessao.data) : "—"],
         ["Hora", data.sessao.hora || "—"],
       ];
-      rows.forEach(([label, value]) => {
+      rows.forEach(([label, value, href]) => {
         const row = document.createElement("div");
         row.className = "booking-row";
         const l = document.createElement("span");
         l.textContent = label;
-        const v = document.createElement("span");
+        // Telefone fica tocável para ligar direto do telemóvel
+        const v = document.createElement(href ? "a" : "span");
+        if (href) {
+          v.href = href;
+          v.style.cssText = "color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;";
+        }
         v.textContent = value;
         row.append(l, v);
         bookingCard.appendChild(row);
