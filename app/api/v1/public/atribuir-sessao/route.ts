@@ -141,14 +141,30 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // O terapeuta/preço acima são reescritos de propósito — reabrir o link para
+    // corrigir o preço é uso normal. Já a observação era criada sempre, pelo que
+    // cada correção (ou duplo toque, ou separador restaurado pelo browser)
+    // deixava uma nota repetida. Só cria se não houver uma igual nas últimas 24h.
+    let notaCriada = false
     if (nota) {
-      await prisma.observacao.create({
-        data: {
+      const duplicada = await prisma.observacao.findFirst({
+        where: {
           clienteId: sessao.clienteId,
           texto: nota,
-          autor: nomeTerapeuta,
+          criadoEm: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
         },
+        select: { id: true },
       })
+      if (!duplicada) {
+        await prisma.observacao.create({
+          data: {
+            clienteId: sessao.clienteId,
+            texto: nota,
+            autor: nomeTerapeuta,
+          },
+        })
+        notaCriada = true
+      }
     }
 
     auditar({
@@ -156,7 +172,7 @@ export async function POST(request: NextRequest) {
       acao: "atribuir_sessao.submetido",
       entidade: "Sessao",
       entidadeId: sessao.id,
-      detalhe: { terapeutaId: terapeuta.id, preco, temNota: !!nota },
+      detalhe: { terapeutaId: terapeuta.id, preco, temNota: !!nota, notaCriada },
       ip: request.headers.get("x-forwarded-for"),
     })
 
