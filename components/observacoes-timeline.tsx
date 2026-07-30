@@ -33,6 +33,11 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
   const [texto, setTexto]     = useState("")
   const [erro, setErro]       = useState("")
   const [isPending, start]    = useTransition()
+  // Confirmação inline em vez de window.confirm() — apagar é definitivo e o
+  // diálogo do browser destoava do resto do dashboard.
+  const [confirmar, setConfirmar] = useState<string | null>(null)
+  const [apagando, setApagando]   = useState<string | null>(null)
+  const [erroApagar, setErroApagar] = useState<string | null>(null)
   const textareaRef           = useRef<HTMLTextAreaElement>(null)
   const abortRef              = useRef<AbortController | null>(null)
 
@@ -70,6 +75,23 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
     setTexto("")
     setErro("")
     setAberto(false)
+  }
+
+  async function apagar(id: string) {
+    setApagando(id)
+    setErroApagar(null)
+    try {
+      const res = await fetch(`/api/v1/clientes/${clienteId}/observacoes/${id}`, {
+        method: "DELETE",
+      })
+      if (!res.ok) throw new Error("HTTP " + res.status)
+      setObs(prev => prev.filter(o => o.id !== id))
+      setConfirmar(null)
+    } catch {
+      setErroApagar(id)
+    } finally {
+      setApagando(null)
+    }
   }
 
   return (
@@ -229,6 +251,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
             style={{ display: "flex", flexDirection: "column", gap: "0" }}
           >
+            <AnimatePresence initial={false}>
             {obs.map((o, i) => {
               const d = formatData(o.criadoEm)
               return (
@@ -238,6 +261,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                     hidden: { opacity: 0, x: -12 },
                     visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] } },
                   }}
+                  exit={{ opacity: 0, x: -16, height: 0, paddingBottom: 0, transition: { duration: 0.25 } }}
                   layout
                   style={{
                     display: "flex", gap: "24px", alignItems: "flex-start",
@@ -317,11 +341,65 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                       }}>
                         {o.autor}
                       </span>
+
+                      {confirmar === o.id ? (
+                        <span style={{
+                          marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px",
+                          fontFamily: "var(--font-body)", fontSize: "11px",
+                        }}>
+                          <span style={{ color: erroApagar === o.id ? "#b06050" : "var(--nuit-smoke)" }}>
+                            {erroApagar === o.id ? "Não deu. Tentar de novo?" : "Apagar esta nota?"}
+                          </span>
+                          <button
+                            onClick={() => apagar(o.id)}
+                            disabled={apagando === o.id}
+                            style={{
+                              padding: "3px 10px", borderRadius: "5px",
+                              backgroundColor: "transparent", color: "#b06050",
+                              border: "1px solid rgba(176,96,80,0.45)",
+                              fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600,
+                              cursor: apagando === o.id ? "default" : "pointer",
+                              opacity: apagando === o.id ? 0.6 : 1,
+                            }}
+                          >
+                            {apagando === o.id ? "A apagar…" : "Apagar"}
+                          </button>
+                          <button
+                            onClick={() => { setConfirmar(null); setErroApagar(null) }}
+                            style={{
+                              padding: "3px 8px", borderRadius: "5px",
+                              backgroundColor: "transparent", color: "var(--nuit-smoke)",
+                              border: "1px solid rgba(212,184,134,0.2)",
+                              fontFamily: "var(--font-sans)", fontSize: "10px",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Cancelar
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => { setConfirmar(o.id); setErroApagar(null) }}
+                          title="Apagar observação"
+                          aria-label={`Apagar observação de ${o.autor}`}
+                          style={{
+                            marginLeft: "auto", padding: "2px 6px", borderRadius: "5px",
+                            backgroundColor: "transparent", border: "none",
+                            color: "var(--nuit-smoke-deep)", cursor: "pointer",
+                            fontSize: "13px", lineHeight: 1, transition: "color 150ms",
+                          }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#b06050" }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--nuit-smoke-deep)" }}
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
                   </div>
                 </motion.div>
               )
             })}
+            </AnimatePresence>
           </motion.div>
         </div>
       )}
