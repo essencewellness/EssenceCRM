@@ -12,6 +12,28 @@ function safeUrl(url: string | null | undefined): string | undefined {
   } catch {}
   return undefined
 }
+
+// pos-sessao.html grava o aroma como "Tipo — detalhe livre" (ex: "Mistura —
+// Usei também óleo de amêndoas doces…"). Guardado como está, sem mudar o
+// schema — só separado visualmente aqui, tipo em destaque e o detalhe por
+// baixo, mais pequeno, em vez de tudo espremido numa linha cortada.
+function formatarAroma(texto: string) {
+  const separador = texto.indexOf(" — ")
+  if (separador === -1) return texto
+  const tipo = texto.slice(0, separador)
+  const detalhe = texto.slice(separador + 3)
+  return (
+    <>
+      {tipo}
+      <div style={{
+        fontSize: "11.5px", color: "var(--nuit-smoke)", marginTop: "3px",
+        whiteSpace: "pre-wrap", lineHeight: 1.5, fontStyle: "normal",
+      }}>
+        {detalhe}
+      </div>
+    </>
+  )
+}
 import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, Heart, MessageSquare, FileText, Trash2, AlertTriangle, MapPin, Sparkles } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import {
@@ -604,6 +626,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   label="Aroma"
                   value={sessaoAberta.aromaSessao}
                   placeholder="Adicionar aroma"
+                  renderDisplay={formatarAroma}
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "aromaSessao", v)}
                 />
                 <InlineEditField

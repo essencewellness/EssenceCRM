@@ -24,6 +24,10 @@ interface Props {
   readOnly?: boolean
   hideLabel?: boolean
   valueStyle?: React.CSSProperties
+  // Formatação rica só para o estado fechado (ex: separar "Tipo — detalhe" do
+  // aroma em duas linhas). Não altera o que abre para edição — isso continua
+  // a ser sempre o texto em bruto.
+  renderDisplay?: (textoExibido: string) => React.ReactNode
   onSave: (novoValor: Valor) => Promise<{ ok: true } | { ok: false; erro: string }>
 }
 
@@ -59,7 +63,7 @@ const inputBaseStyle: React.CSSProperties = {
 // 2. Sem provider (ex: drawer de sessões): mantém o comportamento antigo,
 //    clicar em cada campo individualmente abre-o para edição.
 export function InlineEditField({
-  label, value, type = "text", options, placeholder, readOnly, hideLabel, valueStyle, onSave,
+  label, value, type = "text", options, placeholder, readOnly, hideLabel, valueStyle, renderDisplay, onSave,
 }: Props) {
   const ctxEdicaoPerfil = useEdicaoPerfilOpcional()
   const controlado = ctxEdicaoPerfil !== null
@@ -146,6 +150,12 @@ export function InlineEditField({
   }
 
   const textoExibido = formatarExibicao(valorLocal, type, options)
+  // Textos de várias linhas (observações, notas) não podem ser cortados a uma
+  // linha com "…" — era assim que ficavam ilegíveis nos blocos de sessão.
+  // Um renderDisplay custom (ex: aroma) tem a mesma necessidade de não ser
+  // cortado, mesmo sendo tecnicamente um campo "text" de uma linha.
+  const isMultiline = type === "textarea"
+  const semTruncar = isMultiline || Boolean(renderDisplay)
 
   if (type === "toggle") {
     if (controlado && !editando) {
@@ -268,10 +278,12 @@ export function InlineEditField({
           fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
           color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
           fontStyle: textoExibido ? "normal" : "italic",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          ...(semTruncar
+            ? { whiteSpace: "pre-wrap", lineHeight: 1.7 }
+            : { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }),
           ...valueStyle,
         }}>
-          {textoExibido || "—"}
+          {textoExibido ? (renderDisplay ? renderDisplay(textoExibido) : textoExibido) : "—"}
         </span>
       </div>
     )
@@ -287,10 +299,10 @@ export function InlineEditField({
         disabled={readOnly}
         aria-label={hideLabel ? label : undefined}
         style={{
-          display: "inline-flex", alignItems: "center", gap: "6px",
+          display: "flex", alignItems: semTruncar ? "flex-start" : "center", gap: "6px",
           background: "none", border: "none", padding: "2px 5px", margin: "-2px -5px",
           borderRadius: "4px", cursor: readOnly ? "default" : "pointer",
-          textAlign: "left", width: "fit-content", maxWidth: "100%",
+          textAlign: "left", width: semTruncar ? "100%" : "fit-content", maxWidth: "100%",
           fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
           color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
           fontStyle: textoExibido ? "normal" : "italic",
@@ -301,10 +313,12 @@ export function InlineEditField({
         onMouseEnter={e => { if (!readOnly) e.currentTarget.style.backgroundColor = "rgba(212,184,134,0.06)" }}
         onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent" }}
       >
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {textoExibido || placeholder || "Adicionar"}
+        <span style={semTruncar
+          ? { whiteSpace: "pre-wrap", lineHeight: 1.7, flex: 1 }
+          : { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {textoExibido ? (renderDisplay ? renderDisplay(textoExibido) : textoExibido) : (placeholder || "Adicionar")}
         </span>
-        {!readOnly && <Pencil size={valueStyle?.fontSize ? 12 : 10} style={{ opacity: 0.35, flexShrink: 0 }} />}
+        {!readOnly && <Pencil size={valueStyle?.fontSize ? 12 : 10} style={{ opacity: 0.35, flexShrink: 0, marginTop: semTruncar ? "3px" : 0 }} />}
       </button>
     </div>
   )
