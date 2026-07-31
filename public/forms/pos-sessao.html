@@ -407,6 +407,53 @@
     .btn-guardar:disabled:hover { color: var(--bone); border-color: var(--border); }
 
     /* ═══════════════════════════════════════════════════
+       CONFIRMAÇÃO (depois de guardar via link de sessão)
+    ═══════════════════════════════════════════════════ */
+    .screen-done {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 48px 28px; text-align: center; min-height: 60dvh;
+    }
+
+    .screen-done.active { display: flex; }
+
+    .done-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(212,184,134,0.12); border: 1px solid var(--border-input);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--champagne); margin-bottom: 18px;
+    }
+
+    .done-title {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 22px; font-weight: 400; color: var(--bone);
+      margin-bottom: 20px;
+    }
+
+    .done-summary {
+      width: 100%; max-width: 340px;
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px; margin-bottom: 20px;
+      text-align: left; display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .done-summary-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      font-family: 'Lato', sans-serif; font-size: 13px;
+    }
+
+    .done-summary-row span:first-child { color: var(--smoke); }
+    .done-summary-row span:last-child { color: var(--bone-soft); text-align: right; }
+
+    .done-next {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11.5px; color: var(--smoke);
+      line-height: 1.7; letter-spacing: 0.03em; max-width: 320px;
+    }
+
+    .done-next strong { color: var(--champagne-soft); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════
        TOAST
     ═══════════════════════════════════════════════════ */
     .toast {
@@ -641,6 +688,14 @@
       </button>
     </div>
   </form>
+
+  <!-- ═══ CONFIRMAÇÃO (link de sessão — substitui o form ao guardar) ═══ -->
+  <div class="screen-done" id="screen-done">
+    <div class="done-icon">✓</div>
+    <h1 class="done-title">Sessão registada.</h1>
+    <div class="done-summary" id="done-summary"></div>
+    <p class="done-next" id="done-next"></p>
+  </div>
 
 </div><!-- /card -->
 
@@ -991,10 +1046,11 @@
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const nomeCliente = clienteSelecionado?.nome?.split(' ')[0] || 'cliente';
-        mostrarToast(`✓ Sessão da ${nomeCliente} registada`, 'gold');
-        btn.querySelector('span').textContent = '✓ Sessão registada';
-        return; // fica desativado — evita registo em duplicado
+        mostrarConfirmacao({
+          nomeCliente: clienteSelecionado?.nome || 'Cliente',
+          servico, preco: precoServico, data, hora, dataRetorno,
+        });
+        return; // sessão marcada como realizada — não há o que repetir aqui
       }
 
       // ── Modo manual (sem sessaoId): criar a sessão de raiz
@@ -1043,6 +1099,44 @@
       btn.querySelector('span').textContent = 'Guardar registo ✦';
       btn.disabled = false;
     }
+  }
+
+  // Substitui o form pelo ecrã de confirmação — só no modo link de sessão
+  // (Calendly), onde o link é de uso único. No modo manual o form limpa-se
+  // sozinho para a Bea poder registar a sessão seguinte sem sair da página.
+  function mostrarConfirmacao({ nomeCliente, servico, preco, data, hora, dataRetorno }) {
+    const resumo = document.getElementById('done-summary');
+    resumo.replaceChildren();
+
+    function linha(label, valor) {
+      if (!valor) return;
+      const row = document.createElement('div');
+      row.className = 'done-summary-row';
+      const l = document.createElement('span'); l.textContent = label;
+      const v = document.createElement('span'); v.textContent = valor;
+      row.append(l, v);
+      resumo.appendChild(row);
+    }
+
+    linha('Cliente', nomeCliente);
+    linha('Serviço', servico);
+    linha('Preço', preco != null ? `${Number(preco).toFixed(0)}€` : null);
+    const dataFmt = data ? new Date(`${data}T00:00:00`).toLocaleDateString('pt-PT') : null;
+    linha('Sessão', dataFmt ? `${dataFmt}${hora ? ' às ' + hora : ''}` : null);
+    if (dataRetorno) linha('Regresso recomendado', new Date(`${dataRetorno}T00:00:00`).toLocaleDateString('pt-PT'));
+
+    const next = document.getElementById('done-next');
+    next.replaceChildren(
+      document.createTextNode('A cliente vai receber um pedido de '),
+      Object.assign(document.createElement('strong'), { textContent: 'feedback' }),
+      document.createTextNode(' amanhã às 19h — automático, não precisas de fazer nada.')
+    );
+
+    document.getElementById('cliente-banner').classList.remove('visible');
+    document.querySelector('.search-wrap').style.display = 'none';
+    document.getElementById('form-sessao').style.display = 'none';
+    document.getElementById('screen-done').classList.add('active');
+    window.scrollTo({ top: 0 });
   }
 
   function mostrarToast(msg, tipo = '') {
