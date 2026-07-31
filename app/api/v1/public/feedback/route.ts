@@ -4,9 +4,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
-import { feedbackPublicSchema, validarBody } from "@/lib/validations"
+import { feedbackPublicSchema, validarBody, mapearNpsParaRating, normalizarTelefone } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { validarLinkToken } from "@/lib/link-token"
+import { auditar } from "@/lib/audit"
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -18,7 +19,11 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, feedbackPublicSchema)
   if (!v.ok) return v.resposta
-  const { clienteId, sessaoId, t, rating, pontosPositivos, pontosMelhorar, comentario, quandoVoltar, interesseServico, website } = v.data
+  const {
+    clienteId, sessaoId, t, npsScore, pontosPositivos, pontosMelhorar, comentario,
+    quandoVoltar, interesseServico, momentoPico, motivoRegresso, faltaParaDez,
+    pedidoContactoMarcacao, indicacoes, website,
+  } = v.data
 
   // Honeypot preenchido = bot
   if (website) {
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Verificar que o cliente existe e não está na blacklist
     const cliente = await prisma.cliente.findFirst({
       where: { id: clienteId, apagadoEm: null },
-      select: { id: true, nome: true, estado: true },
+      select: { id: true, nome: true, estado: true, telefone: true },
     })
 
     if (!cliente) {
@@ -70,13 +75,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const encaminhadoGoogle = rating >= 4
+    const rating = mapearNpsParaRating(npsScore)
+    // Só promotoras (9-10) veem o pedido de review no forms — o flag reflete
+    // isso, em vez do limiar antigo (rating >= 4, que incluía passivas).
+    const encaminhadoGoogle = npsScore >= 9
 
     const feedback = await prisma.feedback.create({
       data: {
         clienteId,
         sessaoId: sessaoId ?? null,
         rating,
+        npsScore,
         pontosPositivos: pontosPositivos ?? null,
         pontosMelhorar: pontosMelhorar ?? null,
         comentario: comentario ?? null,
@@ -85,6 +94,10 @@ export async function POST(request: NextRequest) {
         // feedback negativo estes campos vêm sempre null, de propósito.
         quandoVoltar: quandoVoltar ?? null,
         interesseServico: interesseServico ?? null,
+        momentoPico: momentoPico ?? null,
+        motivoRegresso: motivoRegresso ?? null,
+        faltaParaDez: faltaParaDez ?? null,
+        pedidoContactoMarcacao: pedidoContactoMarcacao ?? false,
       },
     })
 
@@ -94,13 +107,16 @@ export async function POST(request: NextRequest) {
       clienteId,
       sessaoId: sessaoId ?? null,
       rating,
+      npsScore,
       encaminhadoGoogle,
       quandoVoltar: quandoVoltar ?? null,
       interesseServico: interesseServico ?? null,
+      momentoPico: momentoPico ?? null,
+      motivoRegresso: motivoRegresso ?? null,
     })
 
-    // Alerta privado à Bea quando rating é negativo (≤3)
-    if (rating <= 3) {
+    // Alerta privado à Bea quando é detratora (NPS ≤ 6)
+    if (npsScore <= 6) {
       void webhooks.feedbackNegativo({
         feedbackId: feedback.id,
         clienteId,
@@ -110,6 +126,64 @@ export async function POST(request: NextRequest) {
         pontosMelhorar: pontosMelhorar ?? null,
         comentario: comentario ?? null,
       })
+    }
+
+    // Implementation intention: pediu para a Bea tratar já da marcação —
+    // lead quente, disparado à parte para não se perder no meio do resto.
+    if (pedidoContactoMarcacao) {
+      void webhooks.feedbackPedidoContacto({
+        feedbackId: feedback.id,
+        clienteId,
+        nomeCliente: cliente.nome,
+        telefone: cliente.telefone,
+        quandoVoltar: quandoVoltar ?? null,
+        interesseServico: interesseServico ?? null,
+        motivoRegresso: motivoRegresso ?? null,
+      })
+    }
+
+    // Indicações (programa "O Miminho", spec-010) — cada amiga válida vira
+    // uma lead nova, com a origem a apontar para quem a indicou. Nunca
+    // duplicar: se já existe um registo com o mesmo contacto, ignora-se
+    // silenciosamente essa entrada (não é erro — só não cria duplicado).
+    if (indicacoes && indicacoes.length > 0) {
+      for (const amiga of indicacoes) {
+        const nomeAmiga = amiga.nome.trim()
+        if (!nomeAmiga) continue
+        const telefoneAmiga = amiga.telefone?.trim() ? normalizarTelefone(amiga.telefone.trim()) : null
+        if (!telefoneAmiga) continue // sem contacto nenhum, não há como a Bea falar com ela
+
+        const jaExiste = await prisma.cliente.findFirst({
+          where: { apagadoEm: null, telefone: telefoneAmiga },
+          select: { id: true },
+        })
+        if (jaExiste) continue
+
+        const leadAmiga = await prisma.cliente.create({
+          data: {
+            nome: nomeAmiga,
+            telefone: telefoneAmiga,
+            fonte: "formulario",
+            comoNosConheceu: `Indicação de ${cliente.nome}`,
+            estado: "lead",
+          },
+        })
+
+        auditar({
+          quem: "publico",
+          acao: "lead.criado_indicacao",
+          entidade: "Cliente",
+          entidadeId: leadAmiga.id,
+          detalhe: { indicadoPor: clienteId },
+          ip: request.headers.get("x-forwarded-for"),
+        })
+
+        void webhooks.leadCriado({
+          clienteId: leadAmiga.id,
+          nomeCliente: leadAmiga.nome,
+          telefone: leadAmiga.telefone,
+        })
+      }
     }
 
     return NextResponse.json({ ok: true, feedbackId: feedback.id, encaminharGoogle: encaminhadoGoogle })

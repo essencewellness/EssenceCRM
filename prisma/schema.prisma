@@ -602,16 +602,22 @@ model Feedback {
   id                String   @id @default(cuid())
   clienteId         String
   sessaoId          String?
-  rating            Int      // 1..5
+  rating            Int      // 1..5 — derivado de npsScore (ver lib/validations.ts mapearNpsParaRating)
   pontosPositivos   String?  // chips/tópicos do que gostou
   pontosMelhorar    String?  // texto privado quando negativo
-  comentario        String?
+  comentario        String?  // "o que precisarias sentir p/ voltar" (detrator) ou "o que faltou p/ ser 10" (passivo)
   encaminhadoGoogle Boolean  @default(false)
   // Recorrência — só perguntado quando rating >= 4 (spec Fase 4, 2026-07-30).
   // quandoVoltar: chip único ("1_semana" | "2_semanas" | "1_mes" | "ainda_nao_sei").
   // interesseServico: chips múltiplos do catálogo, join(", ") — mesmo padrão de pontosPositivos.
   quandoVoltar      String?
   interesseServico  String?
+  // Revisão neuromarketing/NPS (spec-010, 2026-07-31):
+  npsScore              Int?     // 0-10, escala real capturada no forms — fonte de verdade, rating é derivado
+  momentoPico           String?  // peak-end rule: chip único do momento de mais alívio
+  motivoRegresso        String?  // self-generated commitment: frase da cliente sobre porque volta (só promotoras)
+  faltaParaDez          String?  // follow-up clássico NPS para passivas: "o que faltou para ser um 10"
+  pedidoContactoMarcacao Boolean @default(false) // implementation intention: pediu p/ a Bea tratar da marcação
   criadoEm          DateTime @default(now())
 
   cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)

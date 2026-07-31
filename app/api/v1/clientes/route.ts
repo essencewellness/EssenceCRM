@@ -27,8 +27,12 @@ export async function GET(request: NextRequest) {
     } else if (ativo === "true") {
       where.estado = { notIn: ["blacklist", "perdida"] }
       where.telefone = { not: null }
+    } else if (estado) {
+      where.estado = estado
     } else {
-      if (estado) where.estado = estado
+      // Sem filtro explícito: leads (zero sessões realizadas) têm o seu
+      // próprio espaço em /leads — não aparecem por defeito aqui.
+      where.estado = { not: "lead" }
     }
 
     if (canal) where.canalPreferido = canal

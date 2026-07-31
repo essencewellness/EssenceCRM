@@ -24,149 +24,78 @@
       --field-bg:       #161A26;
     }
 
-    html {
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-      -webkit-text-size-adjust: 100%;
-    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
 
     body {
-      background: var(--deep);
-      color: var(--bone);
-      font-family: 'Lato', sans-serif;
-      min-height: 100dvh;
+      background: var(--deep); color: var(--bone);
+      font-family: 'Lato', sans-serif; min-height: 100dvh;
       padding: 0 0 env(safe-area-inset-bottom);
     }
 
-    /* ═══════════════════════════════════════════════════
-       STATES: intro, rating, positive, negative, done
-    ═══════════════════════════════════════════════════ */
     .screen { display: none; flex-direction: column; min-height: 100dvh; }
     .screen.active { display: flex; }
 
-    /* ═══════════════════════════════════════════════════
-       HEADER
-    ═══════════════════════════════════════════════════ */
     .header {
-      background: var(--deep);
-      padding: 22px 22px 20px;
+      background: var(--deep); padding: 22px 22px 20px;
       position: relative; overflow: hidden;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
     }
-
     .header::after {
-      content: '';
-      position: absolute; top: -60px; right: -60px;
+      content: ''; position: absolute; top: -60px; right: -60px;
       width: 220px; height: 220px;
       background: radial-gradient(circle, rgba(212,184,134,0.07) 0%, transparent 65%);
       pointer-events: none; z-index: 0;
     }
-
-    .header-inner {
-      position: relative; z-index: 1;
-      display: flex; align-items: center; gap: 14px;
-    }
-
-    .header-logo {
-      height: 38px; width: auto;
-      filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg);
-      opacity: 0.85; flex-shrink: 0;
-    }
-
+    .header-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+    .header-logo { height: 38px; width: auto; filter: sepia(0.6) saturate(1.4) brightness(1.2) hue-rotate(-5deg); opacity: 0.85; flex-shrink: 0; }
     .header-brand-group { flex: 1; }
-
-    .header-brand {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 9px; font-weight: 600;
-      letter-spacing: 0.35em; text-transform: uppercase;
-      color: var(--champagne); opacity: 0.8; margin-bottom: 3px;
-    }
-
-    .header-title {
-      font-family: 'Libre Baskerville', serif;
-      font-size: 15px; font-weight: 400;
-      color: rgba(236,230,214,0.88);
-    }
-
+    .header-brand { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--champagne); opacity: 0.8; margin-bottom: 3px; }
+    .header-title { font-family: 'Libre Baskerville', serif; font-size: 15px; font-weight: 400; color: rgba(236,230,214,0.88); }
     .header-title em { font-style: italic; color: var(--champagne); }
 
-    /* ═══════════════════════════════════════════════════
-       BODY
-    ═══════════════════════════════════════════════════ */
+    /* pontos de progresso — goal-gradient effect */
+    .progress-dots { display: flex; gap: 6px; justify-content: center; padding: 12px 0 0; }
+    .progress-dots .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-input); transition: all 0.3s; }
+    .progress-dots .dot.done { background: var(--champagne-soft); }
+    .progress-dots .dot.current { background: var(--champagne); width: 16px; border-radius: 3px; }
+
     .body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 22px; }
 
-    .lead-text {
-      font-family: 'Libre Baskerville', serif;
-      font-size: 22px; font-weight: 400; line-height: 1.45;
-      color: var(--bone); text-align: center; margin-bottom: 10px;
-    }
-
+    .lead-text { font-family: 'Libre Baskerville', serif; font-size: 22px; font-weight: 400; line-height: 1.45; color: var(--bone); text-align: center; margin-bottom: 10px; }
     .lead-text em { font-style: italic; color: var(--champagne); }
+    .sub-text { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 400; color: var(--smoke); text-align: center; letter-spacing: 0.05em; margin-bottom: 40px; line-height: 1.6; }
 
-    .sub-text {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12px; font-weight: 400;
-      color: var(--smoke); text-align: center;
-      letter-spacing: 0.05em; margin-bottom: 40px; line-height: 1.6;
-    }
-
-    /* ═══════════════════════════════════════════════════
-       STAR RATING
-    ═══════════════════════════════════════════════════ */
-    .stars-wrap {
-      display: flex; justify-content: center;
-      gap: 10px; margin-bottom: 28px;
-    }
-
-    .star {
-      font-size: 40px; cursor: pointer;
-      padding: 4px;
-      transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s;
-      filter: grayscale(1) brightness(0.5);
-      user-select: none; -webkit-tap-highlight-color: transparent;
-      line-height: 1;
-    }
-
-    .star.hover, .star.selected {
-      filter: grayscale(0) brightness(1);
-      transform: scale(1.2);
-    }
-
-    .star.selected-lower {
-      filter: grayscale(0) brightness(0.85);
-      transform: scale(1.05);
-    }
-
-    .rating-label {
-      text-align: center; height: 24px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13px; font-weight: 500; color: var(--champagne);
-      transition: opacity 0.2s; opacity: 0; margin-bottom: 32px;
-    }
-
+    .rating-label { text-align: center; height: 24px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 500; color: var(--champagne); transition: opacity 0.2s; opacity: 0; margin-bottom: 32px; }
     .rating-label.visible { opacity: 1; }
 
-    .btn-rating {
-      display: flex; align-items: center; justify-content: center;
-      width: 100%; padding: 17px 24px;
-      background: var(--overlay); color: var(--bone);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.22em; text-transform: uppercase;
-      border: 1px solid var(--border); cursor: pointer;
-      position: relative; overflow: hidden;
-      transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+    /* escala estilo NPS — 0 a 10, informal */
+    .nps-wrap { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+    .nps-btn {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 50%; background: var(--overlay);
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--bone-soft);
+      cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
     }
+    .nps-btn:hover { border-color: var(--champagne-soft); color: var(--champagne-soft); }
+    .nps-btn.selected { background: var(--champagne); border-color: var(--champagne); color: var(--midnight); transform: scale(1.08); }
+    .nps-scale-labels { display: flex; justify-content: space-between; font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 0.06em; color: var(--smoke); margin-bottom: 28px; padding: 0 2px; }
 
-    .btn-rating::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: var(--champagne);
-      transform: translateX(-101%);
-      transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
-    }
+    /* mini-dica de reciprocidade */
+    .tip-box { background: rgba(122,158,126,0.08); border: 1px solid rgba(122,158,126,0.25); border-radius: 2px; padding: 18px 20px; margin-bottom: 28px; }
+    .tip-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage); margin-bottom: 8px; }
+    .tip-text { font-family: 'Lato', sans-serif; font-size: 13px; line-height: 1.7; color: var(--bone-soft); }
 
+    /* ecrã de indicações — opcional, fica bem claro */
+    .optional-banner { background: rgba(212,184,134,0.08); border: 1px dashed var(--border-input); border-radius: 2px; padding: 10px 14px; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--champagne-soft); margin-bottom: 24px; }
+    .indicacao-row { border: 1px solid var(--border); border-radius: 2px; padding: 14px; margin-bottom: 12px; }
+    .indicacao-row-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
+    .indicacao-row input { width: 100%; padding: 11px 12px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--bone); outline: none; margin-bottom: 8px; transition: border-color 0.2s; }
+    .indicacao-row input:last-child { margin-bottom: 0; }
+    .indicacao-row input:focus { border-color: var(--champagne); }
+    .indicacao-row input::placeholder { color: var(--smoke); }
+
+    .btn-rating { display: flex; align-items: center; justify-content: center; width: 100%; padding: 17px 24px; background: var(--overlay); color: var(--bone); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .btn-rating::before { content: ''; position: absolute; inset: 0; background: var(--champagne); transform: translateX(-101%); transition: transform 0.38s cubic-bezier(0.4,0,0.2,1); }
     .btn-rating:hover::before { transform: translateX(0); }
     .btn-rating:hover { color: var(--midnight); border-color: var(--champagne); }
     .btn-rating > span { position: relative; z-index: 1; }
@@ -174,162 +103,48 @@
     .btn-rating:disabled::before { display: none; }
     .btn-rating:disabled:hover { color: var(--bone); border-color: var(--border); }
 
-    /* ═══════════════════════════════════════════════════
-       CHIPS (pontos positivos)
-    ═══════════════════════════════════════════════════ */
-    .chips-grid {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      justify-content: center; margin-bottom: 28px;
-    }
+    .btn-secondary { display: block; width: 100%; margin-top: 12px; padding: 14px; background: transparent; color: var(--smoke); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; text-align: center; }
+    .btn-secondary:hover { color: var(--bone-soft); border-color: var(--border-input); }
 
-    .chip {
-      padding: 11px 18px; min-height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 40px; background: var(--overlay);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12px; font-weight: 500; color: var(--bone-soft);
-      cursor: pointer; transition: all 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    .chips-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .chip { padding: 11px 18px; min-height: 44px; border: 1px solid var(--border); border-radius: 40px; background: var(--overlay); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; color: var(--bone-soft); cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
     .chip:hover { border-color: var(--champagne); color: var(--champagne); }
+    .chip.selected { background: rgba(212,184,134,0.12); border-color: var(--champagne); color: var(--champagne); }
 
-    .chip.selected {
-      background: rgba(212,184,134,0.12);
-      border-color: var(--champagne); color: var(--champagne);
-    }
+    .field-label { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
 
-    /* ═══════════════════════════════════════════════════
-       TEXTAREA
-    ═══════════════════════════════════════════════════ */
-    .field-label {
-      display: block;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--smoke); margin-bottom: 10px;
-    }
-
-    textarea {
-      width: 100%; padding: 14px;
-      border: 1px solid var(--border-input);
-      border-radius: 2px; background: var(--field-bg);
-      font-family: 'Lato', sans-serif; font-size: 1rem;
-      color: var(--bone); resize: vertical; min-height: 110px;
-      line-height: 1.65; outline: none; margin-bottom: 24px;
-      transition: border-color 0.2s;
-    }
-
+    textarea { width: 100%; padding: 14px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 1rem; color: var(--bone); resize: vertical; min-height: 90px; line-height: 1.65; outline: none; margin-bottom: 24px; transition: border-color 0.2s; }
     textarea:focus { border-color: var(--champagne); }
     textarea::placeholder { color: var(--smoke); }
 
-    /* ═══════════════════════════════════════════════════
-       GOOGLE CTA
-    ═══════════════════════════════════════════════════ */
-    .google-box {
-      background: rgba(212,184,134,0.05);
-      border: 1px solid var(--border);
-      border-radius: 2px; padding: 20px;
-      text-align: center; margin-bottom: 24px;
-    }
-
+    .google-box { background: rgba(212,184,134,0.05); border: 1px solid var(--border); border-radius: 2px; padding: 20px; text-align: center; margin-bottom: 24px; }
     .google-icon { font-size: 28px; margin-bottom: 10px; }
-
-    .google-title {
-      font-family: 'Libre Baskerville', serif;
-      font-size: 16px; font-weight: 400;
-      color: var(--bone); margin-bottom: 8px;
-    }
-
-    .google-desc {
-      font-family: 'Lato', sans-serif;
-      font-size: 13px; color: var(--smoke);
-      line-height: 1.6; margin-bottom: 18px;
-    }
-
-    .btn-google {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 28px;
-      background: var(--champagne); color: var(--midnight);
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      border: none; cursor: pointer; text-decoration: none;
-      transition: opacity 0.2s; -webkit-tap-highlight-color: transparent;
-    }
-
+    .google-title { font-family: 'Libre Baskerville', serif; font-size: 16px; font-weight: 400; color: var(--bone); margin-bottom: 8px; }
+    .google-desc { font-family: 'Lato', sans-serif; font-size: 13px; color: var(--smoke); line-height: 1.6; margin-bottom: 18px; }
+    .btn-google { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: var(--champagne); color: var(--midnight); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; border: none; cursor: pointer; text-decoration: none; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
     .btn-google:hover { opacity: 0.88; }
-
-    .btn-skip {
-      display: block; margin-top: 14px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px; color: var(--smoke);
-      letter-spacing: 0.1em; background: none;
-      border: none; cursor: pointer; text-decoration: underline;
-      text-decoration-color: transparent;
-      transition: color 0.2s, text-decoration-color 0.2s;
-    }
-
+    .btn-skip { display: block; margin-top: 14px; font-family: 'Montserrat', sans-serif; font-size: 11px; color: var(--smoke); letter-spacing: 0.1em; background: none; border: none; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; transition: color 0.2s, text-decoration-color 0.2s; }
     .btn-skip:hover { color: var(--bone-soft); text-decoration-color: var(--smoke); }
 
-    /* ═══════════════════════════════════════════════════
-       DONE SCREEN
-    ═══════════════════════════════════════════════════ */
-    .done-icon {
-      font-size: 52px; text-align: center; margin-bottom: 16px;
-    }
+    /* eco da frase escrita — reforço de compromisso escrito */
+    .echo-box { background: rgba(212,184,134,0.06); border-left: 2px solid var(--champagne); padding: 18px 20px; margin-bottom: 28px; }
+    .echo-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne-soft); margin-bottom: 8px; }
+    .echo-text { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 16px; line-height: 1.6; color: var(--bone); }
 
-    .done-title {
-      font-family: 'Libre Baskerville', serif;
-      font-size: 24px; font-weight: 400;
-      color: var(--bone); text-align: center; margin-bottom: 10px;
-    }
-
+    .done-icon { font-size: 52px; text-align: center; margin-bottom: 16px; }
+    .done-title { font-family: 'Libre Baskerville', serif; font-size: 24px; font-weight: 400; color: var(--bone); text-align: center; margin-bottom: 10px; }
     .done-title em { font-style: italic; color: var(--champagne); }
+    .done-sub { font-family: 'Montserrat', sans-serif; font-size: 12px; color: var(--smoke); text-align: center; line-height: 1.7; letter-spacing: 0.04em; }
+    .identity-badge { display: block; margin: 22px auto 0; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne); border: 1px solid var(--border); padding: 10px 16px; }
 
-    .done-sub {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12px; color: var(--smoke);
-      text-align: center; line-height: 1.7; letter-spacing: 0.04em;
-    }
+    .form-footer { padding: 18px 22px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--deep); flex-shrink: 0; }
+    .privacy-note { font-family: 'Montserrat', sans-serif; font-size: 10px; color: var(--smoke); text-align: center; letter-spacing: 0.04em; line-height: 1.6; }
 
-    /* ═══════════════════════════════════════════════════
-       FOOTER
-    ═══════════════════════════════════════════════════ */
-    .form-footer {
-      padding: 18px 22px calc(18px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border); background: var(--deep);
-      flex-shrink: 0;
-    }
-
-    .privacy-note {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px; color: var(--smoke);
-      text-align: center; letter-spacing: 0.04em;
-      line-height: 1.6;
-    }
-
-    /* ═══════════════════════════════════════════════════
-       DESKTOP
-    ═══════════════════════════════════════════════════ */
     @media (min-width: 640px) {
-      body {
-        display: flex; flex-direction: column;
-        align-items: center;
-        padding: clamp(24px, 5dvh, 56px) 20px clamp(32px, 5dvh, 60px);
-      }
-
+      body { display: flex; flex-direction: column; align-items: center; padding: clamp(24px, 5dvh, 56px) 20px clamp(32px, 5dvh, 60px); }
       .screen { min-height: auto; width: 100%; max-width: 480px; }
       .screen.active { display: flex; }
-
-      .card {
-        background: var(--midnight);
-        border: 1px solid var(--border);
-        border-radius: 2px;
-        box-shadow: 0 8px 40px rgba(0,0,0,0.35);
-        overflow: hidden;
-      }
-
+      .card { background: var(--midnight); border: 1px solid var(--border); border-radius: 2px; box-shadow: 0 8px 40px rgba(0,0,0,0.35); overflow: hidden; }
       .header { padding: 24px 32px 22px; }
       .body { padding: 36px 32px; }
       .form-footer { padding: 18px 32px; }
@@ -338,9 +153,7 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN: RATING
-═══════════════════════════════════════════════════ -->
+<!-- ═══ RATING (escala NPS 0-10, informal) ═══ -->
 <div class="screen active" id="screen-rating">
   <div class="card">
     <header class="header">
@@ -354,16 +167,23 @@
     </header>
 
     <div class="body">
-      <p class="lead-text">Como te sentiste após a <em>sessão</em>?</p>
-      <p class="sub-text">A tua experiência importa. Demora menos de 1 minuto.</p>
+      <p class="lead-text">De 0 a 10 — quanto gostavas que uma <em>amiga</em> tua vivesse isto também?</p>
+      <p class="sub-text">Não há resposta errada. Demora menos de 1 minuto.</p>
 
-      <div class="stars-wrap" id="stars-wrap">
-        <span class="star" data-value="1">⭐</span>
-        <span class="star" data-value="2">⭐</span>
-        <span class="star" data-value="3">⭐</span>
-        <span class="star" data-value="4">⭐</span>
-        <span class="star" data-value="5">⭐</span>
+      <div class="nps-wrap" id="nps-wrap">
+        <button type="button" class="nps-btn" data-value="0">0</button>
+        <button type="button" class="nps-btn" data-value="1">1</button>
+        <button type="button" class="nps-btn" data-value="2">2</button>
+        <button type="button" class="nps-btn" data-value="3">3</button>
+        <button type="button" class="nps-btn" data-value="4">4</button>
+        <button type="button" class="nps-btn" data-value="5">5</button>
+        <button type="button" class="nps-btn" data-value="6">6</button>
+        <button type="button" class="nps-btn" data-value="7">7</button>
+        <button type="button" class="nps-btn" data-value="8">8</button>
+        <button type="button" class="nps-btn" data-value="9">9</button>
+        <button type="button" class="nps-btn" data-value="10">10</button>
       </div>
+      <div class="nps-scale-labels"><span>nada</span><span>sem dúvida</span></div>
 
       <div class="rating-label" id="rating-label">—</div>
 
@@ -378,11 +198,57 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN: POSITIVO
-═══════════════════════════════════════════════════ -->
+<!-- ═══ Indicações (aparece só se npsScore >= 6), totalmente opcional ═══ -->
+<div class="screen" id="screen-indicacoes">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Conheces <em>alguém</em>?</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">Conheces alguém que também merecia este momento?</p>
+      <div class="optional-banner">✦ Totalmente opcional — podes deixar 1, 2, 3 ou nenhuma</div>
+
+      <div class="indicacao-row">
+        <div class="indicacao-row-label">Amiga 1 (opcional)</div>
+        <input type="text" id="ind-nome-1" placeholder="Nome">
+        <input type="tel" id="ind-tel-1" placeholder="WhatsApp (com indicativo)">
+      </div>
+      <div class="indicacao-row">
+        <div class="indicacao-row-label">Amiga 2 (opcional)</div>
+        <input type="text" id="ind-nome-2" placeholder="Nome">
+        <input type="tel" id="ind-tel-2" placeholder="WhatsApp (com indicativo)">
+      </div>
+      <div class="indicacao-row" style="margin-bottom:24px;">
+        <div class="indicacao-row-label">Amiga 3 (opcional)</div>
+        <input type="text" id="ind-nome-3" placeholder="Nome">
+        <input type="tel" id="ind-tel-3" placeholder="WhatsApp (com indicativo)">
+      </div>
+
+      <button class="btn-rating" onclick="avancarDeIndicacoes()">
+        <span>Indicar ✦</span>
+      </button>
+      <button class="btn-secondary" onclick="avancarDeIndicacoes(true)">Prefiro não indicar agora</button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Cada amiga que marcar dá-te um mimo especial na tua próxima visita.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Positivo — o que mais gostaste ═══ -->
 <div class="screen" id="screen-positivo">
   <div class="card">
+    <div class="progress-dots">
+      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
     <header class="header">
       <div class="header-inner">
         <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
@@ -394,7 +260,7 @@
     </header>
 
     <div class="body">
-      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais (opcional). <br>Cada detalhe conta para a Essence.</p>
+      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais (opcional).</p>
 
       <div class="chips-grid" id="chips-positivos">
         <button type="button" class="chip" data-value="Ambiente relaxante">Ambiente relaxante</button>
@@ -407,15 +273,115 @@
         <button type="button" class="chip" data-value="Marcaria de novo já">Marcaria de novo já</button>
       </div>
 
-      <!-- CTA Google -->
+      <button class="btn-rating" onclick="mostrarScreen('pico')">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Obrigada pela tua generosidade. ✦</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Momento de pico (peak-end rule) ═══ -->
+<div class="screen" id="screen-pico">
+  <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">O <em>momento</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">Qual foi o momento em que sentiste <em>mais alívio</em>?</p>
+      <p class="sub-text" style="margin-bottom:24px;">Fecha os olhos um segundo e lembra-te. (opcional)</p>
+
+      <div class="chips-grid" id="chips-pico">
+        <button type="button" class="chip" data-value="Maos_ombros">As mãos a soltarem a tensão</button>
+        <button type="button" class="chip" data-value="Calor">O calor (cera/toalhas quentes)</button>
+        <button type="button" class="chip" data-value="Aroma">O aroma dos óleos</button>
+        <button type="button" class="chip" data-value="Silencio">O silêncio total</button>
+        <button type="button" class="chip" data-value="Tempo_para_mim">Ter tempo só para mim</button>
+      </div>
+
+      <button class="btn-rating" onclick="avancarDePico()">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Ajuda a Beatriz a repetir o que mais sentiste falta.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Mini-dica (Reciprocidade — Cialdini) ═══ -->
+<div class="screen" id="screen-dica">
+  <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Um <em>mimo</em> nosso</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <div class="tip-box">
+        <div class="tip-label">Dica da Beatriz</div>
+        <div class="tip-text" id="tip-texto">Um duche morno antes de dormir prolonga esse efeito de leveza.</div>
+      </div>
+      <p class="sub-text" style="margin-bottom:24px;">Antes de continuares, ficas com isto — de nós para ti.</p>
+
+      <button class="btn-rating" onclick="mostrarScreen('google')">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Avaliação Google ═══ -->
+<div class="screen" id="screen-google">
+  <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Partilha a tua <em>experiência</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
       <div class="google-box">
         <div class="google-icon">🌟</div>
         <div class="google-title">Partilha com outras pessoas</div>
-        <div class="google-desc">Cada avaliação no Google ajuda outras pessoas a descobrir a Essence Wellness. E demora 30 segundos.</div>
-        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="avancarParaRecorrencia('google')">
+        <div class="google-desc">Cada avaliação no Google ajuda outra pessoa a encontrar-nos, tal como tu encontraste. Demora 30 segundos.</div>
+        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="avancarDeGoogle('google')">
           ⭐ Avaliar no Google
         </a>
-        <button class="btn-skip" onclick="avancarParaRecorrencia('skip')">Prefiro não deixar avaliação</button>
+        <button class="btn-skip" onclick="avancarDeGoogle('skip')">Prefiro não deixar avaliação</button>
       </div>
     </div>
 
@@ -425,18 +391,85 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN: RECORRÊNCIA (só depois de rating positivo — é o
-     momento de perceber quando e com o quê a cliente quer voltar)
-═══════════════════════════════════════════════════ -->
-<div class="screen" id="screen-recorrencia">
+<!-- ═══ Motivo de regresso (self-generated persuasion) ═══ -->
+<div class="screen" id="screen-motivo">
   <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
+    </div>
     <header class="header">
       <div class="header-inner">
         <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
         <div class="header-brand-group">
           <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Só mais <em>duas coisas</em></div>
+          <div class="header-title">Só mais <em>uma coisa</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">Numa frase — porque vale a pena <em>voltares</em>?</p>
+      <p class="sub-text" style="margin-bottom:18px;">Escreve com as tuas palavras. (opcional)</p>
+
+      <textarea id="texto-motivo" maxlength="200" placeholder="Ex: porque saio sempre mais leve e durmo melhor essa noite."></textarea>
+
+      <button class="btn-rating" onclick="avancarDeMotivo()">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Fica só entre nós — ajuda-nos a lembrar-te bem.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Eco da frase escrita (compromisso escrito) ═══ -->
+<div class="screen" id="screen-eco">
+  <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
+    </div>
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Guardámos <em>isto</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <div class="echo-box">
+        <div class="echo-label">Escreveste</div>
+        <div class="echo-text" id="echo-texto">"..."</div>
+      </div>
+      <p class="sub-text" style="margin-bottom:24px;">Vamos lembrar-te disto quando fizer sentido. ✦</p>
+
+      <button class="btn-rating" onclick="mostrarScreen('recorrencia')">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Quando voltar + interesse ═══ -->
+<div class="screen" id="screen-recorrencia">
+  <div class="card">
+    <div class="progress-dots" id="dots-recorrencia">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
+    </div>
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">A tua próxima <em>visita</em></div>
         </div>
       </div>
     </header>
@@ -459,8 +492,8 @@
         <button type="button" class="chip" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
       </div>
 
-      <button class="btn-rating" style="margin-top:28px;" onclick="finalizarFeedback()">
-        <span>Enviar ✦</span>
+      <button class="btn-rating" style="margin-top:28px;" onclick="avancarDeRecorrencia()">
+        <span>Continuar →</span>
       </button>
     </div>
 
@@ -470,9 +503,66 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN: NEGATIVO
-═══════════════════════════════════════════════════ -->
+<!-- ═══ Condicional: pedido de contacto p/ marcação (implementation intention) ═══ -->
+<div class="screen" id="screen-contacto">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Já <em>tratamos disso</em>?</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">Queres que a Beatriz já trate da tua marcação?</p>
+      <p class="sub-text" style="margin-bottom:28px;">Ela contacta-te por WhatsApp para combinar o melhor dia, sem teres de te lembrar de o fazer depois.</p>
+
+      <button class="btn-rating" onclick="responderContacto(true)">
+        <span>Sim, contacta-me ✦</span>
+      </button>
+      <button class="btn-secondary" onclick="responderContacto(false)">Prefiro marcar eu depois</button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Passivo — "o que faltou para ser um 10" ═══ -->
+<div class="screen" id="screen-passivo-falta">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Obrigada pela <em>sinceridade</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">O que faltou para ser um <em>10</em>?</p>
+      <p class="sub-text" style="margin-bottom:18px;">Qualquer detalhe ajuda-nos a chegar lá da próxima vez. (opcional)</p>
+
+      <textarea id="texto-falta-dez" maxlength="500" placeholder="Ex: gostava que a sala estivesse ainda mais quente."></textarea>
+
+      <button class="btn-rating" onclick="mostrarScreen('recorrencia')">
+        <span>Continuar →</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Fica registado só para a Beatriz melhorar.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Negativo ═══ -->
 <div class="screen" id="screen-negativo">
   <div class="card">
     <header class="header">
@@ -492,6 +582,9 @@
       <label class="field-label" for="texto-melhoria">O que poderíamos ter feito melhor? (opcional)</label>
       <textarea id="texto-melhoria" maxlength="2000" placeholder="Escreve o que sentiste: pressão, temperatura, duração, comunicação, ambiente… Qualquer detalhe ajuda."></textarea>
 
+      <label class="field-label" for="texto-precisaria" style="margin-top:-8px;">O que precisarias sentir para teres vontade de voltar? (opcional)</label>
+      <textarea id="texto-precisaria" maxlength="2000" placeholder="Sê honesta — isto fica só entre nós."></textarea>
+
       <button class="btn-rating" onclick="enviarFeedbackNegativo()">
         <span>Enviar ✦</span>
       </button>
@@ -503,9 +596,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN: DONE
-═══════════════════════════════════════════════════ -->
+<!-- ═══ Done — com rotulagem de identidade ═══ -->
 <div class="screen" id="screen-done">
   <div class="card">
     <header class="header">
@@ -521,7 +612,8 @@
     <div class="body">
       <div class="done-icon" id="done-icon">🌿</div>
       <h1 class="done-title" id="done-title">Obrigada, <em>de coração</em>.</h1>
-      <p class="done-sub" id="done-sub">O teu feedback chegou. Faz diferença para nós, mesmo que seja privado. É lido e sentido.<br><br>Até à próxima sessão. ✦</p>
+      <p class="done-sub" id="done-sub">O teu feedback chegou. Faz diferença para nós.<br><br>Até à próxima sessão. ✦</p>
+      <div class="identity-badge" id="identity-badge">fazes parte da comunidade Essence</div>
     </div>
 
     <footer class="form-footer">
@@ -536,6 +628,7 @@
     : '';
 
   const GOOGLE_REVIEW_URL = 'https://g.page/r/CUpYz4Jwxqw3EBM/review';
+  document.getElementById('link-google').href = GOOGLE_REVIEW_URL;
 
   // Extrair params da URL
   const params = new URLSearchParams(window.location.search);
@@ -543,67 +636,49 @@
   const sessaoId  = params.get('s') || params.get('sessaoId') || null;
   const linkToken = params.get('t') || null;
 
-  let ratingActual = 0;
+  let npsScore = null;
+  let segmento = null; // 'promotor' | 'passivo' | 'detrator'
+  let acaoGoogleEscolhida = 'skip';
+  let pedidoContactoMarcacao = false;
+  let indicacoesColetadas = [];
   let feedbackEnviado = false;
-  let acaoGoogleEscolhida = 'skip'; // 'google' | 'skip' — decidido no ecrã positivo, usado só ao enviar
 
-  // Pré-definir link Google
-  document.getElementById('link-google').href = GOOGLE_REVIEW_URL;
-
-  // ── RATING LABELS ─────────────────────────────────
-  const labels = {
-    1: 'Não foi o que esperava',
-    2: 'Podia ter sido melhor',
-    3: 'Boa experiência',
-    4: 'Muito boa sessão 🌿',
-    5: 'Incrível, recomendo! ⭐',
+  const npsLabels = {
+    0: 'Entendido, vamos ouvir-te.', 1: 'Entendido, vamos ouvir-te.', 2: 'Entendido, vamos ouvir-te.',
+    3: 'Entendido, vamos ouvir-te.', 4: 'Entendido, vamos ouvir-te.', 5: 'Entendido, vamos ouvir-te.',
+    6: 'Entendido, vamos ouvir-te.', 7: 'Boa! Vamos perceber melhor.', 8: 'Boa! Vamos perceber melhor.',
+    9: 'Que bom ouvir isso! 🌿', 10: 'Que bom ouvir isso! 🌿',
   };
 
-  // ── STARS ─────────────────────────────────────────
-  const stars = document.querySelectorAll('.star');
+  // dica de reciprocidade, ligada à escolha do "momento de pico"
+  const dicasPico = {
+    Maos_ombros: 'Continua a alongar os ombros ao final do dia — 30 segundos já ajudam a manter a sensação.',
+    Calor: 'Um duche morno antes de dormir prolonga esse efeito de leveza.',
+    Aroma: 'Um difusor com o mesmo óleo em casa ajuda a recriar essa calma antes de dormir.',
+    Silencio: 'Reserva 5 minutos de silêncio esta semana — o corpo lembra-se bem disso.',
+    Tempo_para_mim: 'Marca já na agenda o teu próximo momento só para ti, mesmo que seja daqui a semanas.',
+  };
+  const dicaGenerica = 'Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.';
+
+  const npsButtons = document.querySelectorAll('.nps-btn');
   const labelEl = document.getElementById('rating-label');
   const btnContinuar = document.getElementById('btn-continuar');
 
-  stars.forEach(star => {
-    const v = parseInt(star.dataset.value);
-
-    star.addEventListener('mouseenter', () => {
-      if (ratingActual > 0) return;
-      highlightStars(v, 'hover');
-      labelEl.textContent = labels[v];
-      labelEl.classList.add('visible');
-    });
-
-    star.addEventListener('mouseleave', () => {
-      if (ratingActual > 0) return;
-      highlightStars(0, '');
-      labelEl.textContent = '';
-      labelEl.classList.remove('visible');
-    });
-
-    star.addEventListener('click', () => {
-      ratingActual = v;
-      highlightStars(v, 'selected');
-      labelEl.textContent = labels[v];
+  npsButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      npsScore = parseInt(btn.dataset.value);
+      npsButtons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      labelEl.textContent = npsLabels[npsScore];
       labelEl.classList.add('visible');
       btnContinuar.disabled = false;
     });
   });
 
-  function highlightStars(value, cls) {
-    stars.forEach(s => {
-      const sv = parseInt(s.dataset.value);
-      s.classList.remove('hover', 'selected', 'selected-lower');
-      if (sv <= value) s.classList.add(cls);
-    });
-  }
-
-  // ── CHIPS (multi-select) ───────────────────────────
-  document.querySelectorAll('#chips-positivos .chip, #chips-interesse .chip').forEach(chip => {
+  document.querySelectorAll('#chips-positivos .chip, #chips-interesse .chip, #chips-pico .chip').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('selected'));
   });
 
-  // ── CHIPS (single-select) ──────────────────────────
   document.querySelectorAll('#chips-quando .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('#chips-quando .chip').forEach(c => c.classList.remove('selected'));
@@ -611,101 +686,145 @@
     });
   });
 
-  // ── AVANÇAR DE RATING ──────────────────────────────
+  // ── AVANÇAR DE NPS — decide segmento (usado depois do ecrã de indicações) ──
   function avancarDeRating() {
-    if (!ratingActual) return;
-    mostrarScreen(ratingActual >= 4 ? 'positivo' : 'negativo');
+    if (npsScore === null) return;
+    if (npsScore >= 9) segmento = 'promotor';
+    else if (npsScore >= 7) segmento = 'passivo';
+    else segmento = 'detrator';
+
+    // pergunta de indicação aparece sempre que a pontuação for >= 6,
+    // independentemente do segmento (mesmo um 6, tecnicamente "detrator"
+    // no NPS clássico, pode ter uma amiga em mente) — depois o formulário
+    // continua exatamente pelo caminho normal do segmento
+    if (npsScore >= 6) mostrarScreen('indicacoes');
+    else continuarParaSegmento();
   }
 
-  // ── AVANÇAR PARA RECORRÊNCIA (depois do "o que gostaste") ──
-  // O clique em "Avaliar no Google" já abre o separador sozinho (é um <a
-  // target="_blank"> normal) — só guardamos qual foi a escolha, para saber
-  // que mensagem final mostrar depois de enviarFeedback() correr de facto.
-  function avancarParaRecorrencia(acao) {
+  function avancarDeIndicacoes(saltou) {
+    if (!saltou) {
+      indicacoesColetadas = [1, 2, 3]
+        .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), telefone: document.getElementById(`ind-tel-${n}`).value.trim() }))
+        .filter(i => i.nome);
+    }
+    if (segmento === 'passivo') document.getElementById('dots-recorrencia').style.display = 'none';
+    continuarParaSegmento();
+  }
+
+  function continuarParaSegmento() {
+    if (segmento === 'promotor') mostrarScreen('positivo');
+    else if (segmento === 'passivo') mostrarScreen('passivo-falta');
+    else mostrarScreen('negativo');
+  }
+
+  function avancarDePico() {
+    const picoEscolhido = document.querySelector('#chips-pico .chip.selected')?.dataset.value;
+    document.getElementById('tip-texto').textContent = picoEscolhido ? dicasPico[picoEscolhido] : dicaGenerica;
+    mostrarScreen('dica');
+  }
+
+  function avancarDeGoogle(acao) {
     acaoGoogleEscolhida = acao;
-    mostrarScreen('recorrencia');
+    mostrarScreen('motivo');
   }
 
-  function finalizarFeedback() {
-    enviarFeedback(acaoGoogleEscolhida);
+  function avancarDeMotivo() {
+    const texto = document.getElementById('texto-motivo').value.trim();
+    if (texto) {
+      document.getElementById('echo-texto').textContent = `"${texto}"`;
+      mostrarScreen('eco');
+    } else {
+      mostrarScreen('recorrencia');
+    }
   }
 
-  // ── ENVIAR FEEDBACK (positivo) ─────────────────────
-  async function enviarFeedback(acao) {
+  function avancarDeRecorrencia() {
+    const quando = document.querySelector('#chips-quando .chip.selected')?.dataset.value;
+    // o pedido de contacto (implementation intention) só faz sentido para
+    // promotoras — um passivo ainda não ganhou esse nível de compromisso
+    if (segmento === 'promotor' && quando && quando !== 'ainda_nao_sei') {
+      mostrarScreen('contacto');
+    } else {
+      finalizarFeedback();
+    }
+  }
+
+  function responderContacto(quer) {
+    pedidoContactoMarcacao = quer;
+    finalizarFeedback();
+  }
+
+  // ── ENVIAR FEEDBACK (caminho promotor/passivo) ─────────────────────
+  async function finalizarFeedback() {
     if (feedbackEnviado) return;
     feedbackEnviado = true;
 
-    const chipsEscolhidos = [...document.querySelectorAll('#chips-positivos .chip.selected')]
-      .map(c => c.dataset.value)
-      .join(', ') || null;
-
-    const quandoVoltar = document.querySelector('#chips-quando .chip.selected')?.dataset.value || null;
+    const pontosPositivos = [...document.querySelectorAll('#chips-positivos .chip.selected')]
+      .map(c => c.dataset.value).join(', ') || null;
     const interesseServico = [...document.querySelectorAll('#chips-interesse .chip.selected')]
-      .map(c => c.dataset.value)
-      .join(', ') || null;
+      .map(c => c.dataset.value).join(', ') || null;
+
+    const payload = {
+      clienteId,
+      sessaoId,
+      t: linkToken,
+      npsScore,
+      pontosPositivos,
+      pontosMelhorar: null,
+      comentario: null,
+      quandoVoltar: document.querySelector('#chips-quando .chip.selected')?.dataset.value || null,
+      interesseServico,
+      momentoPico: document.querySelector('#chips-pico .chip.selected')?.dataset.value || null,
+      motivoRegresso: document.getElementById('texto-motivo')?.value.trim() || null,
+      faltaParaDez: document.getElementById('texto-falta-dez')?.value.trim() || null,
+      pedidoContactoMarcacao,
+      indicacoes: indicacoesColetadas,
+    };
 
     try {
       await fetch(`${API_BASE}/api/v1/public/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clienteId,
-          sessaoId,
-          t: linkToken,
-          rating: ratingActual,
-          pontosPositivos: chipsEscolhidos,
-          pontosMelhorar: null,
-          comentario: null,
-          quandoVoltar,
-          interesseServico,
-        }),
+        body: JSON.stringify(payload),
       });
     } catch { /* silencioso — não bloquear fluxo */ }
 
-    if (acao === 'google') {
-      // Já foi aberto no clique de "Avaliar no Google" — não abrir outra vez aqui.
-      mostrarDone(
-        '🌟',
-        'Obrigada, és <em>incrível</em>.',
-        'A tua avaliação no Google ajuda imensas pessoas a descobrir a Essence Wellness.\n\nVemo-nos na próxima sessão. ✦'
-      );
+    if (acaoGoogleEscolhida === 'google') {
+      mostrarDone('🌟', 'Obrigada, és <em>incrível</em>.', 'A tua avaliação no Google ajuda imensas pessoas a descobrir a Essence Wellness.\n\nVemo-nos na próxima sessão. ✦');
     } else {
-      mostrarDone(
-        '🌿',
-        'Obrigada, <em>de coração</em>.',
-        'O teu feedback chegou. Faz diferença para nós.\n\nAté à próxima sessão. ✦'
-      );
+      mostrarDone('🌿', 'Obrigada, <em>de coração</em>.', 'O teu feedback chegou. Faz diferença para nós.\n\nAté à próxima sessão. ✦');
     }
   }
 
-  // ── ENVIAR FEEDBACK (negativo) ─────────────────────
+  // ── ENVIAR FEEDBACK (caminho detrator) ─────────────────────
   async function enviarFeedbackNegativo() {
     if (feedbackEnviado) return;
     feedbackEnviado = true;
 
-    const texto = document.getElementById('texto-melhoria').value.trim() || null;
+    const pontosMelhorar = document.getElementById('texto-melhoria').value.trim() || null;
+    const comentario = document.getElementById('texto-precisaria').value.trim() || null;
+
+    const payload = {
+      clienteId,
+      sessaoId,
+      t: linkToken,
+      npsScore,
+      pontosPositivos: null,
+      pontosMelhorar,
+      comentario,
+      indicacoes: indicacoesColetadas,
+    };
 
     try {
       await fetch(`${API_BASE}/api/v1/public/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clienteId,
-          sessaoId,
-          t: linkToken,
-          rating: ratingActual,
-          pontosPositivos: null,
-          pontosMelhorar: texto,
-          comentario: null,
-        }),
+        body: JSON.stringify(payload),
       });
     } catch { /* silencioso */ }
 
-    mostrarDone(
-      '💛',
-      'Recebido com <em>gratidão</em>.',
-      'Só a Essence vai ler a tua mensagem. A honestidade é o maior presente que nos podes dar.\n\nEsperamos poder surpreender-te da próxima vez. ✦'
-    );
+    document.getElementById('identity-badge').style.display = 'none';
+    mostrarDone('💛', 'Recebido com <em>gratidão</em>.', 'Só a Essence vai ler a tua mensagem. A honestidade é o maior presente que nos podes dar.\n\nEsperamos poder surpreender-te da próxima vez. ✦');
   }
 
   // ── NAVEGAR ENTRE SCREENS ─────────────────────────
@@ -717,16 +836,13 @@
 
   function mostrarDone(icon, title, sub) {
     document.getElementById('done-icon').textContent = icon;
-    document.getElementById('done-title').innerHTML = `<em>${title.replace('<em>', '').replace('</em>', '')}</em>`;
-    // parse simples de <em>
-    const titleEl = document.getElementById('done-title');
-    titleEl.innerHTML = title;
+    document.getElementById('done-title').innerHTML = title;
     document.getElementById('done-sub').textContent = sub;
     mostrarScreen('done');
   }
 
   // Se não tiver clienteId, apenas mostramos o formulário normalmente.
-  // O API retorna 200 silencioso para IDs inválidos (anti-enumeration).
+  // O API retorna 200 silencioso para IDs inválidos (anti-enumeração).
 </script>
 </body>
 </html>

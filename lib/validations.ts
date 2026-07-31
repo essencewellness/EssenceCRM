@@ -463,19 +463,44 @@ export const bulkEliminarSchema = z.object({
 }).strict()
 
 // ── Feedback público (24h pós-sessão) ────────────────────────
+// Revisão neuromarketing/NPS (spec-010, 2026-07-31): a escala deixou de ser
+// 1-5 estrelas e passou a ser NPS 0-10 (npsScore) — "rating" (1-5) passa a
+// ser derivado no servidor via mapearNpsParaRating, nunca enviado pelo
+// cliente, para não confiar num valor que o forms podia calcular mal.
+
+export const indicacaoAmigaSchema = z.object({
+  nome:     z.string().trim().min(1).max(120),
+  telefone: z.string().trim().max(20).optional().nullable(),
+})
 
 export const feedbackPublicSchema = z.object({
   clienteId:      z.string().trim().max(64),
   sessaoId:       z.string().trim().max(64).optional().nullable(),
   t:              z.string().trim().max(128).optional().nullable(), // link token assinado (ver lib/link-token.ts)
-  rating:         z.coerce.number().int().min(1).max(5),
+  npsScore:       z.coerce.number().int().min(0).max(10),
   pontosPositivos: z.string().trim().max(1000).optional().nullable(),
   pontosMelhorar: z.string().trim().max(2000).optional().nullable(),
   comentario:     z.string().trim().max(2000).optional().nullable(),
   quandoVoltar:     z.string().trim().max(50).optional().nullable(),
   interesseServico: z.string().trim().max(500).optional().nullable(),
+  momentoPico:      z.string().trim().max(50).optional().nullable(),
+  motivoRegresso:   z.string().trim().max(200).optional().nullable(),
+  faltaParaDez:     z.string().trim().max(500).optional().nullable(),
+  pedidoContactoMarcacao: z.boolean().optional(),
+  indicacoes:       z.array(indicacaoAmigaSchema).max(3).optional(),
   website:        z.string().max(0).optional(), // honeypot
 }).strict()
+
+// 9-10 promotor / 7-8 passivo / 0-6 detrator — mapeamento para o campo
+// legado rating (1-5), que continua a alimentar encaminhadoGoogle e
+// qualquer leitura antiga desse campo. Ver plano em specs/010-*/plano.md §4.1.
+export function mapearNpsParaRating(npsScore: number): number {
+  if (npsScore >= 9) return 5
+  if (npsScore >= 7) return 4
+  if (npsScore >= 4) return 3
+  if (npsScore >= 2) return 2
+  return 1
+}
 
 // ── Helper de validação ───────────────────────────────────────
 

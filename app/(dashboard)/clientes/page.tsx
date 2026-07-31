@@ -32,7 +32,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
   const estadoMap: Record<string, EstadoCliente[]> = {
     ativas:   ["ativa_recente", "ativa_frequente", "vip_embaixadora"],
     em_risco: ["vip_em_risco", "reativacao"],
-    novas:    ["lead", "novo"],
+    novas:    ["novo"],
   }
   const estadosAvancados: EstadoCliente[] = estadosParam
     ? (Array.isArray(estadosParam) ? estadosParam : [estadosParam]) as EstadoCliente[]
@@ -51,6 +51,9 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
 
   const where: Prisma.ClienteWhereInput = {
     apagadoEm: null,
+    // Leads (zero sessões realizadas) têm o seu próprio espaço em /leads —
+    // só aparecem aqui se um filtro avançado os pedir explicitamente.
+    ...(estadosFiltro.length === 0 ? { estado: { not: "lead" } } : {}),
     ...(filtroTerapeuta as Prisma.ClienteWhereInput),
     ...(q ? {
       OR: [

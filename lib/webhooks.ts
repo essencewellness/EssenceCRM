@@ -124,12 +124,16 @@ export const webhooks = {
     clienteId: string
     sessaoId?: string | null
     rating: number
+    npsScore: number
     encaminhadoGoogle: boolean
     // Recorrência (spec Fase 4, 2026-07-30) — para a fase de mensagens com IA
     // (roadmap fase 2) sugerir a próxima sessão com base no que a cliente
     // já disse que queria, em vez de adivinhar.
     quandoVoltar?: string | null
     interesseServico?: string | null
+    // Neuromarketing/NPS (spec-010, 2026-07-31)
+    momentoPico?: string | null
+    motivoRegresso?: string | null
   }) => dispararWebhook("feedback.recebido", payload),
 
   feedbackNegativo: (payload: {
@@ -141,6 +145,19 @@ export const webhooks = {
     pontosMelhorar?: string | null
     comentario?: string | null
   }) => dispararWebhook("feedback.negativo", payload),
+
+  // Implementation intention (spec-010): a cliente pediu, no próprio forms
+  // de feedback, para a Bea já tratar da marcação — lead quente, entregue
+  // de bandeja. Só dispara quando pedidoContactoMarcacao === true.
+  feedbackPedidoContacto: (payload: {
+    feedbackId: string
+    clienteId: string
+    nomeCliente: string
+    telefone?: string | null
+    quandoVoltar?: string | null
+    interesseServico?: string | null
+    motivoRegresso?: string | null
+  }) => dispararWebhook("feedback.pedido_contacto", payload),
 
   sessaoConfirmada: (payload: {
     sessaoId: string
