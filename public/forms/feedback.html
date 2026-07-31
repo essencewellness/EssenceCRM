@@ -68,10 +68,12 @@
     .rating-label { text-align: center; height: 24px; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 500; color: var(--champagne); transition: opacity 0.2s; opacity: 0; margin-bottom: 32px; }
     .rating-label.visible { opacity: 1; }
 
-    /* escala estilo NPS — 0 a 10, informal */
-    .nps-wrap { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+    /* escala estilo NPS — 0 a 10, informal. Flex em vez de grid: com 11 itens
+       numa grelha de 6 colunas a última linha ficava desalinhada (5 de 6) —
+       flex-wrap centrado resolve isso em qualquer contagem. */
+    .nps-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 8px; }
     .nps-btn {
-      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      width: calc((100% - 5 * 8px) / 6); aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
       border: 1px solid var(--border); border-radius: 50%; background: var(--overlay);
       font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: var(--bone-soft);
       cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
@@ -158,6 +160,20 @@
     .done-sub { font-family: 'Montserrat', sans-serif; font-size: 12px; color: var(--smoke); text-align: center; line-height: 1.7; letter-spacing: 0.04em; }
     .identity-badge { display: block; margin: 22px auto 0; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--champagne); border: 1px solid var(--border); padding: 10px 16px; }
 
+    /* botão voltar — discreto, canto superior esquerdo, só visível quando há
+       para onde voltar (nunca no primeiro ecrã nem depois de já ter enviado) */
+    .btn-back-global {
+      position: fixed; top: 14px; left: 14px; z-index: 10;
+      display: none; align-items: center; gap: 5px;
+      padding: 8px 12px; border-radius: 20px;
+      background: rgba(14,17,25,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      border: 1px solid var(--border); color: var(--bone-soft);
+      font-family: 'Montserrat', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-back-global.visible { display: inline-flex; }
+    .btn-back-global:hover { color: var(--champagne); border-color: var(--champagne-soft); }
+
     .form-footer { padding: 18px 22px calc(18px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--deep); flex-shrink: 0; }
     .privacy-note { font-family: 'Montserrat', sans-serif; font-size: 10px; color: var(--smoke); text-align: center; letter-spacing: 0.04em; line-height: 1.6; }
 
@@ -173,6 +189,8 @@
   </style>
 </head>
 <body>
+
+<button type="button" class="btn-back-global" id="btn-back-global" onclick="voltarEcra()" aria-label="Voltar ao ecrã anterior">← Voltar</button>
 
 <!-- ═══ RATING (escala NPS 0-10, informal) ═══ -->
 <div class="screen active" id="screen-rating">
@@ -259,7 +277,7 @@
     </div>
 
     <footer class="form-footer">
-      <p class="privacy-note">Cada amiga que marcar dá-te um mimo especial na tua próxima visita.</p>
+      <p class="privacy-note">Cada amiga que marcar dá-te um mimo especial na tua próxima visita. Só a contactamos sobre isto — nunca partilhamos o contacto com mais ninguém.</p>
     </footer>
   </div>
 </div>
@@ -268,7 +286,7 @@
 <div class="screen" id="screen-positivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -307,7 +325,7 @@
 <div class="screen" id="screen-pico">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -347,7 +365,7 @@
 <div class="screen" id="screen-dica">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -366,7 +384,7 @@
       </div>
       <p class="sub-text" style="margin-bottom:24px;">Antes de continuares, ficas com isto — de nós para ti.</p>
 
-      <button class="btn-rating" onclick="mostrarScreen('google')">
+      <button class="btn-rating" onclick="avancarParaOuIndicacoes('google')">
         <span>Continuar →</span>
       </button>
     </div>
@@ -381,7 +399,7 @@
 <div class="screen" id="screen-google">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -415,7 +433,7 @@
 <div class="screen" id="screen-motivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -448,7 +466,7 @@
 <div class="screen" id="screen-eco">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -482,7 +500,7 @@
 <div class="screen" id="screen-recorrencia">
   <div class="card">
     <div class="progress-dots" id="dots-recorrencia">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -495,7 +513,7 @@
     </header>
 
     <div class="body">
-      <div class="chips-group-label">Quando gostavas de voltar? <span class="hint">— escolhe uma</span></div>
+      <div class="chips-group-label">Quando gostavas de voltar? <span class="hint">— opcional, escolhe uma</span></div>
       <div class="chips-grid" id="chips-quando">
         <button type="button" class="chip" data-value="1_semana">Daqui a 1 semana</button>
         <button type="button" class="chip" data-value="2_semanas">Daqui a 2 semanas</button>
@@ -526,6 +544,9 @@
 <!-- ═══ Condicional: pedido de contacto p/ marcação (implementation intention) ═══ -->
 <div class="screen" id="screen-contacto">
   <div class="card">
+    <div class="progress-dots">
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
+    </div>
     <header class="header">
       <div class="header-inner">
         <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
@@ -569,7 +590,7 @@
     </div>
 
     <footer class="form-footer">
-      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
+      <p class="privacy-note">A Beatriz confirma contigo por WhatsApp assim que vir a tua mensagem.</p>
     </footer>
   </div>
 </div>
@@ -593,7 +614,7 @@
 
       <textarea id="texto-falta-dez" maxlength="500" placeholder="Ex: gostava que a sala estivesse ainda mais quente."></textarea>
 
-      <button class="btn-rating" onclick="mostrarScreen('recorrencia')">
+      <button class="btn-rating" onclick="avancarParaOuIndicacoes('recorrencia')">
         <span>Continuar →</span>
       </button>
     </div>
@@ -686,6 +707,7 @@
   let horaPreferida = null;
   let indicacoesColetadas = [];
   let feedbackEnviado = false;
+  let proximoAposIndicacoes = null; // ecrã a mostrar depois de "indicações" (varia por segmento)
 
   const npsLabels = {
     0: 'Entendido, vamos ouvir-te.', 1: 'Entendido, vamos ouvir-te.', 2: 'Entendido, vamos ouvir-te.',
@@ -789,19 +811,27 @@
     });
   });
 
-  // ── AVANÇAR DE NPS — decide segmento (usado depois do ecrã de indicações) ──
+  // ── AVANÇAR DE NPS — decide segmento ──
   function avancarDeRating() {
     if (npsScore === null) return;
     if (npsScore >= 9) segmento = 'promotor';
     else if (npsScore >= 7) segmento = 'passivo';
     else segmento = 'detrator';
+    continuarParaSegmento();
+  }
 
-    // pergunta de indicação aparece sempre que a pontuação for >= 6,
-    // independentemente do segmento (mesmo um 6, tecnicamente "detrator"
-    // no NPS clássico, pode ter uma amiga em mente) — depois o formulário
-    // continua exatamente pelo caminho normal do segmento
-    if (npsScore >= 6) mostrarScreen('indicacoes');
-    else continuarParaSegmento();
+  // O pedido de indicação só aparece DEPOIS de a cliente refletir no que
+  // gostou (positivo/pico/dica para promotoras, passivo-falta para passivas)
+  // — pedir o favor antes de gerar reciprocidade era a ordem errada.
+  // Continua a aparecer para pontuação >= 6 (mesmo um 6, tecnicamente
+  // "detrator" no NPS clássico, pode ter uma amiga em mente).
+  function avancarParaOuIndicacoes(proximoEcra) {
+    if (npsScore >= 6) {
+      proximoAposIndicacoes = proximoEcra;
+      mostrarScreen('indicacoes');
+    } else {
+      mostrarScreen(proximoEcra);
+    }
   }
 
   function avancarDeIndicacoes(saltou) {
@@ -811,13 +841,13 @@
         .filter(i => i.nome);
     }
     if (segmento === 'passivo') document.getElementById('dots-recorrencia').style.display = 'none';
-    continuarParaSegmento();
+    mostrarScreen(proximoAposIndicacoes || 'recorrencia');
   }
 
   function continuarParaSegmento() {
     if (segmento === 'promotor') mostrarScreen('positivo');
     else if (segmento === 'passivo') mostrarScreen('passivo-falta');
-    else mostrarScreen('negativo');
+    else avancarParaOuIndicacoes('negativo');
   }
 
   function avancarDePico() {
@@ -940,10 +970,27 @@
   }
 
   // ── NAVEGAR ENTRE SCREENS ─────────────────────────
-  function mostrarScreen(nome) {
+  // ecrãs onde "voltar" não faz sentido: já submeteu (done) ou é o ponto de
+  // partida (rating, que nem tem histórico para onde voltar)
+  const SEM_BOTAO_VOLTAR = new Set(['rating', 'done']);
+  let historicoEcras = [];
+  const btnVoltar = document.getElementById('btn-back-global');
+
+  function mostrarScreen(nome, semHistorico) {
+    const atual = document.querySelector('.screen.active');
+    if (!semHistorico && atual) historicoEcras.push(atual.id.replace('screen-', ''));
+
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(`screen-${nome}`).classList.add('active');
     window.scrollTo({ top: 0 });
+
+    btnVoltar.classList.toggle('visible', historicoEcras.length > 0 && !SEM_BOTAO_VOLTAR.has(nome));
+  }
+
+  function voltarEcra() {
+    const anterior = historicoEcras.pop();
+    if (!anterior) return;
+    mostrarScreen(anterior, true);
   }
 
   function mostrarDone(icon, title, sub) {
