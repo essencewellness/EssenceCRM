@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const {
     clienteId, sessaoId, t, npsScore, pontosPositivos, pontosMelhorar, comentario,
     quandoVoltar, interesseServico, momentoPico, motivoRegresso, faltaParaDez,
-    pedidoContactoMarcacao, indicacoes, website,
+    pedidoContactoMarcacao, diaPreferido, horaPreferida, indicacoes, website,
   } = v.data
 
   // Honeypot preenchido = bot
@@ -98,6 +98,8 @@ export async function POST(request: NextRequest) {
         motivoRegresso: motivoRegresso ?? null,
         faltaParaDez: faltaParaDez ?? null,
         pedidoContactoMarcacao: pedidoContactoMarcacao ?? false,
+        diaPreferido: diaPreferido ?? null,
+        horaPreferida: horaPreferida ?? null,
       },
     })
 
@@ -139,6 +141,8 @@ export async function POST(request: NextRequest) {
         quandoVoltar: quandoVoltar ?? null,
         interesseServico: interesseServico ?? null,
         motivoRegresso: motivoRegresso ?? null,
+        diaPreferido: diaPreferido ?? null,
+        horaPreferida: horaPreferida ?? null,
       })
     }
 

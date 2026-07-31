@@ -618,6 +618,8 @@ model Feedback {
   motivoRegresso        String?  // self-generated commitment: frase da cliente sobre porque volta (só promotoras)
   faltaParaDez          String?  // follow-up clássico NPS para passivas: "o que faltou para ser um 10"
   pedidoContactoMarcacao Boolean @default(false) // implementation intention: pediu p/ a Bea tratar da marcação
+  diaPreferido           String?  // chip único (dia da semana) — só quando pedidoContactoMarcacao=true
+  horaPreferida          String?  // chip único (Manhã/Tarde/Fim de tarde) — idem
   criadoEm          DateTime @default(now())
 
   cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)

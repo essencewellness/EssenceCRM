@@ -157,6 +157,8 @@ export const webhooks = {
     quandoVoltar?: string | null
     interesseServico?: string | null
     motivoRegresso?: string | null
+    diaPreferido?: string | null
+    horaPreferida?: string | null
   }) => dispararWebhook("feedback.pedido_contacto", payload),
 
   sessaoConfirmada: (payload: {

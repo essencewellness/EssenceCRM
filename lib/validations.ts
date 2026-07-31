@@ -487,6 +487,8 @@ export const feedbackPublicSchema = z.object({
   motivoRegresso:   z.string().trim().max(200).optional().nullable(),
   faltaParaDez:     z.string().trim().max(500).optional().nullable(),
   pedidoContactoMarcacao: z.boolean().optional(),
+  diaPreferido:     z.string().trim().max(20).optional().nullable(),
+  horaPreferida:    z.string().trim().max(10).optional().nullable(),
   indicacoes:       z.array(indicacaoAmigaSchema).max(3).optional(),
   website:        z.string().max(0).optional(), // honeypot
 }).strict()

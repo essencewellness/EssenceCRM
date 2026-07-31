@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useState } from "react"
 import {
   LayoutDashboard, Users, UserPlus, CheckSquare,
-  MessageSquare, Menu, X,
+  MessageSquare, MessageSquareHeart, Menu, X,
   Calendar, BarChart2, Settings, Shield, Star, Megaphone, FileText, LogOut,
 } from "lucide-react"
 
@@ -17,6 +17,7 @@ const MAIN_ITEMS = [
 
 const ALL_ITEMS = [
   { href: "/leads",         label: "Leads",         icon: UserPlus },
+  { href: "/feedback",      label: "Feedback",      icon: MessageSquareHeart },
   { href: "/sessoes",       label: "Sessões",       icon: Calendar },
   { href: "/pipeline",      label: "Pipeline",      icon: BarChart2 },
   { href: "/top-clientes",  label: "Top Clientes",  icon: Star },

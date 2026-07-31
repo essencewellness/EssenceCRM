@@ -518,9 +518,31 @@
 
     <div class="body">
       <p class="lead-text" style="font-size:18px;">Queres que a Beatriz já trate da tua marcação?</p>
-      <p class="sub-text" style="margin-bottom:28px;">Ela contacta-te por WhatsApp para combinar o melhor dia, sem teres de te lembrar de o fazer depois.</p>
+      <p class="sub-text" style="margin-bottom:18px;">Diz-nos o dia e a hora que preferires — vemos a disponibilidade mais próxima disso.</p>
 
-      <button class="btn-rating" onclick="responderContacto(true)">
+      <p class="sub-text" style="margin-bottom:10px;">Que dia? (opcional)</p>
+      <div class="chips-grid" id="chips-dia">
+        <button type="button" class="chip" data-value="Segunda">Segunda</button>
+        <button type="button" class="chip" data-value="Terça">Terça</button>
+        <button type="button" class="chip" data-value="Quarta">Quarta</button>
+        <button type="button" class="chip" data-value="Quinta">Quinta</button>
+        <button type="button" class="chip" data-value="Sexta">Sexta</button>
+        <button type="button" class="chip" data-value="Sábado">Sábado</button>
+        <button type="button" class="chip" data-value="Qualquer dia">Qualquer dia</button>
+      </div>
+
+      <p class="sub-text" style="margin:20px 0 10px;">De manhã ou de tarde? (opcional)</p>
+      <div class="chips-grid" id="chips-periodo">
+        <button type="button" class="chip" data-value="Manhã">Manhã</button>
+        <button type="button" class="chip" data-value="Tarde">Tarde</button>
+      </div>
+
+      <div id="bloco-horario" style="display:none;">
+        <p class="sub-text" style="margin:20px 0 10px;">A que horas? (opcional)</p>
+        <div class="chips-grid" id="chips-horario"></div>
+      </div>
+
+      <button class="btn-rating" style="margin-top:8px;" onclick="responderContacto(true)">
         <span>Sim, contacta-me ✦</span>
       </button>
       <button class="btn-secondary" onclick="responderContacto(false)">Prefiro marcar eu depois</button>
@@ -640,6 +662,8 @@
   let segmento = null; // 'promotor' | 'passivo' | 'detrator'
   let acaoGoogleEscolhida = 'skip';
   let pedidoContactoMarcacao = false;
+  let diaPreferido = null;
+  let horaPreferida = null;
   let indicacoesColetadas = [];
   let feedbackEnviado = false;
 
@@ -683,6 +707,42 @@
     chip.addEventListener('click', () => {
       document.querySelectorAll('#chips-quando .chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
+    });
+  });
+
+  document.querySelectorAll('#chips-dia .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#chips-dia .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
+  });
+
+  // horário específico só aparece depois de escolher manhã/tarde
+  const HORARIOS_POR_PERIODO = {
+    'Manhã': ['9h', '10h', '11h', '12h'],
+    'Tarde': ['14h', '15h', '16h', '17h', '18h'],
+  };
+
+  document.querySelectorAll('#chips-periodo .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#chips-periodo .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+
+      const chipsHorario = document.getElementById('chips-horario');
+      chipsHorario.innerHTML = '';
+      HORARIOS_POR_PERIODO[chip.dataset.value].forEach(hora => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.dataset.value = hora;
+        btn.textContent = hora;
+        btn.addEventListener('click', () => {
+          chipsHorario.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+        chipsHorario.appendChild(btn);
+      });
+      document.getElementById('bloco-horario').style.display = '';
     });
   });
 
@@ -751,6 +811,13 @@
 
   function responderContacto(quer) {
     pedidoContactoMarcacao = quer;
+    if (quer) {
+      diaPreferido = document.querySelector('#chips-dia .chip.selected')?.dataset.value || null;
+      // hora específica (ex: "10h") se a escolheu; senão cai para o período (ex: "Manhã")
+      horaPreferida = document.querySelector('#chips-horario .chip.selected')?.dataset.value
+        || document.querySelector('#chips-periodo .chip.selected')?.dataset.value
+        || null;
+    }
     finalizarFeedback();
   }
 
@@ -778,6 +845,8 @@
       motivoRegresso: document.getElementById('texto-motivo')?.value.trim() || null,
       faltaParaDez: document.getElementById('texto-falta-dez')?.value.trim() || null,
       pedidoContactoMarcacao,
+      diaPreferido,
+      horaPreferida,
       indicacoes: indicacoesColetadas,
     };
 
