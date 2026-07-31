@@ -262,6 +262,24 @@ input:focus, textarea:focus {
   100% { background-position: 200% 0; }
 }
 
+/* ── Scrollbar NUIT — para conteúdo com scroll dentro de modais/painéis
+   escuros, onde a barra genérica do sistema (cinzenta, clara) destoa ── */
+.nuit-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,184,134,0.30) transparent;
+}
+.nuit-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.nuit-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.nuit-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(212,184,134,0.30);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.nuit-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(212,184,134,0.45);
+}
+
 /* ── Reduced motion overrides ── */
 @media (prefers-reduced-motion: reduce) {
   .anim-fade-up, .anim-fade-down, .anim-fade-left, .anim-fade-right,

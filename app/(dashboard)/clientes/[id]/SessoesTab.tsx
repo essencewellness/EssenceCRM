@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useRef, useEffect } from "react"
 import { atualizarObservacoesSessao, atualizarCampoSessao, eliminarSessao } from "./actions"
 import { InlineEditField } from "@/components/clientes/InlineEditField"
 import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, MessageSquare, FileText, Trash2, AlertTriangle, MapPin, Sparkles } from "lucide-react"
@@ -373,6 +373,20 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
   const [sessaoAberta, setSessaoAberta] = useState<Sessao | null>(null)
   const [isPending, startTransition] = useTransition()
   const [confirmarEliminar, setConfirmarEliminar] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const focoAnteriorRef = useRef<HTMLElement | null>(null)
+
+  // Foco entra no modal ao abrir e volta para a linha da tabela que o abriu
+  // ao fechar — sem isto, utilizadoras de teclado/leitor de ecrã perdem a
+  // posição na página (ver skill ecc-frontend-a11y).
+  useEffect(() => {
+    if (sessaoAberta) {
+      focoAnteriorRef.current = document.activeElement as HTMLElement
+      dialogRef.current?.focus()
+    } else {
+      focoAnteriorRef.current?.focus()
+    }
+  }, [sessaoAberta])
 
   function fecharDrawer() {
     setSessaoAberta(null)
@@ -487,26 +501,31 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
         <div
           style={{
             position: "fixed", inset: 0, zIndex: 50,
-            backgroundColor: "rgba(22,26,38,0.5)",
+            backgroundColor: "rgba(14,17,25,0.78)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "24px",
           }}
           onClick={(e) => { if (e.target === e.currentTarget) fecharDrawer() }}
         >
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="sessao-drawer-titulo"
             tabIndex={-1}
             onKeyDown={(e) => { if (e.key === "Escape") fecharDrawer() }}
+            className="nuit-scrollbar"
             style={{
               backgroundColor: "var(--nuit-deep)",
               width: "100%", maxWidth: "960px",
               maxHeight: "88vh", overflowY: "auto",
               borderRadius: "14px",
               border: "1px solid rgba(212,184,134,0.16)",
-              boxShadow: "0 20px 60px rgba(22,26,38,0.4)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
               display: "flex", flexDirection: "column",
+              outline: "none",
             }}
           >
             {/* Cabeçalho do modal */}
@@ -524,6 +543,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                       value={sessaoAberta.estado}
                       onChange={(e) => mudarEstado(e.target.value)}
                       disabled={isPending}
+                      aria-label="Estado da sessão"
                       style={{
                         fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
                         fontWeight: 600, letterSpacing: "0.08em",
