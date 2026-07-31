@@ -98,7 +98,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#161a26" }}>{int.nome}</p>
                 <span style={badgeStyle(int.estado)}>{int.estado}</span>
               </div>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#7a7e8a", lineHeight: 1.5, marginBottom: "4px" }}>{int.descricao}</p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", lineHeight: 1.5, marginBottom: "4px" }}>{int.descricao}</p>
               {int.detalhe && (
                 <p style={{ fontFamily: "monospace", fontSize: "11px", color: "#9d9d9a" }}>{int.detalhe}</p>
               )}
@@ -111,7 +111,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
                   flexShrink: 0, backgroundColor: "transparent",
                   border: "1px solid #e0d8cc", borderRadius: "3px",
                   padding: "5px 12px", fontFamily: "var(--font-sans)",
-                  fontSize: "11px", color: "#7a7e8a", cursor: "pointer",
+                  fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer",
                 }}
               >
                 {testando === int.nome ? "A testar…" : "Testar"}
@@ -134,7 +134,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
         <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", fontWeight: 400, marginBottom: "20px", paddingBottom: "12px", borderBottom: "1px solid #e8e2d9" }}>
           Webhooks de Saída (CRM → N8N)
         </h2>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#7a7e8a", marginBottom: "16px", lineHeight: 1.6 }}>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginBottom: "16px", lineHeight: 1.6 }}>
           Para activar os webhooks, definir as variáveis de ambiente <code style={{ fontFamily: "monospace", fontSize: "11px", backgroundColor: "rgba(212,184,134,0.08)", padding: "1px 4px", borderRadius: "2px" }}>WEBHOOK_N8N_*</code> no Vercel.
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>

@@ -135,7 +135,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "13px",
                     fontWeight: active ? 500 : 400,
-                    color: active ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                    color: active ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                   }}>
                     {item.label}
                   </span>
@@ -165,7 +165,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)",
                   fontSize: "13px", fontWeight: 400,
-                  color: "var(--nuit-smoke)",
+                  color: "var(--nuit-bone-soft)",
                 }}>
                   Terminar sessão
                 </span>
@@ -199,7 +199,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
                 style={{
                   display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
                   padding: "6px 12px", textDecoration: "none",
-                  color: active ? "var(--nuit-champagne)" : "var(--nuit-smoke-deep)",
+                  color: active ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
                 }}
               >
                 <div style={{ position: "relative" }}>
@@ -233,7 +233,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
             style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
               padding: "6px 12px", background: "none", border: "none",
-              color: "var(--nuit-smoke-deep)", cursor: "pointer",
+              color: "var(--nuit-bone-soft)", cursor: "pointer",
             }}
           >
             <Menu size={20} style={{ strokeWidth: 1.5 }} />

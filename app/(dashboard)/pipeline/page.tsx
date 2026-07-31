@@ -22,7 +22,7 @@ const ESTADOS: {
   { key: "vip_embaixadora", label: "VIP Embaixadora", desc: "Top clientes, promotoras da marca",   color: "#b9a07a", bg: "#d4b88618",              href: "/clientes?estado=vip_embaixadora" },
   { key: "vip_em_risco",    label: "VIP em Risco",    desc: "VIP sem sessão há mais de 45 dias",   color: "#d4956b", bg: "rgba(212,149,107,0.10)", href: "/clientes?estado=vip_em_risco"    },
   { key: "reativacao",      label: "Reativação",      desc: "Sem sessão há mais de 60 dias",       color: "#b06050", bg: "rgba(176,96,80,0.08)",   href: "/clientes?estado=reativacao"      },
-  { key: "perdida",         label: "Perdida",         desc: "Sem sessão há mais de 180 dias",      color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", href: "/clientes?estado=perdida"         },
+  { key: "perdida",         label: "Perdida",         desc: "Sem sessão há mais de 180 dias",      color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", href: "/clientes?estado=perdida"         },
   { key: "blacklist",       label: "Blacklist",       desc: "Bloqueada — sem comunicação",         color: "#b06050", bg: "rgba(176,96,80,0.12)",   href: "/clientes?estado=blacklist"       },
 ];
 
@@ -113,7 +113,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
@@ -138,7 +138,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
@@ -155,7 +155,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{ marginBottom: "8px" }}>
         <span style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-          fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-smoke)", textTransform: "uppercase",
+          fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>
           Distribuição por Estado
         </span>
@@ -211,7 +211,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                     </div>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
-                      color: "var(--nuit-smoke)", marginTop: "4px", display: "block",
+                      color: "var(--nuit-bone-soft)", marginTop: "4px", display: "block",
                     }}>
                       {estado.desc}
                     </span>
@@ -221,13 +221,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   <div style={{ flexShrink: 0, textAlign: "right", minWidth: "60px" }}>
                     <span style={{
                       fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px",
-                      fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
+                      fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke)",
                     }}>
                       {count}
                     </span>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
-                      color: "var(--nuit-smoke)", marginLeft: "4px",
+                      color: "var(--nuit-bone-soft)", marginLeft: "4px",
                     }}>
                       {count === 1 ? "cliente" : "clientes"}
                     </span>
@@ -250,7 +250,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{
         display: "flex", justifyContent: "flex-end", alignItems: "center",
         gap: "6px", marginTop: "12px",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
       }}>
         <BarChart2 size={13} />
         {totalClientes} clientes no total · atualizado a cada 60 s

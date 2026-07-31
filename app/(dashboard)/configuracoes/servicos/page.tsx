@@ -31,7 +31,7 @@ export default async function ConfigServicosPage() {
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "#7a7e8a", lineHeight: 1.6,
+          fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
         }}>
           Gerir serviços, preços base e disponibilidade.
         </p>
@@ -62,7 +62,7 @@ export default async function ConfigServicosPage() {
               {servicos.map(s => (
                 <tr key={s.id} style={{ borderBottom: "1px solid #f2ede6", opacity: s.ativo ? 1 : 0.5 }}>
                   <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "#161a26" }}>{s.nome}</td>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "#7a7e8a" }}>{s.duracaoMinutos} min</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
                   <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#161a26" }}>€{Number(s.precoBase).toFixed(0)}</td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{

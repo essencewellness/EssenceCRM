@@ -99,7 +99,7 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
                 display: "flex", alignItems: "center", gap: "8px",
                 width: "100%", padding: "9px 12px",
                 fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                color: t.id === atualId ? GOLD : "var(--nuit-smoke)",
+                color: t.id === atualId ? GOLD : "var(--nuit-bone-soft)",
                 backgroundColor: t.id === atualId ? "rgba(185,160,122,0.10)" : "transparent",
                 border: "none", cursor: "pointer", textAlign: "left",
                 transition: "background-color 100ms",
@@ -117,7 +117,7 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
               display: "flex", alignItems: "center", gap: "8px",
               width: "100%", padding: "9px 12px",
               fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-              color: !atualId ? "#b06050" : "var(--nuit-smoke-deep)",
+              color: !atualId ? "#b06050" : "var(--nuit-bone-soft)",
               backgroundColor: "transparent",
               border: "none", borderTop: "1px solid rgba(212,184,134,0.12)", cursor: "pointer", textAlign: "left",
             }}

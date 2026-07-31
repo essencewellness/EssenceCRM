@@ -296,11 +296,11 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
                           <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-smoke)" }}>{cliente.totalSessoes} sess.</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{cliente.totalSessoes} sess.</p>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke-deep)" }}>última sessão</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-smoke)" }}>{formatDate(cliente.ultimaSessao)}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
                         <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
@@ -308,7 +308,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
                       </div>
                     </div>
                   </Link>
@@ -372,11 +372,11 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
                           <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{cliente.totalSessoes} sess.</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-smoke)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke-deep)" }}>última sessão</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-smoke)" }}>{formatDate(cliente.ultimaSessao)}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
                         <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
@@ -384,7 +384,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
                       </div>
                     </div>
                   </Link>
@@ -456,7 +456,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                             <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)" }}>{cliente.nome}</span>
                             <EstadoBadgeMini estado={cliente.estado} />
                           </div>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-smoke)", marginTop: "3px" }}>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", marginTop: "3px" }}>
                             {cliente.telefone ?? "sem telefone"} · {cliente.totalSessoes} sessões
                           </p>
                         </div>
@@ -466,7 +466,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           ) : (
                             <>
                               <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 700, color: urgente ? "#b06050" : "var(--nuit-champagne)" }}>{dias} dias</p>
-                              <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)" }}>sem sessão</p>
+                              <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>sem sessão</p>
                             </>
                           )}
                         </div>
@@ -477,7 +477,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
                         {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 600, color: "#b06050" }}>Sem sessão há {dias} dias</span>}
-                        {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-smoke)", fontStyle: "italic" }}>{notasTrunc}</span>}
+                        {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", fontStyle: "italic" }}>{notasTrunc}</span>}
                       </div>
                     </div>
                   </Link>

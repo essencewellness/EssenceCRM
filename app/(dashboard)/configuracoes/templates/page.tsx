@@ -23,7 +23,7 @@ export default async function ConfigTemplatesPage() {
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "#7a7e8a", lineHeight: 1.6,
+          fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
         }}>
           Textos reutilizáveis para comunicação automática com clientes.
         </p>

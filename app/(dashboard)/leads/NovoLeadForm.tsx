@@ -73,24 +73,24 @@ export function NovoLeadForm() {
                 <button onClick={() => setAberto(false)} style={{ color: "#7a7e8a", cursor: "pointer" }}><X size={16} /></button>
               </div>
 
-              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#7a7e8a", marginBottom: "18px", lineHeight: 1.6 }}>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "18px", lineHeight: 1.6 }}>
                 Para quando alguém pergunta pelo WhatsApp/Instagram e depois não diz mais nada — guarda o contacto na mesma.
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7a7e8a" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Nome *
                   <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome da pessoa" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7a7e8a" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Telefone
                   <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="+351 9XX XXX XXX" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7a7e8a" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Email
                   <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemplo.com" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7a7e8a" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Como chegou até nós
                   <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="ex: Instagram, perguntou no balcão…" style={inputStyle} />
                 </label>

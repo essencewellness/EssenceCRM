@@ -2,8 +2,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard, Users, Calendar, CheckSquare,
-  MessageSquare, Megaphone, FileText,
+  LayoutDashboard, Users, UserPlus, Calendar, CheckSquare,
+  MessageSquare, MessageSquareHeart, Megaphone, FileText,
   BarChart2, Star, Shield, Settings, ChevronRight, LogOut,
 } from "lucide-react"
 
@@ -25,6 +25,7 @@ const grupos: NavGroup[] = [
     items: [
       { href: "/",          label: "Dashboard",  icon: LayoutDashboard },
       { href: "/clientes",  label: "Clientes",   icon: Users },
+      { href: "/leads",     label: "Leads",      icon: UserPlus },
       { href: "/sessoes",   label: "Sessões",    icon: Calendar },
       { href: "/tarefas",   label: "Tarefas",    icon: CheckSquare },
     ],
@@ -42,6 +43,7 @@ const grupos: NavGroup[] = [
     items: [
       { href: "/pipeline",      label: "Pipeline",     icon: BarChart2 },
       { href: "/top-clientes",  label: "Top Clientes", icon: Star },
+      { href: "/feedback",      label: "Feedback",     icon: MessageSquareHeart },
       { href: "/financeiro",    label: "Financeiro",   icon: BarChart2 },
     ],
   },
@@ -129,7 +131,7 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9px", fontWeight: 500,
               letterSpacing: "0.32em", textTransform: "uppercase",
-              color: "var(--nuit-smoke-deep)",
+              color: "var(--nuit-bone-soft)",
             }}>
               {grupo.label}
             </div>
@@ -169,7 +171,7 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "12.5px",
                     fontWeight: active ? 500 : 400,
-                    color: active ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                    color: active ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                     letterSpacing: "0.01em",
                     transition: "color var(--dur-fast)",
                   }}>
@@ -204,7 +206,7 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
       }}>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9px", color: "var(--nuit-smoke-deep)",
+          fontSize: "9px", color: "var(--nuit-bone-soft)",
           letterSpacing: "0.18em", textTransform: "uppercase",
         }}>
           Essence Wellness · v1
@@ -217,13 +219,13 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
             style={{
               display: "flex", alignItems: "center", gap: "6px",
               background: "none", border: "none", cursor: "pointer",
-              color: "var(--nuit-smoke-deep)",
+              color: "var(--nuit-bone-soft)",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "11px", letterSpacing: "0.04em",
               padding: "4px 6px",
               transition: "color 150ms",
             }}
-            className="hover:!text-[var(--nuit-smoke)]"
+            className="hover:!text-[var(--nuit-bone-soft)]"
           >
             <LogOut size={12} strokeWidth={1.5} />
             Sair

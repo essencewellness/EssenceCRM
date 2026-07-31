@@ -21,7 +21,7 @@ const labelStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
   fontSize: "10px", fontWeight: 600,
   letterSpacing: "0.22em", textTransform: "uppercase",
-  color: "#7a7e8a", display: "block", marginBottom: "5px",
+  color: "var(--nuit-bone-soft)", display: "block", marginBottom: "5px",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -186,7 +186,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
             <button type="submit" disabled={loading} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
               {loading ? "A criar…" : "Criar"}
             </button>
-            <button type="button" onClick={() => setMostrarFormCriar(false)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "#7a7e8a", cursor: "pointer" }}>
+            <button type="button" onClick={() => setMostrarFormCriar(false)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
               Cancelar
             </button>
           </div>
@@ -221,13 +221,13 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                   </div>
                   <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px", cursor: "pointer" }}>
                     <input type="checkbox" checked={editForm.ativo} onChange={e => setEditForm(f => ({ ...f, ativo: e.target.checked }))} />
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#7a7e8a" }}>Ativo</span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>Ativo</span>
                   </label>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <button onClick={() => handleAtualizar(t.id)} disabled={loading} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
                       Guardar
                     </button>
-                    <button onClick={() => setEditandoId(null)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "#7a7e8a", cursor: "pointer" }}>
+                    <button onClick={() => setEditandoId(null)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
                       Cancelar
                     </button>
                   </div>
@@ -242,7 +242,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                       </p>
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <button onClick={() => iniciarEdicao(t)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "#7a7e8a", cursor: "pointer" }}>
+                      <button onClick={() => iniciarEdicao(t)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
                         Editar
                       </button>
                       <button onClick={() => setConfirmApagarId(t.id)} disabled={loading} style={{ backgroundColor: "transparent", border: "1px solid rgba(176,96,80,0.3)", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "#b06050", cursor: "pointer" }}>
@@ -250,7 +250,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                       </button>
                     </div>
                   </div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#7a7e8a", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{t.texto}</p>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>{t.texto}</p>
                   {t.variaveis.length > 0 && (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
                       {t.variaveis.map(v => (

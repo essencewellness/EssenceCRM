@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 const BONE = "#ece6d6";
 const CHAMPAGNE = "#d4b886";
-const SMOKE = "#7a7e8a";
+const SMOKE = "var(--nuit-bone-soft)";
 const DEEP = "#0e1119";
 const TERRA = "#c98a78";
 

@@ -23,7 +23,7 @@ const labelStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
   fontSize: "10px", fontWeight: 600,
   letterSpacing: "0.22em", textTransform: "uppercase",
-  color: "#7a7e8a", display: "block", marginBottom: "5px",
+  color: "var(--nuit-bone-soft)", display: "block", marginBottom: "5px",
 };
 
 const inputStyle: React.CSSProperties = {

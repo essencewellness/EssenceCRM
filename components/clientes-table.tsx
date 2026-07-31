@@ -46,7 +46,7 @@ const estadoMap: Record<string, { label: string; color: string; bg: string; bord
   vip_embaixadora: { label: "VIP",        color: "#161a26", bg: "#d4b886",                 border: "#d4b886" },
   vip_em_risco:    { label: "Em Risco",   color: "#d4956b", bg: "transparent",             border: "rgba(212,149,107,0.50)" },
   reativacao:      { label: "Reativação", color: "#b06050", bg: "transparent",             border: "rgba(176,96,80,0.45)" },
-  perdida:         { label: "Perdida",    color: "#9499a6", bg: "transparent",             border: "rgba(122,126,138,0.35)" },
+  perdida:         { label: "Perdida",    color: "var(--nuit-bone-soft)", bg: "transparent",             border: "rgba(122,126,138,0.35)" },
   blacklist:       { label: "Blacklist",  color: "#ece6d6", bg: "rgba(22,26,38,0.75)",    border: "rgba(22,26,38,0.60)" },
 }
 
@@ -88,7 +88,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
               padding: "11px 16px",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.16em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
+              color: "var(--nuit-bone-soft)", textTransform: "uppercase",
               textAlign: align,
               backgroundColor: "rgba(212,184,134,0.06)",
             }}>
@@ -174,7 +174,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                 </Link>
               </td>
               <td style={{ padding: "14px 16px" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", textDecoration: "none" }}>
                   {formatPhone(cliente.telefone)}
                 </Link>
               </td>

@@ -18,7 +18,7 @@ export function EdicaoPerfilToggle() {
         cursor: "pointer", transition: "all 0.15s",
         ...(editing
           ? { backgroundColor: "rgba(160,169,150,0.15)", border: "1px solid #a0a996", color: "#a0a996" }
-          : { backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-smoke)" }),
+          : { backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-bone-soft)" }),
       }}
     >
       {editing ? <Check size={13} /> : <Pencil size={13} />}

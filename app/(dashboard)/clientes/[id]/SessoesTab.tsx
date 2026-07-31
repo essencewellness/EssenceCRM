@@ -91,7 +91,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
       </div>
 
       {temCabecalho && (
-        <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-smoke)", margin: "0 0 12px", lineHeight: 1.6 }}>
+        <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", margin: "0 0 12px", lineHeight: 1.6 }}>
           {sessao.estadoEmocional && <>Chegou <strong style={{ color: "var(--nuit-bone)", fontWeight: 600 }}>{sessao.estadoEmocional}</strong>. </>}
           {aromaTipo && <>Aroma: <strong style={{ color: "var(--nuit-bone)", fontWeight: 600 }}>{aromaTipo}</strong>{aromaDetalhe ? ` (${aromaDetalhe})` : ""}.</>}
         </p>
@@ -119,7 +119,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
 
       {privadas && (
         <p style={{
-          fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-smoke)",
+          fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-bone-soft)",
           lineHeight: 1.7, whiteSpace: "pre-wrap", fontStyle: "italic", margin: 0,
         }}>
           {privadas}
@@ -142,7 +142,7 @@ function formatarAroma(texto: string) {
     <>
       {tipo}
       <div style={{
-        fontSize: "11.5px", color: "var(--nuit-smoke)", marginTop: "3px",
+        fontSize: "11.5px", color: "var(--nuit-bone-soft)", marginTop: "3px",
         whiteSpace: "pre-wrap", lineHeight: 1.5, fontStyle: "normal",
       }}>
         {detalhe}
@@ -157,10 +157,10 @@ function SessaoEstadoBadge({ estado }: { estado: string }) {
     agendada:   { label: "Agendada",   color: "#b9a07a", bg: "rgba(185,160,122,0.10)", Icon: Clock },
     confirmada: { label: "Confirmada", color: "#8a9bb0", bg: "rgba(138,155,176,0.12)", Icon: CheckCircle2 },
     cancelada:  { label: "Cancelada",  color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
-    concluida:  { label: "Concluída",  color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", Icon: CheckCircle2 },
+    concluida:  { label: "Concluída",  color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", Icon: CheckCircle2 },
     falta:      { label: "Falta",      color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
   }
-  const cfg = map[estado] ?? { label: estado, color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)", Icon: Clock }
+  const cfg = map[estado] ?? { label: estado, color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", Icon: Clock }
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: "5px",
@@ -182,7 +182,7 @@ function DetailItem({ label, value }: { label: string; value: string | null | un
       <p style={{
         fontFamily: "var(--font-sans, sans-serif)",
         fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-        color: "var(--nuit-smoke)", textTransform: "uppercase", marginBottom: "4px",
+        color: "var(--nuit-bone-soft)", textTransform: "uppercase", marginBottom: "4px",
       }}>
         {label}
       </p>
@@ -271,7 +271,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
   )
   if (!temConteudo) return null
 
-  const rotulo = { fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase" as const, marginBottom: "10px" }
+  const rotulo = { fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" as const, marginBottom: "10px" }
 
   return (
     <div style={{
@@ -283,7 +283,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
         <Sparkles size={13} color="#b9a07a" />
         <p style={{ ...rotulo, marginBottom: 0, color: "#b9a07a" }}>Ficha da terapeuta (gerada por IA)</p>
         {b.tipo_cliente && (
-          <span style={{ marginLeft: "auto", fontSize: "10px", fontWeight: 600, color: "var(--nuit-smoke)", fontFamily: "var(--font-sans)" }}>
+          <span style={{ marginLeft: "auto", fontSize: "10px", fontWeight: 600, color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
             {b.tipo_cliente}{b.contagem_visitas ? ` · ${b.contagem_visitas}ª visita` : ""}
           </span>
         )}
@@ -317,7 +317,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
                   <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>{z.zona}</span>
                 </div>
                 {(z.prioridade || z.motivo) && (
-                  <div style={{ fontSize: "11px", color: "var(--nuit-smoke)", marginBottom: "4px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "4px" }}>
                     {z.prioridade && <strong style={{ color: "#b9a07a" }}>{z.prioridade}</strong>}
                     {z.prioridade && z.motivo ? " · " : ""}
                     {z.motivo}
@@ -412,7 +412,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
           <CalendarDays size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
+            fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
           }}>
             Nenhuma sessão registada
           </p>
@@ -435,7 +435,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                 <TableHead key={h} style={{
                   fontFamily: "var(--font-sans, sans-serif)",
                   fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em",
-                  color: "var(--nuit-smoke)", textTransform: "uppercase",
+                  color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>
                   {h}
                 </TableHead>
@@ -544,7 +544,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                       ))}
                     </select>
                     {isPending && (
-                      <span style={{ fontSize: "10px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans)" }}>
+                      <span style={{ fontSize: "10px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
                         A guardar…
                       </span>
                     )}
@@ -564,7 +564,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   </div>
                   <p style={{
                     fontFamily: "var(--font-body, sans-serif)",
-                    fontSize: "13px", color: "var(--nuit-smoke)",
+                    fontSize: "13px", color: "var(--nuit-bone-soft)",
                   }}>
                     {formatDate(sessaoAberta.data as Date)}
                     {sessaoAberta.hora ? ` · ${sessaoAberta.hora}` : ""}
@@ -610,7 +610,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                         style={{
                           padding: "4px 10px", fontSize: "10px", fontWeight: 600,
                           fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
-                          background: "transparent", color: "var(--nuit-smoke)",
+                          background: "transparent", color: "var(--nuit-bone-soft)",
                           border: "1px solid rgba(212,184,134,0.22)", borderRadius: "4px",
                           cursor: "pointer",
                         }}
@@ -624,7 +624,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                     aria-label="Fechar detalhe da sessão"
                     style={{
                       background: "none", border: "none", cursor: "pointer",
-                      color: "var(--nuit-smoke)", padding: "4px",
+                      color: "var(--nuit-bone-soft)", padding: "4px",
                     }}
                   >
                     <X size={18} />

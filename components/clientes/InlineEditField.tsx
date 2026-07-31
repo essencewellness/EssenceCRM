@@ -46,7 +46,7 @@ function formatarExibicao(v: Valor, type: TipoCampo, options?: Opcao[]): string 
 const rotuloStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
   fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-  color: "var(--nuit-smoke)", textTransform: "uppercase",
+  color: "var(--nuit-bone-soft)", textTransform: "uppercase",
 }
 
 const inputBaseStyle: React.CSSProperties = {
@@ -180,7 +180,7 @@ export function InlineEditField({
             background: "none", border: "none", padding: 0,
             cursor: readOnly ? "default" : "pointer",
             fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
-            color: valorLocal ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+            color: valorLocal ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
             opacity: isPending ? 0.6 : 1,
           }}
         >
@@ -276,7 +276,7 @@ export function InlineEditField({
         {!hideLabel && <span style={rotuloStyle}>{label}</span>}
         <span style={{
           fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
-          color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
+          color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
           fontStyle: textoExibido ? "normal" : "italic",
           ...(semTruncar
             ? { whiteSpace: "pre-wrap", lineHeight: 1.7 }
@@ -304,7 +304,7 @@ export function InlineEditField({
           borderRadius: "4px", cursor: readOnly ? "default" : "pointer",
           textAlign: "left", width: semTruncar ? "100%" : "fit-content", maxWidth: "100%",
           fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
-          color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
+          color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
           fontStyle: textoExibido ? "normal" : "italic",
           transition: "background-color 0.15s",
           opacity: isPending ? 0.6 : 1,

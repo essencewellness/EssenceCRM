@@ -57,7 +57,7 @@ export function ClientePerfilTabs({ tabs, defaultValue }: ClientePerfilTabsProps
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "12.5px",
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                color: isActive ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                 letterSpacing: "0.01em",
                 transition: "color 180ms ease",
                 whiteSpace: "nowrap",
@@ -73,7 +73,7 @@ export function ClientePerfilTabs({ tabs, defaultValue }: ClientePerfilTabsProps
                   minWidth: "16px", height: "16px", padding: "0 4px",
                   fontSize: "9px", fontWeight: 700,
                   backgroundColor: isActive ? "var(--nuit-champagne)" : "rgba(185,160,122,0.3)",
-                  color: isActive ? "var(--nuit-midnight)" : "var(--nuit-smoke)",
+                  color: isActive ? "var(--nuit-midnight)" : "var(--nuit-bone-soft)",
                   borderRadius: "100px",
                   transition: "background-color 180ms ease, color 180ms ease",
                 }}>

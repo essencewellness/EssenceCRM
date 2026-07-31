@@ -89,7 +89,7 @@ export function KpiCardPremium({
         {prefix && (
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "14px", fontWeight: 400, color: "var(--nuit-smoke)",
+            fontSize: "14px", fontWeight: 400, color: "var(--nuit-bone-soft)",
           }}>{prefix}</span>
         )}
         <span style={{
@@ -102,7 +102,7 @@ export function KpiCardPremium({
         {suffix && (
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "16px", fontWeight: 400, color: "var(--nuit-smoke)",
+            fontSize: "16px", fontWeight: 400, color: "var(--nuit-bone-soft)",
           }}>{suffix}</span>
         )}
       </div>
@@ -111,7 +111,7 @@ export function KpiCardPremium({
       {descricao && (
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", color: "var(--nuit-smoke)",
+          fontSize: "11px", color: "var(--nuit-bone-soft)",
           lineHeight: 1.4,
         }}>
           {descricao}

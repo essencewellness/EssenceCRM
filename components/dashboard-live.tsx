@@ -38,7 +38,7 @@ const ESTADOS: Record<string, { label: string; color: string; bg: string; border
   agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.25)" },
   confirmada:{ label: "Confirmada",color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
   cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)",   border: "rgba(176,96,80,0.20)"  },
-  concluida: { label: "Concluída", color: "#9499a6", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
+  concluida: { label: "Concluída", color: "var(--nuit-bone-soft)", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
 }
 
 function BadgeEstado({ estado }: { estado: string }) {
@@ -198,7 +198,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
+              color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Sessões de Hoje
             </h2>
@@ -214,7 +214,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
           </div>
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", color: "var(--nuit-smoke-deep)",
+            fontSize: "12px", color: "var(--nuit-bone-soft)",
           }}>
             {sessoes.filter(s => s.estado === "confirmada").length} confirmada(s)
           </span>
@@ -283,7 +283,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           </Link>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "2px",
+            fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "2px",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {sessao.servico ?? "Sessão"}
@@ -341,7 +341,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
+              color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Para Enviar Hoje
             </h2>
@@ -383,7 +383,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
           >
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
+              fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
             }}>
               Sem mensagens aprovadas por enviar.
             </p>
@@ -453,7 +453,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         </div>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "2px",
+          fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "2px",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {mensagem.preview}
@@ -528,7 +528,7 @@ export function ProximosDiasCard({
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-              color: "var(--nuit-smoke)", textTransform: "uppercase",
+              color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               {isHero ? "Próximas Sessões" : "Próximos 7 Dias"}
             </h2>
@@ -547,7 +547,7 @@ export function ProximosDiasCard({
           {totalSessoes > 0 && (
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-smoke-deep)",
+              fontSize: "12px", color: "var(--nuit-bone-soft)",
             }}>
               {totalSessoes} sessão{totalSessoes !== 1 ? "ões" : ""} agendada{totalSessoes !== 1 ? "s" : ""}
             </span>
@@ -559,7 +559,7 @@ export function ProximosDiasCard({
             <div style={{ padding: "32px 20px", textAlign: "center" }}>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)",
-                fontStyle: "italic", fontSize: "14px", color: "var(--nuit-smoke)",
+                fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
               }}>
                 Sem sessões nos próximos 7 dias.
               </p>
@@ -584,13 +584,13 @@ export function ProximosDiasCard({
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
                       fontSize: "9.5px", fontWeight: 700,
-                      letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--nuit-smoke)",
+                      letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--nuit-bone-soft)",
                     }}>
                       {dia.diaSemana}
                     </span>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "10px", color: "var(--nuit-smoke-deep)",
+                      fontSize: "10px", color: "var(--nuit-bone-soft)",
                     }}>
                       {dia.dataCurta}
                     </span>
@@ -598,7 +598,7 @@ export function ProximosDiasCard({
                       display: "flex", alignItems: "center", justifyContent: "center",
                       minWidth: "16px", height: "16px",
                       fontSize: "9px", fontWeight: 600,
-                      backgroundColor: "rgba(212,184,134,0.10)", color: "var(--nuit-smoke)",
+                      backgroundColor: "rgba(212,184,134,0.10)", color: "var(--nuit-bone-soft)",
                       fontFamily: "var(--font-sans, sans-serif)",
                     }}>
                       {dia.sessoes.length}
@@ -639,7 +639,7 @@ export function ProximosDiasCard({
                         <span style={{
                           flexShrink: 0,
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", color: "var(--nuit-smoke)",
+                          fontSize: "11px", color: "var(--nuit-bone-soft)",
                         }}>
                           {s.terapeuta}
                         </span>
@@ -689,7 +689,7 @@ export function TarefasWidget({
           display: "flex", alignItems: "center", gap: "8px",
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-          color: "var(--nuit-smoke)", textTransform: "uppercase",
+          color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>
           <CheckSquare size={13} style={{ color: "var(--nuit-champagne-soft)" }} />
           As minhas tarefas
@@ -726,7 +726,7 @@ export function TarefasWidget({
                     {t.cliente && (
                       <p style={{
                         fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "11px", color: "var(--nuit-smoke)",
+                        fontSize: "11px", color: "var(--nuit-bone-soft)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{t.cliente.nome}</p>
                     )}
@@ -761,7 +761,7 @@ export function TarefasWidget({
                     {t.cliente && (
                       <p style={{
                         fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "11px", color: "var(--nuit-smoke)",
+                        fontSize: "11px", color: "var(--nuit-bone-soft)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{t.cliente.nome}</p>
                     )}
@@ -781,7 +781,7 @@ export function TarefasWidget({
           <CheckSquare size={28} style={{ color: "var(--nuit-smoke-deep)", marginBottom: "8px" }} />
           <p style={{
             fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-            fontSize: "14px", color: "var(--nuit-smoke)",
+            fontSize: "14px", color: "var(--nuit-bone-soft)",
           }}>Nenhuma tarefa para hoje</p>
           <Link href="/tarefas" style={{
             fontFamily: "var(--font-sans, sans-serif)",
@@ -837,7 +837,7 @@ export function AlertasWidget({
         <h3 style={{
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-          color: "var(--nuit-smoke)", textTransform: "uppercase",
+          color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>Alertas</h3>
       </div>
 
@@ -856,7 +856,7 @@ export function AlertasWidget({
               }}>Clientes em risco</p>
               <p style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", color: "var(--nuit-smoke)",
+                fontSize: "11px", color: "var(--nuit-bone-soft)",
               }}>VIP em risco + reativação</p>
             </div>
             <span style={{
@@ -878,7 +878,7 @@ export function AlertasWidget({
             <p key={s.id} style={{
               display: "flex", justifyContent: "space-between",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-smoke)",
+              fontSize: "12px", color: "var(--nuit-bone-soft)",
               padding: "2px 0",
             }}>
               <span>{s.cliente.nome}</span>
@@ -901,7 +901,7 @@ export function AlertasWidget({
                 display: "flex", justifyContent: "space-between",
                 padding: "3px 0", textDecoration: "none",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "12px", color: "var(--nuit-smoke)",
+                fontSize: "12px", color: "var(--nuit-bone-soft)",
               }}>
                 <span>{c.nome}</span>
               </Link>
@@ -914,7 +914,7 @@ export function AlertasWidget({
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 0" }}>
           <p style={{
             fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-            fontSize: "14px", color: "var(--nuit-smoke)",
+            fontSize: "14px", color: "var(--nuit-bone-soft)",
           }}>Nenhum alerta activo</p>
         </div>
       )}
@@ -947,7 +947,7 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
         <h3 style={{
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-          color: "var(--nuit-smoke)", textTransform: "uppercase",
+          color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>Clientes a reativar</h3>
         <Link href="/clientes?estado=reativacao" style={{
           fontFamily: "var(--font-sans, sans-serif)",
@@ -959,7 +959,7 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
       {clientes.length === 0 ? (
         <p style={{
           fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-          fontSize: "14px", color: "var(--nuit-smoke)",
+          fontSize: "14px", color: "var(--nuit-bone-soft)",
           textAlign: "center", padding: "24px 0",
         }}>Nenhuma cliente inativa</p>
       ) : (

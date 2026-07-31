@@ -127,7 +127,7 @@ function TudoFeitoState() {
         transition={{ delay: 0.48 }}
         style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "var(--nuit-smoke)", marginTop: "8px",
+          fontSize: "13px", color: "var(--nuit-bone-soft)", marginTop: "8px",
         }}
       >
         As mensagens estão na fila e saem espaçadas automaticamente.
@@ -228,10 +228,10 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
               border: `1px dashed rgba(185,160,122,0.35)`,
             }}
           >
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "16px", color: "var(--nuit-smoke)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "16px", color: "var(--nuit-bone-soft)" }}>
               Nenhuma mensagem pendente
             </p>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)", marginTop: "6px" }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "6px" }}>
               Assim que a IA gerar novas mensagens, aparecem aqui para aprovares.
             </p>
           </motion.div>

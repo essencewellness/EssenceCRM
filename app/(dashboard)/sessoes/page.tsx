@@ -13,7 +13,7 @@ const ESTADO_SESSAO: Record<string, { label: string; color: string; bg: string }
   confirmada:        { label: "Confirmada",         color: "#7a9e7e", bg: "rgba(122,158,126,0.10)" },
   aguarda_terapeuta: { label: "Aguarda terapeuta",  color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
   realizada:         { label: "Realizada",          color: "#7a9e7e", bg: "rgba(122,158,126,0.12)" },
-  cancelada:         { label: "Cancelada",          color: "var(--nuit-smoke)", bg: "rgba(157,157,154,0.10)" },
+  cancelada:         { label: "Cancelada",          color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" },
   falta:             { label: "Falta",              color: "#b06050", bg: "rgba(176,96,80,0.10)"   },
 };
 
@@ -131,7 +131,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <span style={{
                 fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-                fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)", textTransform: "uppercase",
+                fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
               }}>{label}</span>
               {icon}
             </div>
@@ -152,7 +152,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
               border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
-              color: ativo ? "#b9a07a" : "var(--nuit-smoke)",
+              color: ativo ? "#b9a07a" : "var(--nuit-bone-soft)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
@@ -166,7 +166,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
               border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
-              color: ativo ? "#b9a07a" : "var(--nuit-smoke)",
+              color: ativo ? "#b9a07a" : "var(--nuit-bone-soft)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
@@ -187,7 +187,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <Calendar size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic",
-              fontSize: "14px", color: "var(--nuit-smoke)",
+              fontSize: "14px", color: "var(--nuit-bone-soft)",
             }}>
               Nenhuma sessão encontrada.
             </p>
@@ -204,7 +204,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
               {["Data", "Cliente", "Serviço", "Terapeuta", "Estado"].map((col) => (
                 <span key={col} style={{
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
-                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-smoke)",
+                  fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)",
                   textTransform: "uppercase",
                 }}>{col}</span>
               ))}
@@ -237,7 +237,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                     }}>
                       {isHoje ? "Hoje" : formatDate(sessao.data)}
                       {sessao.hora && (
-                        <span style={{ color: "var(--nuit-smoke)", marginLeft: "6px" }}>{sessao.hora}</span>
+                        <span style={{ color: "var(--nuit-bone-soft)", marginLeft: "6px" }}>{sessao.hora}</span>
                       )}
                     </span>
 
@@ -251,7 +251,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                       {sessao.cliente.telefone && (
                         <span style={{
                           fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-                          color: "var(--nuit-smoke)", marginLeft: "8px",
+                          color: "var(--nuit-bone-soft)", marginLeft: "8px",
                         }}>
                           {sessao.cliente.telefone}
                         </span>
@@ -267,7 +267,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: "var(--nuit-smoke)", textTransform: "capitalize",
+                      color: "var(--nuit-bone-soft)", textTransform: "capitalize",
                     }}>
                       {sessao.terapeuta ?? "—"}
                     </span>
@@ -293,7 +293,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       {sessoes.length === 100 && (
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-          color: "var(--nuit-smoke)", textAlign: "center", marginTop: "16px",
+          color: "var(--nuit-bone-soft)", textAlign: "center", marginTop: "16px",
         }}>
           A mostrar as últimas 100 sessões. Usa os filtros para refinar.
         </p>

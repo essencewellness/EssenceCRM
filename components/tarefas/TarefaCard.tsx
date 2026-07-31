@@ -67,7 +67,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
             </span>
             <span className="font-medium text-sm text-[#ece6d6] truncate">{tarefa.titulo}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-[#7a7e8a] flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-[var(--nuit-bone-soft)] flex-wrap">
             {tarefa.cliente && (
               <span className="flex items-center gap-1">
                 <User className="w-3 h-3" />
@@ -99,7 +99,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
           {tarefa.descricao && (
             <p className="text-sm text-[#d8d2c2] mb-3">{tarefa.descricao}</p>
           )}
-          <div className="flex items-center gap-2 text-xs text-[#7a7e8a] mb-3">
+          <div className="flex items-center gap-2 text-xs text-[var(--nuit-bone-soft)] mb-3">
             <span>Tipo: {tarefa.tipo.replace("_", " ")}</span>
             {tarefa.atribuida?.name && <span>· Atribuída a: {tarefa.atribuida.name}</span>}
           </div>
@@ -115,7 +115,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
               <button
                 onClick={cancelar}
                 disabled={loading}
-                className="flex items-center gap-1 text-xs font-medium text-[#7a7e8a] hover:text-red-400 cursor-pointer"
+                className="flex items-center gap-1 text-xs font-medium text-[var(--nuit-bone-soft)] hover:text-red-400 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" /> Cancelar
               </button>

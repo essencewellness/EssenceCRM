@@ -59,7 +59,7 @@ export function NuitMotionTabs({ tabs, defaultValue, className }: NuitMotionTabs
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "12px",
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                color: isActive ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                 letterSpacing: "0.01em",
                 transition: "color 180ms ease",
                 whiteSpace: "nowrap",

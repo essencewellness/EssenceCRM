@@ -200,7 +200,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
             display: "inline-flex", alignItems: "center", gap: "5px",
             padding: "5px 10px", borderRadius: "100px",
             fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
-            fontWeight: 500, color: "var(--nuit-smoke)",
+            fontWeight: 500, color: "var(--nuit-bone-soft)",
             backgroundColor: "transparent", border: "1px dashed rgba(212,184,134,0.28)",
             cursor: "pointer",
           }}
@@ -260,7 +260,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     {/* Lista */}
                     <div style={{ maxHeight: "200px", overflowY: "auto" }}>
                       {filtradas.length === 0 && !pesquisa && (
-                        <p style={{ padding: "12px", fontSize: "12px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
+                        <p style={{ padding: "12px", fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
                           Todas as etiquetas já atribuídas
                         </p>
                       )}
@@ -282,7 +282,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         >
                           <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: tag.cor, flexShrink: 0 }} />
                           {tag.nome}
-                          <span style={{ marginLeft: "auto", fontSize: "10px", color: "var(--nuit-smoke)" }}>
+                          <span style={{ marginLeft: "auto", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>
                             {TIPO_ETIQUETA_LABELS[tag.tipo]}
                           </span>
                         </motion.button>
@@ -349,7 +349,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                             fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                             letterSpacing: "0.08em", textTransform: "uppercase",
                             border: "1px solid", cursor: "pointer",
-                            color: novoTipo === t ? "#b9a07a" : "var(--nuit-smoke)",
+                            color: novoTipo === t ? "#b9a07a" : "var(--nuit-bone-soft)",
                             borderColor: novoTipo === t ? "rgba(185,160,122,0.5)" : "rgba(212,184,134,0.18)",
                             backgroundColor: novoTipo === t ? "rgba(185,160,122,0.08)" : "transparent",
                             transition: "all 150ms",
@@ -367,7 +367,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           checked={novoBloqueio}
                           onChange={e => setNovoBloqueio(e.target.checked)}
                         />
-                        <span style={{ fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)" }}>
+                        <span style={{ fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)" }}>
                           Bloquear automações
                         </span>
                       </label>
@@ -414,7 +414,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         style={{
                           flex: 1, padding: "7px", borderRadius: "4px", fontSize: "12px",
                           fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
-                          border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-smoke)", backgroundColor: "transparent", cursor: "pointer",
+                          border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-bone-soft)", backgroundColor: "transparent", cursor: "pointer",
                         }}
                       >
                         Cancelar

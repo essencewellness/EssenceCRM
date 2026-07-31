@@ -36,7 +36,7 @@ export function FiltroTerapeuta({ terapeutas }: { terapeutas: Terapeuta[] }) {
         height: "30px", padding: "0 12px", borderRadius: "100px",
         fontSize: "11px", fontWeight: 600,
         fontFamily: "var(--font-sans, sans-serif)",
-        color: isActive ? GOLD : "#7a7e8a",
+        color: isActive ? GOLD : "var(--nuit-bone-soft)",
         backgroundColor: isActive ? "rgba(185,160,122,0.10)" : "transparent",
         border: isActive ? "1px solid rgba(185,160,122,0.35)" : "1px solid rgba(122,126,138,0.22)",
         textDecoration: "none", transition: "all 150ms",

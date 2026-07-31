@@ -20,7 +20,7 @@ const INK = "var(--nuit-bone)";
 const CHAMPAGNE = "#b9a07a";
 const SAGE = "#7a9e7e";
 const TERRA = "#b06050";
-const SMOKE = "var(--nuit-smoke)";
+const SMOKE = "var(--nuit-bone-soft)";
 const CARD = "var(--nuit-overlay)";
 const BORDER = "rgba(212,184,134,0.16)";
 

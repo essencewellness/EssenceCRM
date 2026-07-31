@@ -125,7 +125,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
             padding: "20px", backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.18)",
             borderRadius: "6px", maxWidth: "400px",
           }}>
-            <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "14px" }}>
+            <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "14px" }}>
               Nova Etiqueta
             </p>
 
@@ -143,7 +143,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
                   flex: 1, padding: "6px 0", borderRadius: "4px", fontSize: "10px",
                   fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                   letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
-                  color: novoTipo === t ? "#b9a07a" : "var(--nuit-smoke)",
+                  color: novoTipo === t ? "#b9a07a" : "var(--nuit-bone-soft)",
                   border: `1px solid ${novoTipo === t ? "rgba(185,160,122,0.5)" : "rgba(212,184,134,0.18)"}`,
                   backgroundColor: novoTipo === t ? "rgba(185,160,122,0.08)" : "transparent",
                 }}>
@@ -155,7 +155,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
             {novoTipo === "saude" && (
               <label style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", cursor: "pointer" }}>
                 <input type="checkbox" checked={novoBloqueio} onChange={e => setNovoBloqueio(e.target.checked)} />
-                <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)" }}>Bloquear automações</span>
+                <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)" }}>Bloquear automações</span>
               </label>
             )}
 
@@ -172,7 +172,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
             {erroNovo && <p style={{ fontSize: "11px", color: "#b06050", marginBottom: "10px", fontFamily: "var(--font-sans, sans-serif)" }}>{erroNovo}</p>}
 
             <div style={{ display: "flex", gap: "8px" }}>
-              <button onClick={() => { setMostraCriar(false); setErroNovo("") }} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-smoke)", backgroundColor: "transparent", cursor: "pointer" }}>
+              <button onClick={() => { setMostraCriar(false); setErroNovo("") }} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", backgroundColor: "transparent", cursor: "pointer" }}>
                 Cancelar
               </button>
               <button onClick={handleCriar} disabled={!novoNome.trim() || isPending} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "#b9a07a", cursor: novoNome.trim() ? "pointer" : "not-allowed", opacity: novoNome.trim() ? 1 : 0.5 }}>
@@ -204,7 +204,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
           <div key={tipo} style={{ marginBottom: "28px" }}>
             <p style={{
               fontSize: "9px", fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase",
-              color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "10px",
+              color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "10px",
               borderBottom: "1px solid rgba(212,184,134,0.12)", paddingBottom: "8px",
             }}>
               {TIPO_ETIQUETA_LABELS[tipo]}
@@ -234,7 +234,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
                           autoFocus
                         />
                         {tag.tipo === "saude" && (
-                          <label style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", cursor: "pointer", flexShrink: 0 }}>
+                          <label style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", cursor: "pointer", flexShrink: 0 }}>
                             <input type="checkbox" checked={editBloqueio} onChange={e => setEditBloqueio(e.target.checked)} />
                             Bloquear
                           </label>

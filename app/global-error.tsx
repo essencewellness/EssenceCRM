@@ -26,11 +26,11 @@ export default function GlobalError({
               Essence Wellness · CRM
             </p>
             <h1 style={{ fontSize: "22px", marginBottom: "10px" }}>Ocorreu um erro grave</h1>
-            <p style={{ fontSize: "13px", color: "#7a7e8a", marginBottom: "20px" }}>
+            <p style={{ fontSize: "13px", color: "#d8d2c2", marginBottom: "20px" }}>
               A aplicação encontrou um problema inesperado. Recarrega a página.
             </p>
             {error.digest && (
-              <p style={{ fontSize: "10px", color: "#7a7e8a", wordBreak: "break-all" }}>
+              <p style={{ fontSize: "10px", color: "#d8d2c2", wordBreak: "break-all" }}>
                 Referência: {error.digest}
               </p>
             )}

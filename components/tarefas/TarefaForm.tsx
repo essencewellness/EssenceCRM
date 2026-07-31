@@ -48,7 +48,7 @@ export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaForm
     return (
       <button
         onClick={() => setShow(true)}
-        className="flex items-center gap-1.5 text-sm text-[#7a7e8a] hover:text-[#d4b886] transition-colors cursor-pointer py-2"
+        className="flex items-center gap-1.5 text-sm text-[var(--nuit-bone-soft)] hover:text-[#d4b886] transition-colors cursor-pointer py-2"
       >
         <Plus className="w-4 h-4" />
         {compact ? "Nova tarefa" : "Adicionar tarefa..."}
@@ -63,7 +63,7 @@ export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaForm
         value={titulo}
         onChange={(e) => setTitulo(e.target.value)}
         placeholder="Título da tarefa..."
-        className="w-full text-sm border-0 outline-none focus:ring-0 bg-transparent text-[#ece6d6] placeholder:text-[#7a7e8a]"
+        className="w-full text-sm border-0 outline-none focus:ring-0 bg-transparent text-[#ece6d6] placeholder:text-[var(--nuit-bone-soft)]"
         onKeyDown={(e) => { if (e.key === "Escape") setShow(false) }}
       />
       <div className="flex items-center gap-3 flex-wrap">
@@ -98,7 +98,7 @@ export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaForm
           <button
             type="button"
             onClick={() => setShow(false)}
-            className="text-xs text-[#7a7e8a] hover:text-[#d8d2c2] cursor-pointer px-2 py-1"
+            className="text-xs text-[var(--nuit-bone-soft)] hover:text-[#d8d2c2] cursor-pointer px-2 py-1"
           >
             Cancelar
           </button>

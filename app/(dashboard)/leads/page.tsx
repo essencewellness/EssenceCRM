@@ -55,7 +55,7 @@ export default async function LeadsPage() {
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <UserPlus size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-smoke)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)" }}>
               Nenhuma lead por agora
             </p>
           </div>
@@ -69,7 +69,7 @@ export default async function LeadsPage() {
                       padding: "11px 16px", textAlign: "left",
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700,
                       letterSpacing: "0.16em", textTransform: "uppercase",
-                      color: "var(--nuit-smoke)", backgroundColor: "rgba(212,184,134,0.06)",
+                      color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)",
                     }}>
                       {h}
                     </th>
@@ -84,10 +84,10 @@ export default async function LeadsPage() {
                         {lead.nome}
                       </Link>
                     </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)" }}>
+                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                       {formatPhone(lead.telefone)}
                     </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)" }}>
+                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                       {lead.email ?? "—"}
                     </td>
                     <td style={{ padding: "13px 16px" }}>
@@ -101,7 +101,7 @@ export default async function LeadsPage() {
                         </span>
                       ) : "—"}
                     </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)" }}>
+                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                       {formatDate(lead.criadoEm)}
                     </td>
                   </tr>

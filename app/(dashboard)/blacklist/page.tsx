@@ -132,7 +132,7 @@ export default async function BlacklistPage() {
                     padding: "10px 16px",
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-                    color: "var(--nuit-smoke)", textTransform: "uppercase",
+                    color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                     textAlign: i === 5 ? "center" : "left",
                     backgroundColor: "rgba(212,184,134,0.06)",
                   }}>
@@ -173,7 +173,7 @@ export default async function BlacklistPage() {
                       </div>
                     </td>
                     <td style={{ padding: "13px 16px" }}>
-                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)" }}>
+                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
                         {formatPhone(c.telefone)}
                       </span>
                     </td>
@@ -188,7 +188,7 @@ export default async function BlacklistPage() {
                     </td>
                     <td style={{ padding: "13px 16px" }}>
                       <span style={{
-                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "var(--nuit-smoke)",
+                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
                         fontStyle: motivo === "—" ? "italic" : "normal",
                         display: "block", maxWidth: "160px",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -212,11 +212,11 @@ export default async function BlacklistPage() {
                             padding: "4px 8px", borderRadius: "6px",
                             fontFamily: "var(--font-sans, sans-serif)",
                             fontSize: "10px", fontWeight: 500,
-                            color: "var(--nuit-smoke)",
+                            color: "var(--nuit-bone-soft)",
                             letterSpacing: "0.06em",
                             transition: "all 150ms",
                           }}
-                          className="hover:text-[var(--nuit-smoke)] hover:bg-[rgba(212,184,134,0.06)]"
+                          className="hover:text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
                         >
                           remover
                         </button>
@@ -233,7 +233,7 @@ export default async function BlacklistPage() {
       {/* Disclaimer */}
       <p style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "10px", color: "var(--nuit-smoke)",
+        fontSize: "10px", color: "var(--nuit-bone-soft)",
         textAlign: "center", marginTop: "20px",
         fontStyle: "italic",
       }}>

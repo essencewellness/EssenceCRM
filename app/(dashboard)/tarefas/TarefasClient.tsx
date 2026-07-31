@@ -79,7 +79,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           height: "30px", padding: "0 12px", borderRadius: "100px",
           fontSize: "11px", fontWeight: 600,
           fontFamily: "var(--font-sans, sans-serif)",
-          color: active ? GOLD : "#7a7e8a",
+          color: active ? GOLD : "var(--nuit-bone-soft)",
           backgroundColor: active ? "rgba(185,160,122,0.10)" : "transparent",
           border: active ? "1px solid rgba(185,160,122,0.35)" : "1px solid rgba(122,126,138,0.22)",
           cursor: "pointer", transition: "all 150ms",
@@ -96,7 +96,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#ece6d6]">Tarefas</h1>
-          <p className="text-sm text-[#7a7e8a] mt-0.5">
+          <p className="text-sm text-[var(--nuit-bone-soft)] mt-0.5">
             {tarefasAtivas.length} ativa{tarefasAtivas.length !== 1 ? "s" : ""}
             {vencidas > 0 && (
               <span className="ml-2 text-red-500 font-medium">
@@ -121,7 +121,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
             <button
               onClick={() => setVista("lista")}
               className={`p-2 transition-colors cursor-pointer ${
-                vista === "lista" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[#7a7e8a] hover:bg-[rgba(212,184,134,0.06)]"
+                vista === "lista" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
               }`}
               title="Vista em lista"
             >
@@ -130,7 +130,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
             <button
               onClick={() => setVista("kanban")}
               className={`p-2 transition-colors cursor-pointer ${
-                vista === "kanban" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[#7a7e8a] hover:bg-[rgba(212,184,134,0.06)]"
+                vista === "kanban" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
               }`}
               title="Vista kanban"
             >
@@ -185,7 +185,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           {(filtroEstado || filtroPrioridade || filtroTipo) && (
             <button
               onClick={() => { setFiltroEstado(""); setFiltroPrioridade(""); setFiltroTipo("") }}
-              className="text-sm text-[#7a7e8a] hover:text-[#d8d2c2] cursor-pointer"
+              className="text-sm text-[var(--nuit-bone-soft)] hover:text-[#d8d2c2] cursor-pointer"
             >
               Limpar filtros
             </button>

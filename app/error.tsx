@@ -71,7 +71,7 @@ export default function ErrorBoundary({
         <p
           style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            color: "var(--nuit-smoke)",
+            color: "var(--nuit-bone-soft)",
             fontSize: "13px",
             lineHeight: 1.6,
             marginBottom: "28px",
@@ -85,7 +85,7 @@ export default function ErrorBoundary({
           <p
             style={{
               fontFamily: "var(--font-sans, monospace)",
-              color: "var(--nuit-smoke-deep)",
+              color: "var(--nuit-bone-soft)",
               fontSize: "10px",
               marginBottom: "24px",
               wordBreak: "break-all",
@@ -124,7 +124,7 @@ export default function ErrorBoundary({
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 500,
-              color: "var(--nuit-smoke)",
+              color: "var(--nuit-bone-soft)",
               padding: "10px 12px",
             }}
           >

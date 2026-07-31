@@ -43,7 +43,7 @@ export function CampanhasClient({ campanhas }: Props) {
       >
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          color: "var(--nuit-smoke)", fontSize: "13px",
+          color: "var(--nuit-bone-soft)", fontSize: "13px",
         }}>
           Nenhuma campanha criada ainda.
         </p>
@@ -91,7 +91,7 @@ export function CampanhasClient({ campanhas }: Props) {
                 </p>
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", color: "var(--nuit-smoke)",
+                  fontSize: "12px", color: "var(--nuit-bone-soft)",
                 }}>
                   {c.templateNome} · {c.segmento.tipo}
                   {c.segmento.valor ? ` (${c.segmento.valor})` : ""}
@@ -121,7 +121,7 @@ export function CampanhasClient({ campanhas }: Props) {
             <div style={{
               display: "flex", alignItems: "center", gap: "20px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-smoke)",
+              fontSize: "12px", color: "var(--nuit-bone-soft)",
               marginBottom: c.totalMensagens > 0 ? "12px" : "0",
             }}>
               <span>Total: <strong style={{ color: "var(--nuit-bone)" }}>{c.totalMensagens}</strong></span>

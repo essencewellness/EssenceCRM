@@ -57,8 +57,8 @@ const GRUPO_META = {
   vencidas: { label: "Vencidas", cor: "#b06050" },
   hoje:     { label: "Hoje", cor: "#d4956b" },
   semana:   { label: "Esta semana", cor: "#b9a07a" },
-  depois:   { label: "Mais tarde", cor: "var(--nuit-smoke)" },
-  semprazo: { label: "Sem prazo", cor: "var(--nuit-smoke)" },
+  depois:   { label: "Mais tarde", cor: "var(--nuit-bone-soft)" },
+  semprazo: { label: "Sem prazo", cor: "var(--nuit-bone-soft)" },
 }
 
 export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProps) {

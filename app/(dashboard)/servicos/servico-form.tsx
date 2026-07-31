@@ -39,19 +39,19 @@ export default function ServicoForm() {
       <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", marginBottom: "16px" }}>Novo Serviço</h2>
       <form ref={formRef} onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ fontSize: "12px", color: "var(--nuit-smoke)", display: "block", marginBottom: "4px" }}>Nome *</label>
+          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Nome *</label>
           <input name="nome" style={inputStyle} required placeholder="Ex: Drenagem Linfática" />
         </div>
         <div>
-          <label style={{ fontSize: "12px", color: "var(--nuit-smoke)", display: "block", marginBottom: "4px" }}>Preço Base (€) *</label>
+          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Preço Base (€) *</label>
           <input name="precoBase" style={inputStyle} type="number" step="0.01" min="0" required placeholder="40" />
         </div>
         <div>
-          <label style={{ fontSize: "12px", color: "var(--nuit-smoke)", display: "block", marginBottom: "4px" }}>Duração (min)</label>
+          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Duração (min)</label>
           <input name="duracaoMinutos" style={inputStyle} type="number" min="5" max="480" defaultValue="60" />
         </div>
         <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ fontSize: "12px", color: "var(--nuit-smoke)", display: "block", marginBottom: "4px" }}>Descrição</label>
+          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Descrição</label>
           <input name="descricao" style={inputStyle} placeholder="Breve descrição (opcional)" />
         </div>
         {erro && <p style={{ gridColumn: "1 / -1", color: "#b44", fontSize: "13px", margin: 0 }}>{erro}</p>}

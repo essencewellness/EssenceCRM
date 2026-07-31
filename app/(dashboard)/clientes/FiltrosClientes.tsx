@@ -229,7 +229,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {temFiltros && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", backgroundColor: "rgba(185,160,122,0.06)", borderRadius: "6px", border: "1px solid rgba(185,160,122,0.20)" }}>
           <Zap size={13} color="#b9a07a" />
-          <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-smoke)", flex: 1 }}>
+          <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", flex: 1 }}>
             <strong style={{ color: "var(--nuit-bone)" }}>{totalResultados}</strong> cliente{totalResultados !== 1 ? "s" : ""} encontrada{totalResultados !== 1 ? "s" : ""}
           </span>
           <button
@@ -250,7 +250,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             style={{
               padding: "6px 10px", borderRadius: "4px", cursor: "pointer",
               fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
-              color: "var(--nuit-smoke)", backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.20)",
+              color: "var(--nuit-bone-soft)", backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.20)",
             }}
           >
             Limpar filtros
@@ -277,7 +277,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "var(--nuit-bone)", marginBottom: "12px" }}>
                   Campanha criada!
                 </h3>
-                <p style={{ fontSize: "14px", color: "var(--nuit-smoke)", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
+                <p style={{ fontSize: "14px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
                   <strong style={{ color: "var(--nuit-bone)" }}>{resultado.totalCriadas}</strong> mensagens criadas e aguardam aprovação.
                 </p>
                 {resultado.totalExcluidas > 0 && (
@@ -288,7 +288,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                   <button
                     onClick={() => { setModalCampanha(false); setResultado(null); setNomeCampanha(""); setTemplateId("") }}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-smoke)", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Fechar
                   </button>
@@ -335,14 +335,14 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   </select>
                 </div>
 
-                <p style={{ fontSize: "12px", color: "var(--nuit-smoke)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "18px" }}>
+                <p style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", marginBottom: "18px" }}>
                   {totalResultados} cliente{totalResultados !== 1 ? "s" : ""} receberá{totalResultados !== 1 ? "m" : ""} esta mensagem (clientes com restrições de saúde serão excluídas automaticamente).
                 </p>
 
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     onClick={() => setModalCampanha(false)}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-smoke)", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Cancelar
                   </button>

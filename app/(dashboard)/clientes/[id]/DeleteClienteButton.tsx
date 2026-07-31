@@ -110,7 +110,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
 
             <p style={{
               fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "13px", color: "var(--nuit-smoke)", lineHeight: 1.6,
+              fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
               marginBottom: "20px",
             }}>
               Esta ação é <strong>irreversível</strong> — o contacto é apagado definitivamente da base de dados.
@@ -121,7 +121,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
               <label htmlFor="confirm-nome" style={{
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em",
-                color: "var(--nuit-smoke)", textTransform: "uppercase",
+                color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 display: "block", marginBottom: "8px",
               }}>
                 Escreve <span style={{ color: "#b06050" }}>{primeiroNome}</span> para confirmar
@@ -193,7 +193,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                   backgroundColor: "transparent",
                   border: "1px solid rgba(212,184,134,0.20)",
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", fontWeight: 600, color: "var(--nuit-smoke)",
+                  fontSize: "12px", fontWeight: 600, color: "var(--nuit-bone-soft)",
                   cursor: "pointer",
                 }}
               >

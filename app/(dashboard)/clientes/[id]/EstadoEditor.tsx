@@ -147,7 +147,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
                   display: "flex", alignItems: "center", gap: "8px",
                   width: "100%", padding: "8px 12px",
                   fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                  color: estado === estadoLocal ? c.cor : "var(--nuit-smoke)",
+                  color: estado === estadoLocal ? c.cor : "var(--nuit-bone-soft)",
                   backgroundColor: estado === estadoLocal ? c.bg : "transparent",
                   border: "none", cursor: "pointer", textAlign: "left",
                 }}

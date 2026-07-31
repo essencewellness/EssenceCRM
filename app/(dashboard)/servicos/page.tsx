@@ -20,7 +20,7 @@ export default async function ServicosPage() {
       <h1 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px", color: "var(--nuit-bone)", marginBottom: "8px" }}>
         Catálogo de Serviços
       </h1>
-      <p style={{ color: "var(--nuit-smoke)", fontSize: "13px", marginBottom: "28px" }}>
+      <p style={{ color: "var(--nuit-bone-soft)", fontSize: "13px", marginBottom: "28px" }}>
         Gerir serviços, preços base e disponibilidade.
       </p>
 
@@ -30,7 +30,7 @@ export default async function ServicosPage() {
             {["Serviço", "Duração", "Preço Base", "Estado", ""].map(h => (
               <th key={h} style={{
                 textAlign: "left", padding: "8px 12px", fontSize: "11px",
-                color: "var(--nuit-smoke)", textTransform: "uppercase",
+                color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 letterSpacing: "0.08em", backgroundColor: "rgba(212,184,134,0.06)",
               }}>{h}</th>
             ))}
@@ -40,7 +40,7 @@ export default async function ServicosPage() {
           {servicos.map(s => (
             <tr key={s.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.10)", opacity: s.ativo ? 1 : 0.45 }}>
               <td style={{ padding: "10px 12px", fontSize: "14px", color: "var(--nuit-bone)", fontWeight: 500 }}>{s.nome}</td>
-              <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-smoke)" }}>{s.duracaoMinutos} min</td>
+              <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
               <td style={{ padding: "10px 12px", fontSize: "13px", color: "#b9a07a", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
               <td style={{ padding: "10px 12px" }}>
                 <span style={{
@@ -68,7 +68,7 @@ export default async function ServicosPage() {
           ))}
           {servicos.length === 0 && (
             <tr>
-              <td colSpan={5} style={{ padding: "24px 12px", textAlign: "center", color: "var(--nuit-smoke)", fontSize: "13px" }}>
+              <td colSpan={5} style={{ padding: "24px 12px", textAlign: "center", color: "var(--nuit-bone-soft)", fontSize: "13px" }}>
                 Nenhum serviço registado ainda.
               </td>
             </tr>

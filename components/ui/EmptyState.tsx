@@ -20,7 +20,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
         <Icon style={{ width: "26px", height: "26px", color: "#b9a07a" }} />
       </div>
       <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", fontWeight: 400, color: "var(--nuit-bone)", marginBottom: "6px" }}>{title}</h3>
-      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-smoke)", maxWidth: "280px" }}>{description}</p>
+      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", maxWidth: "280px" }}>{description}</p>
       {action && (
         <div style={{ marginTop: "16px" }}>
           {action.href ? (

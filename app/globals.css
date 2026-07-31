@@ -62,8 +62,8 @@
   --nuit-bone-soft:      #d8d2c2;
   --nuit-champagne:      #d4b886;
   --nuit-champagne-soft: #b9a07a;
-  --nuit-smoke:          #9499a6;  /* era #7a7e8a — elevado para WCAG AA (4.7:1 on midnight) */
-  --nuit-smoke-deep:     #6b7180;  /* era #4d5260 — elevado para WCAG AA (4.5:1 on deep) */
+  --nuit-smoke:          #7a7e8a;  /* canónico NUIT — só a partir de 18px (ou 14px peso 600+) sobre midnight/overlay; texto pequeno usa bone-soft (docs/acessibilidade.html) */
+  --nuit-smoke-deep:     #4d5260;  /* canónico NUIT — dividers/hairlines finos, não é texto */
   --nuit-paper:          #f6f1e5;
   --nuit-paper-deep:     #ebe5d4;
 

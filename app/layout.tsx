@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, Manrope } from "next/font/google";
+import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -40,7 +41,10 @@ export default function RootLayout({
         >
           Saltar para o conteúdo
         </a>
-        {children}
+        {/* "user" = respeita o prefers-reduced-motion do SO em todas as
+            animações motion/react da app — regra vinculativa do design
+            system NUIT v1.5.0, sem precisar de tocar em cada componente. */}
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
         <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>

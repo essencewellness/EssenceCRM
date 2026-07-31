@@ -194,7 +194,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
               onClick={cancelar}
               style={{
                 padding: "8px 14px", borderRadius: "7px",
-                backgroundColor: "transparent", color: "var(--nuit-smoke)",
+                backgroundColor: "transparent", color: "var(--nuit-bone-soft)",
                 border: "1px solid rgba(212,184,134,0.2)",
                 fontFamily: "var(--font-sans)", fontSize: "12px",
                 cursor: "pointer",
@@ -204,7 +204,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             </button>
             <span style={{
               marginLeft: "auto",
-              fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-smoke-deep)",
+              fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)",
             }}>
               ⌘↵ para guardar · Esc para cancelar
             </span>
@@ -225,13 +225,13 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           }} />
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontStyle: "italic", fontSize: "15px", color: "var(--nuit-smoke)",
+            fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)",
           }}>
             Ainda nenhuma observação registada.
           </p>
           <p style={{
             fontFamily: "var(--font-body)", fontSize: "12px",
-            color: "var(--nuit-smoke-deep)", marginTop: "6px",
+            color: "var(--nuit-bone-soft)", marginTop: "6px",
           }}>
             A primeira nota ficará aqui, com data e hora.
           </p>
@@ -289,7 +289,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                     </div>
                     <div style={{
                       fontFamily: "var(--font-body)", fontSize: "10px",
-                      color: "var(--nuit-smoke-deep)", marginTop: "2px",
+                      color: "var(--nuit-bone-soft)", marginTop: "2px",
                     }}>
                       {d.hora}
                     </div>
@@ -337,7 +337,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                       </div>
                       <span style={{
                         fontFamily: "var(--font-sans)", fontSize: "10px",
-                        color: "var(--nuit-smoke)", textTransform: "capitalize",
+                        color: "var(--nuit-bone-soft)", textTransform: "capitalize",
                       }}>
                         {o.autor}
                       </span>
@@ -347,7 +347,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                           marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px",
                           fontFamily: "var(--font-body)", fontSize: "11px",
                         }}>
-                          <span style={{ color: erroApagar === o.id ? "#b06050" : "var(--nuit-smoke)" }}>
+                          <span style={{ color: erroApagar === o.id ? "#b06050" : "var(--nuit-bone-soft)" }}>
                             {erroApagar === o.id ? "Não deu. Tentar de novo?" : "Apagar esta nota?"}
                           </span>
                           <button
@@ -368,7 +368,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                             onClick={() => { setConfirmar(null); setErroApagar(null) }}
                             style={{
                               padding: "3px 8px", borderRadius: "5px",
-                              backgroundColor: "transparent", color: "var(--nuit-smoke)",
+                              backgroundColor: "transparent", color: "var(--nuit-bone-soft)",
                               border: "1px solid rgba(212,184,134,0.2)",
                               fontFamily: "var(--font-sans)", fontSize: "10px",
                               cursor: "pointer",
@@ -385,11 +385,11 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                           style={{
                             marginLeft: "auto", padding: "2px 6px", borderRadius: "5px",
                             backgroundColor: "transparent", border: "none",
-                            color: "var(--nuit-smoke-deep)", cursor: "pointer",
+                            color: "var(--nuit-bone-soft)", cursor: "pointer",
                             fontSize: "13px", lineHeight: 1, transition: "color 150ms",
                           }}
                           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#b06050" }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--nuit-smoke-deep)" }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--nuit-bone-soft)" }}
                         >
                           ✕
                         </button>

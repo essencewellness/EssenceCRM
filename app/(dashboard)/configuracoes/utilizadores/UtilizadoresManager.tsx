@@ -18,7 +18,7 @@ const labelStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
   fontSize: "10px", fontWeight: 600,
   letterSpacing: "0.22em", textTransform: "uppercase",
-  color: "#7a7e8a", display: "block", marginBottom: "5px",
+  color: "var(--nuit-bone-soft)", display: "block", marginBottom: "5px",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -168,7 +168,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                   backgroundColor: "transparent",
                   border: "1px solid #e0d8cc",
                   borderRadius: "3px", padding: "5px 10px",
-                  fontFamily: "var(--font-sans)", fontSize: "11px", color: "#7a7e8a",
+                  fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)",
                   cursor: "pointer",
                 }}
               >
@@ -264,7 +264,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
             <button type="button" onClick={() => setMostrarFormCriar(false)} style={{
               backgroundColor: "transparent", border: "1px solid #e0d8cc",
               borderRadius: "3px", padding: "10px 20px",
-              fontFamily: "var(--font-sans)", fontSize: "11px", color: "#7a7e8a",
+              fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)",
               cursor: "pointer",
             }}>
               Cancelar

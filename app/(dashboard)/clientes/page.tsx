@@ -171,7 +171,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                 fontSize: "13px", fontFamily: "var(--font-body, sans-serif)",
                 borderRadius: "0px", height: "38px", boxShadow: "none",
               }}
-              className="placeholder:text-[var(--nuit-smoke)] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
+              className="placeholder:text-[var(--nuit-bone-soft)] focus-visible:ring-[#b9a07a]/30 focus-visible:border-[#b9a07a]/60"
             />
           </div>
 
@@ -193,7 +193,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                     fontSize: "9.5px", letterSpacing: "0.24em", textTransform: "uppercase",
                     fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                     transition: "all 150ms",
-                    color: isActive ? "#b9a07a" : "#7a7e8a",
+                    color: isActive ? "#b9a07a" : "var(--nuit-bone-soft)",
                     backgroundColor: isActive ? "rgba(185,160,122,0.08)" : "transparent",
                     border: isActive ? "1px solid rgba(185,160,122,0.35)" : "1px solid rgba(122,126,138,0.25)",
                     textDecoration: "none",
@@ -226,7 +226,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <Users size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-smoke)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)" }}>
               Nenhum cliente encontrado
             </p>
             {(q || estado || temFiltrosAvancados) && (
