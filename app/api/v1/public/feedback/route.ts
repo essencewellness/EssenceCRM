@@ -103,48 +103,30 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Webhook de métricas (sempre)
+    // Um único webhook por submissão — o N8N decide o que fazer com o texto
+    // da mensagem (simples / alerta de detratora / pedido de contacto)
+    // consoante os campos, em vez de disparos separados para o mesmo evento.
     void webhooks.feedbackRecebido({
       feedbackId: feedback.id,
       clienteId,
+      nomeCliente: cliente.nome,
+      telefone: cliente.telefone,
       sessaoId: sessaoId ?? null,
       rating,
       npsScore,
       encaminhadoGoogle,
+      pontosPositivos: pontosPositivos ?? null,
+      pontosMelhorar: pontosMelhorar ?? null,
+      comentario: comentario ?? null,
       quandoVoltar: quandoVoltar ?? null,
       interesseServico: interesseServico ?? null,
       momentoPico: momentoPico ?? null,
       motivoRegresso: motivoRegresso ?? null,
+      faltaParaDez: faltaParaDez ?? null,
+      pedidoContactoMarcacao: pedidoContactoMarcacao ?? false,
+      diaPreferido: diaPreferido ?? null,
+      horaPreferida: horaPreferida ?? null,
     })
-
-    // Alerta privado à Bea quando é detratora (NPS ≤ 6)
-    if (npsScore <= 6) {
-      void webhooks.feedbackNegativo({
-        feedbackId: feedback.id,
-        clienteId,
-        nomeCliente: cliente.nome,
-        sessaoId: sessaoId ?? null,
-        rating,
-        pontosMelhorar: pontosMelhorar ?? null,
-        comentario: comentario ?? null,
-      })
-    }
-
-    // Implementation intention: pediu para a Bea tratar já da marcação —
-    // lead quente, disparado à parte para não se perder no meio do resto.
-    if (pedidoContactoMarcacao) {
-      void webhooks.feedbackPedidoContacto({
-        feedbackId: feedback.id,
-        clienteId,
-        nomeCliente: cliente.nome,
-        telefone: cliente.telefone,
-        quandoVoltar: quandoVoltar ?? null,
-        interesseServico: interesseServico ?? null,
-        motivoRegresso: motivoRegresso ?? null,
-        diaPreferido: diaPreferido ?? null,
-        horaPreferida: horaPreferida ?? null,
-      })
-    }
 
     // Indicações (programa "O Miminho", spec-010) — cada amiga válida vira
     // uma lead nova, com a origem a apontar para quem a indicou. Nunca
