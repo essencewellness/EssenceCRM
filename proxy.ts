@@ -6,9 +6,14 @@ import { isSecureCookieEnv } from "@/lib/env"
 // Rotas que NÃO exigem sessão de dashboard:
 // - /login e /api/auth: fluxo de autenticação
 // - /api/v1: protegida por X-API-Key nos próprios handlers (fail-closed em lib/api-auth.ts)
+// - /api/cron: protegida por CRON_SECRET/X-API-Key no próprio handler (ver
+//   app/api/cron/*/route.ts) — SEM isto aqui, o Vercel Cron (que nunca tem
+//   sessão de dashboard) era sempre redirecionado para /login antes de
+//   chegar ao handler, e o motor de estados nunca corria (bug real,
+//   encontrado em produção 2026-07-31: zero execuções desde sempre).
 // - /api/health: monitorização externa (Vercel, UptimeRobot) sem qualquer auth
 // - /forms: formulários públicos (onboarding/pós-sessão) servidos de /public
-const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/api/health", "/forms"]
+const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/api/cron", "/api/health", "/forms"]
 
 function buildCsp(nonce: string): string {
   const dev = process.env.NODE_ENV !== "production"
