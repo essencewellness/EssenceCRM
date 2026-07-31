@@ -148,41 +148,49 @@ export async function POST(request: NextRequest) {
     // silenciosamente essa entrada (não é erro — só não cria duplicado).
     if (indicacoes && indicacoes.length > 0) {
       for (const amiga of indicacoes) {
-        const nomeAmiga = amiga.nome.trim()
-        if (!nomeAmiga) continue
-        const telefoneAmiga = amiga.telefone?.trim() ? normalizarTelefone(amiga.telefone.trim()) : null
-        if (!telefoneAmiga) continue // sem contacto nenhum, não há como a Bea falar com ela
+        // Isolado por entrada: uma indicação a falhar (ex: corrida rara com o
+        // mesmo telefone noutro pedido em simultâneo) não pode arrastar o
+        // feedback já guardado com sucesso para um 500 — só perde-se essa
+        // indicação, que fica no log do servidor.
+        try {
+          const nomeAmiga = amiga.nome.trim()
+          if (!nomeAmiga) continue
+          const telefoneAmiga = amiga.telefone?.trim() ? normalizarTelefone(amiga.telefone.trim()) : null
+          if (!telefoneAmiga) continue // sem contacto nenhum, não há como a Bea falar com ela
 
-        const jaExiste = await prisma.cliente.findFirst({
-          where: { apagadoEm: null, telefone: telefoneAmiga },
-          select: { id: true },
-        })
-        if (jaExiste) continue
+          const jaExiste = await prisma.cliente.findFirst({
+            where: { apagadoEm: null, telefone: telefoneAmiga },
+            select: { id: true },
+          })
+          if (jaExiste) continue
 
-        const leadAmiga = await prisma.cliente.create({
-          data: {
-            nome: nomeAmiga,
-            telefone: telefoneAmiga,
-            fonte: "formulario",
-            comoNosConheceu: `Indicação de ${cliente.nome}`,
-            estado: "lead",
-          },
-        })
+          const leadAmiga = await prisma.cliente.create({
+            data: {
+              nome: nomeAmiga,
+              telefone: telefoneAmiga,
+              fonte: "formulario",
+              comoNosConheceu: `Indicação de ${cliente.nome}`,
+              estado: "lead",
+            },
+          })
 
-        auditar({
-          quem: "publico",
-          acao: "lead.criado_indicacao",
-          entidade: "Cliente",
-          entidadeId: leadAmiga.id,
-          detalhe: { indicadoPor: clienteId },
-          ip: request.headers.get("x-forwarded-for"),
-        })
+          auditar({
+            quem: "publico",
+            acao: "lead.criado_indicacao",
+            entidade: "Cliente",
+            entidadeId: leadAmiga.id,
+            detalhe: { indicadoPor: clienteId },
+            ip: request.headers.get("x-forwarded-for"),
+          })
 
-        void webhooks.leadCriado({
-          clienteId: leadAmiga.id,
-          nomeCliente: leadAmiga.nome,
-          telefone: leadAmiga.telefone,
-        })
+          void webhooks.leadCriado({
+            clienteId: leadAmiga.id,
+            nomeCliente: leadAmiga.nome,
+            telefone: leadAmiga.telefone,
+          })
+        } catch (e) {
+          console.error("POST /api/v1/public/feedback — falha ao criar lead de indicação:", (e as Error).message)
+        }
       }
     }
 

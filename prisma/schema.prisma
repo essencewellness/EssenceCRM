@@ -607,7 +607,7 @@ model Feedback {
   pontosMelhorar    String?  // texto privado quando negativo
   comentario        String?  // "o que precisarias sentir p/ voltar" (detrator) ou "o que faltou p/ ser 10" (passivo)
   encaminhadoGoogle Boolean  @default(false)
-  // Recorrência — só perguntado quando rating >= 4 (spec Fase 4, 2026-07-30).
+  // Recorrência — perguntado a promotoras e passivas (spec-010: npsScore >= 7).
   // quandoVoltar: chip único ("1_semana" | "2_semanas" | "1_mes" | "ainda_nao_sei").
   // interesseServico: chips múltiplos do catálogo, join(", ") — mesmo padrão de pontosPositivos.
   quandoVoltar      String?
