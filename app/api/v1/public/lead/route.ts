@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
         email: cliente.email,
         telefone: cliente.telefone,
         servicoInteresse: servico_interesse ?? undefined,
+        comoNosConheceu: cliente.comoNosConheceu,
       })
     }
 

@@ -76,6 +76,7 @@ export const webhooks = {
     email?: string | null
     telefone?: string | null
     servicoInteresse?: string
+    comoNosConheceu?: string | null
   }) => dispararWebhook("lead.criado", payload),
 
   onboardingSubmetido: (payload: {

@@ -141,21 +141,31 @@ export async function POST(request: NextRequest) {
         try {
           const nomeAmiga = amiga.nome.trim()
           if (!nomeAmiga) continue
-          const telefoneAmiga = amiga.telefone?.trim() ? normalizarTelefone(amiga.telefone.trim()) : null
-          if (!telefoneAmiga) continue // sem contacto nenhum, não há como a Bea falar com ela
+          const contactoAmiga = amiga.contacto?.trim() || null
+          if (!contactoAmiga) continue // sem contacto nenhum, não há como a Bea falar com ela
+
+          // Campo único no forms: "@" → email, senão telefone.
+          const ehEmail = contactoAmiga.includes("@")
+          const emailAmiga = ehEmail ? contactoAmiga.toLowerCase() : null
+          const telefoneAmiga = ehEmail ? null : normalizarTelefone(contactoAmiga)
 
           const jaExiste = await prisma.cliente.findFirst({
-            where: { apagadoEm: null, telefone: telefoneAmiga },
+            where: {
+              apagadoEm: null,
+              ...(emailAmiga ? { email: emailAmiga } : { telefone: telefoneAmiga }),
+            },
             select: { id: true },
           })
           if (jaExiste) continue
 
+          const comoNosConheceu = `Indicação de ${cliente.nome}`
           const leadAmiga = await prisma.cliente.create({
             data: {
               nome: nomeAmiga,
               telefone: telefoneAmiga,
+              email: emailAmiga,
               fonte: "formulario",
-              comoNosConheceu: `Indicação de ${cliente.nome}`,
+              comoNosConheceu,
               estado: "lead",
             },
           })
@@ -173,6 +183,8 @@ export async function POST(request: NextRequest) {
             clienteId: leadAmiga.id,
             nomeCliente: leadAmiga.nome,
             telefone: leadAmiga.telefone,
+            email: leadAmiga.email,
+            comoNosConheceu,
           })
         } catch (e) {
           console.error("POST /api/v1/public/feedback — falha ao criar lead de indicação:", (e as Error).message)

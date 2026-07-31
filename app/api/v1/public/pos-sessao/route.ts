@@ -83,7 +83,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const sessaoAntes = await prisma.sessao.findFirst({
       where: { id: sessaoId, apagadoEm: null },
-      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true },
+      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true, data: true },
     })
     if (!sessaoAntes) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
@@ -116,6 +116,25 @@ export async function PATCH(request: NextRequest) {
 
       if (!eraRealizada) {
         await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
+      }
+
+      // As observações da terapeuta entram diretamente nas notas do cliente
+      // (mais recente primeiro) — sem isto, ficavam presas dentro da sessão e
+      // só visíveis abrindo-a uma a uma no separador Sessões.
+      if (resumoSessao?.trim() || notasPosSessao?.trim()) {
+        const dataSessao = new Date(sessaoAntes.data).toLocaleDateString("pt-PT")
+        const linhas = [resumoSessao?.trim(), notasPosSessao?.trim()].filter(Boolean)
+        const novaEntrada = `[${dataSessao}] ${linhas.join(" — ")}`
+
+        const clienteAtual = await tx.cliente.findUnique({
+          where: { id: sessaoAntes.clienteId },
+          select: { notasPessoais: true },
+        })
+        const notasAnteriores = clienteAtual?.notasPessoais?.trim()
+        await tx.cliente.update({
+          where: { id: sessaoAntes.clienteId },
+          data: { notasPessoais: notasAnteriores ? `${novaEntrada}\n\n${notasAnteriores}` : novaEntrada },
+        })
       }
 
       return sessao

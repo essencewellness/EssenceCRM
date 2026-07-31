@@ -82,6 +82,7 @@ export async function criarLeadManual(input: CriarLeadManualInput) {
     nomeCliente: cliente.nome,
     email: cliente.email,
     telefone: cliente.telefone,
+    comoNosConheceu: cliente.comoNosConheceu,
   })
 
   revalidatePath("/leads")

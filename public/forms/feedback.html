@@ -87,12 +87,6 @@
 
     /* ecrã de indicações — opcional, fica bem claro */
     .optional-banner { background: rgba(212,184,134,0.08); border: 1px dashed var(--border-input); border-radius: 2px; padding: 10px 14px; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--champagne-soft); margin-bottom: 24px; }
-    .indicacao-row { border: 1px solid var(--border); border-radius: 2px; padding: 14px; margin-bottom: 12px; }
-    .indicacao-row-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
-    .indicacao-row input { width: 100%; padding: 11px 12px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--bone); outline: none; margin-bottom: 8px; transition: border-color 0.2s; }
-    .indicacao-row input:last-child { margin-bottom: 0; }
-    .indicacao-row input:focus { border-color: var(--champagne); }
-    .indicacao-row input::placeholder { color: var(--smoke); }
 
     .btn-rating { display: flex; align-items: center; justify-content: center; width: 100%; padding: 17px 24px; background: var(--overlay); color: var(--bone); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; position: relative; overflow: hidden; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
     .btn-rating::before { content: ''; position: absolute; inset: 0; background: var(--champagne); transform: translateX(-101%); transition: transform 0.38s cubic-bezier(0.4,0,0.2,1); }
@@ -106,10 +100,37 @@
     .btn-secondary { display: block; width: 100%; margin-top: 12px; padding: 14px; background: transparent; color: var(--smoke); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; text-align: center; }
     .btn-secondary:hover { color: var(--bone-soft); border-color: var(--border-input); }
 
-    .chips-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
-    .chip { padding: 11px 18px; min-height: 44px; border: 1px solid var(--border); border-radius: 40px; background: var(--overlay); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; color: var(--bone-soft); cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    /* grupo de chips — o rótulo acima diz sempre se é escolha única ou múltipla,
+       e a forma do chip reforça isso visualmente (ver .chip vs .chip-multi) */
+    .chips-group-label { display: flex; align-items: center; gap: 6px; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--smoke); margin-bottom: 12px; }
+    .chips-group-label .hint { font-weight: 400; text-transform: none; letter-spacing: 0.02em; color: var(--smoke); opacity: 0.75; font-size: 10.5px; }
+    .chips-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+    .chips-grid.center { justify-content: center; }
+
+    /* escolha única — forma retangular, como um separador/segmented control */
+    .chip { padding: 11px 16px; min-height: 44px; border: 1px solid var(--border); border-radius: 3px; background: var(--overlay); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; color: var(--bone-soft); cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
     .chip:hover { border-color: var(--champagne); color: var(--champagne); }
     .chip.selected { background: rgba(212,184,134,0.12); border-color: var(--champagne); color: var(--champagne); }
+
+    /* escolha múltipla — forma de pílula + check visível quando selecionada,
+       para nunca se confundir com os grupos de escolha única acima */
+    .chip-multi { padding: 11px 18px 11px 16px; min-height: 44px; display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--border); border-radius: 40px; background: var(--overlay); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; color: var(--bone-soft); cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .chip-multi:hover { border-color: var(--champagne); color: var(--champagne); }
+    .chip-multi::before { content: ''; width: 14px; height: 14px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border-input); transition: all 0.2s; }
+    .chip-multi.selected { background: rgba(212,184,134,0.12); border-color: var(--champagne); color: var(--champagne); }
+    .chip-multi.selected::before { background: var(--champagne); border-color: var(--champagne); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23161A26' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E"); background-size: 10px; background-repeat: no-repeat; background-position: center; }
+
+    /* indicações — divulgação progressiva: cada bloco só aparece depois do anterior estar preenchido */
+    .indicacao-row { border: 1px solid var(--border); border-radius: 2px; padding: 14px; margin-bottom: 12px; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.35s ease, max-height 0.35s ease, margin 0.35s ease; }
+    .indicacao-row.visible { opacity: 1; max-height: 220px; }
+    .indicacao-row-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
+    .indicacao-row input { width: 100%; padding: 11px 12px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--bone); outline: none; margin-bottom: 8px; transition: border-color 0.2s; }
+    .indicacao-row input:last-child { margin-bottom: 0; }
+    .indicacao-row input:focus { border-color: var(--champagne); }
+    .indicacao-row input::placeholder { color: var(--smoke); }
+    .indicacao-add { display: block; width: 100%; text-align: center; padding: 12px; margin-bottom: 12px; border: 1px dashed var(--border-input); border-radius: 2px; background: transparent; color: var(--champagne-soft); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .indicacao-add:hover { border-color: var(--champagne); color: var(--champagne); }
+    .indicacao-add.hidden { display: none; }
 
     .field-label { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
 
@@ -215,20 +236,20 @@
       <p class="lead-text" style="font-size:18px;">Conheces alguém que também merecia este momento?</p>
       <div class="optional-banner">✦ Totalmente opcional — podes deixar 1, 2, 3 ou nenhuma</div>
 
-      <div class="indicacao-row">
-        <div class="indicacao-row-label">Amiga 1 (opcional)</div>
+      <div class="indicacao-row visible" id="ind-row-1">
+        <div class="indicacao-row-label">Nome da amiga</div>
         <input type="text" id="ind-nome-1" placeholder="Nome">
-        <input type="tel" id="ind-tel-1" placeholder="WhatsApp (com indicativo)">
+        <input type="text" id="ind-contacto-1" placeholder="WhatsApp ou email dela">
       </div>
-      <div class="indicacao-row">
-        <div class="indicacao-row-label">Amiga 2 (opcional)</div>
+      <div class="indicacao-row" id="ind-row-2">
+        <div class="indicacao-row-label">Mais uma amiga?</div>
         <input type="text" id="ind-nome-2" placeholder="Nome">
-        <input type="tel" id="ind-tel-2" placeholder="WhatsApp (com indicativo)">
+        <input type="text" id="ind-contacto-2" placeholder="WhatsApp ou email dela">
       </div>
-      <div class="indicacao-row" style="margin-bottom:24px;">
-        <div class="indicacao-row-label">Amiga 3 (opcional)</div>
+      <div class="indicacao-row" id="ind-row-3" style="margin-bottom:24px;">
+        <div class="indicacao-row-label">E mais uma?</div>
         <input type="text" id="ind-nome-3" placeholder="Nome">
-        <input type="tel" id="ind-tel-3" placeholder="WhatsApp (com indicativo)">
+        <input type="text" id="ind-contacto-3" placeholder="WhatsApp ou email dela">
       </div>
 
       <button class="btn-rating" onclick="avancarDeIndicacoes()">
@@ -260,17 +281,15 @@
     </header>
 
     <div class="body">
-      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais (opcional).</p>
+      <div class="chips-group-label">O que mais gostaste <span class="hint">— podes escolher várias, ou nenhuma</span></div>
 
       <div class="chips-grid" id="chips-positivos">
-        <button type="button" class="chip" data-value="Ambiente relaxante">Ambiente relaxante</button>
-        <button type="button" class="chip" data-value="Pressão perfeita">Pressão perfeita</button>
-        <button type="button" class="chip" data-value="Atenção personalizada">Atenção personalizada</button>
-        <button type="button" class="chip" data-value="Aroma agradável">Aroma agradável</button>
-        <button type="button" class="chip" data-value="Saí muito leve">Saí muito leve</button>
-        <button type="button" class="chip" data-value="Saí a dormir">Saí a dormir 😴</button>
-        <button type="button" class="chip" data-value="Melhor sono depois">Melhor sono depois</button>
-        <button type="button" class="chip" data-value="Marcaria de novo já">Marcaria de novo já</button>
+        <button type="button" class="chip-multi" data-value="Ambiente relaxante">Ambiente relaxante</button>
+        <button type="button" class="chip-multi" data-value="Pressão perfeita">Pressão perfeita</button>
+        <button type="button" class="chip-multi" data-value="Atenção personalizada">Atenção personalizada</button>
+        <button type="button" class="chip-multi" data-value="Aroma agradável">Aroma agradável</button>
+        <button type="button" class="chip-multi" data-value="Saí muito leve">Saí muito leve</button>
+        <button type="button" class="chip-multi" data-value="Melhor sono depois">Melhor sono depois</button>
       </div>
 
       <button class="btn-rating" onclick="mostrarScreen('pico')">
@@ -302,7 +321,8 @@
 
     <div class="body">
       <p class="lead-text" style="font-size:18px;">Qual foi o momento em que sentiste <em>mais alívio</em>?</p>
-      <p class="sub-text" style="margin-bottom:24px;">Fecha os olhos um segundo e lembra-te. (opcional)</p>
+      <p class="sub-text" style="margin-bottom:16px;">Fecha os olhos um segundo e lembra-te. (opcional)</p>
+      <div class="chips-group-label">Escolhe uma opção</div>
 
       <div class="chips-grid" id="chips-pico">
         <button type="button" class="chip" data-value="Maos_ombros">As mãos a soltarem a tensão</button>
@@ -475,7 +495,7 @@
     </header>
 
     <div class="body">
-      <p class="sub-text" style="margin-bottom:10px;">Quando gostavas de voltar?</p>
+      <div class="chips-group-label">Quando gostavas de voltar? <span class="hint">— escolhe uma</span></div>
       <div class="chips-grid" id="chips-quando">
         <button type="button" class="chip" data-value="1_semana">Daqui a 1 semana</button>
         <button type="button" class="chip" data-value="2_semanas">Daqui a 2 semanas</button>
@@ -483,13 +503,13 @@
         <button type="button" class="chip" data-value="ainda_nao_sei">Ainda não sei</button>
       </div>
 
-      <p class="sub-text" style="margin:26px 0 10px;">Há algo que gostasses de experimentar?</p>
+      <div class="chips-group-label" style="margin-top:26px;">Algo que gostasses de experimentar? <span class="hint">— opcional, podes escolher várias</span></div>
       <div class="chips-grid" id="chips-interesse">
-        <button type="button" class="chip" data-value="Essência Plena">Essência Plena</button>
-        <button type="button" class="chip" data-value="Puro Aroma">Puro Aroma</button>
-        <button type="button" class="chip" data-value="Cera Quente">Cera Quente</button>
-        <button type="button" class="chip" data-value="Drenagem Linfática">Drenagem Linfática</button>
-        <button type="button" class="chip" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
+        <button type="button" class="chip-multi" data-value="Essência Plena">Essência Plena</button>
+        <button type="button" class="chip-multi" data-value="Puro Aroma">Puro Aroma</button>
+        <button type="button" class="chip-multi" data-value="Cera Quente">Cera Quente</button>
+        <button type="button" class="chip-multi" data-value="Drenagem Linfática">Drenagem Linfática</button>
+        <button type="button" class="chip-multi" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
       </div>
 
       <button class="btn-rating" style="margin-top:28px;" onclick="avancarDeRecorrencia()">
@@ -520,7 +540,7 @@
       <p class="lead-text" style="font-size:18px;">Queres que a Beatriz já trate da tua marcação?</p>
       <p class="sub-text" style="margin-bottom:18px;">Diz-nos o dia e a hora que preferires — vemos a disponibilidade mais próxima disso.</p>
 
-      <p class="sub-text" style="margin-bottom:10px;">Que dia? (opcional)</p>
+      <div class="chips-group-label">Que dia? <span class="hint">— opcional, escolhe um</span></div>
       <div class="chips-grid" id="chips-dia">
         <button type="button" class="chip" data-value="Segunda">Segunda</button>
         <button type="button" class="chip" data-value="Terça">Terça</button>
@@ -531,14 +551,14 @@
         <button type="button" class="chip" data-value="Qualquer dia">Qualquer dia</button>
       </div>
 
-      <p class="sub-text" style="margin:20px 0 10px;">De manhã ou de tarde? (opcional)</p>
+      <div class="chips-group-label" style="margin-top:20px;">De manhã ou de tarde? <span class="hint">— opcional</span></div>
       <div class="chips-grid" id="chips-periodo">
         <button type="button" class="chip" data-value="Manhã">Manhã</button>
         <button type="button" class="chip" data-value="Tarde">Tarde</button>
       </div>
 
       <div id="bloco-horario" style="display:none;">
-        <p class="sub-text" style="margin:20px 0 10px;">A que horas? (opcional)</p>
+        <div class="chips-group-label" style="margin-top:20px;">A que horas? <span class="hint">— opcional</span></div>
         <div class="chips-grid" id="chips-horario"></div>
       </div>
 
@@ -699,8 +719,17 @@
     });
   });
 
-  document.querySelectorAll('#chips-positivos .chip, #chips-interesse .chip, #chips-pico .chip').forEach(chip => {
+  // multi-select genuíno — cada chip liga/desliga independentemente
+  document.querySelectorAll('#chips-positivos .chip-multi, #chips-interesse .chip-multi').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+
+  // "momento de pico" é uma pergunta de resposta única — só uma pode ficar selecionada
+  document.querySelectorAll('#chips-pico .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#chips-pico .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
   });
 
   document.querySelectorAll('#chips-quando .chip').forEach(chip => {
@@ -708,6 +737,20 @@
       document.querySelectorAll('#chips-quando .chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
     });
+  });
+
+  // indicações — cada bloco só aparece depois do anterior estar preenchido
+  // (nome + contacto), para não assustar com 3 blocos vazios logo de início
+  [1, 2].forEach(n => {
+    const nomeEl = document.getElementById(`ind-nome-${n}`);
+    const contactoEl = document.getElementById(`ind-contacto-${n}`);
+    const revelarSeguinte = () => {
+      if (nomeEl.value.trim() && contactoEl.value.trim()) {
+        document.getElementById(`ind-row-${n + 1}`).classList.add('visible');
+      }
+    };
+    nomeEl.addEventListener('blur', revelarSeguinte);
+    contactoEl.addEventListener('blur', revelarSeguinte);
   });
 
   document.querySelectorAll('#chips-dia .chip').forEach(chip => {
@@ -764,7 +807,7 @@
   function avancarDeIndicacoes(saltou) {
     if (!saltou) {
       indicacoesColetadas = [1, 2, 3]
-        .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), telefone: document.getElementById(`ind-tel-${n}`).value.trim() }))
+        .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), contacto: document.getElementById(`ind-contacto-${n}`).value.trim() }))
         .filter(i => i.nome);
     }
     if (segmento === 'passivo') document.getElementById('dots-recorrencia').style.display = 'none';
@@ -826,9 +869,9 @@
     if (feedbackEnviado) return;
     feedbackEnviado = true;
 
-    const pontosPositivos = [...document.querySelectorAll('#chips-positivos .chip.selected')]
+    const pontosPositivos = [...document.querySelectorAll('#chips-positivos .chip-multi.selected')]
       .map(c => c.dataset.value).join(', ') || null;
-    const interesseServico = [...document.querySelectorAll('#chips-interesse .chip.selected')]
+    const interesseServico = [...document.querySelectorAll('#chips-interesse .chip-multi.selected')]
       .map(c => c.dataset.value).join(', ') || null;
 
     const payload = {

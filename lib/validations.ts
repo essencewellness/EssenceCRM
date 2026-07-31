@@ -470,7 +470,9 @@ export const bulkEliminarSchema = z.object({
 
 export const indicacaoAmigaSchema = z.object({
   nome:     z.string().trim().min(1).max(120),
-  telefone: z.string().trim().max(20).optional().nullable(),
+  // Campo único — o cliente escreve WhatsApp ou email, o servidor decide qual
+  // é (contém "@" → email, senão telefone). Menos fricção que dois campos.
+  contacto: z.string().trim().max(120).optional().nullable(),
 })
 
 export const feedbackPublicSchema = z.object({
