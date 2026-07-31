@@ -134,6 +134,11 @@
     .indicacao-add:hover { border-color: var(--champagne); color: var(--champagne); }
     .indicacao-add.hidden { display: none; }
 
+    /* input de texto livre para a opção "Outra" dentro de um grupo de chips */
+    .text-input { width: 100%; padding: 11px 14px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--bone); outline: none; margin-top: 10px; transition: border-color 0.2s; }
+    .text-input:focus { border-color: var(--champagne); }
+    .text-input::placeholder { color: var(--smoke); }
+
     .field-label { display: block; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
 
     textarea { width: 100%; padding: 14px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Lato', sans-serif; font-size: 1rem; color: var(--bone); resize: vertical; min-height: 90px; line-height: 1.65; outline: none; margin-bottom: 24px; transition: border-color 0.2s; }
@@ -307,7 +312,9 @@
         <button type="button" class="chip-multi" data-value="Aroma agradável">Aroma agradável</button>
         <button type="button" class="chip-multi" data-value="Saí muito leve">Saí muito leve</button>
         <button type="button" class="chip-multi" data-value="Melhor sono depois">Melhor sono depois</button>
+        <button type="button" class="chip-multi" data-value="Outra">Outra</button>
       </div>
+      <input type="text" id="outro-positivo-texto" class="text-input" style="display:none;" placeholder="Diz-nos o quê" maxlength="120">
 
       <div class="chips-group-label" style="margin-top:24px;">Qual foi o momento de mais alívio? <span class="hint">— opcional, escolhe um</span></div>
       <div class="chips-grid" id="chips-pico">
@@ -316,7 +323,9 @@
         <button type="button" class="chip" data-value="Aroma">O aroma dos óleos</button>
         <button type="button" class="chip" data-value="Silencio">O silêncio total</button>
         <button type="button" class="chip" data-value="Tempo_para_mim">Ter tempo só para mim</button>
+        <button type="button" class="chip" data-value="Outra">Outra</button>
       </div>
+      <input type="text" id="outro-pico-texto" class="text-input" style="display:none;" placeholder="Diz-nos qual" maxlength="50">
 
       <button class="btn-rating" style="margin-top:28px;" onclick="avancarDePositivo()">
         <span>Continuar →</span>
@@ -621,11 +630,24 @@
     chip.addEventListener('click', () => chip.classList.toggle('selected'));
   });
 
+  // "Outra" revela um campo de texto — funciona nos dois grupos (multi e
+  // único), cada um só olha para o estado do seu próprio chip "Outra"
+  const outroPositivoInput = document.getElementById('outro-positivo-texto');
+  document.querySelector('#chips-positivos .chip-multi[data-value="Outra"]').addEventListener('click', function () {
+    outroPositivoInput.style.display = this.classList.contains('selected') ? '' : 'none';
+    if (!this.classList.contains('selected')) outroPositivoInput.value = '';
+  });
+
+  const outroPicoInput = document.getElementById('outro-pico-texto');
+
   // "momento de pico" é uma pergunta de resposta única — só uma pode ficar selecionada
   document.querySelectorAll('#chips-pico .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('#chips-pico .chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
+      const ehOutra = chip.dataset.value === 'Outra';
+      outroPicoInput.style.display = ehOutra ? '' : 'none';
+      if (!ehOutra) outroPicoInput.value = '';
     });
   });
 
@@ -761,10 +783,18 @@
     if (feedbackEnviado) return;
     feedbackEnviado = true;
 
+    // "Outra" troca-se pelo texto livre que a cliente escreveu, para não
+    // enviarmos a palavra literal "Outra" para a Beatriz ler
+    const outroPositivoTexto = document.getElementById('outro-positivo-texto').value.trim();
     const pontosPositivos = [...document.querySelectorAll('#chips-positivos .chip-multi.selected')]
-      .map(c => c.dataset.value).join(', ') || null;
+      .map(c => c.dataset.value === 'Outra' ? (outroPositivoTexto || null) : c.dataset.value)
+      .filter(Boolean).join(', ') || null;
     const interesseServico = [...document.querySelectorAll('#chips-interesse .chip-multi.selected')]
       .map(c => c.dataset.value).join(', ') || null;
+
+    const picoSelecionado = document.querySelector('#chips-pico .chip.selected')?.dataset.value || null;
+    const outroPicoTexto = document.getElementById('outro-pico-texto').value.trim();
+    const momentoPico = picoSelecionado === 'Outra' ? (outroPicoTexto || null) : picoSelecionado;
 
     diaPreferido = document.querySelector('#chips-dia .chip.selected')?.dataset.value || null;
     // hora específica (ex: "10h") se a escolheu; senão cai para o período (ex: "Manhã")
@@ -785,7 +815,7 @@
       comentario: null,
       quandoVoltar: diaPreferido,
       interesseServico,
-      momentoPico: document.querySelector('#chips-pico .chip.selected')?.dataset.value || null,
+      momentoPico,
       motivoRegresso: document.getElementById('texto-motivo')?.value.trim() || null,
       faltaParaDez: document.getElementById('texto-falta-dez')?.value.trim() || null,
       pedidoContactoMarcacao,
