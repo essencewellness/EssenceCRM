@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, feedbackPublicSchema)
   if (!v.ok) return v.resposta
-  const { clienteId, sessaoId, t, rating, pontosPositivos, pontosMelhorar, comentario, website } = v.data
+  const { clienteId, sessaoId, t, rating, pontosPositivos, pontosMelhorar, comentario, quandoVoltar, interesseServico, website } = v.data
 
   // Honeypot preenchido = bot
   if (website) {
@@ -81,6 +81,10 @@ export async function POST(request: NextRequest) {
         pontosMelhorar: pontosMelhorar ?? null,
         comentario: comentario ?? null,
         encaminhadoGoogle,
+        // Só perguntado no ecrã de rating positivo (feedback.html) — em
+        // feedback negativo estes campos vêm sempre null, de propósito.
+        quandoVoltar: quandoVoltar ?? null,
+        interesseServico: interesseServico ?? null,
       },
     })
 
@@ -91,6 +95,8 @@ export async function POST(request: NextRequest) {
       sessaoId: sessaoId ?? null,
       rating,
       encaminhadoGoogle,
+      quandoVoltar: quandoVoltar ?? null,
+      interesseServico: interesseServico ?? null,
     })
 
     // Alerta privado à Bea quando rating é negativo (≤3)

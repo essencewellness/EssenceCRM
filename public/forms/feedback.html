@@ -411,15 +411,60 @@
         <div class="google-icon">🌟</div>
         <div class="google-title">Partilha com outras pessoas</div>
         <div class="google-desc">Cada avaliação no Google ajuda outras pessoas a descobrir a Essence Wellness. E demora 30 segundos.</div>
-        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="enviarFeedback('google')">
+        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="avancarParaRecorrencia('google')">
           ⭐ Avaliar no Google
         </a>
-        <button class="btn-skip" onclick="enviarFeedback('skip')">Prefiro não deixar avaliação</button>
+        <button class="btn-skip" onclick="avancarParaRecorrencia('skip')">Prefiro não deixar avaliação</button>
       </div>
     </div>
 
     <footer class="form-footer">
       <p class="privacy-note">Obrigada pela tua generosidade. ✦</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN: RECORRÊNCIA (só depois de rating positivo — é o
+     momento de perceber quando e com o quê a cliente quer voltar)
+═══════════════════════════════════════════════════ -->
+<div class="screen" id="screen-recorrencia">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Só mais <em>duas coisas</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="sub-text" style="margin-bottom:10px;">Quando gostavas de voltar?</p>
+      <div class="chips-grid" id="chips-quando">
+        <button type="button" class="chip" data-value="1_semana">Daqui a 1 semana</button>
+        <button type="button" class="chip" data-value="2_semanas">Daqui a 2 semanas</button>
+        <button type="button" class="chip" data-value="1_mes">Daqui a 1 mês</button>
+        <button type="button" class="chip" data-value="ainda_nao_sei">Ainda não sei</button>
+      </div>
+
+      <p class="sub-text" style="margin:26px 0 10px;">Há algo que gostasses de experimentar?</p>
+      <div class="chips-grid" id="chips-interesse">
+        <button type="button" class="chip" data-value="Essência Plena">Essência Plena</button>
+        <button type="button" class="chip" data-value="Puro Aroma">Puro Aroma</button>
+        <button type="button" class="chip" data-value="Cera Quente">Cera Quente</button>
+        <button type="button" class="chip" data-value="Drenagem Linfática">Drenagem Linfática</button>
+        <button type="button" class="chip" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
+      </div>
+
+      <button class="btn-rating" style="margin-top:28px;" onclick="finalizarFeedback()">
+        <span>Enviar ✦</span>
+      </button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Totalmente opcional — ajuda-nos só a preparar a tua próxima visita.</p>
     </footer>
   </div>
 </div>
@@ -499,6 +544,7 @@
 
   let ratingActual = 0;
   let feedbackEnviado = false;
+  let acaoGoogleEscolhida = 'skip'; // 'google' | 'skip' — decidido no ecrã positivo, usado só ao enviar
 
   // Pré-definir link Google
   document.getElementById('link-google').href = GOOGLE_REVIEW_URL;
@@ -552,8 +598,16 @@
   }
 
   // ── CHIPS (multi-select) ───────────────────────────
-  document.querySelectorAll('#chips-positivos .chip').forEach(chip => {
+  document.querySelectorAll('#chips-positivos .chip, #chips-interesse .chip').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+
+  // ── CHIPS (single-select) ──────────────────────────
+  document.querySelectorAll('#chips-quando .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#chips-quando .chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    });
   });
 
   // ── AVANÇAR DE RATING ──────────────────────────────
@@ -562,12 +616,30 @@
     mostrarScreen(ratingActual >= 4 ? 'positivo' : 'negativo');
   }
 
+  // ── AVANÇAR PARA RECORRÊNCIA (depois do "o que gostaste") ──
+  // O clique em "Avaliar no Google" já abre o separador sozinho (é um <a
+  // target="_blank"> normal) — só guardamos qual foi a escolha, para saber
+  // que mensagem final mostrar depois de enviarFeedback() correr de facto.
+  function avancarParaRecorrencia(acao) {
+    acaoGoogleEscolhida = acao;
+    mostrarScreen('recorrencia');
+  }
+
+  function finalizarFeedback() {
+    enviarFeedback(acaoGoogleEscolhida);
+  }
+
   // ── ENVIAR FEEDBACK (positivo) ─────────────────────
   async function enviarFeedback(acao) {
     if (feedbackEnviado) return;
     feedbackEnviado = true;
 
     const chipsEscolhidos = [...document.querySelectorAll('#chips-positivos .chip.selected')]
+      .map(c => c.dataset.value)
+      .join(', ') || null;
+
+    const quandoVoltar = document.querySelector('#chips-quando .chip.selected')?.dataset.value || null;
+    const interesseServico = [...document.querySelectorAll('#chips-interesse .chip.selected')]
       .map(c => c.dataset.value)
       .join(', ') || null;
 
@@ -583,12 +655,14 @@
           pontosPositivos: chipsEscolhidos,
           pontosMelhorar: null,
           comentario: null,
+          quandoVoltar,
+          interesseServico,
         }),
       });
     } catch { /* silencioso — não bloquear fluxo */ }
 
     if (acao === 'google') {
-      window.open(GOOGLE_REVIEW_URL, '_blank', 'noopener');
+      // Já foi aberto no clique de "Avaliar no Google" — não abrir outra vez aqui.
       mostrarDone(
         '🌟',
         'Obrigada, és <em>incrível</em>.',

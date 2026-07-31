@@ -125,6 +125,11 @@ export const webhooks = {
     sessaoId?: string | null
     rating: number
     encaminhadoGoogle: boolean
+    // Recorrência (spec Fase 4, 2026-07-30) — para a fase de mensagens com IA
+    // (roadmap fase 2) sugerir a próxima sessão com base no que a cliente
+    // já disse que queria, em vez de adivinhar.
+    quandoVoltar?: string | null
+    interesseServico?: string | null
   }) => dispararWebhook("feedback.recebido", payload),
 
   feedbackNegativo: (payload: {

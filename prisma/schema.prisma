@@ -607,6 +607,11 @@ model Feedback {
   pontosMelhorar    String?  // texto privado quando negativo
   comentario        String?
   encaminhadoGoogle Boolean  @default(false)
+  // Recorrência — só perguntado quando rating >= 4 (spec Fase 4, 2026-07-30).
+  // quandoVoltar: chip único ("1_semana" | "2_semanas" | "1_mes" | "ainda_nao_sei").
+  // interesseServico: chips múltiplos do catálogo, join(", ") — mesmo padrão de pontosPositivos.
+  quandoVoltar      String?
+  interesseServico  String?
   criadoEm          DateTime @default(now())
 
   cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)

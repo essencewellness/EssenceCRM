@@ -472,6 +472,8 @@ export const feedbackPublicSchema = z.object({
   pontosPositivos: z.string().trim().max(1000).optional().nullable(),
   pontosMelhorar: z.string().trim().max(2000).optional().nullable(),
   comentario:     z.string().trim().max(2000).optional().nullable(),
+  quandoVoltar:     z.string().trim().max(50).optional().nullable(),
+  interesseServico: z.string().trim().max(500).optional().nullable(),
   website:        z.string().max(0).optional(), // honeypot
 }).strict()
 
