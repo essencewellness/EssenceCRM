@@ -282,11 +282,11 @@
   </div>
 </div>
 
-<!-- ═══ Positivo — o que mais gostaste ═══ -->
+<!-- ═══ O que gostaste + momento de pico (fundidos numa só pergunta) ═══ -->
 <div class="screen" id="screen-positivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -300,7 +300,6 @@
 
     <div class="body">
       <div class="chips-group-label">O que mais gostaste <span class="hint">— podes escolher várias, ou nenhuma</span></div>
-
       <div class="chips-grid" id="chips-positivos">
         <button type="button" class="chip-multi" data-value="Ambiente relaxante">Ambiente relaxante</button>
         <button type="button" class="chip-multi" data-value="Pressão perfeita">Pressão perfeita</button>
@@ -310,7 +309,16 @@
         <button type="button" class="chip-multi" data-value="Melhor sono depois">Melhor sono depois</button>
       </div>
 
-      <button class="btn-rating" onclick="mostrarScreen('pico')">
+      <div class="chips-group-label" style="margin-top:24px;">Qual foi o momento de mais alívio? <span class="hint">— opcional, escolhe um</span></div>
+      <div class="chips-grid" id="chips-pico">
+        <button type="button" class="chip" data-value="Maos_ombros">As mãos a soltar a tensão</button>
+        <button type="button" class="chip" data-value="Calor">O calor (cera/toalhas quentes)</button>
+        <button type="button" class="chip" data-value="Aroma">O aroma dos óleos</button>
+        <button type="button" class="chip" data-value="Silencio">O silêncio total</button>
+        <button type="button" class="chip" data-value="Tempo_para_mim">Ter tempo só para mim</button>
+      </div>
+
+      <button class="btn-rating" style="margin-top:28px;" onclick="avancarDePositivo()">
         <span>Continuar →</span>
       </button>
     </div>
@@ -321,85 +329,12 @@
   </div>
 </div>
 
-<!-- ═══ Momento de pico (peak-end rule) ═══ -->
-<div class="screen" id="screen-pico">
-  <div class="card">
-    <div class="progress-dots">
-      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">O <em>momento</em></div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <p class="lead-text" style="font-size:18px;">Qual foi o momento em que sentiste <em>mais alívio</em>?</p>
-      <p class="sub-text" style="margin-bottom:16px;">Fecha os olhos um segundo e lembra-te. (opcional)</p>
-      <div class="chips-group-label">Escolhe uma opção</div>
-
-      <div class="chips-grid" id="chips-pico">
-        <button type="button" class="chip" data-value="Maos_ombros">As mãos a soltarem a tensão</button>
-        <button type="button" class="chip" data-value="Calor">O calor (cera/toalhas quentes)</button>
-        <button type="button" class="chip" data-value="Aroma">O aroma dos óleos</button>
-        <button type="button" class="chip" data-value="Silencio">O silêncio total</button>
-        <button type="button" class="chip" data-value="Tempo_para_mim">Ter tempo só para mim</button>
-      </div>
-
-      <button class="btn-rating" onclick="avancarDePico()">
-        <span>Continuar →</span>
-      </button>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Ajuda a Beatriz a repetir o que mais sentiste falta.</p>
-    </footer>
-  </div>
-</div>
-
-<!-- ═══ Mini-dica (Reciprocidade — Cialdini) ═══ -->
-<div class="screen" id="screen-dica">
-  <div class="card">
-    <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Um <em>mimo</em> nosso</div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <div class="tip-box">
-        <div class="tip-label">Dica da Beatriz</div>
-        <div class="tip-text" id="tip-texto">Um duche morno antes de dormir prolonga esse efeito de leveza.</div>
-      </div>
-      <p class="sub-text" style="margin-bottom:24px;">Antes de continuares, ficas com isto — de nós para ti.</p>
-
-      <button class="btn-rating" onclick="avancarParaOuIndicacoes('google')">
-        <span>Continuar →</span>
-      </button>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
-    </footer>
-  </div>
-</div>
-
-<!-- ═══ Avaliação Google ═══ -->
+<!-- ═══ Avaliação Google — a dica da Beatriz (reciprocidade) fica aqui dentro,
+     em vez de ser um ecrã à parte que ninguém lia até ao fim ═══ -->
 <div class="screen" id="screen-google">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -412,7 +347,12 @@
     </header>
 
     <div class="body">
-      <div class="google-box">
+      <div class="tip-box">
+        <div class="tip-label">Dica da Beatriz</div>
+        <div class="tip-text" id="tip-texto">Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.</div>
+      </div>
+
+      <div class="google-box" style="margin-top:18px;">
         <div class="google-icon">🌟</div>
         <div class="google-title">Partilha com outras pessoas</div>
         <div class="google-desc">Cada avaliação no Google ajuda outra pessoa a encontrar-nos, tal como tu encontraste. Demora 30 segundos.</div>
@@ -429,11 +369,12 @@
   </div>
 </div>
 
-<!-- ═══ Motivo de regresso (self-generated persuasion) ═══ -->
+<!-- ═══ Motivo de regresso — o eco da frase escrita aparece logo aqui, em
+     tempo real, em vez de ser um ecrã de navegação à parte ═══ -->
 <div class="screen" id="screen-motivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -451,6 +392,11 @@
 
       <textarea id="texto-motivo" maxlength="200" placeholder="Ex: porque saio sempre mais leve e durmo melhor essa noite."></textarea>
 
+      <div class="echo-box" id="echo-box" style="display:none;">
+        <div class="echo-label">Escreveste</div>
+        <div class="echo-text" id="echo-texto">"..."</div>
+      </div>
+
       <button class="btn-rating" onclick="avancarDeMotivo()">
         <span>Continuar →</span>
       </button>
@@ -462,45 +408,12 @@
   </div>
 </div>
 
-<!-- ═══ Eco da frase escrita (compromisso escrito) ═══ -->
-<div class="screen" id="screen-eco">
-  <div class="card">
-    <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Guardámos <em>isto</em></div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <div class="echo-box">
-        <div class="echo-label">Escreveste</div>
-        <div class="echo-text" id="echo-texto">"..."</div>
-      </div>
-      <p class="sub-text" style="margin-bottom:24px;">Vamos lembrar-te disto quando fizer sentido. ✦</p>
-
-      <button class="btn-rating" onclick="mostrarScreen('recorrencia')">
-        <span>Continuar →</span>
-      </button>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Essence Wellness · Vila Nova de Gaia</p>
-    </footer>
-  </div>
-</div>
-
-<!-- ═══ Quando voltar + interesse ═══ -->
+<!-- ═══ Próxima visita — quando + marcação + interesse, tudo fundido (eram
+     3 perguntas separadas a perguntar essencialmente a mesma coisa) ═══ -->
 <div class="screen" id="screen-recorrencia">
   <div class="card">
     <div class="progress-dots" id="dots-recorrencia">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -513,53 +426,7 @@
     </header>
 
     <div class="body">
-      <div class="chips-group-label">Quando gostavas de voltar? <span class="hint">— opcional, escolhe uma</span></div>
-      <div class="chips-grid" id="chips-quando">
-        <button type="button" class="chip" data-value="1_semana">Daqui a 1 semana</button>
-        <button type="button" class="chip" data-value="2_semanas">Daqui a 2 semanas</button>
-        <button type="button" class="chip" data-value="1_mes">Daqui a 1 mês</button>
-        <button type="button" class="chip" data-value="ainda_nao_sei">Ainda não sei</button>
-      </div>
-
-      <div class="chips-group-label" style="margin-top:26px;">Algo que gostasses de experimentar? <span class="hint">— opcional, podes escolher várias</span></div>
-      <div class="chips-grid" id="chips-interesse">
-        <button type="button" class="chip-multi" data-value="Essência Plena">Essência Plena</button>
-        <button type="button" class="chip-multi" data-value="Puro Aroma">Puro Aroma</button>
-        <button type="button" class="chip-multi" data-value="Cera Quente">Cera Quente</button>
-        <button type="button" class="chip-multi" data-value="Drenagem Linfática">Drenagem Linfática</button>
-        <button type="button" class="chip-multi" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
-      </div>
-
-      <button class="btn-rating" style="margin-top:28px;" onclick="avancarDeRecorrencia()">
-        <span>Continuar →</span>
-      </button>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Totalmente opcional — ajuda-nos só a preparar a tua próxima visita.</p>
-    </footer>
-  </div>
-</div>
-
-<!-- ═══ Condicional: pedido de contacto p/ marcação (implementation intention) ═══ -->
-<div class="screen" id="screen-contacto">
-  <div class="card">
-    <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
-    </div>
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Já <em>tratamos disso</em>?</div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <p class="lead-text" style="font-size:18px;">Queres que a Beatriz já trate da tua marcação?</p>
-      <p class="sub-text" style="margin-bottom:18px;">Diz-nos o dia e a hora que preferires — vemos a disponibilidade mais próxima disso.</p>
+      <p class="sub-text" style="margin-bottom:20px;">Diz-nos quando preferes voltar — a Beatriz já vê a disponibilidade mais próxima disso. Tudo opcional.</p>
 
       <div class="chips-group-label">Que dia? <span class="hint">— opcional, escolhe um</span></div>
       <div class="chips-grid" id="chips-dia">
@@ -583,14 +450,22 @@
         <div class="chips-grid" id="chips-horario"></div>
       </div>
 
-      <button class="btn-rating" style="margin-top:8px;" onclick="responderContacto(true)">
-        <span>Sim, contacta-me ✦</span>
+      <div class="chips-group-label" style="margin-top:26px;">Algo que gostasses de experimentar? <span class="hint">— opcional, podes escolher várias</span></div>
+      <div class="chips-grid" id="chips-interesse">
+        <button type="button" class="chip-multi" data-value="Essência Plena">Essência Plena</button>
+        <button type="button" class="chip-multi" data-value="Puro Aroma">Puro Aroma</button>
+        <button type="button" class="chip-multi" data-value="Cera Quente">Cera Quente</button>
+        <button type="button" class="chip-multi" data-value="Drenagem Linfática">Drenagem Linfática</button>
+        <button type="button" class="chip-multi" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
+      </div>
+
+      <button class="btn-rating" style="margin-top:28px;" onclick="concluirFeedback()">
+        <span>Concluir ✦</span>
       </button>
-      <button class="btn-secondary" onclick="responderContacto(false)">Prefiro marcar eu depois</button>
     </div>
 
     <footer class="form-footer">
-      <p class="privacy-note">A Beatriz confirma contigo por WhatsApp assim que vir a tua mensagem.</p>
+      <p class="privacy-note">A Beatriz confirma contigo por WhatsApp se escolheres dia ou hora.</p>
     </footer>
   </div>
 </div>
@@ -614,7 +489,7 @@
 
       <textarea id="texto-falta-dez" maxlength="500" placeholder="Ex: gostava que a sala estivesse ainda mais quente."></textarea>
 
-      <button class="btn-rating" onclick="avancarParaOuIndicacoes('recorrencia')">
+      <button class="btn-rating" onclick="avancarDePassivoFalta()">
         <span>Continuar →</span>
       </button>
     </div>
@@ -754,11 +629,15 @@
     });
   });
 
-  document.querySelectorAll('#chips-quando .chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#chips-quando .chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-    });
+  // eco da frase escrita — aparece em tempo real por baixo do textarea,
+  // reforço de compromisso escrito sem precisar de um ecrã de navegação novo
+  const textoMotivoEl = document.getElementById('texto-motivo');
+  const echoBox = document.getElementById('echo-box');
+  const echoTexto = document.getElementById('echo-texto');
+  textoMotivoEl.addEventListener('input', () => {
+    const texto = textoMotivoEl.value.trim();
+    echoBox.style.display = texto ? '' : 'none';
+    if (texto) echoTexto.textContent = `"${texto}"`;
   });
 
   // indicações — cada bloco só aparece depois do anterior estar preenchido
@@ -820,10 +699,10 @@
     continuarParaSegmento();
   }
 
-  // O pedido de indicação só aparece DEPOIS de a cliente refletir no que
-  // gostou (positivo/pico/dica para promotoras, passivo-falta para passivas)
-  // — pedir o favor antes de gerar reciprocidade era a ordem errada.
-  // Continua a aparecer para pontuação >= 6 (mesmo um 6, tecnicamente
+  // O pedido de indicação vem sempre no fim, depois de toda a reflexão
+  // (positivo/google/motivo/recorrência para promotoras, passivo-falta para
+  // passivas) — pedir o favor antes de gerar reciprocidade era a ordem
+  // errada. Só aparece para pontuação >= 6 (mesmo um 6, tecnicamente
   // "detrator" no NPS clássico, pode ter uma amiga em mente).
   function avancarParaOuIndicacoes(proximoEcra) {
     if (npsScore >= 6) {
@@ -840,8 +719,8 @@
         .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), contacto: document.getElementById(`ind-contacto-${n}`).value.trim() }))
         .filter(i => i.nome);
     }
-    if (segmento === 'passivo') document.getElementById('dots-recorrencia').style.display = 'none';
-    mostrarScreen(proximoAposIndicacoes || 'recorrencia');
+    if (proximoAposIndicacoes === 'FINALIZAR') finalizarFeedback();
+    else mostrarScreen(proximoAposIndicacoes || 'recorrencia');
   }
 
   function continuarParaSegmento() {
@@ -850,10 +729,10 @@
     else avancarParaOuIndicacoes('negativo');
   }
 
-  function avancarDePico() {
+  function avancarDePositivo() {
     const picoEscolhido = document.querySelector('#chips-pico .chip.selected')?.dataset.value;
     document.getElementById('tip-texto').textContent = picoEscolhido ? dicasPico[picoEscolhido] : dicaGenerica;
-    mostrarScreen('dica');
+    mostrarScreen('google');
   }
 
   function avancarDeGoogle(acao) {
@@ -862,36 +741,19 @@
   }
 
   function avancarDeMotivo() {
-    const texto = document.getElementById('texto-motivo').value.trim();
-    if (texto) {
-      document.getElementById('echo-texto').textContent = `"${texto}"`;
-      mostrarScreen('eco');
-    } else {
-      mostrarScreen('recorrencia');
-    }
+    mostrarScreen('recorrencia');
   }
 
-  function avancarDeRecorrencia() {
-    const quando = document.querySelector('#chips-quando .chip.selected')?.dataset.value;
-    // o pedido de contacto (implementation intention) só faz sentido para
-    // promotoras — um passivo ainda não ganhou esse nível de compromisso
-    if (segmento === 'promotor' && quando && quando !== 'ainda_nao_sei') {
-      mostrarScreen('contacto');
-    } else {
-      finalizarFeedback();
-    }
+  function avancarDePassivoFalta() {
+    // sem barra de progresso própria — a passiva só passa por este ecrã e
+    // pelo de recorrência, mostrar "3 de 4" seria enganador
+    document.getElementById('dots-recorrencia').style.display = 'none';
+    mostrarScreen('recorrencia');
   }
 
-  function responderContacto(quer) {
-    pedidoContactoMarcacao = quer;
-    if (quer) {
-      diaPreferido = document.querySelector('#chips-dia .chip.selected')?.dataset.value || null;
-      // hora específica (ex: "10h") se a escolheu; senão cai para o período (ex: "Manhã")
-      horaPreferida = document.querySelector('#chips-horario .chip.selected')?.dataset.value
-        || document.querySelector('#chips-periodo .chip.selected')?.dataset.value
-        || null;
-    }
-    finalizarFeedback();
+  // Último ecrã antes de enviar — decide se ainda falta pedir indicação
+  function concluirFeedback() {
+    avancarParaOuIndicacoes('FINALIZAR');
   }
 
   // ── ENVIAR FEEDBACK (caminho promotor/passivo) ─────────────────────
@@ -904,6 +766,15 @@
     const interesseServico = [...document.querySelectorAll('#chips-interesse .chip-multi.selected')]
       .map(c => c.dataset.value).join(', ') || null;
 
+    diaPreferido = document.querySelector('#chips-dia .chip.selected')?.dataset.value || null;
+    // hora específica (ex: "10h") se a escolheu; senão cai para o período (ex: "Manhã")
+    horaPreferida = document.querySelector('#chips-horario .chip.selected')?.dataset.value
+      || document.querySelector('#chips-periodo .chip.selected')?.dataset.value
+      || null;
+    // escolher dia ou hora já é o pedido de contacto — não precisa de um
+    // botão extra "sim/não" só para confirmar o que a escolha já diz
+    pedidoContactoMarcacao = Boolean(diaPreferido || horaPreferida);
+
     const payload = {
       clienteId,
       sessaoId,
@@ -912,7 +783,7 @@
       pontosPositivos,
       pontosMelhorar: null,
       comentario: null,
-      quandoVoltar: document.querySelector('#chips-quando .chip.selected')?.dataset.value || null,
+      quandoVoltar: diaPreferido,
       interesseServico,
       momentoPico: document.querySelector('#chips-pico .chip.selected')?.dataset.value || null,
       motivoRegresso: document.getElementById('texto-motivo')?.value.trim() || null,
