@@ -121,6 +121,7 @@
 
     .star {
       font-size: 40px; cursor: pointer;
+      padding: 4px;
       transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1), filter 0.15s;
       filter: grayscale(1) brightness(0.5);
       user-select: none; -webkit-tap-highlight-color: transparent;
@@ -393,7 +394,7 @@
     </header>
 
     <div class="body">
-      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais. <br>Cada detalhe conta para a Essence.</p>
+      <p class="sub-text" style="margin-bottom:24px;">Seleciona um ou mais (opcional). <br>Cada detalhe conta para a Essence.</p>
 
       <div class="chips-grid" id="chips-positivos">
         <button type="button" class="chip" data-value="Ambiente relaxante">Ambiente relaxante</button>
@@ -488,11 +489,11 @@
       <p class="lead-text" style="font-size:18px;margin-bottom:8px;">O teu feedback é um presente.</p>
       <p class="sub-text" style="margin-bottom:28px;">Só a Essence vai ler isto. Sê completamente honesta, é a única forma de melhorarmos.</p>
 
-      <label class="field-label" for="texto-melhoria">O que poderíamos ter feito melhor?</label>
-      <textarea id="texto-melhoria" placeholder="Escreve o que sentiste: pressão, temperatura, duração, comunicação, ambiente… Qualquer detalhe ajuda."></textarea>
+      <label class="field-label" for="texto-melhoria">O que poderíamos ter feito melhor? (opcional)</label>
+      <textarea id="texto-melhoria" maxlength="2000" placeholder="Escreve o que sentiste: pressão, temperatura, duração, comunicação, ambiente… Qualquer detalhe ajuda."></textarea>
 
       <button class="btn-rating" onclick="enviarFeedbackNegativo()">
-        <span>Enviar →</span>
+        <span>Enviar ✦</span>
       </button>
     </div>
 
