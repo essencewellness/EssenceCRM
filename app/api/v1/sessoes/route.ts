@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   const {
     clienteId, calendlyEventId, estado, status, data: dataFiltro,
     briefingEnviado, lembreteEnviado, nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado,
-    lembretePosSessaoEnviado, proxima, terapeuta, de, ate, limit, cursor,
+    lembretePosSessaoEnviado, etiquetasSugeridas, proxima, terapeuta, de, ate, limit, cursor,
   } = q.data
 
   // proxima=true requer clienteId
@@ -83,6 +83,10 @@ export async function GET(request: NextRequest) {
     if (nutricao14dEnviado !== undefined) where.nutricao14dEnviado = nutricao14dEnviado === "true"
     if (nutricao7dEnviado  !== undefined) where.nutricao7dEnviado  = nutricao7dEnviado  === "true"
     if (lembretePosSessaoEnviado !== undefined) where.lembretePosSessaoEnviado = lembretePosSessaoEnviado === "true"
+    // "false" → ainda não passou pela sugestão de etiquetas IA
+    if (etiquetasSugeridas !== undefined) {
+      where.etiquetasSugeridasEm = etiquetasSugeridas === "true" ? { not: null } : null
+    }
 
     // proxima=true → próxima sessão futura do cliente (take: 1, orderBy asc)
     if (proxima === "true") {

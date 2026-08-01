@@ -289,6 +289,10 @@ model Sessao {
   repasseFeito      Boolean   @default(false)
   repasseFeitoEm    DateTime?
 
+  // Sugestão de etiquetas por IA (Groq) — marca quando esta sessão já foi
+  // lida pelo workflow N8N, para nunca reprocessar a mesma sessão duas vezes
+  etiquetasSugeridasEm DateTime?
+
   // Avaliação pós-sessão
   avaliacaoNota         Int?
   avaliacaoComentario   String?

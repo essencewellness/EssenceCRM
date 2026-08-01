@@ -142,6 +142,7 @@ export const sessaoUpdateSchema = z.object({
   pagamentoEm:      dataISO.optional().nullable(),
   repasseNecessario: z.boolean().optional(),
   repasseFeito:      z.boolean().optional(),
+  etiquetasSugeridasEm: dataISO.optional().nullable(),
   // Integrações
   calendarEventId:  z.string().trim().max(256).optional().nullable(),
   pdfUrl:           z.string().trim().url().max(500).optional().nullable(),
@@ -167,6 +168,8 @@ export const sessoesQuerySchema = z.object({
   nutricao14dEnviado: z.enum(["true", "false"]).optional(),
   nutricao7dEnviado:  z.enum(["true", "false"]).optional(),
   lembretePosSessaoEnviado: z.enum(["true", "false"]).optional(),
+  // "false" → sessões ainda por passar pela sugestão de etiquetas IA (Groq)
+  etiquetasSugeridas: z.enum(["true", "false"]).optional(),
   proxima:            z.enum(["true"]).optional(),
   terapeuta:          z.string().trim().max(60).optional(),
   de:                 z.string().optional(),
