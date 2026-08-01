@@ -53,6 +53,7 @@ export async function PATCH(
     briefingEnviado, lembreteEnviado, confirmacaoPresenca,
     nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado, lembretePosSessaoEnviado, googleDocLink, briefingJson,
     estadoPagamento, valorPago, metodoPagamento, pagamentoEm,
+    repasseNecessario, repasseFeito, etiquetasSugeridasEm,
     calendarEventId, pdfUrl, calendlyEventUri,
     avaliacaoNota, avaliacaoComentario, avaliacaoEnviadaEm, avaliacaoRespondidaEm,
   } = v.data
@@ -106,6 +107,9 @@ export async function PATCH(
           ...(valorPago       !== undefined ? { valorPago }       : {}),
           ...(metodoPagamento !== undefined ? { metodoPagamento } : {}),
           ...(pagamentoEm     !== undefined ? { pagamentoEm: pagamentoEm ? new Date(pagamentoEm) : null } : {}),
+          ...(repasseNecessario !== undefined ? { repasseNecessario } : {}),
+          ...(repasseFeito      !== undefined ? { repasseFeito, repasseFeitoEm: repasseFeito ? new Date() : null } : {}),
+          ...(etiquetasSugeridasEm !== undefined ? { etiquetasSugeridasEm: etiquetasSugeridasEm ? new Date(etiquetasSugeridasEm) : null } : {}),
           // Integrações
           ...(calendarEventId  !== undefined ? { calendarEventId }  : {}),
           ...(pdfUrl           !== undefined ? { pdfUrl }           : {}),
