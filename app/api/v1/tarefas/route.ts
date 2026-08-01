@@ -89,8 +89,10 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // criadoPor: tentar extrair userId da sessão JWT; fallback "api:n8n"
-  let criadoPor = "api:n8n"
+  // criadoPor: tentar extrair userId da sessão JWT; senão usar o primeiro
+  // admin ativo (é FK para User.id — uma string arbitrária como "api:n8n"
+  // rebenta a criação com um 500 por violar a foreign key)
+  let criadoPor: string | null = null
   try {
     const session = await auth()
     if (session?.user?.email) {
@@ -98,6 +100,14 @@ export async function POST(request: NextRequest) {
       if (user) criadoPor = user.id
     }
   } catch { /* ignora — pode não haver sessão em chamadas N8N */ }
+
+  if (!criadoPor) {
+    const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
+    criadoPor = admin?.id ?? null
+  }
+  if (!criadoPor) {
+    return NextResponse.json({ error: "Sem utilizador admin disponível para atribuir a tarefa", code: "SEM_ADMIN" }, { status: 500 })
+  }
 
   const tarefa = await prisma.tarefa.create({
     data: {
