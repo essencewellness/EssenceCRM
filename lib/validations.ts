@@ -318,6 +318,12 @@ export const posSessaoPatchSchema = z.object({
   resumoSessao: textoOpcional,
   notasPosSessao: textoOpcional,
   dataRecomendadaRegresso: dataISO.optional().nullable(),
+  // Pagamento — registado na hora pela terapeuta, para o financeiro não
+  // depender de alguém voltar mais tarde e marcar manualmente (spec: a Bea
+  // pediu isto porque o financeiro nunca mudava)
+  estadoPagamento: z.enum(ESTADOS_PAGAMENTO).optional(),
+  valorPago: precoSchema.optional().nullable(),
+  metodoPagamento: z.enum(METODOS_PAGAMENTO).optional().nullable(),
 }).strict()
 
 // ── Serviços ──────────────────────────────────────────────────

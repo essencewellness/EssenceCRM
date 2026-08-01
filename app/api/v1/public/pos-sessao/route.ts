@@ -75,7 +75,10 @@ export async function PATCH(request: NextRequest) {
 
   const v = await validarBody(request, posSessaoPatchSchema)
   if (!v.ok) return v.resposta
-  const { sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso } = v.data
+  const {
+    sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso,
+    estadoPagamento, valorPago, metodoPagamento,
+  } = v.data
 
   const erroToken = await validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
   if (erroToken) return erroToken
@@ -111,6 +114,13 @@ export async function PATCH(request: NextRequest) {
           ...(resumoSessao !== undefined ? { resumoSessao } : {}),
           ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
           ...(dataRecomendadaRegresso ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) } : {}),
+          ...(estadoPagamento !== undefined ? {
+            estadoPagamento,
+            valorPago: valorPago ?? null,
+            metodoPagamento: metodoPagamento ?? null,
+            // mesmo critério do editor manual no /financeiro (só "pago" fixa a data)
+            ...(estadoPagamento === "pago" ? { pagamentoEm: new Date() } : {}),
+          } : {}),
         },
       })
 

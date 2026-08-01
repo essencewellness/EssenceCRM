@@ -325,11 +325,29 @@
       transition: all 0.2s;
     }
 
-    .aroma-btn:hover { border-color: var(--champagne); color: var(--champagne); }
+    .aroma-btn:hover, .pag-btn:hover { border-color: var(--champagne); color: var(--champagne); }
 
-    .aroma-btn.selected {
+    .aroma-btn.selected, .pag-btn.selected {
       background: rgba(212,184,134,0.12);
       border-color: var(--champagne); color: var(--champagne);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PAGAMENTO
+    ═══════════════════════════════════════════════════ */
+    .pag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
+    }
+
+    .pag-btn {
+      padding: 12px 10px; min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 2px; background: var(--overlay);
+      font-family: 'Lato', sans-serif; font-size: 13px;
+      color: var(--bone-soft); cursor: pointer; text-align: center;
+      transition: all 0.2s;
     }
 
     /* ═══════════════════════════════════════════════════
@@ -594,6 +612,31 @@
         </div>
       </div>
 
+      <!-- Pagamento -->
+      <div class="section">
+        <div class="section-label">Pagamento</div>
+        <div class="pag-grid" id="pagamento-estado-grid" role="group" aria-label="Estado do pagamento">
+          <button type="button" class="pag-btn" data-value="pago" aria-pressed="false">✓ Pago</button>
+          <button type="button" class="pag-btn" data-value="pendente" aria-pressed="false">Pendente</button>
+          <button type="button" class="pag-btn" data-value="parcial" aria-pressed="false">Parcial</button>
+          <button type="button" class="pag-btn" data-value="isento" aria-pressed="false">Isento</button>
+        </div>
+        <div id="pagamento-detalhes" style="display:none;margin-top:12px;">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="pagamento-valor">Valor recebido</label>
+              <input type="number" id="pagamento-valor" step="0.01" min="0" placeholder="0.00" autocomplete="off">
+            </div>
+          </div>
+          <div class="pag-grid" id="pagamento-metodo-grid" role="group" aria-label="Método de pagamento" style="margin-top:8px;">
+            <button type="button" class="pag-btn" data-value="mbway" aria-pressed="false">MBWay</button>
+            <button type="button" class="pag-btn" data-value="dinheiro" aria-pressed="false">Dinheiro</button>
+            <button type="button" class="pag-btn" data-value="transferencia" aria-pressed="false">Transferência</button>
+            <button type="button" class="pag-btn" data-value="voucher" aria-pressed="false">Voucher</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Estado emocional -->
       <div class="section">
         <div class="section-label">Estado emocional <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(opcional)</span></div>
@@ -786,6 +829,42 @@
   document.querySelectorAll('.aroma-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.aroma-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+    });
+  });
+
+  // ── Pagamento ────────────────────────────────────
+  const pagamentoDetalhes = document.getElementById('pagamento-detalhes');
+  const pagamentoValorInput = document.getElementById('pagamento-valor');
+
+  document.querySelectorAll('#pagamento-estado-grid .pag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#pagamento-estado-grid .pag-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-pressed', 'true');
+
+      const mostrar = btn.dataset.value === 'pago' || btn.dataset.value === 'parcial';
+      pagamentoDetalhes.style.display = mostrar ? '' : 'none';
+
+      // ao marcar "Pago" sem valor ainda escrito, pré-preenche com o preço do serviço
+      if (btn.dataset.value === 'pago' && !pagamentoValorInput.value) {
+        const servicoSel = document.getElementById('servico');
+        const preco = servicoSel.options[servicoSel.selectedIndex]?.dataset?.preco;
+        if (preco) pagamentoValorInput.value = Number(preco).toFixed(2);
+      }
+    });
+  });
+
+  document.querySelectorAll('#pagamento-metodo-grid .pag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#pagamento-metodo-grid .pag-btn').forEach(b => {
         b.classList.remove('selected');
         b.setAttribute('aria-pressed', 'false');
       });
@@ -1020,6 +1099,12 @@
       ? parseFloat(servicoSel.options[servicoSel.selectedIndex].dataset.preco)
       : null;
 
+    const pagamentoBtn = document.querySelector('#pagamento-estado-grid .pag-btn.selected');
+    const estadoPagamento = pagamentoBtn ? pagamentoBtn.dataset.value : null;
+    const mostraDetalhesPagamento = estadoPagamento === 'pago' || estadoPagamento === 'parcial';
+    const valorPagoTexto = document.getElementById('pagamento-valor').value;
+    const metodoBtn = document.querySelector('#pagamento-metodo-grid .pag-btn.selected');
+
     // Campos clínicos comuns aos dois modos (só enviados quando têm valor)
     const camposClinicos = {
       ...(aromaSessao     ? { aromaSessao }     : {}),
@@ -1027,6 +1112,11 @@
       ...(resumo          ? { resumoSessao: resumo } : {}),
       ...(notasPosSessao  ? { notasPosSessao }  : {}),
       ...(dataRetorno     ? { dataRecomendadaRegresso: dataRetorno } : {}),
+      ...(estadoPagamento ? {
+        estadoPagamento,
+        valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
+        metodoPagamento: mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null,
+      } : {}),
     };
 
     try {
@@ -1081,6 +1171,14 @@
         ...(estadoEmocional ? { estadoEmocional } : {}),
         ...(notasPosSessao  ? { notasPosSessao }  : {}),
         ...(dataRetorno     ? { dataRecomendadaRegresso: dataRetorno } : {}),
+        ...(estadoPagamento ? {
+          estadoPagamento,
+          valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
+          metodoPagamento: mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null,
+          // este endpoint (/api/v1/sessoes/[id]) não fixa a data sozinho — ao
+          // contrário do PATCH público de pos-sessão, que já o faz no servidor
+          ...(estadoPagamento === 'pago' ? { pagamentoEm: new Date().toISOString() } : {}),
+        } : {}),
       };
       if (Object.keys(extras).length > 0 && sessao?.id) {
         await fetch(`${API_BASE}/api/v1/sessoes/${sessao.id}`, {
@@ -1155,7 +1253,9 @@
     document.getElementById('notas-proxima').value = '';
     document.getElementById('aroma-custom').value = '';
     document.getElementById('data-retorno').value = '';
-    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn').forEach(b => {
+    document.getElementById('pagamento-valor').value = '';
+    document.getElementById('pagamento-detalhes').style.display = 'none';
+    document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn, .pag-btn').forEach(b => {
       b.classList.remove('selected');
       b.setAttribute('aria-pressed', 'false');
     });
