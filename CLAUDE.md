@@ -107,7 +107,7 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | 🟠 ALTO | Password da Neon exposta anteriormente — rotar na consola Neon | Vercel env `DATABASE_URL` |
 | 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |
 | 🟡 MÉDIO | Workflows N8N (incluindo o motor de envio) ainda não existem como ficheiros exportados no repositório — só um template vazio em `03_WORKFLOWS_N8N/_TEMPLATE/`. Sem workflow real, não há como confirmar que anexam `&t=` aos links (enforcement de link tokens continua desligado) | `03_WORKFLOWS_N8N/` |
-| 🟡 MÉDIO | `confirmacao-envio` não bloqueia double-delivery | `app/api/v1/webhooks/confirmacao-envio/route.ts` |
+| ~~🟡 MÉDIO~~ | ~~`confirmacao-envio` não bloqueia double-delivery~~ | ✅ Resolvido 2026-08-01 — `updateMany` com `estado: "em_fila"` no WHERE torna a transição atómica (antes: read-then-write com janela de corrida entre pedidos concorrentes do N8N) |
 | 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |
 
 ## Resolvido nesta fase (spec-002)
