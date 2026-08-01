@@ -350,6 +350,8 @@
       transition: all 0.2s;
     }
 
+    .field-hint { font-family: 'Lato', sans-serif; font-size: 12px; color: var(--smoke); }
+
     /* ═══════════════════════════════════════════════════
        RETORNO
     ═══════════════════════════════════════════════════ */
@@ -622,14 +624,16 @@
           <button type="button" class="pag-btn" data-value="isento" aria-pressed="false">Isento</button>
         </div>
         <div id="pagamento-detalhes" style="display:none;margin-top:12px;">
-          <div class="field-row">
+          <div class="field-row" id="pagamento-valor-wrap">
             <div class="field-group">
               <label class="field-label" for="pagamento-valor">Valor recebido</label>
               <input type="number" id="pagamento-valor" step="0.01" min="0" placeholder="0.00" autocomplete="off">
             </div>
           </div>
+          <p id="pagamento-voucher-nota" class="field-hint" style="display:none;margin:0 0 8px;">Voucher já pago pela compradora — não há valor a receber agora.</p>
           <div class="pag-grid" id="pagamento-metodo-grid" role="group" aria-label="Método de pagamento" style="margin-top:8px;">
-            <button type="button" class="pag-btn" data-value="mbway" aria-pressed="false">MBWay</button>
+            <button type="button" class="pag-btn" data-value="mbway_essence" aria-pressed="false">MBWay Essence</button>
+            <button type="button" class="pag-btn" data-value="mbway_beatriz" aria-pressed="false">MBWay Beatriz</button>
             <button type="button" class="pag-btn" data-value="dinheiro" aria-pressed="false">Dinheiro</button>
             <button type="button" class="pag-btn" data-value="transferencia" aria-pressed="false">Transferência</button>
             <button type="button" class="pag-btn" data-value="voucher" aria-pressed="false">Voucher</button>
@@ -862,6 +866,9 @@
     });
   });
 
+  const pagamentoValorWrap = document.getElementById('pagamento-valor-wrap');
+  const pagamentoVoucherNota = document.getElementById('pagamento-voucher-nota');
+
   document.querySelectorAll('#pagamento-metodo-grid .pag-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#pagamento-metodo-grid .pag-btn').forEach(b => {
@@ -870,6 +877,13 @@
       });
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
+
+      // voucher já foi pago pela compradora quando o comprou — não há
+      // valor nenhum a receber agora, por isso o campo desaparece
+      const ehVoucher = btn.dataset.value === 'voucher';
+      pagamentoValorWrap.style.display = ehVoucher ? 'none' : '';
+      pagamentoVoucherNota.style.display = ehVoucher ? '' : 'none';
+      if (ehVoucher) pagamentoValorInput.value = '';
     });
   });
 
@@ -1104,6 +1118,14 @@
     const mostraDetalhesPagamento = estadoPagamento === 'pago' || estadoPagamento === 'parcial';
     const valorPagoTexto = document.getElementById('pagamento-valor').value;
     const metodoBtn = document.querySelector('#pagamento-metodo-grid .pag-btn.selected');
+    const metodoSelecionado = mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null;
+
+    // Só há um MBWay físico (é da Bea) — quando é a Cristina a receber por lá,
+    // esse dinheiro fica na conta da Bea até ela entregar a parte da Cristina
+    // em mão. Marca a sessão como tendo um repasse pendente.
+    const ehCristina = /cristina/i.test(terapeutaNome);
+    const ehMbway = metodoSelecionado === 'mbway_essence' || metodoSelecionado === 'mbway_beatriz';
+    const repasseNecessario = ehCristina && ehMbway && mostraDetalhesPagamento;
 
     // Campos clínicos comuns aos dois modos (só enviados quando têm valor)
     const camposClinicos = {
@@ -1115,7 +1137,8 @@
       ...(estadoPagamento ? {
         estadoPagamento,
         valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
-        metodoPagamento: mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null,
+        metodoPagamento: metodoSelecionado,
+        repasseNecessario,
       } : {}),
     };
 
@@ -1174,7 +1197,8 @@
         ...(estadoPagamento ? {
           estadoPagamento,
           valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
-          metodoPagamento: mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null,
+          metodoPagamento: metodoSelecionado,
+          repasseNecessario,
           // este endpoint (/api/v1/sessoes/[id]) não fixa a data sozinho — ao
           // contrário do PATCH público de pos-sessão, que já o faz no servidor
           ...(estadoPagamento === 'pago' ? { pagamentoEm: new Date().toISOString() } : {}),
@@ -1255,6 +1279,8 @@
     document.getElementById('data-retorno').value = '';
     document.getElementById('pagamento-valor').value = '';
     document.getElementById('pagamento-detalhes').style.display = 'none';
+    document.getElementById('pagamento-valor-wrap').style.display = '';
+    document.getElementById('pagamento-voucher-nota').style.display = 'none';
     document.querySelectorAll('.aroma-btn, .emocional-btn, .return-btn, .pag-btn').forEach(b => {
       b.classList.remove('selected');
       b.setAttribute('aria-pressed', 'false');

@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
+import { RepassesCristina, type RepasseRow } from "./RepassesCristina"
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -12,6 +13,14 @@ const GOLD = "#d4b886"
 const CREAM = "#ece6d6"
 const CARD_BG = "#1f2433"
 const BORDER = "rgba(212,184,134,0.15)"
+
+const METODO_LABEL_PT: Record<string, string> = {
+  dinheiro: "Dinheiro",
+  mbway_essence: "MBWay Essence",
+  mbway_beatriz: "MBWay Beatriz",
+  transferencia: "Transferência",
+  voucher: "Voucher",
+}
 
 function fmtMes(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
@@ -43,12 +52,13 @@ export default async function FinanceiroPage({
 
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
-  const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, servicosRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, servicosRaw, repassesRaw] = await Promise.all([
     prisma.sessao.findMany({
       where: { data: { gte: inicio, lt: fim }, apagadoEm: null, ...filtroSessao },
       select: {
         id: true, estadoPagamento: true, valorPago: true, metodoPagamento: true,
         preco: true, data: true, servico: true, estado: true,
+        repasseNecessario: true, repasseFeito: true,
         cliente: { select: { id: true, nome: true } },
       },
       orderBy: { data: "desc" },
@@ -72,6 +82,16 @@ export default async function FinanceiroPage({
       select: { id: true, nome: true, precoBase: true },
       orderBy: { nome: "asc" },
     }),
+    // Repasses à Cristina — não filtrados por mês nem por terapeuta: é
+    // dinheiro em aberto independentemente de quando a sessão foi
+    prisma.sessao.findMany({
+      where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null },
+      select: {
+        id: true, data: true, servico: true, valorPago: true, metodoPagamento: true,
+        cliente: { select: { id: true, nome: true } },
+      },
+      orderBy: { data: "asc" },
+    }),
   ])
 
   // Serializar Decimals e Dates para os client components
@@ -84,8 +104,20 @@ export default async function FinanceiroPage({
     estadoPagamento: s.estadoPagamento,
     valorPago: s.valorPago !== null ? String(s.valorPago) : null,
     metodoPagamento: s.metodoPagamento,
+    repasseNecessario: s.repasseNecessario,
+    repasseFeito: s.repasseFeito,
     cliente: s.cliente,
   }))
+
+  const repasses: RepasseRow[] = repassesRaw.map(r => ({
+    id: r.id,
+    data: r.data.toISOString(),
+    servico: r.servico,
+    valorPago: r.valorPago !== null ? String(r.valorPago) : null,
+    metodoPagamento: r.metodoPagamento,
+    cliente: r.cliente,
+  }))
+  const totalRepasses = repasses.reduce((soma, r) => soma + (r.valorPago ? Number(r.valorPago) : 0), 0)
 
   const vouchers: VoucherRow[] = (serializarDecimais(vouchersRaw) as typeof vouchersRaw).map(v => ({
     id: v.id,
@@ -125,7 +157,9 @@ export default async function FinanceiroPage({
 
   // KPIs do mês
   let receitaTotal = 0
-  const porMetodo: Record<string, number> = { dinheiro: 0, mbway: 0, transferencia: 0, voucher: 0 }
+  const porMetodo: Record<string, number> = {
+    dinheiro: 0, mbway_essence: 0, mbway_beatriz: 0, transferencia: 0, voucher: 0,
+  }
   const porEstado: Record<string, number> = { pendente: 0, pago: 0, parcial: 0, isento: 0 }
 
   for (const s of sessoes) {
@@ -134,7 +168,8 @@ export default async function FinanceiroPage({
     if (s.estadoPagamento === "pago" && s.valorPago) {
       const v = Number(s.valorPago)
       receitaTotal += v
-      const m = s.metodoPagamento as string | null
+      // "mbway" (legado, antes de separar por conta) conta para a Beatriz
+      const m = s.metodoPagamento === "mbway" ? "mbway_beatriz" : (s.metodoPagamento as string | null)
       if (m && m in porMetodo) porMetodo[m]! += v
     }
   }
@@ -185,6 +220,8 @@ export default async function FinanceiroPage({
         <KpiCard label="Receita total" valor={`€${receitaSempre.toFixed(2)}`} tipo="ouro" />
       </div>
 
+      <RepassesCristina repasses={repasses} total={totalRepasses} />
+
       {/* Por método + Top clientes */}
       <div className="grid md:grid-cols-2 gap-8">
         <section>
@@ -192,8 +229,8 @@ export default async function FinanceiroPage({
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(porMetodo).map(([metodo, valor]) => (
               <div key={metodo} style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.45)", fontSize: "11px", textTransform: "capitalize", marginBottom: "6px" }}>
-                  {metodo === "transferencia" ? "Transferência" : metodo.charAt(0).toUpperCase() + metodo.slice(1)}
+                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.45)", fontSize: "11px", marginBottom: "6px" }}>
+                  {METODO_LABEL_PT[metodo] ?? metodo}
                 </div>
                 <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "20px", fontWeight: 400 }}>
                   €{valor.toFixed(2)}

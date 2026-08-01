@@ -17,7 +17,18 @@ export type SessaoRow = {
   estadoPagamento: string
   valorPago: string | null
   metodoPagamento: string | null
+  repasseNecessario: boolean
+  repasseFeito: boolean
   cliente: { id: string; nome: string }
+}
+
+const METODO_LABEL: Record<string, string> = {
+  dinheiro: "Dinheiro",
+  mbway: "MBWay",
+  mbway_essence: "MBWay Essence",
+  mbway_beatriz: "MBWay Beatriz",
+  transferencia: "Transferência",
+  voucher: "Voucher",
 }
 
 const ESTADO_PAG_MAP: Record<string, { bg: string; color: string; label: string }> = {
@@ -59,17 +70,19 @@ function PagamentoEditor({ sessao, onFechar }: { sessao: SessaoRow; onFechar: ()
   const [pending, startTransition] = useTransition()
   const [estado, setEstado] = useState(sessao.estadoPagamento)
   const [valor, setValor] = useState(precoRef ? Number(precoRef).toFixed(2) : "")
-  const [metodo, setMetodo] = useState(sessao.metodoPagamento ?? "mbway")
+  const [metodo, setMetodo] = useState(sessao.metodoPagamento ?? "mbway_essence")
 
   const mostrarDetalhes = estado === "pago" || estado === "parcial"
+  // voucher já foi pago pela compradora quando o comprou — não há valor a registar agora
+  const mostrarValor = mostrarDetalhes && metodo !== "voucher"
 
   function guardar() {
     startTransition(async () => {
       await atualizarPagamento(sessao.id, {
         estadoPagamento: estado as "pendente" | "pago" | "parcial" | "isento",
-        valorPago: mostrarDetalhes && valor ? Number(valor) : null,
+        valorPago: mostrarValor && valor ? Number(valor) : null,
         metodoPagamento: mostrarDetalhes
-          ? (metodo as "dinheiro" | "mbway" | "transferencia" | "voucher")
+          ? (metodo as "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "voucher")
           : null,
       })
       onFechar()
@@ -113,25 +126,35 @@ function PagamentoEditor({ sessao, onFechar }: { sessao: SessaoRow; onFechar: ()
 
           {/* Valor + método (só se pago/parcial) */}
           {mostrarDetalhes && (
-            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", flex: 1, gap: "4px" }}>
-                <span style={{ color: GOLD, fontSize: "13px" }}>€</span>
-                <input
-                  type="number"
-                  value={valor}
-                  onChange={e => setValor(e.target.value)}
-                  style={{ ...selStyle, flex: 1, cursor: "text" }}
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                />
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", gap: "8px" }}>
+                {mostrarValor && (
+                  <div style={{ display: "flex", alignItems: "center", flex: 1, gap: "4px" }}>
+                    <span style={{ color: GOLD, fontSize: "13px" }}>€</span>
+                    <input
+                      type="number"
+                      value={valor}
+                      onChange={e => setValor(e.target.value)}
+                      style={{ ...selStyle, flex: 1, cursor: "text" }}
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
+                <select value={metodo} onChange={e => setMetodo(e.target.value)} style={{ ...selStyle, flex: 1 }}>
+                  <option value="mbway_essence">MBWay Essence</option>
+                  <option value="mbway_beatriz">MBWay Beatriz</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="transferencia">Transferência</option>
+                  <option value="voucher">Voucher</option>
+                </select>
               </div>
-              <select value={metodo} onChange={e => setMetodo(e.target.value)} style={{ ...selStyle, flex: 1 }}>
-                <option value="mbway">MBWay</option>
-                <option value="dinheiro">Dinheiro</option>
-                <option value="transferencia">Transferência</option>
-                <option value="voucher">Voucher</option>
-              </select>
+              {!mostrarValor && (
+                <p style={{ margin: 0, fontSize: "11px", color: "rgba(237,231,227,0.4)", fontFamily: "var(--font-sans, 'Manrope', sans-serif)" }}>
+                  Voucher já pago pela compradora — sem valor a registar agora.
+                </p>
+              )}
             </div>
           )}
 
@@ -238,6 +261,15 @@ export function TabelaSessoesPagamento({
                     title="Clica para editar pagamento"
                   >
                     <PagamentoBadge estado={s.estadoPagamento} />
+                    {s.repasseNecessario && !s.repasseFeito && (
+                      <span title="A repassar à Cristina" style={{
+                        display: "inline-flex", alignItems: "center", padding: "3px 6px",
+                        borderRadius: "4px", backgroundColor: "rgba(212,140,50,0.12)", color: "#d48c45",
+                        fontSize: "10px", fontWeight: 600, fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                      }}>
+                        ⏳ Repassar
+                      </span>
+                    )}
                     <span style={{ color: "rgba(212,184,134,0.35)", fontSize: "10px", lineHeight: 1 }}>✎</span>
                   </button>
                   {editId === s.id && (
@@ -245,12 +277,19 @@ export function TabelaSessoesPagamento({
                   )}
                 </div>
               </td>
-              <td style={{ padding: "12px 16px", textAlign: "right", color: "rgba(237,231,227,0.7)", fontSize: "13px", whiteSpace: "nowrap" }}>
-                {s.valorPago
-                  ? `€${Number(s.valorPago).toFixed(2)}`
-                  : s.preco
-                  ? `€${Number(s.preco).toFixed(2)}`
-                  : "—"}
+              <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
+                <div style={{ color: "rgba(237,231,227,0.7)", fontSize: "13px" }}>
+                  {s.valorPago
+                    ? `€${Number(s.valorPago).toFixed(2)}`
+                    : s.preco
+                    ? `€${Number(s.preco).toFixed(2)}`
+                    : "—"}
+                </div>
+                {s.metodoPagamento && (
+                  <div style={{ color: "rgba(237,231,227,0.35)", fontSize: "10.5px", marginTop: "2px" }}>
+                    {METODO_LABEL[s.metodoPagamento] ?? s.metodoPagamento}
+                  </div>
+                )}
               </td>
             </tr>
           ))}

@@ -77,7 +77,7 @@ export async function PATCH(request: NextRequest) {
   if (!v.ok) return v.resposta
   const {
     sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso,
-    estadoPagamento, valorPago, metodoPagamento,
+    estadoPagamento, valorPago, metodoPagamento, repasseNecessario,
   } = v.data
 
   const erroToken = await validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
@@ -120,6 +120,7 @@ export async function PATCH(request: NextRequest) {
             metodoPagamento: metodoPagamento ?? null,
             // mesmo critério do editor manual no /financeiro (só "pago" fixa a data)
             ...(estadoPagamento === "pago" ? { pagamentoEm: new Date() } : {}),
+            repasseNecessario: repasseNecessario ?? false,
           } : {}),
         },
       })

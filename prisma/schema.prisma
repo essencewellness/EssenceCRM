@@ -96,7 +96,9 @@ enum EstadoPagamento {
 
 enum MetodoPagamento {
   dinheiro
-  mbway
+  mbway            // legado — mantido só para não invalidar registos antigos
+  mbway_essence    // conta MBWay "Essence Wellness" (é da Bea, mas de uso do negócio)
+  mbway_beatriz    // conta MBWay pessoal da Bea
   transferencia
   voucher
 }
@@ -280,6 +282,12 @@ model Sessao {
   valorPago        Decimal?         @db.Decimal(10, 2)
   metodoPagamento  MetodoPagamento?
   pagamentoEm      DateTime?
+  // Repasse — só há um MBWay físico (é da Bea); quando é a Cristina que
+  // recebe por lá, o dinheiro fica na conta da Bea até ela entregar a
+  // parte da Cristina em mão. Isto rastreia essa dívida interna.
+  repasseNecessario Boolean   @default(false)
+  repasseFeito      Boolean   @default(false)
+  repasseFeitoEm    DateTime?
 
   // Avaliação pós-sessão
   avaliacaoNota         Int?

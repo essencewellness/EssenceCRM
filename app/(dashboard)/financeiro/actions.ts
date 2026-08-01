@@ -51,10 +51,18 @@ export async function atualizarPagamento(
   dados: {
     estadoPagamento: "pendente" | "pago" | "parcial" | "isento"
     valorPago?: number | null
-    metodoPagamento?: "dinheiro" | "mbway" | "transferencia" | "voucher" | null
+    metodoPagamento?: "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "voucher" | null
   }
 ) {
   await verificarSessao()
+
+  // Só há um MBWay físico (é da Bea) — se a sessão é da Cristina e o
+  // pagamento passa a ser por lá, fica um repasse por fazer até a Bea
+  // entregar a parte dela em mão.
+  const sessao = await prisma.sessao.findUnique({ where: { id: sessaoId }, select: { terapeuta: true } })
+  const ehCristina = /cristina/i.test(sessao?.terapeuta ?? "")
+  const ehMbway = dados.metodoPagamento === "mbway_essence" || dados.metodoPagamento === "mbway_beatriz"
+  const emAberto = dados.estadoPagamento === "pago" || dados.estadoPagamento === "parcial"
 
   await prisma.sessao.update({
     where: { id: sessaoId },
@@ -63,7 +71,20 @@ export async function atualizarPagamento(
       valorPago: dados.valorPago ?? null,
       metodoPagamento: dados.metodoPagamento ?? null,
       pagamentoEm: dados.estadoPagamento === "pago" ? new Date() : undefined,
+      repasseNecessario: ehCristina && ehMbway && emAberto,
     },
+  })
+
+  revalidatePath("/financeiro")
+}
+
+// ── Repasse à Cristina (MBWay cai sempre na conta da Bea) ─────
+export async function marcarRepasseFeito(sessaoId: string) {
+  await verificarSessao()
+
+  await prisma.sessao.update({
+    where: { id: sessaoId },
+    data: { repasseFeito: true, repasseFeitoEm: new Date() },
   })
 
   revalidatePath("/financeiro")

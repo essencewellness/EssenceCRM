@@ -7,7 +7,9 @@ import { NextResponse } from "next/server"
 // ── Primitivos reutilizáveis ──────────────────────────────────
 
 export const ESTADOS_PAGAMENTO = ["pendente", "pago", "parcial", "isento"] as const
-export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "transferencia", "voucher"] as const
+// "mbway" mantido só por compatibilidade com registos antigos — os forms
+// novos usam sempre mbway_essence/mbway_beatriz (ver Sessao.repasseNecessario)
+export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "mbway_essence", "mbway_beatriz", "transferencia", "voucher"] as const
 export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
 export const TIPOS_MENSAGEM = ["reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas"] as const
 
@@ -138,6 +140,8 @@ export const sessaoUpdateSchema = z.object({
   valorPago:        z.coerce.number().min(0).max(10_000).optional().nullable(),
   metodoPagamento:  z.enum(METODOS_PAGAMENTO).optional().nullable(),
   pagamentoEm:      dataISO.optional().nullable(),
+  repasseNecessario: z.boolean().optional(),
+  repasseFeito:      z.boolean().optional(),
   // Integrações
   calendarEventId:  z.string().trim().max(256).optional().nullable(),
   pdfUrl:           z.string().trim().url().max(500).optional().nullable(),
@@ -324,6 +328,9 @@ export const posSessaoPatchSchema = z.object({
   estadoPagamento: z.enum(ESTADOS_PAGAMENTO).optional(),
   valorPago: precoSchema.optional().nullable(),
   metodoPagamento: z.enum(METODOS_PAGAMENTO).optional().nullable(),
+  // true quando é a Cristina a receber por MBWay (conta é da Bea) — calculado
+  // no forms a partir da terapeuta selecionada, não no servidor
+  repasseNecessario: z.boolean().optional(),
 }).strict()
 
 // ── Serviços ──────────────────────────────────────────────────
