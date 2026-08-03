@@ -143,7 +143,7 @@
     const legivel = completo.startsWith("351")
       ? "+351 " + completo.slice(3).replace(/(\d{3})(?=\d)/g, "$1 ").trim()
       : "+" + completo;
-    return { legivel, e164: "+" + completo };
+    return { legivel, e164: "+" + completo, whatsapp: "https://wa.me/" + completo };
   }
 
   async function carregar() {
@@ -177,7 +177,7 @@
       const tel = formatarTelefone(data.cliente.telefone);
       const rows = [
         ["Cliente", data.cliente.nome],
-        ["Telefone", tel ? tel.legivel : "—", tel ? "tel:" + tel.e164 : null],
+        ["Telefone", tel ? tel.legivel : "—", tel ? tel.whatsapp : null],
         ["Serviço", data.sessao.servico || "—"],
         ["Data", data.sessao.data ? formatarData(data.sessao.data) : "—"],
         ["Hora", data.sessao.hora || "—"],
@@ -187,10 +187,12 @@
         row.className = "booking-row";
         const l = document.createElement("span");
         l.textContent = label;
-        // Telefone fica tocável para ligar direto do telemóvel
+        // Telefone abre o WhatsApp diretamente (não a app de chamadas)
         const v = document.createElement(href ? "a" : "span");
         if (href) {
           v.href = href;
+          v.target = "_blank";
+          v.rel = "noopener";
           v.style.cssText = "color:inherit;text-decoration:none;border-bottom:1px dotted currentColor;";
         }
         v.textContent = value;
