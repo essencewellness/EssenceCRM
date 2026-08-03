@@ -43,6 +43,11 @@ export const clienteCreateSchema = z.object({
   comoNosConheceu: z.string().trim().max(120).optional().nullable(),
   dataNascimento: dataISO.optional().nullable(),
   aceitaMarketing: z.boolean().optional(),
+  // Estado inicial — só "lead" (formulário de captação, sem marcação) ou
+  // "novo" (já vem com sessão marcada, ex.: Calendly via WF01). Os
+  // restantes estados só fazem sentido depois do motor de estados analisar
+  // histórico real, nunca na criação.
+  estado: z.enum(["lead", "novo"]).optional(),
 }).strict()
 
 // Whitelist explícita — corrige o mass-assignment do PATCH antigo

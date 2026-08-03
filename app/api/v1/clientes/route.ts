@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, clienteCreateSchema)
   if (!v.ok) return v.resposta
-  const { nome, telefone, email, fonte, comoNosConheceu, dataNascimento, aceitaMarketing } = v.data
+  const { nome, telefone, email, fonte, comoNosConheceu, dataNascimento, aceitaMarketing, estado } = v.data
 
   try {
     // Upsert: procurar por telefone ou email antes de criar (sem duplicados)
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
         dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
         aceitaMarketing: aceitaMarketing ?? true,
         ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
-        estado: "lead",
+        estado: estado ?? "lead",
       },
     })
 
