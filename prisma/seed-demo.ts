@@ -53,7 +53,7 @@ const SERVICOS = [
   { nome: "Puro Aroma", preco: 45, duracao: 60 },
   { nome: "Cera Quente", preco: 50, duracao: 60 },
   { nome: "Drenagem Linfática", preco: 40, duracao: 60 },
-  { nome: "Massagem Pré-Natal", preco: 45, duracao: 60 },
+  { nome: "Drenagem Linfática 90 min", preco: 85, duracao: 90 },
 ];
 const AROMAS = ["Lavanda", "Eucalipto", "Ylang-ylang", "Camomila", "Sândalo", "Bergamota", "Neroli", "Rosa", "Hortelã", "Cedro"];
 const RESUMOS = [

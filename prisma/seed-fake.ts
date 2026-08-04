@@ -110,7 +110,7 @@ async function main() {
       { clienteId: clientes["Constança Brito"], data: d(-44, 11), hora: "11:00", duracao: 60, servico: "Cera Quente", preco: 50, terapeuta: "bea", estado: "realizada", resumoSessao: "Lombar muito carregada." },
       { clienteId: clientes["Madalena Quintela"], data: d(-12, 16), hora: "16:00", duracao: 60, servico: "Essência Plena", preco: 40, terapeuta: "cris", estado: "realizada" },
       { clienteId: clientes["Beatriz Camacho"], data: d(-6, 10), hora: "10:00", duracao: 60, servico: "Essência Plena", preco: 40, terapeuta: "bea", estado: "realizada", resumoSessao: "Primeira sessão — adorou." },
-      { clienteId: clientes["Sofia Travassos"], data: d(2, 9), hora: "09:00", duracao: 60, servico: "Massagem Pré-Natal", preco: 45, terapeuta: "bea", estado: "confirmada" },
+      { clienteId: clientes["Sofia Travassos"], data: d(2, 9), hora: "09:00", duracao: 60, servico: "Puro Aroma", preco: 45, terapeuta: "bea", estado: "confirmada" },
       { clienteId: clientes["Teresa Albuquerque"], data: d(0, 18), hora: "18:00", duracao: 60, servico: "Puro Aroma", preco: 45, terapeuta: "cris", estado: "agendada" },
       { clienteId: clientes["Filipa Sarmento"], data: d(-75, 15), hora: "15:00", duracao: 60, servico: "Essência Plena", preco: 40, terapeuta: "bea", estado: "realizada" },
     ],

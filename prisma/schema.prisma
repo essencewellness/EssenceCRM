@@ -100,6 +100,7 @@ enum MetodoPagamento {
   mbway_essence    // conta MBWay "Essence Wellness" (é da Bea, mas de uso do negócio)
   mbway_beatriz    // conta MBWay pessoal da Bea
   transferencia
+  stripe
   voucher
 }
 

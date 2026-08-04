@@ -154,6 +154,7 @@ export const webhooks = {
     sessaoId: string
     clienteId: string
     nomeCliente: string
+    telefone?: string | null
     servico?: string | null
     data?: string | null
     hora?: string | null

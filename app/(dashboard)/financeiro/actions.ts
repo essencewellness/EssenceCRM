@@ -51,7 +51,7 @@ export async function atualizarPagamento(
   dados: {
     estadoPagamento: "pendente" | "pago" | "parcial" | "isento"
     valorPago?: number | null
-    metodoPagamento?: "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "voucher" | null
+    metodoPagamento?: "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "stripe" | "voucher" | null
   }
 ) {
   await verificarSessao()

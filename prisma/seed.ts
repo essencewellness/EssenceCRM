@@ -13,7 +13,7 @@ async function main() {
     { nome: "Puro Aroma",         duracaoMinutos: 60, precoBase: 45 },
     { nome: "Cera Quente",        duracaoMinutos: 60, precoBase: 50 },
     { nome: "Drenagem Linfática", duracaoMinutos: 60, precoBase: 40 },
-    { nome: "Massagem Pré-Natal", duracaoMinutos: 60, precoBase: 45 },
+    { nome: "Drenagem Linfática 90 min", duracaoMinutos: 90, precoBase: 85 },
   ]
   for (const s of servicosData) {
     await prisma.servico.upsert({
@@ -84,9 +84,9 @@ async function main() {
   };
 
   // ── Clientes ──────────────────────────────────────────────────────────────
-  // Serviços reais da Essence Wellness (catálogo do Notion):
+  // Serviços reais da Essence Wellness:
   //   Essência Plena: 40€ | Puro Aroma: 45€ | Cera Quente: 50€
-  //   Massagem Dubai Essence: 55€ | Massagem Pré-Natal: 45€
+  //   Drenagem Linfática: 40€ (60 min) | 60€ (90 min)
 
   const clientesData = [
     // ── VIP Embaixadora — cliente mais fiel, 18+ sessões ──────────────────

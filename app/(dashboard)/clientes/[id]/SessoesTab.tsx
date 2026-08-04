@@ -43,20 +43,20 @@ function safeUrl(url: string | null | undefined): string | undefined {
   return undefined
 }
 
-// pos-sessao.html grava dois campos separados (observações privadas + nota
-// para a próxima visita) concatenados num único notasPosSessao, com a nota
-// prefixada "Próxima sessão: ". Separa-os de volta só para leitura — editar
+// pos-sessao.html grava dois campos separados (observações clínicas +
+// observações pessoais) concatenados num único notasPosSessao, com a parte
+// pessoal prefixada "Pessoal: ". Separa-os de volta só para leitura — editar
 // continua a ser o campo único combinado, não há coluna nova no schema.
-function separarNotas(texto: string): { privadas: string | null; proximaSessao: string | null } {
-  const marcador = "Próxima sessão: "
+function separarNotas(texto: string): { clinicas: string | null; pessoais: string | null } {
+  const marcador = "Pessoal: "
   const partes = texto.split(new RegExp(`\\n\\n(?=${marcador})`))
-  let privadas: string | null = null
-  let proximaSessao: string | null = null
+  let clinicas: string | null = null
+  let pessoais: string | null = null
   for (const parte of partes) {
-    if (parte.startsWith(marcador)) proximaSessao = parte.slice(marcador.length)
-    else if (parte.trim()) privadas = parte
+    if (parte.startsWith(marcador)) pessoais = parte.slice(marcador.length)
+    else if (parte.trim()) clinicas = parte
   }
-  return { privadas, proximaSessao }
+  return { clinicas, pessoais }
 }
 
 // Consolida tudo o que a terapeuta registou num único bloco de leitura
@@ -65,9 +65,9 @@ function separarNotas(texto: string): { privadas: string | null; proximaSessao: 
 // "Notas para a Próxima Sessão" misturava observações privadas com a
 // recomendação, sem distinção nenhuma.
 function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
-  const { privadas, proximaSessao } = sessao.notasPosSessao ? separarNotas(sessao.notasPosSessao) : { privadas: null, proximaSessao: null }
+  const { clinicas, pessoais } = sessao.notasPosSessao ? separarNotas(sessao.notasPosSessao) : { clinicas: null, pessoais: null }
   const temCabecalho = Boolean(sessao.estadoEmocional || sessao.aromaSessao)
-  const temConteudo = temCabecalho || sessao.resumoSessao || privadas || proximaSessao
+  const temConteudo = temCabecalho || sessao.resumoSessao || clinicas || pessoais
   if (!temConteudo) return null
 
   const separadorAroma = sessao.aromaSessao?.indexOf(" — ") ?? -1
@@ -101,28 +101,28 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
         <p style={{
           fontFamily: "var(--font-body)", fontSize: "14px", color: "var(--nuit-bone-soft)",
           lineHeight: 1.75, whiteSpace: "pre-wrap",
-          margin: proximaSessao || privadas ? "0 0 14px" : 0,
+          margin: clinicas || pessoais ? "0 0 14px" : 0,
         }}>
           {sessao.resumoSessao}
         </p>
       )}
 
-      {proximaSessao && (
+      {clinicas && (
         <p style={{
           fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone-soft)",
           lineHeight: 1.7, whiteSpace: "pre-wrap",
-          margin: privadas ? "0 0 10px" : 0,
+          margin: pessoais ? "0 0 10px" : 0,
         }}>
-          <strong style={{ color: "#b9a07a", fontWeight: 600 }}>Para a próxima: </strong>{proximaSessao}
+          <strong style={{ color: "#b9a07a", fontWeight: 600 }}>Clínico: </strong>{clinicas}
         </p>
       )}
 
-      {privadas && (
+      {pessoais && (
         <p style={{
           fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-bone-soft)",
           lineHeight: 1.7, whiteSpace: "pre-wrap", fontStyle: "italic", margin: 0,
         }}>
-          {privadas}
+          <strong style={{ fontStyle: "normal", fontWeight: 600 }}>Pessoal: </strong>{pessoais}
         </p>
       )}
     </div>
@@ -776,9 +776,9 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "resumoSessao", v)}
                 />
 
-                {/* Notas privadas + recomendação (edição — campo único combinado, ver ResumoSessaoBlock para a leitura separada) */}
+                {/* Observações clínicas + pessoais (edição — campo único combinado, ver ResumoSessaoBlock para a leitura separada) */}
                 <EditableDetailBlock
-                  title="Notas Privadas & Recomendação"
+                  title="Observações Clínicas & Pessoais"
                   icon={Star}
                   value={sessaoAberta.notasPosSessao}
                   color="#b9a07a"

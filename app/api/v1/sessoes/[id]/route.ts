@@ -49,12 +49,13 @@ export async function PATCH(
   const {
     estado, data, hora, duracao, resumoSessao, notasPosSessao,
     aromaSessao, estadoEmocional, linkDocumento,
-    dataRecomendadaRegresso, preco, servico,
+    dataRecomendadaRegresso, preco, servico, terapeutaId,
     briefingEnviado, lembreteEnviado, confirmacaoPresenca,
     nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado, lembretePosSessaoEnviado, googleDocLink, briefingJson,
     estadoPagamento, valorPago, metodoPagamento, pagamentoEm,
     repasseNecessario, repasseFeito, etiquetasSugeridasEm,
-    calendarEventId, pdfUrl, calendlyEventUri,
+    calendarEventId, pdfUrl, calendlyEventId, calendlyEventUri,
+    calendlyRescheduleUrl, calendlyCancelUrl,
     avaliacaoNota, avaliacaoComentario, avaliacaoEnviadaEm, avaliacaoRespondidaEm,
   } = v.data
 
@@ -90,6 +91,7 @@ export async function PATCH(
           ...(linkDocumento !== undefined ? { linkDocumento } : {}),
           ...(preco !== undefined ? { preco } : {}),
           ...(servico !== undefined ? { servico } : {}),
+          ...(terapeutaId !== undefined ? { terapeutaId } : {}),
           ...(dataRecomendadaRegresso
             ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) }
             : {}),
@@ -113,7 +115,10 @@ export async function PATCH(
           // Integrações
           ...(calendarEventId  !== undefined ? { calendarEventId }  : {}),
           ...(pdfUrl           !== undefined ? { pdfUrl }           : {}),
+          ...(calendlyEventId  !== undefined ? { calendlyEventId }  : {}),
           ...(calendlyEventUri !== undefined ? { calendlyEventUri } : {}),
+          ...(calendlyRescheduleUrl !== undefined ? { calendlyRescheduleUrl } : {}),
+          ...(calendlyCancelUrl     !== undefined ? { calendlyCancelUrl }     : {}),
           // Avaliação
           ...(avaliacaoNota         !== undefined ? { avaliacaoNota }         : {}),
           ...(avaliacaoComentario   !== undefined ? { avaliacaoComentario }   : {}),
@@ -151,6 +156,12 @@ export async function PATCH(
       clienteAtualizado ? { clienteAtualizado: serializarDecimais(clienteAtualizado) } : undefined
     )
   } catch (error) {
+    // calendlyEventId é @unique — um reagendamento a apontar para um evento
+    // já ligado a outra sessão (corrida rara, ou reprocessamento do N8N)
+    // devolve 409 claro em vez de um 500 genérico.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return respostaErro("Já existe outra sessão ligada a este evento Calendly.", "CALENDLY_EVENT_DUPLICADO", 409)
+    }
     console.error("PATCH /api/v1/sessoes/[id]:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }

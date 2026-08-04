@@ -28,6 +28,7 @@ const METODO_LABEL: Record<string, string> = {
   mbway_essence: "MBWay Essence",
   mbway_beatriz: "MBWay Beatriz",
   transferencia: "Transferência",
+  stripe: "Stripe",
   voucher: "Voucher",
 }
 
@@ -82,7 +83,7 @@ function PagamentoEditor({ sessao, onFechar }: { sessao: SessaoRow; onFechar: ()
         estadoPagamento: estado as "pendente" | "pago" | "parcial" | "isento",
         valorPago: mostrarValor && valor ? Number(valor) : null,
         metodoPagamento: mostrarDetalhes
-          ? (metodo as "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "voucher")
+          ? (metodo as "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "stripe" | "voucher")
           : null,
       })
       onFechar()
@@ -147,6 +148,7 @@ function PagamentoEditor({ sessao, onFechar }: { sessao: SessaoRow; onFechar: ()
                   <option value="mbway_beatriz">MBWay Beatriz</option>
                   <option value="dinheiro">Dinheiro</option>
                   <option value="transferencia">Transferência</option>
+                  <option value="stripe">Stripe</option>
                   <option value="voucher">Voucher</option>
                 </select>
               </div>

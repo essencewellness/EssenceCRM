@@ -73,6 +73,37 @@ export default async function FeedbackPage() {
         subtitulo={`${feedbacks.length} resposta${feedbacks.length !== 1 ? "s" : ""} recebida${feedbacks.length !== 1 ? "s" : ""}`}
       />
 
+      {/* Explicação do NPS */}
+      <AnimatedSection delay={0.2}>
+        <details style={{ border: "1px solid rgba(212,184,134,0.16)", background: "rgba(212,184,134,0.03)", padding: "14px 16px", marginBottom: "20px" }}>
+          <summary style={{ cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: GOLD }}>
+            O que é o NPS?
+          </summary>
+          <div style={{ marginTop: "12px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", lineHeight: 1.7, color: "var(--nuit-bone-soft)" }}>
+            <p style={{ marginBottom: "10px" }}>
+              É a pergunta &ldquo;de 0 a 10, quanto gostavas que uma amiga vivesse isto também?&rdquo; que fazemos no
+              formulário de feedback. A resposta divide as clientes em 3 grupos:
+            </p>
+            <p style={{ marginBottom: "6px" }}>
+              <strong style={{ color: SAGE }}>Promotoras (9–10)</strong> — adoraram, são as mais fiéis e as únicas a quem pedimos
+              indicação de amigas e avaliação no Google (pedir a quem não está totalmente satisfeita costuma sair pelo contrário).
+            </p>
+            <p style={{ marginBottom: "6px" }}>
+              <strong style={{ color: GOLD }}>Passivas (7–8)</strong> — gostaram mas sem entusiasmo, podem voltar ou não. É aqui
+              que vale a pena melhorar algum detalhe para as passar a promotoras.
+            </p>
+            <p style={{ marginBottom: "10px" }}>
+              <strong style={{ color: TERRA }}>Detratoras (0–6)</strong> — ficaram insatisfeitas. Merecem atenção a sério: o
+              feedback delas é o que mais ajuda a perceber o que correu mal.
+            </p>
+            <p>
+              <strong style={{ color: "var(--nuit-bone)" }}>NPS médio</strong> acima resume tudo isto numa única escala de 0 a 10 —
+              quanto mais perto de 10, melhor a experiência geral das clientes.
+            </p>
+          </div>
+        </details>
+      </AnimatedSection>
+
       {/* Resumo */}
       <AnimatedSection delay={0.25}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "20px" }}>

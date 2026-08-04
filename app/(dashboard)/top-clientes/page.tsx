@@ -136,7 +136,8 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
       orderBy: { ultimaSessao: "asc" },
     }),
     prisma.cliente.aggregate({
-      where: filtroCliente,
+      // Leads não são clientes — não entram na contagem "Total Clientes"
+      where: { ...filtroCliente, estado: { not: "lead" } },
       _count: { id: true },
       _avg: { totalGasto: true },
       _max: { totalGasto: true },

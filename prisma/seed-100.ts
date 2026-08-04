@@ -97,7 +97,7 @@ const CONDICOES = [
 ];
 const COMO = ["instagram", "referencia", "google", "calendly"];
 const SERVICOS_NOME = [
-  "Essência Plena", "Puro Aroma", "Cera Quente", "Drenagem Linfática", "Massagem Pré-Natal",
+  "Essência Plena", "Puro Aroma", "Cera Quente", "Drenagem Linfática",
 ];
 
 type Canal = "whatsapp" | "email" | "sms";
@@ -132,7 +132,7 @@ async function main() {
     { nome: "Puro Aroma",         duracaoMinutos: 60, precoBase: 45 },
     { nome: "Cera Quente",        duracaoMinutos: 60, precoBase: 50 },
     { nome: "Drenagem Linfática", duracaoMinutos: 60, precoBase: 50 },
-    { nome: "Massagem Pré-Natal", duracaoMinutos: 60, precoBase: 45 },
+    { nome: "Drenagem Linfática 90 min", duracaoMinutos: 90, precoBase: 85 },
   ];
   for (const s of servicosData) {
     await prisma.servico.upsert({

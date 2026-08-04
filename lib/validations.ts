@@ -9,7 +9,7 @@ import { NextResponse } from "next/server"
 export const ESTADOS_PAGAMENTO = ["pendente", "pago", "parcial", "isento"] as const
 // "mbway" mantido só por compatibilidade com registos antigos — os forms
 // novos usam sempre mbway_essence/mbway_beatriz (ver Sessao.repasseNecessario)
-export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "mbway_essence", "mbway_beatriz", "transferencia", "voucher"] as const
+export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "mbway_essence", "mbway_beatriz", "transferencia", "stripe", "voucher"] as const
 export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
 export const TIPOS_MENSAGEM = ["reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas"] as const
 
@@ -108,6 +108,7 @@ export const sessaoCreateSchema = z.object({
   servico: z.string().trim().max(120).optional().nullable(),
   preco: precoSchema.optional().nullable(),
   terapeuta: z.string().trim().max(60).optional(),
+  terapeutaId: z.string().trim().max(64).optional().nullable(),
   estado: z.enum(ESTADOS_SESSAO).optional(),
   aromaSessao: z.string().trim().max(120).optional().nullable(),
   resumoSessao: textoOpcional,
@@ -130,6 +131,7 @@ export const sessaoUpdateSchema = z.object({
   dataRecomendadaRegresso: dataISO.optional().nullable(),
   preco: precoSchema.optional().nullable(),
   servico: z.string().trim().max(120).optional().nullable(),
+  terapeutaId: z.string().trim().max(64).optional().nullable(),
   // Rastreio de comunicações automáticas N8N
   briefingEnviado:     z.boolean().optional(),
   lembreteEnviado:     z.boolean().optional(),
@@ -151,6 +153,7 @@ export const sessaoUpdateSchema = z.object({
   // Integrações
   calendarEventId:  z.string().trim().max(256).optional().nullable(),
   pdfUrl:           z.string().trim().url().max(500).optional().nullable(),
+  calendlyEventId:  z.string().trim().max(128).optional().nullable(),
   calendlyEventUri: z.string().trim().max(500).optional().nullable(),
   calendlyRescheduleUrl: z.string().trim().url().max(500).startsWith("https://").optional().nullable(),
   calendlyCancelUrl:     z.string().trim().url().max(500).startsWith("https://").optional().nullable(),

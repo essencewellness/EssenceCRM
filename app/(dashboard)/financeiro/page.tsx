@@ -19,6 +19,7 @@ const METODO_LABEL_PT: Record<string, string> = {
   mbway_essence: "MBWay Essence",
   mbway_beatriz: "MBWay Beatriz",
   transferencia: "Transferência",
+  stripe: "Stripe",
   voucher: "Voucher",
 }
 
@@ -47,8 +48,13 @@ export default async function FinanceiroPage({
   searchParams: Promise<{ mes?: string; terapeuta?: string }>
 }) {
   const { mes, terapeuta } = await searchParams
-  const { filtroSessao: fsBase } = await getFiltrosTerapeuta(terapeuta)
-  const filtroSessao = fsBase as Prisma.SessaoWhereInput
+  // Não usamos o filtroSessao genérico de getFiltrosTerapeuta aqui —
+  // esse filtra por cliente.terapeutaPrincipalId (a terapeuta "habitual"
+  // da cliente), que é só uma etiqueta e pode ser diferente de quem fez
+  // uma sessão em concreto. O financeiro tem de atribuir a receita a quem
+  // REALMENTE fez cada sessão — Sessao.terapeutaId.
+  const { alvo } = await getFiltrosTerapeuta(terapeuta)
+  const filtroSessao: Prisma.SessaoWhereInput = alvo ? { terapeutaId: alvo } : {}
 
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
@@ -158,7 +164,7 @@ export default async function FinanceiroPage({
   // KPIs do mês
   let receitaTotal = 0
   const porMetodo: Record<string, number> = {
-    dinheiro: 0, mbway_essence: 0, mbway_beatriz: 0, transferencia: 0, voucher: 0,
+    dinheiro: 0, mbway_essence: 0, mbway_beatriz: 0, transferencia: 0, stripe: 0, voucher: 0,
   }
   const porEstado: Record<string, number> = { pendente: 0, pago: 0, parcial: 0, isento: 0 }
 

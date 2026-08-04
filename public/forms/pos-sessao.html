@@ -620,9 +620,9 @@
         <div class="pag-grid" id="pagamento-estado-grid" role="group" aria-label="Estado do pagamento">
           <button type="button" class="pag-btn" data-value="pago" aria-pressed="false">✓ Pago</button>
           <button type="button" class="pag-btn" data-value="pendente" aria-pressed="false">Pendente</button>
-          <button type="button" class="pag-btn" data-value="parcial" aria-pressed="false">Parcial</button>
-          <button type="button" class="pag-btn" data-value="isento" aria-pressed="false">Isento</button>
+          <button type="button" class="pag-btn" data-value="voucher" aria-pressed="false">Voucher</button>
         </div>
+        <p id="pagamento-voucher-nota" class="field-hint" style="display:none;margin:10px 0 0;">Voucher já pago pela compradora — não há valor a receber agora.</p>
         <div id="pagamento-detalhes" style="display:none;margin-top:12px;">
           <div class="field-row" id="pagamento-valor-wrap">
             <div class="field-group">
@@ -630,13 +630,12 @@
               <input type="number" id="pagamento-valor" step="0.01" min="0" placeholder="0.00" autocomplete="off">
             </div>
           </div>
-          <p id="pagamento-voucher-nota" class="field-hint" style="display:none;margin:0 0 8px;">Voucher já pago pela compradora — não há valor a receber agora.</p>
           <div class="pag-grid" id="pagamento-metodo-grid" role="group" aria-label="Método de pagamento" style="margin-top:8px;">
             <button type="button" class="pag-btn" data-value="mbway_essence" aria-pressed="false">MBWay Essence</button>
             <button type="button" class="pag-btn" data-value="mbway_beatriz" aria-pressed="false">MBWay Beatriz</button>
             <button type="button" class="pag-btn" data-value="dinheiro" aria-pressed="false">Dinheiro</button>
             <button type="button" class="pag-btn" data-value="transferencia" aria-pressed="false">Transferência</button>
-            <button type="button" class="pag-btn" data-value="voucher" aria-pressed="false">Voucher</button>
+            <button type="button" class="pag-btn" data-value="stripe" aria-pressed="false">Stripe</button>
           </div>
         </div>
       </div>
@@ -684,29 +683,18 @@
         </div>
       </div>
 
-      <!-- Resumo -->
+      <!-- Observações -->
       <div class="section">
-        <div class="section-label">Resumo da sessão</div>
+        <div class="section-label">Observações <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(privado — só a equipa vê)</span></div>
 
         <div class="field-group">
-          <label class="field-label" for="resumo">O que trabalhámos</label>
-          <textarea id="resumo" rows="4" placeholder="Ex: foco na zona lombar e ombros. Muita tensão no trapézio esquerdo. Reagiu bem à pressão média. Saiu significativamente mais leve."></textarea>
-        </div>
-
-      </div>
-
-      <!-- Observações clínicas -->
-      <div class="section">
-        <div class="section-label">Observações clínicas <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;color:var(--smoke)">(privado — só a equipa vê)</span></div>
-
-        <div class="field-group">
-          <label class="field-label" for="observacoes-privadas">Observações privadas da terapeuta <span class="opt">(opcional)</span></label>
-          <textarea id="observacoes-privadas" rows="3" placeholder="Ex: pele muito sensível na zona lombar. Mencionou insónias recorrentes. Evitar conversa durante a sessão."></textarea>
+          <label class="field-label" for="observacoes-clinicas">Observações clínicas <span class="opt">(opcional)</span></label>
+          <textarea id="observacoes-clinicas" rows="4" placeholder="Ex: foco na zona lombar e ombros, muita tensão no trapézio esquerdo, reagiu bem à pressão média. Pele sensível na lombar, mencionou insónias recorrentes — para a próxima, evitar pressão cervical direita."></textarea>
         </div>
 
         <div class="field-group">
-          <label class="field-label" for="notas-proxima">Nota / recomendação para a próxima visita <span class="opt">(opcional)</span></label>
-          <textarea id="notas-proxima" rows="3" placeholder="Ex: na próxima, começar pelos pés. Evitar pressão cervical direita. Experimentar bergamota."></textarea>
+          <label class="field-label" for="observacoes-pessoais">Observações pessoais <span class="opt">(opcional)</span></label>
+          <textarea id="observacoes-pessoais" rows="3" placeholder="Ex: está a passar por uma fase difícil no trabalho. Prefere sessões mais silenciosas."></textarea>
         </div>
       </div>
 
@@ -845,6 +833,8 @@
   const pagamentoDetalhes = document.getElementById('pagamento-detalhes');
   const pagamentoValorInput = document.getElementById('pagamento-valor');
 
+  const pagamentoVoucherNota = document.getElementById('pagamento-voucher-nota');
+
   document.querySelectorAll('#pagamento-estado-grid .pag-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#pagamento-estado-grid .pag-btn').forEach(b => {
@@ -854,20 +844,20 @@
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
 
-      const mostrar = btn.dataset.value === 'pago' || btn.dataset.value === 'parcial';
-      pagamentoDetalhes.style.display = mostrar ? '' : 'none';
+      const v = btn.dataset.value;
+      // "Voucher" já foi pago pela compradora quando o comprou — não há
+      // valor nem método a escolher agora, só a nota de aviso.
+      pagamentoDetalhes.style.display = v === 'pago' ? '' : 'none';
+      pagamentoVoucherNota.style.display = v === 'voucher' ? '' : 'none';
 
       // ao marcar "Pago" sem valor ainda escrito, pré-preenche com o preço do serviço
-      if (btn.dataset.value === 'pago' && !pagamentoValorInput.value) {
+      if (v === 'pago' && !pagamentoValorInput.value) {
         const servicoSel = document.getElementById('servico');
         const preco = servicoSel.options[servicoSel.selectedIndex]?.dataset?.preco;
         if (preco) pagamentoValorInput.value = Number(preco).toFixed(2);
       }
     });
   });
-
-  const pagamentoValorWrap = document.getElementById('pagamento-valor-wrap');
-  const pagamentoVoucherNota = document.getElementById('pagamento-voucher-nota');
 
   document.querySelectorAll('#pagamento-metodo-grid .pag-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -877,13 +867,6 @@
       });
       btn.classList.add('selected');
       btn.setAttribute('aria-pressed', 'true');
-
-      // voucher já foi pago pela compradora quando o comprou — não há
-      // valor nenhum a receber agora, por isso o campo desaparece
-      const ehVoucher = btn.dataset.value === 'voucher';
-      pagamentoValorWrap.style.display = ehVoucher ? 'none' : '';
-      pagamentoVoucherNota.style.display = ehVoucher ? '' : 'none';
-      if (ehVoucher) pagamentoValorInput.value = '';
     });
   });
 
@@ -1081,22 +1064,26 @@
     btn.querySelector('span').textContent = 'A guardar…';
     btn.disabled = true;
 
-    // Terapeuta: nome do utilizador selecionado (o create aceita o nome, não o id)
+    // Terapeuta: nome (para exibição/legado) + id (fonte de verdade — usado
+    // pelo /financeiro para saber quem fez mesmo cada sessão, em vez da
+    // terapeuta "habitual" da cliente que pode ser diferente nalgum caso)
     const terapeutaSelect = document.getElementById('terapeuta');
     const terapeutaNome   = terapeutaSelect.options[terapeutaSelect.selectedIndex]?.textContent || '';
+    const terapeutaId     = terapeutaSelect.value || null;
 
     const data        = document.getElementById('data-sessao').value;
     const hora        = document.getElementById('hora-sessao').value;
-    const resumo      = document.getElementById('resumo').value.trim() || null;
-    const obsPrivadas  = document.getElementById('observacoes-privadas').value.trim() || null;
-    const notasProxima = document.getElementById('notas-proxima').value.trim() || null;
+    const obsClinicas  = document.getElementById('observacoes-clinicas').value.trim() || null;
+    const obsPessoais  = document.getElementById('observacoes-pessoais').value.trim() || null;
     const dataRetorno  = document.getElementById('data-retorno').value || null;
     const aromaCustom  = document.getElementById('aroma-custom').value.trim();
 
-    // Observações privadas + nota para a próxima visita → campo único notasPosSessao
+    // Observações clínicas + pessoais → campo único notasPosSessao (sem coluna
+    // nova no schema — "Pessoal: " marca o início da 2ª parte para a
+    // separarmos de volta na leitura, ver SessoesTab.tsx)
     const partesNotas = [];
-    if (obsPrivadas)  partesNotas.push(obsPrivadas);
-    if (notasProxima) partesNotas.push(`Próxima sessão: ${notasProxima}`);
+    if (obsClinicas) partesNotas.push(obsClinicas);
+    if (obsPessoais) partesNotas.push(`Pessoal: ${obsPessoais}`);
     const notasPosSessao = partesNotas.length ? partesNotas.join('\n\n') : null;
 
     const aromaBtn    = document.querySelector('.aroma-btn.selected');
@@ -1114,11 +1101,14 @@
       : null;
 
     const pagamentoBtn = document.querySelector('#pagamento-estado-grid .pag-btn.selected');
-    const estadoPagamento = pagamentoBtn ? pagamentoBtn.dataset.value : null;
-    const mostraDetalhesPagamento = estadoPagamento === 'pago' || estadoPagamento === 'parcial';
+    const estadoUI = pagamentoBtn ? pagamentoBtn.dataset.value : null; // 'pago' | 'pendente' | 'voucher'
+    // "Voucher" é um atalho de UI para "já pago, método voucher" — a API só
+    // conhece pago/pendente/parcial/isento, não tem estado "voucher".
+    const estadoPagamento = estadoUI === 'voucher' ? 'pago' : estadoUI;
+    const mostraDetalhesPagamento = estadoUI === 'pago';
     const valorPagoTexto = document.getElementById('pagamento-valor').value;
     const metodoBtn = document.querySelector('#pagamento-metodo-grid .pag-btn.selected');
-    const metodoSelecionado = mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null;
+    const metodoSelecionado = estadoUI === 'voucher' ? 'voucher' : (mostraDetalhesPagamento && metodoBtn ? metodoBtn.dataset.value : null);
 
     // Só há um MBWay físico (é da Bea) — quando é a Cristina a receber por lá,
     // esse dinheiro fica na conta da Bea até ela entregar a parte da Cristina
@@ -1131,7 +1121,6 @@
     const camposClinicos = {
       ...(aromaSessao     ? { aromaSessao }     : {}),
       ...(estadoEmocional ? { estadoEmocional } : {}),
-      ...(resumo          ? { resumoSessao: resumo } : {}),
       ...(notasPosSessao  ? { notasPosSessao }  : {}),
       ...(dataRetorno     ? { dataRecomendadaRegresso: dataRetorno } : {}),
       ...(estadoPagamento ? {
@@ -1181,9 +1170,9 @@
           servico,
           preco: precoServico,
           terapeuta: terapeutaNome,
+          ...(terapeutaId ? { terapeutaId } : {}),
           estado: 'realizada',
           ...(aromaSessao ? { aromaSessao } : {}),
-          ...(resumo ? { resumoSessao: resumo } : {}),
         }),
       });
 
@@ -1272,9 +1261,8 @@
   }
 
   function resetForm() {
-    document.getElementById('resumo').value = '';
-    document.getElementById('observacoes-privadas').value = '';
-    document.getElementById('notas-proxima').value = '';
+    document.getElementById('observacoes-clinicas').value = '';
+    document.getElementById('observacoes-pessoais').value = '';
     document.getElementById('aroma-custom').value = '';
     document.getElementById('data-retorno').value = '';
     document.getElementById('pagamento-valor').value = '';

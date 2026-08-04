@@ -242,56 +242,11 @@
   </div>
 </div>
 
-<!-- ═══ Indicações (aparece só se npsScore >= 6), totalmente opcional ═══ -->
-<div class="screen" id="screen-indicacoes">
-  <div class="card">
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Conheces <em>alguém</em>?</div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <p class="lead-text" style="font-size:18px;">Conheces alguém que também merecia este momento?</p>
-      <div class="optional-banner">✦ Totalmente opcional — podes deixar 1, 2, 3 ou nenhuma</div>
-
-      <div class="indicacao-row visible" id="ind-row-1">
-        <div class="indicacao-row-label">Nome da amiga</div>
-        <input type="text" id="ind-nome-1" placeholder="Nome">
-        <input type="text" id="ind-contacto-1" placeholder="WhatsApp ou email dela">
-      </div>
-      <div class="indicacao-row" id="ind-row-2">
-        <div class="indicacao-row-label">Mais uma amiga?</div>
-        <input type="text" id="ind-nome-2" placeholder="Nome">
-        <input type="text" id="ind-contacto-2" placeholder="WhatsApp ou email dela">
-      </div>
-      <div class="indicacao-row" id="ind-row-3" style="margin-bottom:24px;">
-        <div class="indicacao-row-label">E mais uma?</div>
-        <input type="text" id="ind-nome-3" placeholder="Nome">
-        <input type="text" id="ind-contacto-3" placeholder="WhatsApp ou email dela">
-      </div>
-
-      <button class="btn-rating" onclick="avancarDeIndicacoes()">
-        <span>Indicar ✦</span>
-      </button>
-      <button class="btn-secondary" onclick="avancarDeIndicacoes(true)">Prefiro não indicar agora</button>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Cada amiga que marcar dá-te um mimo especial na tua próxima visita. Só a contactamos sobre isto — nunca partilhamos o contacto com mais ninguém.</p>
-    </footer>
-  </div>
-</div>
-
 <!-- ═══ O que gostaste + momento de pico (fundidos numa só pergunta) ═══ -->
 <div class="screen" id="screen-positivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot current"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="dot current"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -338,52 +293,12 @@
   </div>
 </div>
 
-<!-- ═══ Avaliação Google — a dica da Beatriz (reciprocidade) fica aqui dentro,
-     em vez de ser um ecrã à parte que ninguém lia até ao fim ═══ -->
-<div class="screen" id="screen-google">
-  <div class="card">
-    <div class="progress-dots">
-      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span><span class="dot"></span>
-    </div>
-    <header class="header">
-      <div class="header-inner">
-        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
-        <div class="header-brand-group">
-          <div class="header-brand">Essence Wellness</div>
-          <div class="header-title">Partilha a tua <em>experiência</em></div>
-        </div>
-      </div>
-    </header>
-
-    <div class="body">
-      <div class="tip-box">
-        <div class="tip-label">Dica da Beatriz</div>
-        <div class="tip-text" id="tip-texto">Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.</div>
-      </div>
-
-      <div class="google-box" style="margin-top:18px;">
-        <div class="google-icon">🌟</div>
-        <div class="google-title">Partilha com outras pessoas</div>
-        <div class="google-desc">Cada avaliação no Google ajuda outra pessoa a encontrar-nos, tal como tu encontraste. Demora 30 segundos.</div>
-        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="avancarDeGoogle('google')">
-          ⭐ Avaliar no Google
-        </a>
-        <button class="btn-skip" onclick="avancarDeGoogle('skip')">Prefiro não deixar avaliação</button>
-      </div>
-    </div>
-
-    <footer class="form-footer">
-      <p class="privacy-note">Obrigada pela tua generosidade. ✦</p>
-    </footer>
-  </div>
-</div>
-
 <!-- ═══ Motivo de regresso — o eco da frase escrita aparece logo aqui, em
      tempo real, em vez de ser um ecrã de navegação à parte ═══ -->
 <div class="screen" id="screen-motivo">
   <div class="card">
     <div class="progress-dots">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
+      <span class="dot done"></span><span class="dot current"></span><span class="dot"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -396,7 +311,12 @@
     </header>
 
     <div class="body">
-      <p class="lead-text" style="font-size:18px;">Numa frase — porque vale a pena <em>voltares</em>?</p>
+      <div class="tip-box">
+        <div class="tip-label">Dica da Beatriz</div>
+        <div class="tip-text" id="tip-texto">Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.</div>
+      </div>
+
+      <p class="lead-text" style="font-size:18px;margin-top:24px;">Numa frase — porque vale a pena <em>voltares</em>?</p>
       <p class="sub-text" style="margin-bottom:18px;">Escreve com as tuas palavras. (opcional)</p>
 
       <textarea id="texto-motivo" maxlength="200" placeholder="Ex: porque saio sempre mais leve e durmo melhor essa noite."></textarea>
@@ -422,7 +342,7 @@
 <div class="screen" id="screen-recorrencia">
   <div class="card">
     <div class="progress-dots" id="dots-recorrencia">
-      <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
+      <span class="dot done"></span><span class="dot done"></span><span class="dot current"></span>
     </div>
     <header class="header">
       <div class="header-inner">
@@ -435,46 +355,125 @@
     </header>
 
     <div class="body">
-      <p class="sub-text" style="margin-bottom:20px;">Diz-nos quando preferes voltar — a Beatriz já vê a disponibilidade mais próxima disso. Tudo opcional.</p>
+      <p class="lead-text" style="font-size:18px;">Já queres garantir o teu próximo momento?</p>
+      <p class="sub-text" style="margin-bottom:24px;">Tudo opcional — a Beatriz confirma sempre contigo por WhatsApp.</p>
 
-      <div class="chips-group-label">Que dia? <span class="hint">— opcional, escolhe um</span></div>
-      <div class="chips-grid" id="chips-dia">
-        <button type="button" class="chip" data-value="Segunda">Segunda</button>
-        <button type="button" class="chip" data-value="Terça">Terça</button>
-        <button type="button" class="chip" data-value="Quarta">Quarta</button>
-        <button type="button" class="chip" data-value="Quinta">Quinta</button>
-        <button type="button" class="chip" data-value="Sexta">Sexta</button>
-        <button type="button" class="chip" data-value="Sábado">Sábado</button>
-        <button type="button" class="chip" data-value="Qualquer dia">Qualquer dia</button>
+      <div class="chips-grid center" id="chips-quer-marcar">
+        <button type="button" class="chip" data-value="sim" onclick="responderQuerMarcar(true)">Sim, quero</button>
+        <button type="button" class="chip" data-value="nao" onclick="responderQuerMarcar(false)">Agora não</button>
       </div>
 
-      <div class="chips-group-label" style="margin-top:20px;">De manhã ou de tarde? <span class="hint">— opcional</span></div>
-      <div class="chips-grid" id="chips-periodo">
-        <button type="button" class="chip" data-value="Manhã">Manhã</button>
-        <button type="button" class="chip" data-value="Tarde">Tarde</button>
-      </div>
+      <div id="recorrencia-opcoes" style="display:none;">
+        <div class="chips-group-label" style="margin-top:24px;">Que dia? <span class="hint">— opcional, escolhe um</span></div>
+        <div class="chips-grid" id="chips-dia">
+          <button type="button" class="chip" data-value="Segunda">Segunda</button>
+          <button type="button" class="chip" data-value="Terça">Terça</button>
+          <button type="button" class="chip" data-value="Quarta">Quarta</button>
+          <button type="button" class="chip" data-value="Quinta">Quinta</button>
+          <button type="button" class="chip" data-value="Sexta">Sexta</button>
+          <button type="button" class="chip" data-value="Sábado">Sábado</button>
+          <button type="button" class="chip" data-value="Qualquer dia">Qualquer dia</button>
+        </div>
 
-      <div id="bloco-horario" style="display:none;">
-        <div class="chips-group-label" style="margin-top:20px;">A que horas? <span class="hint">— opcional</span></div>
-        <div class="chips-grid" id="chips-horario"></div>
-      </div>
+        <div class="chips-group-label" style="margin-top:20px;">De manhã ou de tarde? <span class="hint">— opcional</span></div>
+        <div class="chips-grid" id="chips-periodo">
+          <button type="button" class="chip" data-value="Manhã">Manhã</button>
+          <button type="button" class="chip" data-value="Tarde">Tarde</button>
+        </div>
 
-      <div class="chips-group-label" style="margin-top:26px;">Algo que gostasses de experimentar? <span class="hint">— opcional, podes escolher várias</span></div>
-      <div class="chips-grid" id="chips-interesse">
-        <button type="button" class="chip-multi" data-value="Essência Plena">Essência Plena</button>
-        <button type="button" class="chip-multi" data-value="Puro Aroma">Puro Aroma</button>
-        <button type="button" class="chip-multi" data-value="Cera Quente">Cera Quente</button>
-        <button type="button" class="chip-multi" data-value="Drenagem Linfática">Drenagem Linfática</button>
-        <button type="button" class="chip-multi" data-value="Massagem Pré-Natal">Massagem Pré-Natal</button>
-      </div>
+        <div class="chips-group-label" style="margin-top:26px;">Algo que gostasses de experimentar? <span class="hint">— opcional, podes escolher várias</span></div>
+        <div class="chips-grid" id="chips-interesse">
+          <button type="button" class="chip-multi" data-value="Essência Plena">Essência Plena</button>
+          <button type="button" class="chip-multi" data-value="Puro Aroma">Puro Aroma</button>
+          <button type="button" class="chip-multi" data-value="Cera Quente">Cera Quente</button>
+          <button type="button" class="chip-multi" data-value="Drenagem Linfática">Drenagem Linfática</button>
+        </div>
 
-      <button class="btn-rating" style="margin-top:28px;" onclick="concluirFeedback()">
-        <span>Concluir ✦</span>
-      </button>
+        <button class="btn-rating" style="margin-top:28px;" onclick="concluirRecorrencia()">
+          <span>Continuar →</span>
+        </button>
+      </div>
     </div>
 
     <footer class="form-footer">
       <p class="privacy-note">A Beatriz confirma contigo por WhatsApp se escolheres dia ou hora.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Indicações — só para promotoras (9-10), penúltimo ecrã ═══ -->
+<div class="screen" id="screen-indicacoes">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Conheces <em>alguém</em>?</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <p class="lead-text" style="font-size:18px;">Conheces alguém que também merecia este momento?</p>
+      <div class="optional-banner">✦ Totalmente opcional — podes deixar 1, 2, 3 ou nenhuma</div>
+
+      <div class="indicacao-row visible" id="ind-row-1">
+        <div class="indicacao-row-label">Nome da amiga</div>
+        <input type="text" id="ind-nome-1" placeholder="Nome">
+        <input type="text" id="ind-contacto-1" placeholder="WhatsApp ou email dela">
+      </div>
+      <div class="indicacao-row" id="ind-row-2">
+        <div class="indicacao-row-label">Mais uma amiga?</div>
+        <input type="text" id="ind-nome-2" placeholder="Nome">
+        <input type="text" id="ind-contacto-2" placeholder="WhatsApp ou email dela">
+      </div>
+      <div class="indicacao-row" id="ind-row-3" style="margin-bottom:24px;">
+        <div class="indicacao-row-label">E mais uma?</div>
+        <input type="text" id="ind-nome-3" placeholder="Nome">
+        <input type="text" id="ind-contacto-3" placeholder="WhatsApp ou email dela">
+      </div>
+
+      <button class="btn-rating" onclick="avancarDeIndicacoes()">
+        <span>Indicar ✦</span>
+      </button>
+      <button class="btn-secondary" onclick="avancarDeIndicacoes(true)">Prefiro não indicar agora</button>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Cada amiga que marcar dá-te um mimo especial na tua próxima visita. Só a contactamos sobre isto — nunca partilhamos o contacto com mais ninguém.</p>
+    </footer>
+  </div>
+</div>
+
+<!-- ═══ Avaliação Google — última coisa de todas, só para promotoras ═══ -->
+<div class="screen" id="screen-google">
+  <div class="card">
+    <header class="header">
+      <div class="header-inner">
+        <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+        <div class="header-brand-group">
+          <div class="header-brand">Essence Wellness</div>
+          <div class="header-title">Partilha a tua <em>experiência</em></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="body">
+      <div class="google-box">
+        <div class="google-icon">🌟</div>
+        <div class="google-title">Partilha com outras pessoas</div>
+        <div class="google-desc">Cada avaliação no Google ajuda outra pessoa a encontrar-nos, tal como tu encontraste. Demora 30 segundos.</div>
+        <a id="link-google" href="https://g.page/r/CUpYz4Jwxqw3EBM/review" target="_blank" rel="noopener" class="btn-google" onclick="avancarDeGoogle('google')">
+          ⭐ Avaliar no Google
+        </a>
+        <button class="btn-skip" onclick="avancarDeGoogle('skip')">Prefiro não deixar avaliação</button>
+        <p class="privacy-note" style="margin-top:14px;">Ao escolheres qualquer uma das opções, o teu feedback é enviado.</p>
+      </div>
+    </div>
+
+    <footer class="form-footer">
+      <p class="privacy-note">Obrigada pela tua generosidade. ✦</p>
     </footer>
   </div>
 </div>
@@ -591,7 +590,6 @@
   let horaPreferida = null;
   let indicacoesColetadas = [];
   let feedbackEnviado = false;
-  let proximoAposIndicacoes = null; // ecrã a mostrar depois de "indicações" (varia por segmento)
 
   const npsLabels = {
     0: 'Entendido, vamos ouvir-te.', 1: 'Entendido, vamos ouvir-te.', 2: 'Entendido, vamos ouvir-te.',
@@ -683,36 +681,15 @@
     });
   });
 
-  // horário específico só aparece depois de escolher manhã/tarde
-  const HORARIOS_POR_PERIODO = {
-    'Manhã': ['9h', '10h', '11h', '12h'],
-    'Tarde': ['14h', '15h', '16h', '17h', '18h'],
-  };
-
   document.querySelectorAll('#chips-periodo .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       document.querySelectorAll('#chips-periodo .chip').forEach(c => c.classList.remove('selected'));
       chip.classList.add('selected');
-
-      const chipsHorario = document.getElementById('chips-horario');
-      chipsHorario.innerHTML = '';
-      HORARIOS_POR_PERIODO[chip.dataset.value].forEach(hora => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'chip';
-        btn.dataset.value = hora;
-        btn.textContent = hora;
-        btn.addEventListener('click', () => {
-          chipsHorario.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-          btn.classList.add('selected');
-        });
-        chipsHorario.appendChild(btn);
-      });
-      document.getElementById('bloco-horario').style.display = '';
     });
   });
 
-  // ── AVANÇAR DE NPS — decide segmento ──
+  // ── AVANÇAR DE NPS — decide segmento (NPS real: 9-10 promotor, 7-8
+  // passivo, 0-6 detrator — https://pt.surveymonkey.com/learn/customer-feedback/nps-calculator/) ──
   function avancarDeRating() {
     if (npsScore === null) return;
     if (npsScore >= 9) segmento = 'promotor';
@@ -721,44 +698,15 @@
     continuarParaSegmento();
   }
 
-  // O pedido de indicação vem sempre no fim, depois de toda a reflexão
-  // (positivo/google/motivo/recorrência para promotoras, passivo-falta para
-  // passivas) — pedir o favor antes de gerar reciprocidade era a ordem
-  // errada. Só aparece para pontuação >= 6 (mesmo um 6, tecnicamente
-  // "detrator" no NPS clássico, pode ter uma amiga em mente).
-  function avancarParaOuIndicacoes(proximoEcra) {
-    if (npsScore >= 6) {
-      proximoAposIndicacoes = proximoEcra;
-      mostrarScreen('indicacoes');
-    } else {
-      mostrarScreen(proximoEcra);
-    }
-  }
-
-  function avancarDeIndicacoes(saltou) {
-    if (!saltou) {
-      indicacoesColetadas = [1, 2, 3]
-        .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), contacto: document.getElementById(`ind-contacto-${n}`).value.trim() }))
-        .filter(i => i.nome);
-    }
-    if (proximoAposIndicacoes === 'FINALIZAR') finalizarFeedback();
-    else mostrarScreen(proximoAposIndicacoes || 'recorrencia');
-  }
-
   function continuarParaSegmento() {
     if (segmento === 'promotor') mostrarScreen('positivo');
     else if (segmento === 'passivo') mostrarScreen('passivo-falta');
-    else avancarParaOuIndicacoes('negativo');
+    else mostrarScreen('negativo');
   }
 
   function avancarDePositivo() {
     const picoEscolhido = document.querySelector('#chips-pico .chip.selected')?.dataset.value;
     document.getElementById('tip-texto').textContent = picoEscolhido ? dicasPico[picoEscolhido] : dicaGenerica;
-    mostrarScreen('google');
-  }
-
-  function avancarDeGoogle(acao) {
-    acaoGoogleEscolhida = acao;
     mostrarScreen('motivo');
   }
 
@@ -768,14 +716,48 @@
 
   function avancarDePassivoFalta() {
     // sem barra de progresso própria — a passiva só passa por este ecrã e
-    // pelo de recorrência, mostrar "3 de 4" seria enganador
+    // pelo de recorrência, mostrar "2 de 3" seria enganador
     document.getElementById('dots-recorrencia').style.display = 'none';
     mostrarScreen('recorrencia');
   }
 
-  // Último ecrã antes de enviar — decide se ainda falta pedir indicação
-  function concluirFeedback() {
-    avancarParaOuIndicacoes('FINALIZAR');
+  // "Sim/Não" antes das opções de dia/período/interesse — só mostramos os
+  // chips a quem realmente quer marcar já. Quem responde "Não" segue logo
+  // em frente (limpa qualquer escolha anterior, para não enviar lixo).
+  function responderQuerMarcar(quer) {
+    document.querySelectorAll('#chips-quer-marcar .chip').forEach(c => c.classList.remove('selected'));
+    document.querySelector(`#chips-quer-marcar .chip[data-value="${quer ? 'sim' : 'nao'}"]`).classList.add('selected');
+
+    if (quer) {
+      document.getElementById('recorrencia-opcoes').style.display = '';
+      return;
+    }
+    document.getElementById('recorrencia-opcoes').style.display = 'none';
+    document.querySelectorAll('#chips-dia .chip, #chips-periodo .chip, #chips-interesse .chip-multi').forEach(c => c.classList.remove('selected'));
+    concluirRecorrencia();
+  }
+
+  // Último ecrã de conteúdo (recorrência/nova marcação). Só promotoras
+  // (NPS 9-10) seguem para indicações + Google — são as últimas coisas do
+  // formulário. Passivas terminam logo aqui: só pedimos o favor a quem
+  // está mesmo satisfeita.
+  function concluirRecorrencia() {
+    if (segmento === 'promotor') mostrarScreen('indicacoes');
+    else finalizarFeedback();
+  }
+
+  function avancarDeIndicacoes(saltou) {
+    if (!saltou) {
+      indicacoesColetadas = [1, 2, 3]
+        .map(n => ({ nome: document.getElementById(`ind-nome-${n}`).value.trim(), contacto: document.getElementById(`ind-contacto-${n}`).value.trim() }))
+        .filter(i => i.nome);
+    }
+    mostrarScreen('google');
+  }
+
+  function avancarDeGoogle(acao) {
+    acaoGoogleEscolhida = acao;
+    finalizarFeedback();
   }
 
   // ── ENVIAR FEEDBACK (caminho promotor/passivo) ─────────────────────
@@ -797,10 +779,7 @@
     const momentoPico = picoSelecionado === 'Outra' ? (outroPicoTexto || null) : picoSelecionado;
 
     diaPreferido = document.querySelector('#chips-dia .chip.selected')?.dataset.value || null;
-    // hora específica (ex: "10h") se a escolheu; senão cai para o período (ex: "Manhã")
-    horaPreferida = document.querySelector('#chips-horario .chip.selected')?.dataset.value
-      || document.querySelector('#chips-periodo .chip.selected')?.dataset.value
-      || null;
+    horaPreferida = document.querySelector('#chips-periodo .chip.selected')?.dataset.value || null;
     // escolher dia ou hora já é o pedido de contacto — não precisa de um
     // botão extra "sim/não" só para confirmar o que a escolha já diz
     pedidoContactoMarcacao = Boolean(diaPreferido || horaPreferida);

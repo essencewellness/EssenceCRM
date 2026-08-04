@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, clienteId: true, servico: true, data: true, hora: true, estado: true,
-      cliente: { select: { nome: true, estado: true } },
+      cliente: { select: { nome: true, estado: true, telefone: true } },
     },
   })
 
@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
       sessaoId: sessao.id,
       clienteId: sessao.clienteId,
       nomeCliente: sessao.cliente.nome,
+      telefone: sessao.cliente.telefone,
       servico: sessao.servico,
       data: sessao.data?.toISOString() ?? null,
       hora: sessao.hora,
