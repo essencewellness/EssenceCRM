@@ -107,7 +107,8 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | ~~🟠 ALTO~~ | ~~Estado CRM só recalcula no cron — desfasado até 24h após sessão~~ | ✅ Resolvido 2026-08-05 — `recalcularEstadoCliente()` chamado inline quando uma sessão passa a "realizada" (`lib/crm-estados.ts`); cron das 7h mantido como rede de segurança |
 | 🟡 MÉDIO | Workflows N8N (incluindo o motor de envio) ainda não existem como ficheiros exportados no repositório — só um template vazio em `03_WORKFLOWS_N8N/_TEMPLATE/`. Sem workflow real, não há como confirmar que anexam `&t=` aos links (enforcement de link tokens continua desligado) | `03_WORKFLOWS_N8N/` |
 | ~~🟡 MÉDIO~~ | ~~`confirmacao-envio` não bloqueia double-delivery~~ | ✅ Resolvido 2026-08-01 — `updateMany` com `estado: "em_fila"` no WHERE torna a transição atómica (antes: read-then-write com janela de corrida entre pedidos concorrentes do N8N) |
-| 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |
+| ~~🟡 MÉDIO~~ | ~~Sem paginação na lista de clientes do dashboard~~ | ✅ Nota desatualizada — já implementada (cursor-based, 50/página + scroll infinito via `ClientesInfiniteList.tsx`), confirmado 2026-08-05 |
+| ~~🟡 MÉDIO~~ | ~~`criadoPor: admin?.id ?? "sistema"` em `crm-estados.ts` — "sistema" não é um User.id válido (FK obrigatória), falhava silenciosamente sem admin ativo~~ | ✅ Resolvido 2026-08-05 — sem terapeuta/admin disponível, a tarefa de reativação não é criada (em vez de tentar gravar um valor inválido) e fica um aviso explícito nos logs |
 
 ## Resolvido nesta fase (spec-002)
 

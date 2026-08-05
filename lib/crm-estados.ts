@@ -112,33 +112,41 @@ async function aplicarTransicaoEstado(
         orderBy: { data: "desc" },
         select: { terapeutaId: true },
       })
-      const dataLimite = new Date(hoje)
-      dataLimite.setDate(dataLimite.getDate() + 7)
-
-      // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
+      // criadoPor é FK obrigatória para User.id — nunca escrever um valor que
+      // não seja um utilizador real. Sem terapeuta da última sessão nem admin
+      // ativo, não há a quem atribuir a tarefa: não a criamos (em vez de
+      // tentar gravar um "sistema" inválido que violava a FK e falhava
+      // silenciosamente, sem tarefa nenhuma e sem aviso visível).
       let criadoPor = ultimaSessao?.terapeutaId
       if (!criadoPor) {
         const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
-        criadoPor = admin?.id ?? "sistema"
+        criadoPor = admin?.id
       }
 
-      // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
-      const jaExiste = await prisma.tarefa.findFirst({
-        where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
-      })
-      if (!jaExiste) {
-        await prisma.tarefa.create({
-          data: {
-            clienteId:  c.id,
-            titulo:     `Contactar ${c.nome}`,
-            tipo:       "follow_up",
-            prioridade: "alta",
-            estado:     "pendente",
-            dataLimite,
-            criadoPor,
-            ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
-          },
+      if (!criadoPor) {
+        console.error(`[estados] sem admin/terapeuta disponível para atribuir tarefa de reativação do cliente ${c.id} — tarefa não criada`)
+      } else {
+        const dataLimite = new Date(hoje)
+        dataLimite.setDate(dataLimite.getDate() + 7)
+
+        // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
+        const jaExiste = await prisma.tarefa.findFirst({
+          where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
         })
+        if (!jaExiste) {
+          await prisma.tarefa.create({
+            data: {
+              clienteId:  c.id,
+              titulo:     `Contactar ${c.nome}`,
+              tipo:       "follow_up",
+              prioridade: "alta",
+              estado:     "pendente",
+              dataLimite,
+              criadoPor,
+              ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
+            },
+          })
+        }
       }
     } catch (e) {
       // Não bloquear a transição se a criação de tarefa falhar
