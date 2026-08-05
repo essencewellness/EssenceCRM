@@ -103,9 +103,8 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 |---|---|---|
 | ~~🔴 CRÍTICO~~ | ~~`AUTH_URL` no Vercel por confirmar~~ | ✅ Resolvido — `https://crm.essencewellnesspt.com` |
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
-| 🟠 ALTO | Rate limit em memória ineficaz em serverless | `lib/rate-limit.ts` — adicionar UPSTASH_REDIS_REST_URL/TOKEN no Vercel (código pronto, falta config) |
-| 🟠 ALTO | Password da Neon exposta anteriormente — rotar na consola Neon | Vercel env `DATABASE_URL` |
-| 🟠 ALTO | Estado CRM só recalcula no cron — desfasado até 24h após sessão | `lib/crm-estados.ts` |
+| ~~🟠 ALTO~~ | ~~Password da Neon exposta anteriormente~~ | ✅ Resolvido 2026-08-05 — password rotada na Neon, `DATABASE_URL` atualizada no Vercel |
+| ~~🟠 ALTO~~ | ~~Estado CRM só recalcula no cron — desfasado até 24h após sessão~~ | ✅ Resolvido 2026-08-05 — `recalcularEstadoCliente()` chamado inline quando uma sessão passa a "realizada" (`lib/crm-estados.ts`); cron das 7h mantido como rede de segurança |
 | 🟡 MÉDIO | Workflows N8N (incluindo o motor de envio) ainda não existem como ficheiros exportados no repositório — só um template vazio em `03_WORKFLOWS_N8N/_TEMPLATE/`. Sem workflow real, não há como confirmar que anexam `&t=` aos links (enforcement de link tokens continua desligado) | `03_WORKFLOWS_N8N/` |
 | ~~🟡 MÉDIO~~ | ~~`confirmacao-envio` não bloqueia double-delivery~~ | ✅ Resolvido 2026-08-01 — `updateMany` com `estado: "em_fila"` no WHERE torna a transição atómica (antes: read-then-write com janela de corrida entre pedidos concorrentes do N8N) |
 | 🟡 MÉDIO | Sem paginação na lista de clientes do dashboard | `app/(dashboard)/clientes/page.tsx` |

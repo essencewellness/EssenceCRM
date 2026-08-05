@@ -61,6 +61,125 @@ export interface ResultadoMotor {
   transicoes: Array<{ clienteId: string; nome: string; de: string; para: string }>
 }
 
+interface ClienteParaTransicao {
+  id: string
+  nome: string
+  estado: EstadoCliente
+  ultimaSessao: Date | null
+  totalSessoes: number
+  totalGasto: number
+}
+
+/**
+ * Aplica a transição de estado a UM cliente (update + audit + webhook + tarefa
+ * automática de follow-up). Partilhada entre o motor em lote (cron diário,
+ * rede de segurança) e o recálculo inline logo a seguir a uma sessão passar
+ * a "realizada" — para as duas vias nunca divergirem.
+ */
+async function aplicarTransicaoEstado(
+  c: ClienteParaTransicao,
+  hoje: Date,
+  diasReativacao: number
+): Promise<{ alterado: boolean; de?: string; para?: string }> {
+  const novoEstado = calcularEstado(c, hoje, diasReativacao)
+  if (novoEstado === c.estado) return { alterado: false }
+
+  await prisma.cliente.update({
+    where: { id: c.id },
+    data: { estado: novoEstado },
+  })
+
+  auditar({
+    quem: "sistema",
+    acao: "cliente.estado_alterado",
+    entidade: "Cliente",
+    entidadeId: c.id,
+    detalhe: { de: c.estado, para: novoEstado },
+  })
+
+  void webhooks.clienteEstadoAlterado({
+    clienteId: c.id,
+    nomeCliente: c.nome,
+    estadoAnterior: c.estado,
+    estadoNovo: novoEstado,
+  })
+
+  // Criar tarefa automática de follow-up quando cliente entra em reativacao
+  if (novoEstado === "reativacao" && c.estado !== "reativacao") {
+    try {
+      const ultimaSessao = await prisma.sessao.findFirst({
+        where: { clienteId: c.id, estado: "realizada" },
+        orderBy: { data: "desc" },
+        select: { terapeutaId: true },
+      })
+      const dataLimite = new Date(hoje)
+      dataLimite.setDate(dataLimite.getDate() + 7)
+
+      // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
+      let criadoPor = ultimaSessao?.terapeutaId
+      if (!criadoPor) {
+        const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
+        criadoPor = admin?.id ?? "sistema"
+      }
+
+      // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
+      const jaExiste = await prisma.tarefa.findFirst({
+        where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
+      })
+      if (!jaExiste) {
+        await prisma.tarefa.create({
+          data: {
+            clienteId:  c.id,
+            titulo:     `Contactar ${c.nome}`,
+            tipo:       "follow_up",
+            prioridade: "alta",
+            estado:     "pendente",
+            dataLimite,
+            criadoPor,
+            ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
+          },
+        })
+      }
+    } catch (e) {
+      // Não bloquear a transição se a criação de tarefa falhar
+      console.error(`[estados] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
+    }
+  }
+
+  return { alterado: true, de: c.estado, para: novoEstado }
+}
+
+/**
+ * Recalcula o estado de UM cliente imediatamente — chamado logo a seguir a
+ * uma sessão passar a "realizada" (pos-sessao.html, PATCH /sessoes/[id]),
+ * para o dashboard não ficar até 24h desfasado à espera do cron das 7h.
+ * O cron continua a correr como rede de segurança (apanha "perdida"/
+ * "reativacao" por mera passagem do tempo, sem sessão nova).
+ */
+export async function recalcularEstadoCliente(clienteId: string): Promise<void> {
+  try {
+    const config = await getConfigNegocio()
+    const c = await prisma.cliente.findUnique({
+      where: { id: clienteId },
+      select: {
+        id: true, nome: true, estado: true, apagadoEm: true, anonimizadoEm: true,
+        ultimaSessao: true, totalSessoes: true, totalGasto: true,
+      },
+    })
+    if (!c || c.apagadoEm || c.anonimizadoEm || c.estado === "blacklist") return
+
+    await aplicarTransicaoEstado(
+      { ...c, totalGasto: Number(c.totalGasto) },
+      new Date(),
+      config.diasReativacao
+    )
+  } catch (e) {
+    // Nunca bloquear o fluxo da sessão por causa disto — o cron diário
+    // continua a apanhar este cliente como rede de segurança.
+    console.error(`[estados] falha ao recalcular estado inline do cliente ${clienteId}:`, (e as Error).message)
+  }
+}
+
 /** Percorre todas as clientes ativas e aplica as transições devidas. */
 export async function executarMotorEstados(): Promise<ResultadoMotor> {
   const config = await getConfigNegocio()
@@ -85,76 +204,10 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
     // Isolamento por cliente: uma falha (constraint, blip de ligação) não pode
     // abortar o lote inteiro e deixar os clientes seguintes sem recálculo.
     try {
-      const novoEstado = calcularEstado(
-        { ...c, totalGasto: Number(c.totalGasto) },
-        hoje,
-        diasReativacao
-      )
-      if (novoEstado === c.estado) continue
-
-      await prisma.cliente.update({
-        where: { id: c.id },
-        data: { estado: novoEstado },
-      })
-
-      resultado.alterados++
-      resultado.transicoes.push({ clienteId: c.id, nome: c.nome, de: c.estado, para: novoEstado })
-
-      auditar({
-        quem: "sistema",
-        acao: "cliente.estado_alterado",
-        entidade: "Cliente",
-        entidadeId: c.id,
-        detalhe: { de: c.estado, para: novoEstado, motor: true },
-      })
-
-      void webhooks.clienteEstadoAlterado({
-        clienteId: c.id,
-        nomeCliente: c.nome,
-        estadoAnterior: c.estado,
-        estadoNovo: novoEstado,
-      })
-
-      // Criar tarefa automática de follow-up quando cliente entra em reativacao
-      if (novoEstado === "reativacao" && c.estado !== "reativacao") {
-        try {
-          const ultimaSessao = await prisma.sessao.findFirst({
-            where: { clienteId: c.id, estado: "realizada" },
-            orderBy: { data: "desc" },
-            select: { terapeutaId: true },
-          })
-          const dataLimite = new Date(hoje)
-          dataLimite.setDate(dataLimite.getDate() + 7)
-
-          // criadoPor: usar terapeutaId da última sessão; fallback para admin do sistema
-          let criadoPor = ultimaSessao?.terapeutaId
-          if (!criadoPor) {
-            const admin = await prisma.user.findFirst({ where: { role: "admin", ativo: true }, select: { id: true } })
-            criadoPor = admin?.id ?? "sistema"
-          }
-
-          // Só criar se não existir já uma tarefa pendente de follow_up para este cliente
-          const jaExiste = await prisma.tarefa.findFirst({
-            where: { clienteId: c.id, tipo: "follow_up", estado: { in: ["pendente", "em_progresso"] } },
-          })
-          if (!jaExiste) {
-            await prisma.tarefa.create({
-              data: {
-                clienteId:  c.id,
-                titulo:     `Contactar ${c.nome}`,
-                tipo:       "follow_up",
-                prioridade: "alta",
-                estado:     "pendente",
-                dataLimite,
-                criadoPor,
-                ...(ultimaSessao?.terapeutaId ? { atribuidaA: ultimaSessao.terapeutaId } : {}),
-              },
-            })
-          }
-        } catch (e) {
-          // Não bloquear o motor se a criação de tarefa falhar
-          console.error(`[motor] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
-        }
+      const r = await aplicarTransicaoEstado({ ...c, totalGasto: Number(c.totalGasto) }, hoje, diasReativacao)
+      if (r.alterado) {
+        resultado.alterados++
+        resultado.transicoes.push({ clienteId: c.id, nome: c.nome, de: r.de!, para: r.para! })
       }
     } catch (e) {
       // Isola a falha a este cliente; o motor continua para os restantes e

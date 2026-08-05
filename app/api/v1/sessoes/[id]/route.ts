@@ -6,6 +6,7 @@ import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
 import { recalcularMetricasCliente } from "@/lib/metricas"
+import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 
@@ -140,6 +141,9 @@ export async function PATCH(
       // Transição para "realizada" — webhook + mensagem de avaliação, só
       // depois da transação committar e fora dela (fire-and-forget, lib/sessoes).
       await dispararEfeitosSessaoRealizada(sessaoAntes, sessao.preco)
+      // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
+      // desfasado à espera do cron das 7h (lib/crm-estados).
+      await recalcularEstadoCliente(sessaoAntes.clienteId)
     }
 
     auditar({
