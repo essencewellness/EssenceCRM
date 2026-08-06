@@ -28,6 +28,7 @@ export async function GET(
         mensagens: { orderBy: { geradaEm: "desc" }, take: 5 },
         observacoes: { orderBy: { criadoEm: "desc" }, take: 10 },
         tarefas: { orderBy: { criadoEm: "desc" }, take: 10 },
+        feedbacks: { orderBy: { criadoEm: "desc" }, take: 5 },
         precos: {
           include: { servico: { select: { nome: true, precoBase: true } } },
           orderBy: { criadoEm: "desc" },
