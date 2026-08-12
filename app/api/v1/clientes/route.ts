@@ -6,6 +6,7 @@ import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, no
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -201,6 +202,7 @@ export async function POST(request: NextRequest) {
         aceitaMarketing: aceitaMarketing ?? true,
         ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
         estado: estado ?? "lead",
+        terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
       },
     })
 

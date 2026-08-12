@@ -912,7 +912,10 @@
         dropdown.innerHTML = '';
 
         if (resultados.length === 0) {
-          dropdown.innerHTML = `<div class="dropdown-empty">Nenhuma cliente encontrada para "${query}".</div>`;
+          const vazio = document.createElement('div');
+          vazio.className = 'dropdown-empty';
+          vazio.textContent = `Nenhuma cliente encontrada para "${query}".`;
+          dropdown.appendChild(vazio);
           dropdown.classList.add('visible');
           return;
         }
@@ -928,10 +931,16 @@
             ? `Última sessão: ${new Date(c.ultimaSessao).toLocaleDateString('pt-PT')}`
             : 'Primeira sessão';
 
-          item.innerHTML = `
-            <div class="dropdown-nome">${c.nome}</div>
-            <div class="dropdown-meta">${c.estado || ''} · ${ultima}</div>
-          `;
+          const nomeDiv = document.createElement('div');
+          nomeDiv.className = 'dropdown-nome';
+          nomeDiv.textContent = c.nome;
+
+          const metaDiv = document.createElement('div');
+          metaDiv.className = 'dropdown-meta';
+          metaDiv.textContent = `${c.estado || ''} · ${ultima}`;
+
+          item.appendChild(nomeDiv);
+          item.appendChild(metaDiv);
           const escolher = () => {
             selecionarCliente(c);
             dropdown.classList.remove('visible');

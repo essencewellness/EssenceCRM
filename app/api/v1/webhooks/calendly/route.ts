@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 
 // Formato Calendly: "t=1234567890,v1=abcdef..." — HMAC-SHA256 de `${t}.${rawBody}`
 function verificarAssinaturaCalendly(rawBody: string, header: string | null): boolean {
@@ -147,6 +148,7 @@ export async function POST(request: NextRequest) {
           fonte: "calendly",
           comoNosConheceu: "calendly",
           estado: "novo",
+          terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
         },
       })
       clienteCriado = true

@@ -7,6 +7,7 @@ import { webhooks } from "@/lib/webhooks"
 import { leadPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
           estado: "lead",
           aceitaMarketing: aceita,
           ...(aceita ? { consentimentoMarketingEm: new Date() } : {}),
+          terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
         },
       })
 

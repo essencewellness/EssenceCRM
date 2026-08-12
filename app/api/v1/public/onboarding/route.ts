@@ -12,6 +12,7 @@ import { onboardingPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 
 // Versão do texto de consentimento mostrado no formulário (essence-forms.js,
 // injetarAvisoRGPD). Incrementar sempre que o texto mudar — fica no audit log
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
           estado: "novo",
           aceitaMarketing: aceitaMarketing ?? true,
           ...(aceitaMarketing === false ? {} : { consentimentoMarketingEm: new Date() }),
+          terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
         },
       })
       created = true
