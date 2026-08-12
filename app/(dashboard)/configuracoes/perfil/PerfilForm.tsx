@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { atualizarPerfil, alterarPassword } from "./actions";
 
 const GOLD = "#d4b886";
@@ -65,11 +66,19 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
     setMensagemPassword(null);
     try {
       await alterarPassword({ passwordAtual, passwordNova, obrigatorio });
-      setMensagemPassword("Password alterada com sucesso.");
       setPasswordAtual("");
       setPasswordNova("");
-      if (obrigatorio) router.push("/");
-      else router.refresh();
+      if (obrigatorio) {
+        // A sessão (JWT) guarda precisaMudarPassword em cache e só é
+        // recalculada num novo login — sem isto, o middleware continuava a
+        // mandar de volta para esta página em qualquer outro sítio, mesmo
+        // já não sendo preciso (bug real encontrado em produção 2026-08-12).
+        setMensagemPassword("Password alterada. A reencaminhar para o login…");
+        await signOut({ redirectTo: "/login" });
+      } else {
+        setMensagemPassword("Password alterada com sucesso.");
+        router.refresh();
+      }
     } catch (err) {
       setErroPassword(err instanceof Error ? err.message : "Erro ao alterar password");
     } finally {
