@@ -27,7 +27,7 @@ export async function atualizarPerfil(dados: { nome: string; email?: string }) {
   revalidatePath("/configuracoes/perfil");
 }
 
-export async function alterarPassword(dados: { passwordAtual: string; passwordNova: string }) {
+export async function alterarPassword(dados: { passwordAtual: string; passwordNova: string; obrigatorio?: boolean }) {
   const userId = await getUserId();
 
   if (!dados.passwordNova || dados.passwordNova.length < 8) {
@@ -37,8 +37,13 @@ export async function alterarPassword(dados: { passwordAtual: string; passwordNo
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.password) throw new Error("Utilizador sem password definida");
 
-  const valida = await bcrypt.compare(dados.passwordAtual, user.password);
-  if (!valida) throw new Error("Password atual incorrecta");
+  // Troca obrigatória (após reset por admin ou conta nova): a sessão activa já
+  // prova que a pessoa entrou com a password certa — não pedimos a password
+  // atual outra vez (o formulário nem mostra esse campo neste fluxo).
+  if (!dados.obrigatorio) {
+    const valida = await bcrypt.compare(dados.passwordAtual, user.password);
+    if (!valida) throw new Error("Password atual incorrecta");
+  }
 
   const hash = await bcrypt.hash(dados.passwordNova, 10);
   await prisma.user.update({

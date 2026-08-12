@@ -64,7 +64,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
     setErroPassword(null);
     setMensagemPassword(null);
     try {
-      await alterarPassword({ passwordAtual, passwordNova });
+      await alterarPassword({ passwordAtual, passwordNova, obrigatorio });
       setMensagemPassword("Password alterada com sucesso.");
       setPasswordAtual("");
       setPasswordNova("");
