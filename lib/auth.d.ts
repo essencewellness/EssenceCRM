@@ -11,6 +11,7 @@ declare module "next-auth" {
       role: "admin" | "terapeuta";
       username: string;
       precisaMudarPassword: boolean;
+      ativo: boolean;
     };
   }
 
@@ -27,5 +28,6 @@ declare module "next-auth/jwt" {
     role?: string;
     username?: string;
     precisaMudarPassword?: boolean;
+    ativo?: boolean;
   }
 }

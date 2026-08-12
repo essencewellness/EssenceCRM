@@ -51,6 +51,17 @@ export async function proxy(req: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
+    // Conta desativada (configuracoes/utilizadores → Desativar): o token JWT
+    // é revalidado a cada pedido em lib/auth.ts, por isso isto passa a ter
+    // efeito imediato — sem esperar até 12h pela expiração natural da sessão.
+    if (token.ativo === false) {
+      const loginUrl = new URL("/login", req.url)
+      loginUrl.searchParams.set("error", "ContaDesativada")
+      const response = NextResponse.redirect(loginUrl)
+      response.cookies.delete(isSecureCookieEnv() ? "__Secure-authjs.session-token" : "authjs.session-token")
+      return response
+    }
+
     // Password a trocar obrigatoriamente: força a ida a /configuracoes/perfil
     // em qualquer outra página — mas nunca na própria página de destino, senão
     // o redirect aponta para si mesmo e entra em loop infinito (bug real

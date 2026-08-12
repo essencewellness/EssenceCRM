@@ -88,6 +88,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = (user as { role?: string }).role ?? "terapeuta";
         token.username = (user as { username?: string }).username ?? "";
         token.precisaMudarPassword = (user as { precisaMudarPassword?: boolean }).precisaMudarPassword ?? false;
+        token.ativo = true; // authorize() já filtra ativo:true — sempre verdadeiro num login novo
+      } else if (token.id) {
+        // Revalida a cada pedido (jwt() corre em todo o auth()/getToken(), não só no
+        // login) — sem isto, desativar uma conta (configuracoes/utilizadores) não
+        // revogava o acesso até a sessão expirar (12h): bug real encontrado em
+        // produção 2026-08-12 na mesma família do de precisaMudarPassword. Custo:
+        // 1 lookup indexado por id, aceitável face ao risco de acesso pós-revogação.
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { ativo: true, role: true, precisaMudarPassword: true },
+        });
+        token.ativo = dbUser?.ativo ?? false;
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.precisaMudarPassword = dbUser.precisaMudarPassword;
+        }
       }
       return token;
     },
@@ -97,6 +113,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as { role?: string }).role = token.role as string;
         (session.user as { username?: string }).username = token.username as string;
         (session.user as { precisaMudarPassword?: boolean }).precisaMudarPassword = token.precisaMudarPassword as boolean;
+        (session.user as { ativo?: boolean }).ativo = token.ativo as boolean;
       }
       return session;
     },
