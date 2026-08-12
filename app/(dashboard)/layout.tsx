@@ -19,8 +19,9 @@ export default async function DashboardLayout({
   const session = await auth()
   if (!session?.user) redirect("/login")
 
-  const precisaMudar = (session.user as { precisaMudarPassword?: boolean }).precisaMudarPassword
-  if (precisaMudar) redirect("/configuracoes/perfil?obrigatorio=1")
+  // A obrigatoriedade de troca de password (precisaMudarPassword) já é
+  // aplicada em proxy.ts, antes de chegar aqui — feito lá para poder excluir
+  // /configuracoes/perfil do redirect (senão entra em loop consigo mesma).
 
   // Contar mensagens pendentes para badge na sidebar
   const mensagensPendentes = await prisma.mensagemIA.count({

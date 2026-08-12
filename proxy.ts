@@ -50,6 +50,14 @@ export async function proxy(req: NextRequest) {
       if (pathname !== "/") loginUrl.searchParams.set("callbackUrl", pathname)
       return NextResponse.redirect(loginUrl)
     }
+
+    // Password a trocar obrigatoriamente: força a ida a /configuracoes/perfil
+    // em qualquer outra página — mas nunca na própria página de destino, senão
+    // o redirect aponta para si mesmo e entra em loop infinito (bug real
+    // encontrado em produção 2026-08-12, ERR_TOO_MANY_REDIRECTS).
+    if (token.precisaMudarPassword && pathname !== "/configuracoes/perfil") {
+      return NextResponse.redirect(new URL("/configuracoes/perfil?obrigatorio=1", req.url))
+    }
   }
 
   // API e formulários estáticos não recebem CSP com nonce aqui:
