@@ -2,9 +2,11 @@ import "dotenv/config";
 import { Prisma } from "@/lib/prisma-client";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 
 async function main() {
+  assertNaoProducao("seed.ts");
   console.log("🌿 A iniciar seed da Essence Wellness...");
 
   // ── Catálogo de serviços (upsert — seguro em produção) ───────────────────

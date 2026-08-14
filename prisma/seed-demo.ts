@@ -17,6 +17,7 @@ import "dotenv/config";
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { recalcularMetricasCliente } from "../lib/metricas";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 
 // ── Aleatoriedade utilitária ────────────────────────────────────────────────
@@ -329,6 +330,7 @@ function gerarSessoes(clienteId: string, p: Perfil) {
 }
 
 async function main() {
+  assertNaoProducao("seed-demo.ts");
   console.log("🌿 Seed DEMO — fonte única (sessões → métricas)\n");
 
   // ── 1. Limpar só as tabelas CRM (preserva logins User/Account/Session) ─────

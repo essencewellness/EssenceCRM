@@ -4,6 +4,7 @@
 import { type EstadoCliente, type EstadoMensagem } from "@/lib/prisma-client";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 
 function d(diasOffset: number, hora = 10): Date {
@@ -14,6 +15,7 @@ function d(diasOffset: number, hora = 10): Date {
 }
 
 async function main() {
+  assertNaoProducao("seed-fake.ts");
   console.log("A limpar tabelas…");
   await prisma.auditLog.deleteMany();
   await prisma.mensagemIA.deleteMany();

@@ -1,8 +1,10 @@
 import "dotenv/config";
 import { prisma } from "@/lib/prisma";
+import { assertNaoProducao } from "./assert-nao-producao";
 const p = prisma;
 
 async function main() {
+  assertNaoProducao("reset-msgs.ts");
   // Apagar mensagem de teste do n8n
   await p.mensagemIA.deleteMany({ where: { motivoGeracao: "Teste" } });
 

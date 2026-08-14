@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Prisma } from "@/lib/prisma-client";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 /**
  * Seed completo — 100 clientes fictícios totalmente ligados pelo clienteId.
@@ -124,6 +125,7 @@ const COORTES: Coorte[] = [
 ];
 
 async function main() {
+  assertNaoProducao("seed-100.ts");
   console.log("🌿 Seed-100 — a iniciar...\n");
 
   // ── 1. Serviços (upsert) ────────────────────────────────────────────────

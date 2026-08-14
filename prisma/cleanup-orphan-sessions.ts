@@ -1,7 +1,9 @@
 // Script temporário: apaga sessões órfãs (clientes apagados mas sessões ficaram ativas)
 import { prisma } from "@/lib/prisma";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 async function main() {
+  assertNaoProducao("cleanup-orphan-sessions.ts");
   // Encontrar sessões cujo cliente está apagado (apagadoEm != null) ou não existe
   const sessoesOrfas = await prisma.sessao.findMany({
     where: {

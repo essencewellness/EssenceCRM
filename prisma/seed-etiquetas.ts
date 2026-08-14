@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 
 async function main() {
+  assertNaoProducao("seed-etiquetas.ts");
   // Ver o que existe
   const etiquetasExistentes = await prisma.etiqueta.findMany({ orderBy: { tipo: "asc" } });
   console.log("\n=== ETIQUETAS EXISTENTES ===");
