@@ -12,6 +12,7 @@ const navItems = [
   { label: "Top Clientes", href: "/top-clientes" },
   { label: "Financeiro",   href: "/financeiro" },
   { label: "Serviços",     href: "/servicos" },
+  { label: "Vouchers",     href: "/vouchers" },
   { label: "Templates",    href: "/templates" },
   { label: "Campanhas",    href: "/campanhas" },
 ];
