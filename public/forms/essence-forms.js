@@ -30,6 +30,7 @@
   }
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const MENSAGEM_ERRO_GENERICA = "Ocorreu um erro ao enviar. Por favor, tenta novamente ou contacta-nos diretamente.";
 
   // ── Passos ────────────────────────────────────────────────────
   const allSteps   = [...document.querySelectorAll(".step")];
@@ -133,6 +134,189 @@
 
   document.querySelectorAll("[data-next]").forEach((b) => b.addEventListener("click", next));
   document.querySelectorAll("[data-back]").forEach((b) => b.addEventListener("click", back));
+
+  // ── Seletor de data personalizado (substitui o calendário nativo) ──
+  // Cada <input type="date"> vira um par: um input de texto só-de-leitura
+  // (o que a cliente vê e clica, formatado dd/mm/aaaa) + um input escondido
+  // com o mesmo id, a guardar sempre o valor ISO — window.buildPayload() de
+  // cada formulário continua a ler EF.val("dataNascimento") sem alterações.
+  const MESES_PT = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const DIAS_PT  = ["D","S","T","Q","Q","S","S"];
+
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function isoParaData(iso) {
+    if (!iso) return null;
+    const [a, m, d] = iso.split("-").map(Number);
+    if (!a || !m || !d) return null;
+    return new Date(a, m - 1, d);
+  }
+  function dataParaIso(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+  function dataParaPt(d) { return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`; }
+
+  function ligarCalendario(visivel, oculto) {
+    let painel = null;
+    let mesAtual, anoAtual;
+    const valorInicial = isoParaData(oculto.value);
+    const hoje = new Date();
+    mesAtual = valorInicial ? valorInicial.getMonth() : hoje.getMonth();
+    anoAtual = valorInicial ? valorInicial.getFullYear() : hoje.getFullYear();
+
+    function selecionar(d) {
+      oculto.value = dataParaIso(d);
+      visivel.value = dataParaPt(d);
+      visivel.dispatchEvent(new Event("change", { bubbles: true }));
+      fechar();
+    }
+
+    function limpar() {
+      oculto.value = "";
+      visivel.value = "";
+      visivel.dispatchEvent(new Event("change", { bubbles: true }));
+      fechar();
+    }
+
+    function reposicionar() {
+      if (!painel) return;
+      const r = visivel.getBoundingClientRect();
+      painel.style.top = r.bottom + 6 + "px";
+      painel.style.left = r.left + "px";
+    }
+
+    function render() {
+      if (!painel) return;
+      const primeiroDiaMes = new Date(anoAtual, mesAtual, 1);
+      const offset = primeiroDiaMes.getDay();
+      const diasNoMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
+      const selecionada = isoParaData(oculto.value);
+
+      const anos = [];
+      for (let a = hoje.getFullYear(); a >= hoje.getFullYear() - 100; a--) anos.push(a);
+
+      let grid = "";
+      for (let i = 0; i < offset; i++) {
+        const diaAnterior = new Date(anoAtual, mesAtual, 1 - offset + i).getDate();
+        grid += `<button type="button" class="ef-cal-dia ef-cal-fora" data-fora="-1" data-dia="${diaAnterior}">${diaAnterior}</button>`;
+      }
+      for (let dia = 1; dia <= diasNoMes; dia++) {
+        const d = new Date(anoAtual, mesAtual, dia);
+        const sel = selecionada && d.getTime() === selecionada.getTime();
+        const eHoje = d.toDateString() === hoje.toDateString();
+        grid += `<button type="button" class="ef-cal-dia${sel ? " ef-cal-sel" : ""}${eHoje ? " ef-cal-hoje" : ""}" data-dia="${dia}">${dia}</button>`;
+      }
+      const restantes = (7 - ((offset + diasNoMes) % 7)) % 7;
+      for (let dia = 1; dia <= restantes; dia++) {
+        grid += `<button type="button" class="ef-cal-dia ef-cal-fora" data-fora="1" data-dia="${dia}">${dia}</button>`;
+      }
+
+      painel.innerHTML = `
+        <div class="ef-cal-header">
+          <select class="ef-cal-select ef-cal-mes"></select>
+          <select class="ef-cal-select ef-cal-ano"></select>
+        </div>
+        <div class="ef-cal-semana">${DIAS_PT.map((d) => `<span>${d}</span>`).join("")}</div>
+        <div class="ef-cal-grid">${grid}</div>
+        <div class="ef-cal-footer">
+          <button type="button" class="ef-cal-link" data-acao="limpar">Limpar</button>
+          <button type="button" class="ef-cal-link" data-acao="hoje">Hoje</button>
+        </div>
+      `;
+
+      const selMes = painel.querySelector(".ef-cal-mes");
+      MESES_PT.forEach((nome, i) => {
+        const op = document.createElement("option");
+        op.value = String(i);
+        op.textContent = nome;
+        if (i === mesAtual) op.selected = true;
+        selMes.appendChild(op);
+      });
+      const selAno = painel.querySelector(".ef-cal-ano");
+      anos.forEach((a) => {
+        const op = document.createElement("option");
+        op.value = String(a);
+        op.textContent = String(a);
+        if (a === anoAtual) op.selected = true;
+        selAno.appendChild(op);
+      });
+      selMes.addEventListener("change", () => { mesAtual = Number(selMes.value); render(); });
+      selAno.addEventListener("change", () => { anoAtual = Number(selAno.value); render(); });
+
+      painel.querySelectorAll(".ef-cal-dia").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const dia = Number(btn.dataset.dia);
+          const fora = btn.dataset.fora;
+          if (fora === "-1") { mesAtual = mesAtual === 0 ? 11 : mesAtual - 1; anoAtual = mesAtual === 11 ? anoAtual - 1 : anoAtual; }
+          else if (fora === "1") { mesAtual = mesAtual === 11 ? 0 : mesAtual + 1; anoAtual = mesAtual === 0 ? anoAtual + 1 : anoAtual; }
+          if (fora) { render(); return; }
+          selecionar(new Date(anoAtual, mesAtual, dia));
+        });
+      });
+      painel.querySelector('[data-acao="limpar"]').addEventListener("click", limpar);
+      painel.querySelector('[data-acao="hoje"]').addEventListener("click", () => {
+        mesAtual = hoje.getMonth();
+        anoAtual = hoje.getFullYear();
+        render();
+      });
+    }
+
+    function abrir() {
+      if (painel) return;
+      painel = document.createElement("div");
+      painel.className = "ef-cal-painel";
+      document.body.appendChild(painel);
+      render();
+      reposicionar();
+      window.addEventListener("scroll", reposicionar, true);
+      window.addEventListener("resize", reposicionar);
+      setTimeout(() => document.addEventListener("click", aoClicarFora), 0);
+    }
+
+    function fechar() {
+      if (!painel) return;
+      painel.remove();
+      painel = null;
+      window.removeEventListener("scroll", reposicionar, true);
+      window.removeEventListener("resize", reposicionar);
+      document.removeEventListener("click", aoClicarFora);
+    }
+
+    function aoClicarFora(ev) {
+      if (painel && !painel.contains(ev.target) && ev.target !== visivel) fechar();
+    }
+
+    visivel.addEventListener("click", abrir);
+    visivel.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape") fechar();
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); abrir(); }
+    });
+  }
+
+  document.querySelectorAll('input[type="date"]').forEach((original) => {
+    const originalId = original.id;
+    const wrapper = original.closest(".fl");
+
+    const oculto = document.createElement("input");
+    oculto.type = "hidden";
+    oculto.id = originalId;
+    oculto.value = original.value || "";
+
+    const visivel = document.createElement("input");
+    visivel.type = "text";
+    visivel.readOnly = true;
+    visivel.autocomplete = "off";
+    visivel.setAttribute("inputmode", "none");
+    visivel.placeholder = " ";
+    visivel.className = original.className;
+    visivel.id = originalId + "-visivel";
+    if (original.value) visivel.value = dataParaPt(isoParaData(original.value));
+
+    original.replaceWith(visivel);
+    visivel.insertAdjacentElement("afterend", oculto);
+
+    const label = wrapper ? wrapper.querySelector(`label[for="${originalId}"]`) : null;
+    if (label) label.setAttribute("for", visivel.id);
+
+    ligarCalendario(visivel, oculto);
+  });
 
   // ── Floating labels ───────────────────────────────────────────
   document.querySelectorAll(".fl input, .fl textarea").forEach((el) => {
@@ -283,7 +467,18 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("HTTP " + res.status);
+      if (!res.ok) {
+        // A API devolve mensagens úteis (ex.: link expirado) — mostrar essas
+        // em vez do aviso genérico sempre que existirem.
+        let mensagem = MENSAGEM_ERRO_GENERICA;
+        try {
+          const corpo = await res.json();
+          if (corpo && typeof corpo.error === "string") mensagem = corpo.error;
+        } catch {}
+        const erro = new Error(mensagem);
+        erro.paraMostrar = mensagem;
+        throw erro;
+      }
 
       curEl.classList.remove("active");
       const sc = document.getElementById("success");
@@ -297,7 +492,7 @@
     } catch (err) {
       console.error(err);
       if (ge) {
-        ge.textContent = "Ocorreu um erro ao enviar. Por favor, tenta novamente ou contacta-nos diretamente.";
+        ge.textContent = (err && err.paraMostrar) || MENSAGEM_ERRO_GENERICA;
         ge.classList.add("show");
       }
       span.textContent = original;
