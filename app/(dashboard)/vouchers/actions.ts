@@ -140,7 +140,7 @@ export async function criarVoucher(dados: {
   const validade = adicionarMeses(dataCompra, 6)
 
   try {
-    await prisma.giftCard.create({
+    const voucher = await prisma.giftCard.create({
       data: {
         codigo: parsed.data.codigo,
         tipo: parsed.data.tipo ?? "digital",
@@ -179,6 +179,13 @@ export async function criarVoucher(dados: {
             texto: `Comprou o voucher ${parsed.data.codigo} (${parsed.data.servicoNome}, ${parsed.data.valorPago}€).`,
             autor: session.user?.name ?? "bea",
           },
+        })
+        // Liga a compra à ficha do comprador — é o que alimenta o separador
+        // "Vouchers" no perfil dele. Sem isto a nota acima era o único
+        // vestígio, e não dava para listar nem contar as compras.
+        await prisma.giftCard.update({
+          where: { id: voucher.id },
+          data: { compradorClienteId: cliente.id },
         })
       }
     }

@@ -97,6 +97,12 @@ export async function POST(request: NextRequest) {
             autor: "sistema",
           },
         })
+        // Liga a compra à ficha do comprador — alimenta o separador
+        // "Vouchers" no perfil dele.
+        await prisma.giftCard.update({
+          where: { id: voucher.id },
+          data: { compradorClienteId: cliente.id },
+        })
       }
     }
 

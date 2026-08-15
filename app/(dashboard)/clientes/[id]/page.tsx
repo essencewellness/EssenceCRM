@@ -8,6 +8,7 @@ import {
 import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils"
 import { ClientePerfilTabs } from "@/components/clientes/ClientePerfilTabs"
+import { VouchersTab, type VoucherDoCliente } from "./VouchersTab"
 import { ClienteTimeline } from "@/components/clientes/ClienteTimeline"
 import { construirEventosTimeline } from "@/lib/timeline"
 import { TarefasLista } from "@/components/tarefas/TarefasLista"
@@ -87,6 +88,10 @@ export default async function ClientePage({ params }: ClientePageProps) {
         observacoes: { orderBy: { criadoEm: "desc" } },
         precos: { include: { servico: { select: { nome: true, precoBase: true } } }, orderBy: { criadoEm: "desc" } },
         packs: { include: { servico: { select: { nome: true } } }, orderBy: { criadoEm: "desc" } },
+        // Os dois papéis de um voucher: comprado por esta pessoa, ou
+        // oferecido a ela por outra. Ver VouchersTab.
+        vouchersComprados: { orderBy: { dataCompra: "desc" } },
+        giftCards: { orderBy: { dataCompra: "desc" } },
       },
     }),
     prisma.etiqueta.findMany({
@@ -105,6 +110,27 @@ export default async function ClientePage({ params }: ClientePageProps) {
   if (!cliente) notFound()
 
   const eventosTimeline = await construirEventosTimeline(cliente.id, 50)
+
+  const serializarVoucher = (v: {
+    id: string; codigo: string; tipo: string; estado: string; servicoNome: string
+    valorPago: unknown; compradorNome: string; beneficiarioNome: string | null
+    dataCompra: Date; validade: Date | null; dataUso: Date | null
+  }): VoucherDoCliente => ({
+    id: v.id,
+    codigo: v.codigo,
+    tipo: v.tipo,
+    estado: v.estado,
+    servicoNome: v.servicoNome,
+    valorPago: Number(v.valorPago),
+    compradorNome: v.compradorNome,
+    beneficiarioNome: v.beneficiarioNome,
+    dataCompra: v.dataCompra.toISOString(),
+    validade: v.validade ? v.validade.toISOString() : null,
+    dataUso: v.dataUso ? v.dataUso.toISOString() : null,
+  })
+
+  const vouchersComprados = cliente.vouchersComprados.map(serializarVoucher)
+  const vouchersRecebidos = cliente.giftCards.map(serializarVoucher)
 
   // Verificar scope para role terapeuta: só vê os SEUS clientes
   if (!ctx.isAdmin && cliente.terapeutaPrincipalId !== ctx.userId) {
@@ -535,6 +561,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
             badge: cliente.sessoes.length,
             content: (
               <SessoesTab clienteId={cliente.id} sessoes={cliente.sessoes.map((s) => ({ ...s, preco: s.preco === null ? null : Number(s.preco) }))} />
+            ),
+          },
+          {
+            value: "vouchers",
+            label: "Vouchers",
+            badge: vouchersComprados.length + vouchersRecebidos.length,
+            content: (
+              <VouchersTab comprados={vouchersComprados} recebidos={vouchersRecebidos} />
             ),
           },
           {

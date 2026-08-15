@@ -215,7 +215,8 @@ model Cliente {
   precos              PrecoPersonalizado[]
   packs               Pack[]
   portalToken         PortalToken?
-  giftCards           GiftCard[]
+  giftCards           GiftCard[] @relation("BeneficiarioGiftCard")
+  vouchersComprados   GiftCard[] @relation("CompradorGiftCard")
   tarefas             Tarefa[]
   feedbacks           Feedback[]
   linkTokens          LinkToken[]
@@ -576,8 +577,13 @@ model GiftCard {
   // aparecer nas contas de quem faz o trabalho.
   terapeutaId          String?
 
-  // Quando resgatado, pode ligar ao cliente no CRM
+  // Quando resgatado, pode ligar ao cliente no CRM. Esta é a BENEFICIÁRIA
+  // (quem marca e recebe a massagem), que pode não ser quem comprou.
   clienteId            String?
+  // A lead criada para quem COMPROU o voucher. Separado do clienteId de
+  // propósito: na maioria dos casos o voucher é um presente, e comprador e
+  // beneficiária são pessoas diferentes.
+  compradorClienteId   String?
   // A sessão específica que este voucher paga — sem isto não há como saber
   // qual das sessões da cliente é que, ao ficar "realizada", deve marcar
   // este voucher como usado (uma cliente pode ter várias sessões e vários
@@ -587,7 +593,8 @@ model GiftCard {
   criadoEm             DateTime      @default(now())
   atualizadoEm         DateTime      @updatedAt
 
-  cliente              Cliente?      @relation(fields: [clienteId], references: [id])
+  cliente              Cliente?      @relation("BeneficiarioGiftCard", fields: [clienteId], references: [id])
+  compradorCliente     Cliente?      @relation("CompradorGiftCard", fields: [compradorClienteId], references: [id])
   terapeuta            User?         @relation("TerapeutaGiftCard", fields: [terapeutaId], references: [id])
 
   @@index([codigo])
@@ -596,6 +603,7 @@ model GiftCard {
   @@index([dataCompra])
   @@index([sessaoId])
   @@index([terapeutaId])
+  @@index([compradorClienteId])
 }
 
 // ── Configurações do Negócio (singleton) ─────────────────────
