@@ -228,10 +228,24 @@
 }
 
 /* ── Input focus premium ── */
-input:focus, textarea:focus {
+/* select: sempre incluído — vários formulários do dashboard tinham
+   outline:none em <select> sem nenhum substituto, o que apagava por
+   completo o indicador de foco para quem navega por teclado. */
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: rgba(185,160,122,0.6) !important;
   box-shadow: 0 0 0 3px rgba(185,160,122,0.12) !important;
+}
+
+/* ── Foco em botões/elementos interativos sem indicador próprio ── */
+/* :focus-visible (não :focus) — só aparece para navegação por teclado,
+   não pisca em cada clique de rato, que seria distração desnecessária
+   em botões que já têm o seu próprio feedback de hover/estado ativo. */
+button:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(185,160,122,0.35);
 }
 
 /* ── Tab activa ── */

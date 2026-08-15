@@ -161,6 +161,32 @@ function escreverDataISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
+// Posição de um popover ancorado a um campo, calculada em pixels reais do
+// ecrã (não em percentagem do pai). O drawer de criar/editar voucher tem
+// overflowY:auto — um popover "position: absolute" dentro dele fica
+// cortado pelas bordas do drawer assim que o campo não está perto do
+// topo. "position: fixed" com estas coordenadas escapa a esse corte.
+function usePosicaoFlutuante(ref: React.RefObject<HTMLElement | null>, aberto: boolean) {
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null)
+
+  useEffect(() => {
+    if (!aberto) return
+    function atualizar() {
+      const r = ref.current?.getBoundingClientRect()
+      if (r) setPos({ top: r.bottom + 6, left: r.left, width: r.width })
+    }
+    atualizar()
+    window.addEventListener("scroll", atualizar, true)
+    window.addEventListener("resize", atualizar)
+    return () => {
+      window.removeEventListener("scroll", atualizar, true)
+      window.removeEventListener("resize", atualizar)
+    }
+  }, [aberto, ref])
+
+  return pos
+}
+
 const mesmoDia = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
 
@@ -177,6 +203,8 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
   })
   const idBase = useId()
   const hoje = new Date()
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const pos = usePosicaoFlutuante(wrapRef, aberto)
 
   // Grelha de 6 semanas: dias do mês anterior/seguinte entram esbatidos para
   // a grelha nunca "saltar" de altura entre meses.
@@ -210,6 +238,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
 
   return (
     <div
+      ref={wrapRef}
       style={{ position: "relative" }}
       onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setAberto(false) }}
     >
@@ -230,12 +259,12 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
         <CalendarDays size={15} aria-hidden="true" style={{ color: "var(--nuit-champagne-soft)", opacity: 0.75, flexShrink: 0 }} />
       </button>
 
-      {aberto && (
+      {aberto && pos && (
         <div
           role="dialog"
           aria-label="Escolher data"
           style={{
-            position: "absolute", zIndex: 30, top: "calc(100% + 6px)", left: 0,
+            position: "fixed", zIndex: 150, top: pos.top, left: pos.left,
             width: "298px", padding: "14px",
             backgroundColor: "var(--nuit-deep)",
             border: "1px solid rgba(212,184,134,0.28)",
@@ -361,6 +390,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
   const listaId = `${idBase}-lista`
   const wrapRef = useRef<HTMLDivElement>(null)
   const listaRef = useRef<HTMLUListElement>(null)
+  const pos = usePosicaoFlutuante(wrapRef, aberto)
 
   const encontrados = useMemo(() => {
     const q = filtro.trim().toLowerCase()
@@ -471,7 +501,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
         </span>
       </div>
 
-      {aberto && (
+      {aberto && pos && (
         <ul
           ref={listaRef}
           id={listaId}
@@ -479,7 +509,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
           aria-label="Experiências do catálogo"
           className="nuit-scrollbar"
           style={{
-            position: "absolute", zIndex: 20, top: "calc(100% + 6px)", left: 0, right: 0,
+            position: "fixed", zIndex: 150, top: pos.top, left: pos.left, width: pos.width,
             maxHeight: "290px", overflowY: "auto",
             backgroundColor: "var(--nuit-deep)",
             border: "1px solid rgba(212,184,134,0.28)",
