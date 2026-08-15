@@ -78,7 +78,7 @@ export async function PATCH(request: NextRequest) {
   if (!v.ok) return v.resposta
   const {
     sessaoId, t, servico, preco, aromaSessao, estadoEmocional, resumoSessao, notasPosSessao, dataRecomendadaRegresso,
-    estadoPagamento, valorPago, metodoPagamento, repasseNecessario,
+    estadoPagamento, valorPago, metodoPagamento, repasseNecessario, terapeuta2Id, valorRepasse,
   } = v.data
 
   const erroToken = await validarLinkToken(request, sessaoId, "pos-sessao-patch", t)
@@ -115,6 +115,9 @@ export async function PATCH(request: NextRequest) {
           ...(resumoSessao !== undefined ? { resumoSessao } : {}),
           ...(notasPosSessao !== undefined ? { notasPosSessao } : {}),
           ...(dataRecomendadaRegresso ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) } : {}),
+          // Massagem a dois — a segunda terapeuta é escolhida no formulário.
+          // `undefined` não toca no campo; `null` limpa-o (deixou de ser a dois).
+          ...(terapeuta2Id !== undefined ? { terapeuta2Id: terapeuta2Id || null } : {}),
           ...(estadoPagamento !== undefined ? {
             estadoPagamento,
             valorPago: valorPago ?? null,
@@ -122,6 +125,9 @@ export async function PATCH(request: NextRequest) {
             // mesmo critério do editor manual no /financeiro (só "pago" fixa a data)
             ...(estadoPagamento === "pago" ? { pagamentoEm: new Date() } : {}),
             repasseNecessario: repasseNecessario ?? false,
+            // null = a Cristina leva o valor todo (sessão só dela). Numa
+            // massagem a dois vem metade, calculada no formulário.
+            valorRepasse: valorRepasse ?? null,
           } : {}),
         },
       })

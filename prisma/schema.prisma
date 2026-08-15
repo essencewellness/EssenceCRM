@@ -23,6 +23,7 @@ model User {
   accounts             Account[]
   sessions             Session[]
   sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")
+  sessoesComoSegunda   Sessao[]  @relation("Terapeuta2Sessao")
   clientesPrincipais   Cliente[] @relation("TerapeutaCliente")
   tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
   tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
@@ -252,6 +253,11 @@ model Sessao {
   terapeutaId  String?
   user         User?    @relation("TerapeutaSessao", fields: [terapeutaId], references: [id])
 
+  // Segunda terapeuta — só nas massagens a dois, em que as duas trabalham
+  // ao mesmo tempo na mesma marcação. Null em todas as outras sessões.
+  terapeuta2Id String?
+  user2        User?    @relation("Terapeuta2Sessao", fields: [terapeuta2Id], references: [id])
+
   estado              EstadoSessao @default(agendada)
 
   dataRecomendadaRegresso DateTime?
@@ -289,6 +295,10 @@ model Sessao {
   repasseNecessario Boolean   @default(false)
   repasseFeito      Boolean   @default(false)
   repasseFeitoEm    DateTime?
+  // Quanto do valorPago pertence à Cristina. Null = o valor todo (o caso
+  // normal: sessão feita só por ela). Numa massagem a dois é metade, porque
+  // as duas trabalharam a mesma marcação.
+  valorRepasse      Decimal?  @db.Decimal(10, 2)
 
   // Sugestão de etiquetas por IA (Groq) — marca quando esta sessão já foi
   // lida pelo workflow N8N, para nunca reprocessar a mesma sessão duas vezes
@@ -323,6 +333,7 @@ model Sessao {
   @@index([servicoId])
   @@index([estadoPagamento])
   @@index([terapeutaId])
+  @@index([terapeuta2Id])
   @@index([calendlyEventUri])
 }
 

@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
   if (!v.ok) return v.resposta
   const {
     clienteId, telefone, email,
-    data, hora, duracao, servico, preco, terapeuta, terapeutaId,
+    data, hora, duracao, servico, preco, terapeuta, terapeutaId, terapeuta2Id,
     estado, aromaSessao, resumoSessao, linkDocumento, calendlyEventId,
   } = v.data
 
@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
           preco: preco ?? null,
           terapeuta: terapeuta ?? "bea",
           ...(terapeutaId ? { terapeutaId } : {}),
+          ...(terapeuta2Id ? { terapeuta2Id } : {}),
           estado: estado ?? "agendada",
           aromaSessao: aromaSessao ?? null,
           resumoSessao: resumoSessao ?? null,

@@ -109,6 +109,7 @@ export const sessaoCreateSchema = z.object({
   preco: precoSchema.optional().nullable(),
   terapeuta: z.string().trim().max(60).optional(),
   terapeutaId: z.string().trim().max(64).optional().nullable(),
+  terapeuta2Id: z.string().trim().max(64).optional().nullable(),
   estado: z.enum(ESTADOS_SESSAO).optional(),
   aromaSessao: z.string().trim().max(120).optional().nullable(),
   resumoSessao: textoOpcional,
@@ -132,6 +133,7 @@ export const sessaoUpdateSchema = z.object({
   preco: precoSchema.optional().nullable(),
   servico: z.string().trim().max(120).optional().nullable(),
   terapeutaId: z.string().trim().max(64).optional().nullable(),
+  terapeuta2Id: z.string().trim().max(64).optional().nullable(),
   // Rastreio de comunicações automáticas N8N
   briefingEnviado:     z.boolean().optional(),
   lembreteEnviado:     z.boolean().optional(),
@@ -149,6 +151,7 @@ export const sessaoUpdateSchema = z.object({
   pagamentoEm:      dataISO.optional().nullable(),
   repasseNecessario: z.boolean().optional(),
   repasseFeito:      z.boolean().optional(),
+  valorRepasse:      z.coerce.number().min(0).max(10_000).optional().nullable(),
   etiquetasSugeridasEm: dataISO.optional().nullable(),
   // Integrações
   calendarEventId:  z.string().trim().max(256).optional().nullable(),
@@ -342,6 +345,11 @@ export const posSessaoPatchSchema = z.object({
   // true quando é a Cristina a receber por MBWay (conta é da Bea) — calculado
   // no forms a partir da terapeuta selecionada, não no servidor
   repasseNecessario: z.boolean().optional(),
+  // Massagem a dois: as duas terapeutas fazem a mesma marcação, e o repasse
+  // à Cristina é só de metade (o resto é da Bea). Sem isto, a sessão só
+  // podia ficar creditada a uma delas e o repasse era sempre 0% ou 100%.
+  terapeuta2Id: z.string().trim().max(64).optional().nullable(),
+  valorRepasse: precoSchema.optional().nullable(),
 }).strict()
 
 // ── Serviços ──────────────────────────────────────────────────

@@ -18,8 +18,17 @@ export type RepasseRow = {
   data: string
   servico: string | null
   valorPago: string | null
+  // Quanto desta sessão é da Cristina. Null = o valorPago todo (sessão só
+  // dela); numa massagem a dois é metade, porque a outra metade é da Bea.
+  valorRepasse: string | null
   metodoPagamento: string | null
   cliente: { id: string; nome: string }
+}
+
+/** O que a Bea deve mesmo à Cristina por esta sessão. */
+export function valorDevido(r: RepasseRow): number {
+  if (r.valorRepasse !== null) return Number(r.valorRepasse)
+  return r.valorPago ? Number(r.valorPago) : 0
 }
 
 function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
@@ -37,11 +46,14 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
         <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: "rgba(237,231,227,0.4)", marginTop: "2px" }}>
           {new Date(repasse.data).toLocaleDateString("pt-PT")}
           {repasse.metodoPagamento ? ` · ${METODO_LABEL[repasse.metodoPagamento] ?? repasse.metodoPagamento}` : ""}
+          {repasse.valorRepasse !== null && repasse.valorPago
+            ? ` · metade de €${Number(repasse.valorPago).toFixed(2)}`
+            : ""}
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#d48c45" }}>
-          {repasse.valorPago ? `€${Number(repasse.valorPago).toFixed(2)}` : "—"}
+          {`€${valorDevido(repasse).toFixed(2)}`}
         </span>
         <button
           disabled={pending}

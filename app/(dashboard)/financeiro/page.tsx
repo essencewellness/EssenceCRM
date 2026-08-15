@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
-import { RepassesCristina, type RepasseRow } from "./RepassesCristina"
+import { RepassesCristina, valorDevido, type RepasseRow } from "./RepassesCristina"
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -54,7 +54,11 @@ export default async function FinanceiroPage({
   // uma sessão em concreto. O financeiro tem de atribuir a receita a quem
   // REALMENTE fez cada sessão — Sessao.terapeutaId.
   const { alvo } = await getFiltrosTerapeuta(terapeuta)
-  const filtroSessao: Prisma.SessaoWhereInput = alvo ? { terapeutaId: alvo } : {}
+  // Numa massagem a dois trabalham as duas na mesma sessão — filtrar só por
+  // terapeutaId escondia essa sessão de uma delas. Conta para ambas.
+  const filtroSessao: Prisma.SessaoWhereInput = alvo
+    ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }] }
+    : {}
 
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
@@ -93,7 +97,7 @@ export default async function FinanceiroPage({
     prisma.sessao.findMany({
       where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null },
       select: {
-        id: true, data: true, servico: true, valorPago: true, metodoPagamento: true,
+        id: true, data: true, servico: true, valorPago: true, valorRepasse: true, metodoPagamento: true,
         cliente: { select: { id: true, nome: true } },
       },
       orderBy: { data: "asc" },
@@ -120,10 +124,11 @@ export default async function FinanceiroPage({
     data: r.data.toISOString(),
     servico: r.servico,
     valorPago: r.valorPago !== null ? String(r.valorPago) : null,
+    valorRepasse: r.valorRepasse !== null ? String(r.valorRepasse) : null,
     metodoPagamento: r.metodoPagamento,
     cliente: r.cliente,
   }))
-  const totalRepasses = repasses.reduce((soma, r) => soma + (r.valorPago ? Number(r.valorPago) : 0), 0)
+  const totalRepasses = repasses.reduce((soma, r) => soma + valorDevido(r), 0)
 
   const vouchers: VoucherRow[] = (serializarDecimais(vouchersRaw) as typeof vouchersRaw).map(v => ({
     id: v.id,

@@ -50,11 +50,11 @@ export async function PATCH(
   const {
     estado, data, hora, duracao, resumoSessao, notasPosSessao,
     aromaSessao, estadoEmocional, linkDocumento,
-    dataRecomendadaRegresso, preco, servico, terapeutaId,
+    dataRecomendadaRegresso, preco, servico, terapeutaId, terapeuta2Id,
     briefingEnviado, lembreteEnviado, confirmacaoPresenca,
     nutricaoBoasVindasEnviado, nutricao14dEnviado, nutricao7dEnviado, lembretePosSessaoEnviado, googleDocLink, briefingJson,
     estadoPagamento, valorPago, metodoPagamento, pagamentoEm,
-    repasseNecessario, repasseFeito, etiquetasSugeridasEm,
+    repasseNecessario, repasseFeito, valorRepasse, etiquetasSugeridasEm,
     calendarEventId, pdfUrl, calendlyEventId, calendlyEventUri,
     calendlyRescheduleUrl, calendlyCancelUrl,
     avaliacaoNota, avaliacaoComentario, avaliacaoEnviadaEm, avaliacaoRespondidaEm,
@@ -93,6 +93,7 @@ export async function PATCH(
           ...(preco !== undefined ? { preco } : {}),
           ...(servico !== undefined ? { servico } : {}),
           ...(terapeutaId !== undefined ? { terapeutaId } : {}),
+          ...(terapeuta2Id !== undefined ? { terapeuta2Id } : {}),
           ...(dataRecomendadaRegresso
             ? { dataRecomendadaRegresso: new Date(dataRecomendadaRegresso) }
             : {}),
@@ -111,6 +112,7 @@ export async function PATCH(
           ...(metodoPagamento !== undefined ? { metodoPagamento } : {}),
           ...(pagamentoEm     !== undefined ? { pagamentoEm: pagamentoEm ? new Date(pagamentoEm) : null } : {}),
           ...(repasseNecessario !== undefined ? { repasseNecessario } : {}),
+          ...(valorRepasse      !== undefined ? { valorRepasse }      : {}),
           ...(repasseFeito      !== undefined ? { repasseFeito, repasseFeitoEm: repasseFeito ? new Date() : null } : {}),
           ...(etiquetasSugeridasEm !== undefined ? { etiquetasSugeridasEm: etiquetasSugeridasEm ? new Date(etiquetasSugeridasEm) : null } : {}),
           // Integrações

@@ -602,6 +602,18 @@
           </div>
         </div>
 
+        <!-- Massagem a dois: as duas terapeutas trabalham a mesma marcação.
+             Só aparece quando o serviço escolhido é a dois. -->
+        <div class="field-row" id="linha-terapeuta2" style="display:none;">
+          <div class="field-group">
+            <label class="field-label" for="terapeuta2">2.ª terapeuta</label>
+            <select id="terapeuta2">
+              <option value="">— nenhuma —</option>
+            </select>
+            <p class="field-hint" id="hint-terapeuta2" style="margin:6px 0 0;">Massagem a dois: o repasse à Cristina passa a ser de metade.</p>
+          </div>
+        </div>
+
         <div class="field-row">
           <div class="field-group">
             <label class="field-label" for="data-sessao">Data</label>
@@ -800,10 +812,49 @@
       if (catalogoTerapeutas.length === 0) {
         sel.innerHTML = '<option value="">Sem terapeutas</option>';
       }
+      preencherTerapeuta2();
     } catch {
       document.getElementById('terapeuta').innerHTML = '<option value="bea">Bea</option><option value="cris">Cris</option>';
     }
   }
+
+  // ── Massagem a dois: 2.ª terapeuta ────────────────
+  // Numa massagem a dois trabalham as duas na mesma marcação. A sessão fica
+  // creditada às duas e, se uma delas for a Cristina, o repasse é só de
+  // metade — a outra metade é trabalho da Bea.
+  function preencherTerapeuta2() {
+    const sel = document.getElementById('terapeuta2');
+    const escolhidaPrincipal = document.getElementById('terapeuta').value;
+    const atual = sel.value;
+    sel.innerHTML = '<option value="">— nenhuma —</option>';
+    catalogoTerapeutas
+      .filter(t => t.id !== escolhidaPrincipal) // não pode ser a mesma duas vezes
+      .forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name || t.email;
+        sel.appendChild(opt);
+      });
+    if (atual && [...sel.options].some(o => o.value === atual)) sel.value = atual;
+  }
+
+  function servicoEhADois() {
+    const sel = document.getElementById('servico');
+    const nome = sel.options[sel.selectedIndex]?.textContent || '';
+    return /a dois|casal/i.test(nome);
+  }
+
+  function atualizarLinhaTerapeuta2() {
+    const linha = document.getElementById('linha-terapeuta2');
+    const eADois = servicoEhADois();
+    linha.style.display = eADois ? '' : 'none';
+    // Deixar de ser a dois limpa a escolha, senão ficava um terapeuta2Id
+    // escondido a afectar o repasse sem ninguém ver porquê.
+    if (!eADois) document.getElementById('terapeuta2').value = '';
+  }
+
+  document.getElementById('servico').addEventListener('change', atualizarLinhaTerapeuta2);
+  document.getElementById('terapeuta').addEventListener('change', preencherTerapeuta2);
 
   // ── Estado emocional ──────────────────────────────
   document.querySelectorAll('.emocional-btn').forEach(btn => {
@@ -1122,9 +1173,25 @@
     // Só há um MBWay físico (é da Bea) — quando é a Cristina a receber por lá,
     // esse dinheiro fica na conta da Bea até ela entregar a parte da Cristina
     // em mão. Marca a sessão como tendo um repasse pendente.
-    const ehCristina = /cristina/i.test(terapeutaNome);
+    // Massagem a dois: as duas fazem a mesma marcação, por isso a Cristina
+    // só tem direito a metade — a outra metade é trabalho da Bea.
+    const terapeuta2Select = document.getElementById('terapeuta2');
+    const terapeuta2Nome = terapeuta2Select.options[terapeuta2Select.selectedIndex]?.textContent || '';
+    const terapeuta2Id = (servicoEhADois() && terapeuta2Select.value) ? terapeuta2Select.value : null;
+
     const ehMbway = metodoSelecionado === 'mbway_essence' || metodoSelecionado === 'mbway_beatriz';
+    // A Cristina pode ser a principal ou a segunda — em qualquer dos casos
+    // o dinheiro caiu na conta da Bea e fica em dívida.
+    const cristinaPrincipal = /cristina/i.test(terapeutaNome);
+    const cristinaSegunda   = terapeuta2Id !== null && /cristina/i.test(terapeuta2Nome);
+    const ehCristina = cristinaPrincipal || cristinaSegunda;
     const repasseNecessario = ehCristina && ehMbway && mostraDetalhesPagamento;
+
+    const valorNum = valorPagoTexto ? Number(valorPagoTexto) : 0;
+    // Só metade quando as duas trabalharam. Null = valor todo (o normal).
+    const valorRepasse = (repasseNecessario && terapeuta2Id && valorNum > 0)
+      ? Math.round((valorNum / 2) * 100) / 100
+      : null;
 
     // Campos clínicos comuns aos dois modos (só enviados quando têm valor)
     const camposClinicos = {
@@ -1132,11 +1199,15 @@
       ...(estadoEmocional ? { estadoEmocional } : {}),
       ...(notasPosSessao  ? { notasPosSessao }  : {}),
       ...(dataRetorno     ? { dataRecomendadaRegresso: dataRetorno } : {}),
+      // Enviado sempre (mesmo a null) para limpar o campo quando uma sessão
+      // deixa de ser a dois — só omitir deixaria o valor antigo agarrado.
+      terapeuta2Id,
       ...(estadoPagamento ? {
         estadoPagamento,
         valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
         metodoPagamento: metodoSelecionado,
         repasseNecessario,
+        valorRepasse,
       } : {}),
     };
 
@@ -1180,6 +1251,7 @@
           preco: precoServico,
           terapeuta: terapeutaNome,
           ...(terapeutaId ? { terapeutaId } : {}),
+          ...(terapeuta2Id ? { terapeuta2Id } : {}),
           estado: 'realizada',
           ...(aromaSessao ? { aromaSessao } : {}),
         }),
@@ -1197,6 +1269,7 @@
           valorPago: mostraDetalhesPagamento && valorPagoTexto ? Number(valorPagoTexto) : null,
           metodoPagamento: metodoSelecionado,
           repasseNecessario,
+          valorRepasse,
           // este endpoint (/api/v1/sessoes/[id]) não fixa a data sozinho — ao
           // contrário do PATCH público de pos-sessão, que já o faz no servidor
           ...(estadoPagamento === 'pago' ? { pagamentoEm: new Date().toISOString() } : {}),
