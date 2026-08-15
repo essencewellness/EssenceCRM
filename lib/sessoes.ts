@@ -1,7 +1,8 @@
 // Efeitos colaterais de marcar uma sessão como "realizada" — partilhados entre
 // o PATCH interno (/api/v1/sessoes/[id]) e o PATCH público (/api/v1/public/pos-sessao),
-// para as duas vias nunca divergirem: disparar o webhook sessao.realizada e
-// agendar a mensagem de avaliação de satisfação.
+// para as duas vias nunca divergirem: disparar o webhook sessao.realizada,
+// fechar o voucher associado (agendado -> usado) e agendar a mensagem de
+// avaliação de satisfação.
 //
 // O recálculo de métricas (recalcularMetricasCliente) NÃO vive aqui — cada
 // chamador faz o update da sessão + o recálculo dentro do mesmo
@@ -40,10 +41,32 @@ export async function dispararEfeitosSessaoRealizada(
   // nossa própria BD, e em serverless uma promessa não esperada pode ser
   // cortada quando a resposta é devolvida — deixando o voucher preso em
   // "agendado" sem erro nenhum visível.
-  await prisma.giftCard.updateMany({
+  const voucherDestaSessao = await prisma.giftCard.findFirst({
     where: { sessaoId: sessaoAntes.id, estado: "agendado" },
-    data: { estado: "usado", dataUso: new Date() },
+    select: { id: true },
   })
+
+  if (voucherDestaSessao) {
+    await prisma.$transaction([
+      prisma.giftCard.update({
+        where: { id: voucherDestaSessao.id },
+        data: { estado: "usado", dataUso: new Date() },
+      }),
+      // A receita desta sessão entrou quando o voucher foi comprado, não
+      // agora — por isso "isento" e não "pago" (contá-la aqui duplicava-a).
+      // O que isto resolve é a sessão ficar eternamente na lista de
+      // "pagamentos pendentes" do /financeiro, como se houvesse dinheiro
+      // por cobrar.
+      //
+      // Só toca em sessões ainda "pendente": se a terapeuta registou um
+      // pagamento à mão (ex.: cliente pagou um upgrade por cima do voucher),
+      // essa decisão manda sobre esta.
+      prisma.sessao.updateMany({
+        where: { id: sessaoAntes.id, estadoPagamento: "pendente" },
+        data: { estadoPagamento: "isento", metodoPagamento: "voucher" },
+      }),
+    ])
+  }
 
   const templateAvaliacao = await prisma.templateMensagem.findUnique({
     where: { nome: "avaliacao_pos_sessao" },
