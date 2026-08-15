@@ -388,6 +388,7 @@ export const voucherCreateSchema = z.object({
 }).strict()
 
 export const voucherUpdateSchema = z.object({
+  codigo: z.string().trim().min(1).max(40).optional(),
   tipo: z.enum(["digital", "fisico"]).optional(),
   estado: z.enum(["ativo", "agendado", "usado", "expirado", "cancelado"]).optional(),
   compradorNome: texto.max(200).optional(),

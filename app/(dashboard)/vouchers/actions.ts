@@ -60,6 +60,53 @@ export async function atualizarCampoVoucher(
   }
 }
 
+// Grava várias alterações de uma vez (painel de edição). Ao contrário do
+// atualizarCampoVoucher — que gravava a cada clique — aqui a terapeuta só
+// confirma no fim, o que evita alterações acidentais.
+export async function atualizarVoucher(
+  id: string,
+  dados: Record<string, unknown>
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  await verificarSessao()
+
+  const limpos: Record<string, unknown> = {}
+  for (const [campo, valor] of Object.entries(dados)) {
+    if (!CAMPOS_EDITAVEIS.includes(campo as CampoEditavel)) continue
+    limpos[campo] = valor === "" ? null : valor
+  }
+
+  const parsed = voucherUpdateSchema.safeParse(limpos)
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]
+    return { ok: false, erro: `${issue?.path.join(".") ?? "Campo"}: ${issue?.message ?? "inválido"}` }
+  }
+
+  const campos = parsed.data as Record<string, unknown>
+
+  if (typeof campos.codigo === "string") {
+    const duplicado = await prisma.giftCard.findFirst({
+      where: { id: { not: id }, codigo: campos.codigo },
+    })
+    if (duplicado) return { ok: false, erro: "Já existe um voucher com este código." }
+  }
+
+  try {
+    await prisma.giftCard.update({
+      where: { id },
+      data: {
+        ...campos,
+        ...(campos.valorPago !== undefined ? { valorPago: new Prisma.Decimal(campos.valorPago as number) } : {}),
+        ...(campos.validade !== undefined ? { validade: campos.validade ? new Date(campos.validade as string) : null } : {}),
+        ...(campos.dataUso !== undefined ? { dataUso: campos.dataUso ? new Date(campos.dataUso as string) : null } : {}),
+      },
+    })
+    revalidatePath("/vouchers")
+    return { ok: true }
+  } catch {
+    return { ok: false, erro: "Erro ao guardar" }
+  }
+}
+
 export async function criarVoucher(dados: {
   codigo: string
   tipo: string
@@ -67,16 +114,30 @@ export async function criarVoucher(dados: {
   compradorTelefone?: string
   servicoNome: string
   valorPago: number
+  beneficiarioNome?: string
+  validade?: string
+  notas?: string
 }): Promise<{ ok: true } | { ok: false; erro: string }> {
   const session = await verificarSessao()
 
   const parsed = voucherCreateSchema.safeParse(dados)
   if (!parsed.success) {
-    return { ok: false, erro: parsed.error.issues[0]?.message ?? "Dados inválidos" }
+    const issue = parsed.error.issues[0]
+    return { ok: false, erro: `${issue?.path.join(".") ?? "Campo"}: ${issue?.message ?? "inválido"}` }
   }
 
   const existente = await prisma.giftCard.findUnique({ where: { codigo: parsed.data.codigo } })
   if (existente) return { ok: false, erro: "Já existe um voucher com este código." }
+
+  // Validade por omissão: 6 meses a contar de hoje — é o prazo que a Essence
+  // já pratica em todos os vouchers emitidos (ver folha de controlo).
+  const validade = parsed.data.validade
+    ? new Date(parsed.data.validade)
+    : (() => {
+        const d = new Date()
+        d.setMonth(d.getMonth() + 6)
+        return d
+      })()
 
   try {
     await prisma.giftCard.create({
@@ -87,6 +148,9 @@ export async function criarVoucher(dados: {
         compradorTelefone: parsed.data.compradorTelefone ?? null,
         servicoNome: parsed.data.servicoNome,
         valorPago: new Prisma.Decimal(parsed.data.valorPago),
+        beneficiarioNome: parsed.data.beneficiarioNome ?? null,
+        validade,
+        notas: parsed.data.notas ?? null,
       },
     })
 
