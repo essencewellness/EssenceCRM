@@ -35,7 +35,12 @@ export async function dispararEfeitosSessaoRealizada(
   // Se esta sessão foi paga com um voucher (ligado no momento da marcação,
   // ver WF01), fechar o ciclo: agendado -> usado. Sem isto o voucher ficava
   // "agendado" para sempre, mesmo depois da massagem acontecer de verdade.
-  void prisma.giftCard.updateMany({
+  //
+  // Awaited de propósito (ao contrário do webhook acima): é uma escrita na
+  // nossa própria BD, e em serverless uma promessa não esperada pode ser
+  // cortada quando a resposta é devolvida — deixando o voucher preso em
+  // "agendado" sem erro nenhum visível.
+  await prisma.giftCard.updateMany({
     where: { sessaoId: sessaoAntes.id, estado: "agendado" },
     data: { estado: "usado", dataUso: new Date() },
   })
