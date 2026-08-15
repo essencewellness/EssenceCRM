@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, Users, UserPlus, Calendar, CheckSquare,
   MessageSquare, MessageSquareHeart, Megaphone, FileText,
-  BarChart2, Star, Shield, Settings, ChevronRight, LogOut,
+  BarChart2, Star, Shield, Settings, ChevronRight, LogOut, Gift,
 } from "lucide-react"
 
 interface NavItem {
@@ -45,6 +45,7 @@ const grupos: NavGroup[] = [
       { href: "/top-clientes",  label: "Top Clientes", icon: Star },
       { href: "/feedback",      label: "Feedback",     icon: MessageSquareHeart },
       { href: "/financeiro",    label: "Financeiro",   icon: BarChart2 },
+      { href: "/vouchers",      label: "Vouchers",     icon: Gift },
     ],
   },
   {
