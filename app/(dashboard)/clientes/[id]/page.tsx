@@ -388,33 +388,6 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   </div>
                 </div>
 
-                {/* Notas — alimentadas automaticamente pelo registo de sessão (pos-sessao.html),
-                    mais recente primeiro; também editável manualmente aqui */}
-                <div style={{
-                  backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
-                  border: "1px solid rgba(212,184,134,0.16)", padding: "24px", marginTop: "12px",
-                  boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
-                    <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                    <h2 style={{
-                      fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
-                      color: "var(--nuit-bone-soft)", textTransform: "uppercase",
-                    }}>
-                      Notas
-                    </h2>
-                  </div>
-                  <InlineEditField
-                    label="Notas"
-                    hideLabel
-                    type="textarea"
-                    value={cliente.notasPessoais}
-                    placeholder="Sem notas ainda — as observações de cada sessão entram aqui automaticamente."
-                    onSave={atualizarCampoCliente.bind(null, cliente.id, "notasPessoais")}
-                  />
-                </div>
-
                 {/* Ficha Clínica — resumo acumulativo gerado por IA (N8N + Groq) */}
                 <div style={{
                   backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
