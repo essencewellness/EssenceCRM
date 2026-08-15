@@ -1,7 +1,10 @@
 "use client"
 
 import { useState, useTransition, useEffect, useMemo, useId, useRef } from "react"
-import { Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle, CalendarCheck, Check, ChevronDown } from "lucide-react"
+import {
+  Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle,
+  CalendarCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight,
+} from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
 import { adicionarMeses } from "@/lib/utils"
@@ -138,6 +141,201 @@ function CampoForm({ label, hint, children }: { label: string; hint?: string; ch
         }}>{hint}</span>
       )}
     </label>
+  )
+}
+
+// ── Calendário ───────────────────────────────────────────────────────
+
+const DIAS_SEMANA = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+
+// "2026-08-15" tem de ser lido como data local: new Date("2026-08-15") é
+// meia-noite UTC e, num fuso a oeste, recuaria um dia.
+function lerDataISO(iso: string): Date | null {
+  const m = iso?.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!m) return null
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  return Number.isNaN(d.getTime()) ? null : d
+}
+
+function escreverDataISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
+const mesmoDia = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+
+function SeletorData({ valor, onMudar, permitirLimpar = false }: {
+  valor: string
+  onMudar: (iso: string) => void
+  permitirLimpar?: boolean
+}) {
+  const [aberto, setAberto] = useState(false)
+  const seleccionada = lerDataISO(valor)
+  const [mes, setMes] = useState(() => {
+    const base = seleccionada ?? new Date()
+    return new Date(base.getFullYear(), base.getMonth(), 1)
+  })
+  const idBase = useId()
+  const hoje = new Date()
+
+  // Grelha de 6 semanas: dias do mês anterior/seguinte entram esbatidos para
+  // a grelha nunca "saltar" de altura entre meses.
+  const celulas = useMemo(() => {
+    const primeiro = new Date(mes.getFullYear(), mes.getMonth(), 1)
+    const desloc = (primeiro.getDay() + 6) % 7 // segunda-feira primeiro
+    const inicio = new Date(primeiro)
+    inicio.setDate(inicio.getDate() - desloc)
+    return Array.from({ length: 42 }, (_, i) => {
+      const d = new Date(inicio)
+      d.setDate(inicio.getDate() + i)
+      return d
+    })
+  }, [mes])
+
+  function escolher(d: Date) {
+    onMudar(escreverDataISO(d))
+    setAberto(false)
+  }
+
+  const textoVisivel = seleccionada
+    ? seleccionada.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
+    : "—"
+
+  const navBtn: React.CSSProperties = {
+    display: "flex", alignItems: "center", justifyContent: "center",
+    width: "30px", height: "30px", borderRadius: "7px",
+    background: "transparent", border: "1px solid rgba(212,184,134,0.18)",
+    color: "var(--nuit-bone-soft)", cursor: "pointer",
+  }
+
+  return (
+    <div
+      style={{ position: "relative" }}
+      onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setAberto(false) }}
+    >
+      <button
+        type="button"
+        id={idBase}
+        onClick={() => setAberto(a => !a)}
+        aria-haspopup="dialog"
+        aria-expanded={aberto}
+        style={{
+          ...inputStyle,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px",
+          cursor: "pointer", textAlign: "left",
+          color: seleccionada ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
+        }}
+      >
+        {textoVisivel}
+        <CalendarDays size={15} aria-hidden="true" style={{ color: "var(--nuit-champagne-soft)", opacity: 0.75, flexShrink: 0 }} />
+      </button>
+
+      {aberto && (
+        <div
+          role="dialog"
+          aria-label="Escolher data"
+          style={{
+            position: "absolute", zIndex: 30, top: "calc(100% + 6px)", left: 0,
+            width: "298px", padding: "14px",
+            backgroundColor: "var(--nuit-deep)",
+            border: "1px solid rgba(212,184,134,0.28)",
+            borderRadius: "12px", boxShadow: "var(--shadow-3)",
+          }}
+        >
+          {/* Mês + navegação */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+            <button type="button" onClick={() => setMes(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+              aria-label="Mês anterior" style={navBtn}>
+              <ChevronLeft size={15} aria-hidden="true" />
+            </button>
+            <span aria-live="polite" style={{
+              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15.5px",
+              color: "var(--nuit-bone)", textTransform: "capitalize",
+            }}>
+              {mes.toLocaleDateString("pt-PT", { month: "long", year: "numeric" })}
+            </span>
+            <button type="button" onClick={() => setMes(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+              aria-label="Mês seguinte" style={navBtn}>
+              <ChevronRight size={15} aria-hidden="true" />
+            </button>
+          </div>
+
+          {/* Dias da semana */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "2px", marginBottom: "5px" }}>
+            {DIAS_SEMANA.map(d => (
+              <span key={d} style={{
+                textAlign: "center", padding: "5px 0",
+                fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                color: "var(--nuit-champagne-soft)", opacity: 0.65,
+              }}>
+                {d}
+              </span>
+            ))}
+          </div>
+
+          {/* Grelha */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "2px" }}>
+            {celulas.map(d => {
+              const doMes = d.getMonth() === mes.getMonth()
+              const eHoje = mesmoDia(d, hoje)
+              const escolhida = seleccionada ? mesmoDia(d, seleccionada) : false
+              return (
+                <button
+                  key={d.toISOString()}
+                  type="button"
+                  onClick={() => escolher(d)}
+                  aria-label={d.toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" })}
+                  aria-current={eHoje ? "date" : undefined}
+                  style={{
+                    aspectRatio: "1", borderRadius: "8px", cursor: "pointer",
+                    fontFamily: "var(--font-body)", fontSize: "13px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    backgroundColor: escolhida ? "var(--nuit-champagne)" : "transparent",
+                    border: eHoje && !escolhida ? "1px solid rgba(212,184,134,0.55)" : "1px solid transparent",
+                    color: escolhida
+                      ? "var(--nuit-midnight)"
+                      : doMes ? "var(--nuit-bone)" : "var(--nuit-smoke-deep)",
+                    fontWeight: escolhida || eHoje ? 600 : 400,
+                    transition: "background-color var(--dur-fast) var(--ease-out)",
+                  }}
+                  onMouseEnter={e => { if (!escolhida) e.currentTarget.style.backgroundColor = "rgba(212,184,134,0.10)" }}
+                  onMouseLeave={e => { if (!escolhida) e.currentTarget.style.backgroundColor = "transparent" }}
+                >
+                  {d.getDate()}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Atalhos */}
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            marginTop: "12px", paddingTop: "11px",
+            borderTop: "1px solid rgba(212,184,134,0.12)",
+          }}>
+            <button type="button" onClick={() => { const h = new Date(); setMes(new Date(h.getFullYear(), h.getMonth(), 1)); escolher(h) }}
+              style={{
+                background: "none", border: "none", cursor: "pointer", padding: "3px 2px",
+                fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
+                color: "var(--nuit-champagne)",
+              }}>
+              Hoje
+            </button>
+            {permitirLimpar && (
+              <button type="button" onClick={() => { onMudar(""); setAberto(false) }}
+                style={{
+                  background: "none", border: "none", cursor: "pointer", padding: "3px 2px",
+                  fontFamily: "var(--font-sans)", fontSize: "12px",
+                  color: "var(--nuit-bone-soft)",
+                }}>
+                Limpar
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -702,8 +900,12 @@ function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCa
         <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-          <CampoForm label="Válido até"><input type="date" value={f.validade} onChange={set("validade")} style={inputStyle} /></CampoForm>
-          <CampoForm label="Data de uso"><input type="date" value={f.dataUso} onChange={set("dataUso")} style={inputStyle} /></CampoForm>
+          <CampoForm label="Válido até">
+            <SeletorData valor={f.validade} onMudar={v => setF(a => ({ ...a, validade: v }))} permitirLimpar />
+          </CampoForm>
+          <CampoForm label="Data de uso">
+            <SeletorData valor={f.dataUso} onMudar={v => setF(a => ({ ...a, dataUso: v }))} permitirLimpar />
+          </CampoForm>
         </div>
 
         <CampoForm label="Notas">
@@ -741,7 +943,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
     servicoNome: "",
     valorPago: "",
     beneficiarioNome: "",
-    dataCompra: new Date().toISOString().slice(0, 10),
+    dataCompra: escreverDataISO(new Date()),
     notas: "",
   })
   const [isPending, start] = useTransition()
@@ -764,9 +966,8 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
   // A validade não se preenche — mostra-se, para a terapeuta confirmar a data
   // que o voucher vai ter antes de gravar.
   const validadeCalculada = useMemo(() => {
-    if (!f.dataCompra) return null
-    const d = new Date(f.dataCompra)
-    if (Number.isNaN(d.getTime())) return null
+    const d = lerDataISO(f.dataCompra)
+    if (!d) return null
     return adicionarMeses(d, 6).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
   }, [f.dataCompra])
 
@@ -845,7 +1046,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         </CampoForm>
 
         <CampoForm label="Data de compra">
-          <input type="date" value={f.dataCompra} onChange={set("dataCompra")} style={inputStyle} />
+          <SeletorData valor={f.dataCompra} onMudar={v => setF(a => ({ ...a, dataCompra: v }))} />
         </CampoForm>
 
         {validadeCalculada && (
