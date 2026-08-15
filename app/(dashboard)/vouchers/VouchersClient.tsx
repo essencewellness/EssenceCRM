@@ -30,6 +30,14 @@ export interface Voucher {
   validade: string | null
   dataUso: string | null
   notas: string | null
+  // Null = receita da Bea (o normal). Preenchido quando a sessão vai ser
+  // feita pela Cristina e o dinheiro tem de entrar nas contas dela.
+  terapeutaId: string | null
+}
+
+export interface TerapeutaOpcao {
+  id: string
+  nome: string
 }
 
 // Ordem = prioridade de atenção: o que precisa de acção fica sempre primeiro.
@@ -848,7 +856,7 @@ function Grelha({ itens, onEditar }: { itens: Voucher[]; onEditar: (v: Voucher) 
 
 // ── Formulário de edição ─────────────────────────────────────────────
 
-function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCatalogo[]; onFechar: () => void }) {
+function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servicos: ServicoCatalogo[]; terapeutas: TerapeutaOpcao[]; onFechar: () => void }) {
   const [f, setF] = useState({
     codigo: v.codigo,
     estado: v.estado,
@@ -862,6 +870,7 @@ function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCa
     validade: v.validade ? v.validade.slice(0, 10) : "",
     dataUso: v.dataUso ? v.dataUso.slice(0, 10) : "",
     notas: v.notas ?? "",
+    terapeutaId: v.terapeutaId ?? "",
   })
   const [isPending, start] = useTransition()
   const { toast } = useToast()
@@ -875,6 +884,7 @@ function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCa
         dataUso: f.dataUso || null,
         compradorTelefone: telefoneOuVazio(f.compradorTelefone) ?? null,
         beneficiarioTelefone: telefoneOuVazio(f.beneficiarioTelefone) ?? null,
+        terapeutaId: f.terapeutaId || null,
       })
       if (res.ok) { toast("Voucher atualizado.", "success"); onFechar() }
       else toast(res.erro, "error")
@@ -937,6 +947,16 @@ function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCa
             <SeletorData valor={f.dataUso} onMudar={v => setF(a => ({ ...a, dataUso: v }))} permitirLimpar />
           </CampoForm>
         </div>
+
+        <CampoForm label="Receita de">
+          <select value={f.terapeutaId} onChange={set("terapeutaId")} style={{ ...inputStyle, cursor: "pointer" }}>
+            <option value="">Beatriz (por omissão)</option>
+            {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+          </select>
+          <p style={{ fontSize: "11px", color: "rgba(237,231,227,0.4)", margin: "6px 0 0", lineHeight: 1.5 }}>
+            Onde este valor entra no Financeiro. Muda para a Cristina quando for ela a fazer a sessão.
+          </p>
+        </CampoForm>
 
         <CampoForm label="Notas">
           <textarea value={f.notas} onChange={set("notas")} rows={3} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
@@ -1115,7 +1135,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
 // ── Página ───────────────────────────────────────────────────────────
 
-export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; servicos: ServicoCatalogo[] }) {
+export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: Voucher[]; servicos: ServicoCatalogo[]; terapeutas: TerapeutaOpcao[] }) {
   const [tipo, setTipo] = useState<"digital" | "fisico">("digital")
   // Arranca em "Por marcar": são os únicos que pedem acção — alguém comprou
   // e ainda não marcou. Os já utilizados ficam a um clique de distância.
@@ -1360,7 +1380,7 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
           onFechar={() => setACriar(false)}
         />
       )}
-      {aEditar && <FormEditar v={aEditar} servicos={servicos} onFechar={() => setAEditar(null)} />}
+      {aEditar && <FormEditar v={aEditar} servicos={servicos} terapeutas={terapeutas} onFechar={() => setAEditar(null)} />}
     </div>
   )
 }

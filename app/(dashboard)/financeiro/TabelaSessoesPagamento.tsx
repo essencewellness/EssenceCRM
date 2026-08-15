@@ -22,6 +22,10 @@ export type SessaoRow = {
   repasseNecessario: boolean
   repasseFeito: boolean
   cliente: { id: string; nome: string }
+  // As vendas de voucher entram nesta mesma tabela, porque o dinheiro
+  // entrou no mês da compra. Não são sessões: a venda já está fechada, por
+  // isso não têm pagamento editável. Este campo marca essas linhas.
+  voucherCodigo?: string | null
 }
 
 const METODO_LABEL: Record<string, string> = {
@@ -399,7 +403,21 @@ export function TabelaSessoesPagamento({
               </td>
               <td style={{ padding: "12px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                  <PagamentoBadge estado={s.estadoPagamento} />
+                  {s.voucherCodigo ? (
+                    <span style={{
+                      display: "inline-flex", alignItems: "center",
+                      padding: "4px 10px", borderRadius: "100px",
+                      backgroundColor: "rgba(212,184,134,0.12)", color: "#d4b886",
+                      border: "1px solid rgba(212,184,134,0.3)",
+                      fontSize: "11.5px", fontWeight: 600,
+                      fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                      whiteSpace: "nowrap",
+                    }}>
+                      Voucher vendido
+                    </span>
+                  ) : (
+                    <PagamentoBadge estado={s.estadoPagamento} />
+                  )}
                   {s.repasseNecessario && !s.repasseFeito && (
                     <span title="A repassar à Cristina" style={{
                       display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 8px",
@@ -413,7 +431,16 @@ export function TabelaSessoesPagamento({
                 </div>
               </td>
               <td style={{ padding: "12px 8px" }}>
-                {s.estadoPagamento === "pendente" ? (
+                {s.voucherCodigo ? (
+                  // Venda de voucher: o dinheiro já entrou na compra, não há
+                  // pagamento por registar nem nada para editar aqui.
+                  <span style={{
+                    color: "rgba(237,231,227,0.3)", fontSize: "11.5px",
+                    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                  }}>
+                    {s.voucherCodigo}
+                  </span>
+                ) : s.estadoPagamento === "pendente" ? (
                   <button
                     onClick={() => marcarPagoRapido(s)}
                     disabled={pendingRapido && marcandoId === s.id}

@@ -17,6 +17,9 @@ const CAMPOS_EDITAVEIS = [
   "codigo", "tipo", "estado", "compradorNome", "compradorTelefone", "compradorEmail",
   "servicoNome", "valorPago", "beneficiarioNome", "beneficiarioTelefone",
   "validade", "dataUso", "notas",
+  // De quem é a receita desta venda. Null = da Bea (o normal); passa-se
+  // para a Cristina quando é ela que vai fazer a sessão.
+  "terapeutaId",
 ] as const
 type CampoEditavel = (typeof CAMPOS_EDITAVEIS)[number]
 

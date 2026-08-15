@@ -4,12 +4,17 @@ import { VouchersClient } from "./VouchersClient"
 export const revalidate = 0
 
 export default async function VouchersPage() {
-  const [vouchers, servicos] = await Promise.all([
+  const [vouchers, servicos, terapeutas] = await Promise.all([
     prisma.giftCard.findMany({ orderBy: { dataCompra: "desc" } }),
     prisma.servico.findMany({
       where: { ativo: true },
       orderBy: { nome: "asc" },
       select: { nome: true, precoBase: true },
+    }),
+    prisma.user.findMany({
+      where: { ativo: true, role: "terapeuta" },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true, email: true },
     }),
   ])
 
@@ -28,12 +33,14 @@ export default async function VouchersPage() {
     validade: v.validade ? v.validade.toISOString() : null,
     dataUso: v.dataUso ? v.dataUso.toISOString() : null,
     notas: v.notas,
+    terapeutaId: v.terapeutaId,
   }))
 
   return (
     <VouchersClient
       vouchers={vouchersSerializados}
       servicos={servicos.map(s => ({ nome: s.nome, precoBase: Number(s.precoBase) }))}
+      terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name || t.email }))}
     />
   )
 }

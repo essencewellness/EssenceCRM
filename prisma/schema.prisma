@@ -24,6 +24,7 @@ model User {
   sessions             Session[]
   sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")
   sessoesComoSegunda   Sessao[]  @relation("Terapeuta2Sessao")
+  vouchersAtribuidos   GiftCard[] @relation("TerapeutaGiftCard")
   clientesPrincipais   Cliente[] @relation("TerapeutaCliente")
   tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
   tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
@@ -569,6 +570,12 @@ model GiftCard {
 
   notas                String?
 
+  // De quem é esta receita. Por omissão fica a null, que o financeiro lê
+  // como "da Bea" — todos os vouchers entram no financeiro dela. Passa-se
+  // para a Cristina quando é ela que vai fazer a sessão, para o dinheiro
+  // aparecer nas contas de quem faz o trabalho.
+  terapeutaId          String?
+
   // Quando resgatado, pode ligar ao cliente no CRM
   clienteId            String?
   // A sessão específica que este voucher paga — sem isto não há como saber
@@ -581,12 +588,14 @@ model GiftCard {
   atualizadoEm         DateTime      @updatedAt
 
   cliente              Cliente?      @relation(fields: [clienteId], references: [id])
+  terapeuta            User?         @relation("TerapeutaGiftCard", fields: [terapeutaId], references: [id])
 
   @@index([codigo])
   @@index([estado])
   @@index([tipo])
   @@index([dataCompra])
   @@index([sessaoId])
+  @@index([terapeutaId])
 }
 
 // ── Configurações do Negócio (singleton) ─────────────────────

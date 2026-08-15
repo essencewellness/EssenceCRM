@@ -6,6 +6,7 @@ import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento
 import { RepassesCristina, valorDevido, type RepasseRow } from "./RepassesCristina"
 import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import type { Prisma } from "@/lib/prisma-client"
 
@@ -62,9 +63,27 @@ export default async function FinanceiroPage({
 
   const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
-  const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, servicosRaw, repassesRaw] = await Promise.all([
+  // Quem é a "Bea" para efeitos de atribuição: os vouchers sem terapeuta
+  // pertencem a ela por omissão.
+  const idBea = await getTerapeutaPrincipalPadraoId()
+
+  const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, servicosRaw, repassesRaw] = await Promise.all([
     prisma.sessao.findMany({
-      where: { data: { gte: inicio, lt: fim }, apagadoEm: null, ...filtroSessao },
+      // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
+      // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
+      // Sem isto entravam aqui as canceladas e as futuras ainda por acontecer,
+      // cada uma com um botão "Marcar Pago" que criava receita do nada.
+      // AND explícito e não spread: o filtro por terapeuta também usa OR
+      // (principal ou segunda), e espalhá-lo aqui substituía este OR em vez
+      // de o acompanhar — passavam a entrar outra vez as canceladas.
+      where: {
+        data: { gte: inicio, lt: fim },
+        apagadoEm: null,
+        AND: [
+          { OR: [{ estado: "realizada" }, { estadoPagamento: { not: "pendente" } }] },
+          ...(Object.keys(filtroSessao).length ? [filtroSessao] : []),
+        ],
+      },
       select: {
         id: true, estadoPagamento: true, valorPago: true, metodoPagamento: true,
         preco: true, data: true, servico: true, estado: true,
@@ -85,6 +104,23 @@ export default async function FinanceiroPage({
       take: 8,
     }),
     prisma.giftCard.findMany({
+      orderBy: { dataCompra: "desc" },
+    }),
+    // Vendas de voucher do mês — o dinheiro entrou na compra, por isso a
+    // receita pertence a este mês, não ao mês em que a massagem acontecer.
+    // `terapeutaId` a null significa "da Bea" (ver schema): por isso o
+    // filtro por ela tem de apanhar também as linhas sem atribuição.
+    prisma.giftCard.findMany({
+      where: {
+        dataCompra: { gte: inicio, lt: fim },
+        ...(alvo
+          ? { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] }
+          : {}),
+      },
+      select: {
+        id: true, codigo: true, servicoNome: true, valorPago: true,
+        dataCompra: true, compradorNome: true,
+      },
       orderBy: { dataCompra: "desc" },
     }),
     prisma.servico.findMany({
@@ -118,6 +154,27 @@ export default async function FinanceiroPage({
     repasseFeito: s.repasseFeito,
     cliente: s.cliente,
   }))
+
+  // Cada venda de voucher vira uma linha da tabela do mês. O "cliente" é o
+  // comprador — é quem pagou —, e o id leva prefixo para nunca colidir com
+  // um id de sessão nas keys do React.
+  const linhasVoucher: SessaoRow[] = vendasVoucherRaw.map(v => ({
+    id: `voucher-${v.id}`,
+    data: v.dataCompra.toISOString(),
+    servico: `Voucher — ${v.servicoNome}`,
+    preco: String(v.valorPago),
+    estado: "realizada",
+    estadoPagamento: "pago",
+    valorPago: String(v.valorPago),
+    metodoPagamento: "voucher",
+    repasseNecessario: false,
+    repasseFeito: false,
+    cliente: { id: `voucher-${v.id}`, nome: v.compradorNome },
+    voucherCodigo: v.codigo,
+  }))
+
+  const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher]
+    .sort((a, b) => b.data.localeCompare(a.data))
 
   const repasses: RepasseRow[] = repassesRaw.map(r => ({
     id: r.id,
@@ -183,6 +240,15 @@ export default async function FinanceiroPage({
       const m = s.metodoPagamento === "mbway" ? "mbway_beatriz" : (s.metodoPagamento as string | null)
       if (m && m in porMetodo) porMetodo[m]! += v
     }
+  }
+
+  // Vendas de voucher: dinheiro que entrou este mês e que, até agora, não
+  // aparecia em receita nenhuma — a sessão que o voucher paga fica "isento"
+  // (para não duplicar), e a venda não era contada em lado nenhum.
+  for (const v of vendasVoucherRaw) {
+    const valor = Number(v.valorPago)
+    receitaTotal += valor
+    porMetodo.voucher! += valor
   }
 
   const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0)
@@ -284,8 +350,8 @@ export default async function FinanceiroPage({
 
       {/* Sessões do mês — tabela interativa com edição de pagamento */}
       <section>
-        <SectionTitle>Sessões de {label} ({sessoes.length})</SectionTitle>
-        <TabelaSessoesPagamento sessoes={sessoes} mesLabel={label} />
+        <SectionTitle>Movimentos de {label} ({linhasMes.length})</SectionTitle>
+        <TabelaSessoesPagamento sessoes={linhasMes} mesLabel={label} />
       </section>
 
       {/* Vouchers / Gift Cards */}
