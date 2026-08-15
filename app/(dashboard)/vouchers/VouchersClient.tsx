@@ -7,6 +7,11 @@ import { NomeServico } from "@/components/NomeServico"
 import { adicionarMeses } from "@/lib/utils"
 import { criarVoucher, atualizarVoucher } from "./actions"
 
+export interface ServicoCatalogo {
+  nome: string
+  precoBase: number
+}
+
 export interface Voucher {
   id: string
   codigo: string
@@ -483,9 +488,13 @@ function FormEditar({ v, onFechar }: { v: Voucher; onFechar: () => void }) {
 function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
   tipoInicial: string
   sugestaoCodigo: string
-  servicos: string[]
+  servicos: ServicoCatalogo[]
   onFechar: () => void
 }) {
+  // O valor preenche-se sozinho a partir do catálogo quando o serviço bate
+  // certo, mas continua editável — há vouchers com desconto ou valor
+  // combinado à parte (a folha real tem vários a 20€ e 30€).
+  const [precoAuto, setPrecoAuto] = useState(false)
   const [f, setF] = useState({
     codigo: sugestaoCodigo,
     tipo: tipoInicial,
@@ -502,6 +511,17 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value })
+
+  function escolherServico(nome: string) {
+    const doCatalogo = servicos.find(s => s.nome.toLowerCase() === nome.trim().toLowerCase())
+    if (doCatalogo) {
+      setF(a => ({ ...a, servicoNome: nome, valorPago: String(doCatalogo.precoBase) }))
+      setPrecoAuto(true)
+    } else {
+      setF(a => ({ ...a, servicoNome: nome }))
+      setPrecoAuto(false)
+    }
+  }
 
   // A validade não se preenche — mostra-se, para a terapeuta confirmar a data
   // que o voucher vai ter antes de gravar.
@@ -553,21 +573,34 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
           </CampoForm>
         </div>
 
-        <CampoForm label="Experiência" hint="Escolhe do catálogo ou escreve à mão">
+        <CampoForm label="Experiência" hint="Ao escolher do catálogo, o valor preenche-se sozinho">
           <input
             list="servicos-catalogo"
             value={f.servicoNome}
-            onChange={set("servicoNome")}
+            onChange={e => escolherServico(e.target.value)}
             placeholder="Essência Plena"
             style={inputStyle}
           />
           <datalist id="servicos-catalogo">
-            {servicos.map(s => <option key={s} value={s} />)}
+            {servicos.map(s => <option key={s.nome} value={s.nome}>{s.precoBase}€</option>)}
           </datalist>
         </CampoForm>
 
-        <CampoForm label="Valor pago (€)">
-          <input type="number" step="0.01" value={f.valorPago} onChange={set("valorPago")} placeholder="40" style={inputStyle} />
+        <CampoForm
+          label="Valor pago (€)"
+          hint={precoAuto ? "Preço do catálogo — muda se este voucher foi vendido a outro valor." : undefined}
+        >
+          <input
+            type="number"
+            step="0.01"
+            value={f.valorPago}
+            onChange={e => { setF({ ...f, valorPago: e.target.value }); setPrecoAuto(false) }}
+            placeholder="40"
+            style={{
+              ...inputStyle,
+              ...(precoAuto ? { borderColor: "rgba(212,184,134,0.45)", color: "var(--nuit-champagne)" } : {}),
+            }}
+          />
         </CampoForm>
 
         <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
@@ -622,7 +655,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
 // ── Página ───────────────────────────────────────────────────────────
 
-export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; servicos: string[] }) {
+export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; servicos: ServicoCatalogo[] }) {
   const [tipo, setTipo] = useState<"digital" | "fisico">("digital")
   // Arranca em "Por marcar": são os únicos que pedem acção — alguém comprou
   // e ainda não marcou. Os já utilizados ficam a um clique de distância.
