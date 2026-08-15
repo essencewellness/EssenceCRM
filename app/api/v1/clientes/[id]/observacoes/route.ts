@@ -16,7 +16,10 @@ export async function GET(req: NextRequest, { params }: Params) {
     where: { clienteId: id },
     orderBy: { criadoEm: "desc" },
   })
-  return NextResponse.json(observacoes)
+  // Embrulhado em { data, meta } (convenção da API) — um array "nu" vazio
+  // faz o nó HTTP Request do N8N devolver 0 itens em vez de 1 item com uma
+  // lista vazia, o que parava o ramo de migração de observações sem erro.
+  return NextResponse.json({ data: observacoes, meta: { timestamp: new Date().toISOString() } })
 }
 
 export async function POST(req: NextRequest, { params }: Params) {
