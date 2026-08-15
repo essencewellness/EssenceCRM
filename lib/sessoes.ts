@@ -32,6 +32,14 @@ export async function dispararEfeitosSessaoRealizada(
     terapeuta: sessaoAntes.terapeuta ?? "bea",
   })
 
+  // Se esta sessão foi paga com um voucher (ligado no momento da marcação,
+  // ver WF01), fechar o ciclo: agendado -> usado. Sem isto o voucher ficava
+  // "agendado" para sempre, mesmo depois da massagem acontecer de verdade.
+  void prisma.giftCard.updateMany({
+    where: { sessaoId: sessaoAntes.id, estado: "agendado" },
+    data: { estado: "usado", dataUso: new Date() },
+  })
+
   const templateAvaliacao = await prisma.templateMensagem.findUnique({
     where: { nome: "avaliacao_pos_sessao" },
     select: { id: true, texto: true },

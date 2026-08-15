@@ -385,6 +385,7 @@ export const voucherCreateSchema = z.object({
   dataUso: dataISO.optional().nullable(),
   notas: textoOpcional,
   clienteId: z.string().trim().max(64).optional().nullable(),
+  sessaoId: z.string().trim().max(64).optional().nullable(),
 }).strict()
 
 export const voucherUpdateSchema = z.object({
@@ -402,6 +403,7 @@ export const voucherUpdateSchema = z.object({
   dataUso: dataISO.optional().nullable(),
   notas: textoOpcional,
   clienteId: z.string().trim().max(64).optional().nullable(),
+  sessaoId: z.string().trim().max(64).optional().nullable(),
 }).strict()
 
 export const voucherQuerySchema = z.object({

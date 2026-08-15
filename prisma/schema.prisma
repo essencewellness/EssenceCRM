@@ -560,6 +560,11 @@ model GiftCard {
 
   // Quando resgatado, pode ligar ao cliente no CRM
   clienteId            String?
+  // A sessão específica que este voucher paga — sem isto não há como saber
+  // qual das sessões da cliente é que, ao ficar "realizada", deve marcar
+  // este voucher como usado (uma cliente pode ter várias sessões e vários
+  // vouchers ao mesmo tempo).
+  sessaoId             String?       @unique
 
   criadoEm             DateTime      @default(now())
   atualizadoEm         DateTime      @updatedAt
@@ -570,6 +575,7 @@ model GiftCard {
   @@index([estado])
   @@index([tipo])
   @@index([dataCompra])
+  @@index([sessaoId])
 }
 
 // ── Configurações do Negócio (singleton) ─────────────────────
