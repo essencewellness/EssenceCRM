@@ -48,6 +48,16 @@ function formatarData(iso: string | null) {
   return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
 }
 
+const INDICATIVO_PADRAO = "+351 "
+
+// Um campo que arranca com "+351 " fica com esse valor mesmo que ninguém
+// escreva o número — sem isto gravávamos "+351" como telefone e criávamos
+// uma lead sem contacto nenhum.
+function telefoneOuVazio(valor: string): string | undefined {
+  const digitos = valor.replace(/\D/g, "").replace(/^351/, "")
+  return digitos.length > 0 ? valor.trim() : undefined
+}
+
 function diasAte(iso: string | null): number | null {
   if (!iso) return null
   const d = new Date(iso)
@@ -398,11 +408,11 @@ function FormEditar({ v, onFechar }: { v: Voucher; onFechar: () => void }) {
     estado: v.estado,
     tipo: v.tipo,
     compradorNome: v.compradorNome,
-    compradorTelefone: v.compradorTelefone ?? "",
+    compradorTelefone: v.compradorTelefone ?? INDICATIVO_PADRAO,
     servicoNome: v.servicoNome,
     valorPago: String(v.valorPago),
     beneficiarioNome: v.beneficiarioNome ?? "",
-    beneficiarioTelefone: v.beneficiarioTelefone ?? "",
+    beneficiarioTelefone: v.beneficiarioTelefone ?? INDICATIVO_PADRAO,
     validade: v.validade ? v.validade.slice(0, 10) : "",
     dataUso: v.dataUso ? v.dataUso.slice(0, 10) : "",
     notas: v.notas ?? "",
@@ -417,6 +427,8 @@ function FormEditar({ v, onFechar }: { v: Voucher; onFechar: () => void }) {
         valorPago: Number(f.valorPago),
         validade: f.validade || null,
         dataUso: f.dataUso || null,
+        compradorTelefone: telefoneOuVazio(f.compradorTelefone) ?? null,
+        beneficiarioTelefone: telefoneOuVazio(f.beneficiarioTelefone) ?? null,
       })
       if (res.ok) { toast("Voucher atualizado.", "success"); onFechar() }
       else toast(res.erro, "error")
@@ -499,7 +511,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
     codigo: sugestaoCodigo,
     tipo: tipoInicial,
     compradorNome: "",
-    compradorTelefone: "",
+    compradorTelefone: INDICATIVO_PADRAO,
     servicoNome: "",
     valorPago: "",
     beneficiarioNome: "",
@@ -542,7 +554,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         codigo: f.codigo.trim(),
         tipo: f.tipo,
         compradorNome: f.compradorNome.trim(),
-        compradorTelefone: f.compradorTelefone.trim() || undefined,
+        compradorTelefone: telefoneOuVazio(f.compradorTelefone),
         servicoNome: f.servicoNome.trim(),
         valorPago: Number(f.valorPago),
         beneficiarioNome: f.beneficiarioNome.trim() || undefined,
