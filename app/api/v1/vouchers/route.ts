@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       return respostaErro("Já existe um voucher com este código", "CODIGO_DUPLICADO", 409)
     }
 
-    const voucher = await prisma.giftCard.create({
+    let voucher = await prisma.giftCard.create({
       data: {
         codigo: dados.codigo,
         tipo: dados.tipo ?? "digital",
@@ -98,8 +98,9 @@ export async function POST(request: NextRequest) {
           },
         })
         // Liga a compra à ficha do comprador — alimenta o separador
-        // "Vouchers" no perfil dele.
-        await prisma.giftCard.update({
+        // "Vouchers" no perfil dele. Reatribuído para a resposta não sair
+        // com compradorClienteId a null, que era o estado antes deste update.
+        voucher = await prisma.giftCard.update({
           where: { id: voucher.id },
           data: { compradorClienteId: cliente.id },
         })
