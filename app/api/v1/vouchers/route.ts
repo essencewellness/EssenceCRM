@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
-import { voucherCreateSchema, voucherQuerySchema, validarBody, validarQuery } from "@/lib/validations"
+import { voucherCreateSchema, voucherQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { Prisma } from "@/lib/prisma-client"
@@ -72,6 +72,26 @@ export async function POST(request: NextRequest) {
         clienteId: dados.clienteId ?? null,
       },
     })
+
+    // O comprador de um voucher é um lead em potencial — regista-o no CRM
+    // automaticamente (upsert por telefone) com uma nota da compra, tal como
+    // acontece ao criar um voucher pelo dashboard.
+    if (dados.compradorTelefone && !dados.clienteId) {
+      const telefone = normalizarTelefone(dados.compradorTelefone)
+      if (telefone) {
+        const clienteExistente = await prisma.cliente.findUnique({ where: { telefone } })
+        const cliente = clienteExistente ?? await prisma.cliente.create({
+          data: { nome: dados.compradorNome, telefone, estado: "lead", fonte: "voucher" },
+        })
+        await prisma.observacao.create({
+          data: {
+            clienteId: cliente.id,
+            texto: `Comprou o voucher ${dados.codigo} (${dados.servicoNome}, ${dados.valorPago}€).`,
+            autor: "sistema",
+          },
+        })
+      }
+    }
 
     return respostaSucesso(serializarDecimais(voucher), undefined, 201)
   } catch (error) {

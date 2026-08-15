@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { voucherCreateSchema, voucherUpdateSchema } from "@/lib/validations"
+import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -64,10 +64,11 @@ export async function criarVoucher(dados: {
   codigo: string
   tipo: string
   compradorNome: string
+  compradorTelefone?: string
   servicoNome: string
   valorPago: number
 }): Promise<{ ok: true } | { ok: false; erro: string }> {
-  await verificarSessao()
+  const session = await verificarSessao()
 
   const parsed = voucherCreateSchema.safeParse(dados)
   if (!parsed.success) {
@@ -83,10 +84,37 @@ export async function criarVoucher(dados: {
         codigo: parsed.data.codigo,
         tipo: parsed.data.tipo ?? "digital",
         compradorNome: parsed.data.compradorNome,
+        compradorTelefone: parsed.data.compradorTelefone ?? null,
         servicoNome: parsed.data.servicoNome,
         valorPago: new Prisma.Decimal(parsed.data.valorPago),
       },
     })
+
+    // O comprador de um voucher é um lead em potencial — regista-o no CRM
+    // automaticamente (upsert por telefone) com uma nota da compra, para a
+    // Bea não precisar de o fazer à mão sempre que emite um voucher.
+    if (parsed.data.compradorTelefone) {
+      const telefone = normalizarTelefone(parsed.data.compradorTelefone)
+      if (telefone) {
+        const clienteExistente = await prisma.cliente.findUnique({ where: { telefone } })
+        const cliente = clienteExistente ?? await prisma.cliente.create({
+          data: {
+            nome: parsed.data.compradorNome,
+            telefone,
+            estado: "lead",
+            fonte: "voucher",
+          },
+        })
+        await prisma.observacao.create({
+          data: {
+            clienteId: cliente.id,
+            texto: `Comprou o voucher ${parsed.data.codigo} (${parsed.data.servicoNome}, ${parsed.data.valorPago}€).`,
+            autor: session.user?.name ?? "bea",
+          },
+        })
+      }
+    }
+
     revalidatePath("/vouchers")
     return { ok: true }
   } catch {

@@ -525,6 +525,7 @@ enum TipoVoucher {
 
 enum EstadoVoucher {
   ativo
+  agendado
   usado
   expirado
   cancelado

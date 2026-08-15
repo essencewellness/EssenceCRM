@@ -372,7 +372,7 @@ export const servicoQuerySchema = z.object({
 export const voucherCreateSchema = z.object({
   codigo: z.string().trim().min(1).max(40),
   tipo: z.enum(["digital", "fisico"]).optional(),
-  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  estado: z.enum(["ativo", "agendado", "usado", "expirado", "cancelado"]).optional(),
   compradorNome: texto.max(200),
   compradorTelefone: z.string().trim().max(30).optional().nullable(),
   compradorEmail: z.string().trim().email().max(200).optional().nullable(),
@@ -389,7 +389,7 @@ export const voucherCreateSchema = z.object({
 
 export const voucherUpdateSchema = z.object({
   tipo: z.enum(["digital", "fisico"]).optional(),
-  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  estado: z.enum(["ativo", "agendado", "usado", "expirado", "cancelado"]).optional(),
   compradorNome: texto.max(200).optional(),
   compradorTelefone: z.string().trim().max(30).optional().nullable(),
   compradorEmail: z.string().trim().email().max(200).optional().nullable(),
@@ -404,7 +404,7 @@ export const voucherUpdateSchema = z.object({
 }).strict()
 
 export const voucherQuerySchema = z.object({
-  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  estado: z.enum(["ativo", "agendado", "usado", "expirado", "cancelado"]).optional(),
   tipo: z.enum(["digital", "fisico"]).optional(),
   codigo: z.string().trim().max(40).optional(),
 })

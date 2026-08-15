@@ -24,6 +24,7 @@ interface Voucher {
 
 const ESTADO_OPCOES = [
   { value: "ativo", label: "Ativo" },
+  { value: "agendado", label: "Agendado" },
   { value: "usado", label: "Usado" },
   { value: "expirado", label: "Expirado" },
   { value: "cancelado", label: "Cancelado" },
@@ -35,6 +36,7 @@ const TIPO_OPCOES = [
 
 const ESTADO_COR: Record<string, { cor: string; bg: string }> = {
   ativo: { cor: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
+  agendado: { cor: "#8ea9c9", bg: "rgba(142,169,201,0.12)" },
   usado: { cor: "#7a9e7e", bg: "rgba(122,158,126,0.12)" },
   expirado: { cor: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" },
   cancelado: { cor: "#b06050", bg: "rgba(176,96,80,0.08)" },
@@ -69,7 +71,7 @@ export function VouchersTable({ vouchers }: { vouchers: Voucher[] }) {
   const [filtroEstado, setFiltroEstado] = useState<string>("todos")
   const [busca, setBusca] = useState("")
   const [aAdicionar, setAAdicionar] = useState(false)
-  const [novo, setNovo] = useState({ codigo: "", tipo: "digital", compradorNome: "", servicoNome: "", valorPago: "" })
+  const [novo, setNovo] = useState({ codigo: "", tipo: "digital", compradorNome: "", compradorTelefone: "", servicoNome: "", valorPago: "" })
   const [isPending, startTransition] = useTransition()
   const { toast } = useToast()
 
@@ -92,11 +94,12 @@ export function VouchersTable({ vouchers }: { vouchers: Voucher[] }) {
         codigo: novo.codigo.trim(),
         tipo: novo.tipo,
         compradorNome: novo.compradorNome.trim(),
+        compradorTelefone: novo.compradorTelefone.trim() || undefined,
         servicoNome: novo.servicoNome.trim(),
         valorPago: Number(novo.valorPago),
       })
       if (res.ok) {
-        setNovo({ codigo: "", tipo: "digital", compradorNome: "", servicoNome: "", valorPago: "" })
+        setNovo({ codigo: "", tipo: "digital", compradorNome: "", compradorTelefone: "", servicoNome: "", valorPago: "" })
         setAAdicionar(false)
       } else {
         toast(res.erro, "error")
@@ -156,6 +159,7 @@ export function VouchersTable({ vouchers }: { vouchers: Voucher[] }) {
               <th style={th}>Tipo</th>
               <th style={th}>Estado</th>
               <th style={th}>Comprador/a</th>
+              <th style={th}>Telefone Comprador</th>
               <th style={th}>Beneficiário/a</th>
               <th style={th}>Serviço</th>
               <th style={th}>Valor</th>
@@ -180,6 +184,10 @@ export function VouchersTable({ vouchers }: { vouchers: Voucher[] }) {
                 <td style={td}>
                   <input value={novo.compradorNome} onChange={e => setNovo({ ...novo, compradorNome: e.target.value })}
                     placeholder="Nome" style={inputNovo} />
+                </td>
+                <td style={td}>
+                  <input value={novo.compradorTelefone} onChange={e => setNovo({ ...novo, compradorTelefone: e.target.value })}
+                    placeholder="+351…" style={inputNovo} />
                 </td>
                 <td style={td} colSpan={1}></td>
                 <td style={td}>
@@ -215,6 +223,7 @@ export function VouchersTable({ vouchers }: { vouchers: Voucher[] }) {
                     />
                   </td>
                   <td style={td}><Campo voucher={v} campo="compradorNome" /></td>
+                  <td style={td}><Campo voucher={v} campo="compradorTelefone" type="tel" placeholder="—" /></td>
                   <td style={td}><Campo voucher={v} campo="beneficiarioNome" placeholder="—" /></td>
                   <td style={td}><Campo voucher={v} campo="servicoNome" /></td>
                   <td style={td}><Campo voucher={v} campo="valorPago" type="currency" valueStyle={{ ...cellStyle, fontWeight: 600 }} /></td>
