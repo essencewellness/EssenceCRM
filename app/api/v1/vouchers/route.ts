@@ -4,6 +4,7 @@ import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } f
 import { voucherCreateSchema, voucherQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { verificarRateLimit } from "@/lib/rate-limit"
+import { origemDoVoucher } from "@/lib/utils"
 import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -81,7 +82,13 @@ export async function POST(request: NextRequest) {
       if (telefone) {
         const clienteExistente = await prisma.cliente.findUnique({ where: { telefone } })
         const cliente = clienteExistente ?? await prisma.cliente.create({
-          data: { nome: dados.compradorNome, telefone, estado: "lead", fonte: "voucher" },
+          data: {
+            nome: dados.compradorNome,
+            telefone,
+            estado: "lead",
+            fonte: "voucher",
+            comoNosConheceu: origemDoVoucher(dados.codigo, dados.beneficiarioNome),
+          },
         })
         await prisma.observacao.create({
           data: {

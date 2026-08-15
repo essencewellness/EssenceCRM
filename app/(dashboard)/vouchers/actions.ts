@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
-import { adicionarMeses } from "@/lib/utils"
+import { adicionarMeses, origemDoVoucher } from "@/lib/utils"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -165,6 +165,9 @@ export async function criarVoucher(dados: {
             telefone,
             estado: "lead",
             fonte: "voucher",
+            // Coluna "Origem" na lista de Leads — diz de onde veio e para
+            // quem foi, sem ser preciso abrir a ficha.
+            comoNosConheceu: origemDoVoucher(parsed.data.codigo, parsed.data.beneficiarioNome),
           },
         })
         await prisma.observacao.create({
