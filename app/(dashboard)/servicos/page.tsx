@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
 import ServicoForm from "./servico-form"
+import { NomeServico } from "@/components/NomeServico"
 
 export const revalidate = 0
 
@@ -39,7 +40,7 @@ export default async function ServicosPage() {
         <tbody>
           {servicos.map(s => (
             <tr key={s.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.10)", opacity: s.ativo ? 1 : 0.45 }}>
-              <td style={{ padding: "10px 12px", fontSize: "14px", color: "var(--nuit-bone)", fontWeight: 500 }}>{s.nome}</td>
+              <td style={{ padding: "10px 12px", fontSize: "14px", color: "var(--nuit-bone)", fontWeight: 500 }}><NomeServico nome={s.nome} /></td>
               <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
               <td style={{ padding: "10px 12px", fontSize: "13px", color: "#b9a07a", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
               <td style={{ padding: "10px 12px" }}>

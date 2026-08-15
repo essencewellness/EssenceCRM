@@ -14,6 +14,7 @@ import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
 import { ObservacoesTimeline } from "@/components/observacoes-timeline"
+import { NomeServico } from "@/components/NomeServico"
 import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
 import { TerapeutaEditor } from "./TerapeutaEditor"
@@ -472,7 +473,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                           fontFamily: "var(--font-heading, Georgia, serif)",
                           fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
                         }}>
-                          {s.servico ?? "Sessão"}
+                          {s.servico ? <NomeServico nome={s.servico} /> : "Sessão"}
                         </span>
                         <span style={{
                           fontFamily: "var(--font-body, sans-serif)",
@@ -702,7 +703,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         return (
                           <div key={p.id} style={{ padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.16)", opacity: p.ativo ? 1 : 0.5 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", flex: 1 }}>{p.servico.nome}</span>
+                              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", flex: 1 }}><NomeServico nome={p.servico.nome} /></span>
                               <span style={{
                                 fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",
                                 background: p.ativo ? "rgba(74,124,89,0.12)" : "rgba(160,100,80,0.1)",
@@ -749,7 +750,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       <tbody>
                         {cliente.precos.map(p => (
                           <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)" }}>
-                            <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}>{p.servico.nome}</td>
+                            <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
                             <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "#b9a07a" }}>€{Number(p.valor).toFixed(2)}</td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
