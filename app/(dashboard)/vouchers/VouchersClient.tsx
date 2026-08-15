@@ -23,12 +23,13 @@ export interface Voucher {
   notas: string | null
 }
 
+// Ordem = prioridade de atenção: o que precisa de acção fica sempre primeiro.
 const ESTADOS = [
-  { value: "ativo",     label: "Por marcar", cor: "#d4b886", bg: "rgba(212,184,134,0.12)" },
-  { value: "agendado",  label: "Agendado",   cor: "#8ea9c9", bg: "rgba(142,169,201,0.14)" },
-  { value: "usado",     label: "Utilizado",  cor: "#8bb08f", bg: "rgba(139,176,143,0.14)" },
-  { value: "expirado",  label: "Expirado",   cor: "#9d9d9a", bg: "rgba(157,157,154,0.12)" },
-  { value: "cancelado", label: "Cancelado",  cor: "#c9756a", bg: "rgba(201,117,106,0.12)" },
+  { value: "ativo",     label: "Por marcar", plural: "Por marcar",  cor: "#d4b886", bg: "rgba(212,184,134,0.12)" },
+  { value: "agendado",  label: "Agendado",   plural: "Agendados",   cor: "#8ea9c9", bg: "rgba(142,169,201,0.14)" },
+  { value: "usado",     label: "Utilizado",  plural: "Utilizados",  cor: "#8bb08f", bg: "rgba(139,176,143,0.14)" },
+  { value: "expirado",  label: "Expirado",   plural: "Expirados",   cor: "#9d9d9a", bg: "rgba(157,157,154,0.12)" },
+  { value: "cancelado", label: "Cancelado",  plural: "Cancelados",  cor: "#c9756a", bg: "rgba(201,117,106,0.12)" },
 ]
 const estadoInfo = (v: string) => ESTADOS.find(e => e.value === v) ?? ESTADOS[0]
 
@@ -46,6 +47,18 @@ function diasAte(iso: string | null): number | null {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
   return Math.ceil((d.getTime() - Date.now()) / 86_400_000)
+}
+
+// Ordena por código como uma folha de registo: primeiro a série (EW2025,
+// EWD2026), depois o número — comparado como número, senão "-10" viria
+// antes de "-2".
+function compararCodigo(a: string, b: string) {
+  const parte = (c: string) => {
+    const m = c.match(/^(.*?)(\d+)\s*$/)
+    return m ? { serie: m[1], num: parseInt(m[2], 10) } : { serie: c, num: 0 }
+  }
+  const pa = parte(a), pb = parte(b)
+  return pa.serie === pb.serie ? pa.num - pb.num : pa.serie.localeCompare(pb.serie, "pt")
 }
 
 // ── Átomos ───────────────────────────────────────────────────────────
@@ -208,10 +221,13 @@ function Painel({ titulo, sub, onFechar, children }: {
 
 function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
   const [hover, setHover] = useState(false)
+  const e = estadoInfo(v.estado)
   const dias = diasAte(v.validade)
   const aExpirar = (v.estado === "ativo" || v.estado === "agendado") && dias !== null && dias <= DIAS_ALERTA_EXPIRA
   const jaExpirou = aExpirar && dias !== null && dias < 0
-  const atenuado = v.estado === "usado" || v.estado === "expirado" || v.estado === "cancelado"
+  // Um voucher fechado (usado/expirado/cancelado) não compete por atenção com
+  // os que ainda precisam de acção — fica dessaturado e carimbado.
+  const fechado = v.estado === "usado" || v.estado === "expirado" || v.estado === "cancelado"
 
   return (
     <article
@@ -223,24 +239,49 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
         backgroundColor: "var(--nuit-overlay)",
         borderRadius: "14px",
         border: `1px solid ${hover ? "rgba(212,184,134,0.34)" : "rgba(212,184,134,0.14)"}`,
+        borderLeft: `3px solid ${e.cor}${fechado ? "55" : ""}`,
         boxShadow: hover ? "var(--shadow-2)" : "var(--shadow-1)",
         transform: hover ? "translateY(-2px)" : "none",
-        transition: "transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast)",
+        transition: "transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast), opacity var(--dur-fast)",
         overflow: "hidden",
-        opacity: atenuado ? 0.72 : 1,
+        opacity: fechado ? (hover ? 0.92 : 0.62) : 1,
+        filter: fechado ? "saturate(0.55)" : "none",
       }}
     >
+      {/* Carimbo — marca de cartão já "gasto", como num talão selado */}
+      {fechado && (
+        <span
+          aria-hidden
+          style={{
+            position: "absolute", top: "58px", right: "-16px",
+            transform: "rotate(-14deg)",
+            padding: "5px 26px",
+            border: `2px solid ${e.cor}`, borderRadius: "4px",
+            color: e.cor, opacity: 0.34,
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "11px", fontWeight: 800, letterSpacing: "0.24em",
+            textTransform: "uppercase", whiteSpace: "nowrap",
+            pointerEvents: "none",
+          }}
+        >
+          {e.label}
+        </span>
+      )}
+
       {/* Faixa superior — o "topo" do cartão-presente */}
       <div style={{
         padding: "18px 20px 15px",
-        background: "linear-gradient(135deg, rgba(212,184,134,0.07) 0%, rgba(212,184,134,0.015) 100%)",
+        background: fechado
+          ? "transparent"
+          : `linear-gradient(135deg, ${e.cor}14 0%, ${e.cor}03 100%)`,
         borderBottom: "1px solid rgba(212,184,134,0.10)",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px",
       }}>
         <span style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
           fontSize: "19px", letterSpacing: "0.055em",
-          color: "var(--nuit-champagne)", whiteSpace: "nowrap",
+          color: fechado ? "var(--nuit-bone-soft)" : "var(--nuit-champagne)",
+          whiteSpace: "nowrap",
         }}>
           {v.codigo}
         </span>
@@ -318,6 +359,28 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
         </div>
       </div>
     </article>
+  )
+}
+
+function Grelha({ itens, onEditar }: { itens: Voucher[]; onEditar: (v: Voucher) => void }) {
+  return (
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(330px, 1fr))",
+      gap: "16px",
+    }}>
+      {itens.map((v, i) => (
+        <div
+          key={v.id}
+          style={{
+            animation: "vrise var(--dur-med) var(--ease-out) both",
+            animationDelay: `${Math.min(i, 10) * 26}ms`,
+          }}
+        >
+          <Cartao v={v} onEditar={() => onEditar(v)} />
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -532,25 +595,39 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
 export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; servicos: string[] }) {
   const [tipo, setTipo] = useState<"digital" | "fisico">("digital")
-  const [estado, setEstado] = useState("todos")
+  // Arranca em "Por marcar": são os únicos que pedem acção — alguém comprou
+  // e ainda não marcou. Os já utilizados ficam a um clique de distância.
+  const [estado, setEstado] = useState("ativo")
   const [busca, setBusca] = useState("")
   const [aCriar, setACriar] = useState(false)
   const [aEditar, setAEditar] = useState<Voucher | null>(null)
 
-  const doTipo = useMemo(() => vouchers.filter(v => v.tipo === tipo), [vouchers, tipo])
+  const doTipo = useMemo(
+    () => vouchers.filter(v => v.tipo === tipo).sort((a, b) => compararCodigo(a.codigo, b.codigo)),
+    [vouchers, tipo]
+  )
 
   const visiveis = useMemo(() => doTipo.filter(v => {
+    if (busca.trim()) {
+      const alvo = `${v.codigo} ${v.compradorNome} ${v.beneficiarioNome ?? ""} ${v.servicoNome}`.toLowerCase()
+      if (!alvo.includes(busca.trim().toLowerCase())) return false
+    }
     if (estado === "expira") {
       const d = diasAte(v.validade)
       return (v.estado === "ativo" || v.estado === "agendado") && d !== null && d <= DIAS_ALERTA_EXPIRA
     }
     if (estado !== "todos" && v.estado !== estado) return false
-    if (busca.trim()) {
-      const alvo = `${v.codigo} ${v.compradorNome} ${v.beneficiarioNome ?? ""} ${v.servicoNome}`.toLowerCase()
-      if (!alvo.includes(busca.trim().toLowerCase())) return false
-    }
     return true
   }), [doTipo, estado, busca])
+
+  // Em "Todos" os cartões vêm agrupados por estado (acção primeiro), para não
+  // haver dúvida sobre o que já foi usado e o que ainda está em aberto.
+  const grupos = useMemo(() => {
+    if (estado !== "todos") return null
+    return ESTADOS
+      .map(e => ({ ...e, itens: visiveis.filter(v => v.estado === e.value) }))
+      .filter(g => g.itens.length > 0)
+  }, [estado, visiveis])
 
   const contas = useMemo(() => ({
     porMarcar: doTipo.filter(v => v.estado === "ativo").length,
@@ -572,12 +649,14 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
     return `${prefixo}${String(proximo).padStart(2, "0")}`
   }, [vouchers, tipo])
 
+  // Acção primeiro; "Todos" fica no fim porque é a vista de arquivo.
+  const conta = (v: string) => doTipo.filter(x => x.estado === v).length
   const filtros = [
-    { v: "todos", label: "Todos" },
-    { v: "ativo", label: "Por marcar" },
-    { v: "agendado", label: "Agendados" },
-    { v: "usado", label: "Utilizados" },
-    { v: "expira", label: `A expirar${contas.aExpirar ? ` (${contas.aExpirar})` : ""}` },
+    { v: "ativo",    label: "Por marcar", n: conta("ativo") },
+    { v: "expira",   label: "A expirar",  n: contas.aExpirar },
+    { v: "agendado", label: "Agendados",  n: conta("agendado") },
+    { v: "usado",    label: "Utilizados", n: conta("usado") },
+    { v: "todos",    label: "Todos",      n: doTipo.length },
   ]
 
   return (
@@ -668,44 +747,70 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
           />
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {filtros.map(({ v, label }) => {
+          {filtros.map(({ v, label, n }) => {
             const on = estado === v
-            const alerta = v === "expira" && contas.aExpirar > 0
+            const alerta = v === "expira" && n > 0
             return (
               <button
                 key={v}
                 onClick={() => setEstado(v)}
                 style={{
+                  display: "inline-flex", alignItems: "center", gap: "7px",
                   padding: "9px 15px", borderRadius: "100px",
-                  border: `1px solid ${on ? "rgba(212,184,134,0.45)" : "rgba(212,184,134,0.15)"}`,
+                  border: `1px solid ${on ? "rgba(212,184,134,0.45)" : alerta ? "rgba(201,117,106,0.35)" : "rgba(212,184,134,0.15)"}`,
                   backgroundColor: on ? "rgba(212,184,134,0.12)" : "transparent",
                   color: on ? "var(--nuit-champagne)" : alerta ? "#c9756a" : "var(--nuit-bone-soft)",
                   fontFamily: "var(--font-sans)", fontSize: "12.5px",
                   fontWeight: on || alerta ? 600 : 500,
                   cursor: "pointer", whiteSpace: "nowrap",
+                  opacity: n === 0 && !on ? 0.45 : 1,
                   transition: "all var(--dur-fast) var(--ease-out)",
                 }}
               >
                 {label}
+                <span style={{
+                  fontSize: "11px", fontWeight: 600,
+                  padding: "1px 6px", borderRadius: "100px",
+                  backgroundColor: on ? "rgba(212,184,134,0.20)" : "rgba(212,184,134,0.08)",
+                }}>{n}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* Grelha de cartões */}
+      {/* Grelha de cartões — agrupada por estado em "Todos" */}
       {visiveis.length > 0 ? (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(330px, 1fr))",
-          gap: "16px",
-        }}>
-          {visiveis.map((v, i) => (
-            <div key={v.id} style={{ animation: "vrise var(--dur-med) var(--ease-out) both", animationDelay: `${Math.min(i, 12) * 28}ms` }}>
-              <Cartao v={v} onEditar={() => setAEditar(v)} />
-            </div>
-          ))}
-        </div>
+        grupos ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "34px" }}>
+            {grupos.map(g => (
+              <section key={g.value}>
+                <div style={{
+                  display: "flex", alignItems: "center", gap: "13px", marginBottom: "14px",
+                }}>
+                  <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: g.cor, flexShrink: 0 }} />
+                  <h2 style={{
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    fontSize: "11px", fontWeight: 700, letterSpacing: "0.2em",
+                    textTransform: "uppercase", color: g.cor, whiteSpace: "nowrap",
+                  }}>
+                    {g.plural}
+                  </h2>
+                  <span style={{
+                    fontFamily: "var(--font-sans)", fontSize: "11.5px",
+                    color: "var(--nuit-bone-soft)", opacity: 0.7,
+                  }}>
+                    {g.itens.length}
+                  </span>
+                  <span style={{ flex: 1, height: "1px", backgroundColor: `${g.cor}22` }} />
+                </div>
+                <Grelha itens={g.itens} onEditar={setAEditar} />
+              </section>
+            ))}
+          </div>
+        ) : (
+          <Grelha itens={visiveis} onEditar={setAEditar} />
+        )
       ) : (
         <div style={{
           padding: "70px 24px", textAlign: "center",
@@ -715,7 +820,9 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
             fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic",
             fontSize: "17px", color: "var(--nuit-bone-soft)",
           }}>
-            {busca || estado !== "todos" ? "Nenhum voucher com estes filtros." : "Ainda não há vouchers aqui."}
+            {estado === "ativo" && !busca
+              ? "Nenhum voucher por marcar — está tudo tratado."
+              : "Nenhum voucher com estes filtros."}
           </p>
         </div>
       )}
