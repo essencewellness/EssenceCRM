@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useTransition, useEffect, useMemo } from "react"
-import { Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle } from "lucide-react"
+import { Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle, CalendarCheck } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
+import { adicionarMeses } from "@/lib/utils"
 import { criarVoucher, atualizarVoucher } from "./actions"
 
 export interface Voucher {
@@ -493,7 +494,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
     servicoNome: "",
     valorPago: "",
     beneficiarioNome: "",
-    validade: "",
+    dataCompra: new Date().toISOString().slice(0, 10),
     notas: "",
   })
   const [isPending, start] = useTransition()
@@ -501,6 +502,15 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value })
+
+  // A validade não se preenche — mostra-se, para a terapeuta confirmar a data
+  // que o voucher vai ter antes de gravar.
+  const validadeCalculada = useMemo(() => {
+    if (!f.dataCompra) return null
+    const d = new Date(f.dataCompra)
+    if (Number.isNaN(d.getTime())) return null
+    return adicionarMeses(d, 6).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
+  }, [f.dataCompra])
 
   function guardar() {
     if (!f.codigo.trim() || !f.compradorNome.trim() || !f.servicoNome.trim() || !f.valorPago) {
@@ -516,7 +526,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         servicoNome: f.servicoNome.trim(),
         valorPago: Number(f.valorPago),
         beneficiarioNome: f.beneficiarioNome.trim() || undefined,
-        validade: f.validade || undefined,
+        dataCompra: f.dataCompra || undefined,
         notas: f.notas.trim() || undefined,
       })
       if (res.ok) { toast("Voucher criado.", "success"); onFechar() }
@@ -527,7 +537,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
   return (
     <Painel
       titulo="Novo voucher"
-      sub="A validade fica a 6 meses se deixares em branco."
+      sub="A validade é calculada: 6 meses após a data de compra."
       onFechar={onFechar}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -572,9 +582,28 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
           <input value={f.beneficiarioNome} onChange={set("beneficiarioNome")} placeholder="Nome de quem vai receber" style={inputStyle} />
         </CampoForm>
 
-        <CampoForm label="Válido até" hint="Deixa vazio para 6 meses a contar de hoje">
-          <input type="date" value={f.validade} onChange={set("validade")} style={inputStyle} />
+        <CampoForm label="Data de compra">
+          <input type="date" value={f.dataCompra} onChange={set("dataCompra")} style={inputStyle} />
         </CampoForm>
+
+        {validadeCalculada && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            padding: "12px 15px", borderRadius: "9px",
+            backgroundColor: "rgba(212,184,134,0.07)",
+            border: "1px solid rgba(212,184,134,0.18)",
+            marginTop: "-6px",
+          }}>
+            <CalendarCheck size={16} style={{ color: "var(--nuit-champagne)", flexShrink: 0 }} />
+            <span style={{
+              fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone-soft)",
+            }}>
+              Válido até{" "}
+              <strong style={{ color: "var(--nuit-champagne)", fontWeight: 600 }}>{validadeCalculada}</strong>
+              {" "}· 6 meses após a compra
+            </span>
+          </div>
+        )}
 
         <CampoForm label="Notas">
           <textarea value={f.notas} onChange={set("notas")} rows={2} placeholder="Ex: comprou via WhatsApp" style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />

@@ -36,3 +36,14 @@ export function getInitials(name: string): string {
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
+
+// Soma meses a uma data sem "transbordar" para o mês seguinte: 31/08 + 6
+// meses dá 28/02, não 03/03 (o setMonth do JS transborda porque Fevereiro
+// não tem dia 31). Usado na validade dos vouchers — 6 meses após a compra.
+export function adicionarMeses(data: Date, meses: number): Date {
+  const d = new Date(data)
+  const diaOriginal = d.getDate()
+  d.setMonth(d.getMonth() + meses)
+  if (d.getDate() !== diaOriginal) d.setDate(0)
+  return d
+}

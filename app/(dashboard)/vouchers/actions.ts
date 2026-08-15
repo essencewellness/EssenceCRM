@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
+import { adicionarMeses } from "@/lib/utils"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -115,7 +116,7 @@ export async function criarVoucher(dados: {
   servicoNome: string
   valorPago: number
   beneficiarioNome?: string
-  validade?: string
+  dataCompra?: string
   notas?: string
 }): Promise<{ ok: true } | { ok: false; erro: string }> {
   const session = await verificarSessao()
@@ -129,15 +130,11 @@ export async function criarVoucher(dados: {
   const existente = await prisma.giftCard.findUnique({ where: { codigo: parsed.data.codigo } })
   if (existente) return { ok: false, erro: "Já existe um voucher com este código." }
 
-  // Validade por omissão: 6 meses a contar de hoje — é o prazo que a Essence
-  // já pratica em todos os vouchers emitidos (ver folha de controlo).
-  const validade = parsed.data.validade
-    ? new Date(parsed.data.validade)
-    : (() => {
-        const d = new Date()
-        d.setMonth(d.getMonth() + 6)
-        return d
-      })()
+  // A validade é sempre derivada, nunca escrita à mão: 6 meses a contar da
+  // data de compra — o prazo que a Essence pratica em todos os vouchers
+  // emitidos (ver folha de controlo).
+  const dataCompra = parsed.data.dataCompra ? new Date(parsed.data.dataCompra) : new Date()
+  const validade = adicionarMeses(dataCompra, 6)
 
   try {
     await prisma.giftCard.create({
@@ -149,6 +146,7 @@ export async function criarVoucher(dados: {
         servicoNome: parsed.data.servicoNome,
         valorPago: new Prisma.Decimal(parsed.data.valorPago),
         beneficiarioNome: parsed.data.beneficiarioNome ?? null,
+        dataCompra,
         validade,
         notas: parsed.data.notas ?? null,
       },
