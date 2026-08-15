@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useTransition, useEffect, useMemo } from "react"
-import { Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle, CalendarCheck } from "lucide-react"
+import { useState, useTransition, useEffect, useMemo, useId, useRef } from "react"
+import { Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle, CalendarCheck, Check, ChevronDown } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
 import { adicionarMeses } from "@/lib/utils"
@@ -138,6 +138,224 @@ function CampoForm({ label, hint, children }: { label: string; hint?: string; ch
         }}>{hint}</span>
       )}
     </label>
+  )
+}
+
+// Agrupa o catálogo pela ocasião que vem entre parênteses no nome
+// ("(Dia da Mãe)"), separando ainda os de duas pessoas — é assim que a
+// Bea pensa nos serviços quando emite um voucher.
+function grupoDoServico(nome: string): string {
+  const ocasiao = nome.match(/\(([^)]+)\)\s*$/)
+  if (ocasiao) return ocasiao[1]
+  if (/\ba d(ois|uas)\b/i.test(nome)) return "A dois"
+  return "Catálogo base"
+}
+
+function SeletorExperiencia({ servicos, valor, onEscolher }: {
+  servicos: ServicoCatalogo[]
+  valor: string
+  onEscolher: (nome: string) => void
+}) {
+  const [aberto, setAberto] = useState(false)
+  const [filtro, setFiltro] = useState("")
+  const [activo, setActivo] = useState(0)
+  const idBase = useId()
+  const listaId = `${idBase}-lista`
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const listaRef = useRef<HTMLUListElement>(null)
+
+  const encontrados = useMemo(() => {
+    const q = filtro.trim().toLowerCase()
+    return q ? servicos.filter(s => s.nome.toLowerCase().includes(q)) : servicos
+  }, [servicos, filtro])
+
+  // Uma lista plana para o teclado, e a mesma lista agrupada para os olhos.
+  const grupos = useMemo(() => {
+    const mapa = new Map<string, ServicoCatalogo[]>()
+    for (const s of encontrados) {
+      const g = grupoDoServico(s.nome)
+      if (!mapa.has(g)) mapa.set(g, [])
+      mapa.get(g)!.push(s)
+    }
+    return [...mapa.entries()]
+  }, [encontrados])
+
+  // Mantém a opção destacada à vista ao navegar com as setas.
+  useEffect(() => {
+    if (!aberto) return
+    listaRef.current
+      ?.querySelector(`[data-idx="${activo}"]`)
+      ?.scrollIntoView({ block: "nearest" })
+  }, [activo, aberto])
+
+  function escolher(s: ServicoCatalogo) {
+    onEscolher(s.nome)
+    setFiltro("")
+    setAberto(false)
+  }
+
+  function aoTeclado(e: React.KeyboardEvent) {
+    if (!aberto && (e.key === "ArrowDown" || e.key === "Enter")) {
+      setAberto(true)
+      return
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      setActivo(i => Math.min(i + 1, encontrados.length - 1))
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      setActivo(i => Math.max(i - 1, 0))
+    } else if (e.key === "Enter") {
+      e.preventDefault()
+      if (encontrados[activo]) escolher(encontrados[activo])
+    } else if (e.key === "Escape") {
+      setAberto(false)
+      setFiltro("")
+    }
+  }
+
+  const seleccionado = servicos.find(s => s.nome === valor)
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{ position: "relative" }}
+      onBlur={e => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setAberto(false)
+          setFiltro("")
+        }
+      }}
+    >
+      <div style={{ position: "relative" }}>
+        <input
+          id={idBase}
+          role="combobox"
+          aria-expanded={aberto}
+          aria-controls={listaId}
+          aria-autocomplete="list"
+          aria-activedescendant={aberto && encontrados[activo] ? `${listaId}-${activo}` : undefined}
+          autoComplete="off"
+          value={aberto ? filtro : valor}
+          placeholder={valor ? valor : "Escolher experiência…"}
+          onFocus={() => setAberto(true)}
+          onClick={() => setAberto(true)}
+          onChange={e => {
+            setFiltro(e.target.value)
+            onEscolher(e.target.value)
+            setActivo(0)
+            setAberto(true)
+          }}
+          onKeyDown={aoTeclado}
+          style={{ ...inputStyle, paddingRight: "62px" }}
+        />
+        <span style={{
+          position: "absolute", right: "11px", top: "50%", transform: "translateY(-50%)",
+          display: "flex", alignItems: "center", gap: "7px", pointerEvents: "none",
+        }}>
+          {seleccionado && !aberto && (
+            <span style={{
+              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+              color: "var(--nuit-champagne)",
+            }}>
+              {seleccionado.precoBase}€
+            </span>
+          )}
+          <ChevronDown
+            size={15}
+            aria-hidden="true"
+            style={{
+              color: "var(--nuit-bone-soft)", opacity: 0.6,
+              transform: aberto ? "rotate(180deg)" : "none",
+              transition: "transform var(--dur-fast) var(--ease-out)",
+            }}
+          />
+        </span>
+      </div>
+
+      {aberto && (
+        <ul
+          ref={listaRef}
+          id={listaId}
+          role="listbox"
+          aria-label="Experiências do catálogo"
+          className="nuit-scrollbar"
+          style={{
+            position: "absolute", zIndex: 20, top: "calc(100% + 6px)", left: 0, right: 0,
+            maxHeight: "290px", overflowY: "auto",
+            backgroundColor: "var(--nuit-deep)",
+            border: "1px solid rgba(212,184,134,0.28)",
+            borderRadius: "10px", boxShadow: "var(--shadow-3)",
+            padding: "6px", listStyle: "none",
+          }}
+        >
+          {encontrados.length === 0 && (
+            <li style={{
+              padding: "16px 12px", textAlign: "center",
+              fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
+            }}>
+              Sem correspondência — podes escrever à mão.
+            </li>
+          )}
+
+          {grupos.map(([grupo, itens]) => (
+            <li key={grupo} role="presentation">
+              <div style={{
+                padding: "9px 10px 5px",
+                fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                color: "var(--nuit-champagne-soft)", opacity: 0.8,
+              }}>
+                {grupo}
+              </div>
+              <ul role="presentation" style={{ listStyle: "none" }}>
+                {itens.map(s => {
+                  const idx = encontrados.indexOf(s)
+                  const destacado = idx === activo
+                  const escolhido = s.nome === valor
+                  return (
+                    <li
+                      key={s.nome}
+                      id={`${listaId}-${idx}`}
+                      data-idx={idx}
+                      role="option"
+                      aria-selected={escolhido}
+                      onMouseEnter={() => setActivo(idx)}
+                      onMouseDown={e => { e.preventDefault(); escolher(s) }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "10px",
+                        padding: "9px 10px", borderRadius: "7px", cursor: "pointer",
+                        backgroundColor: destacado ? "rgba(212,184,134,0.11)" : "transparent",
+                      }}
+                    >
+                      <span style={{
+                        flex: 1, minWidth: 0,
+                        fontFamily: "var(--font-body)", fontSize: "13.5px",
+                        color: "var(--nuit-bone)",
+                      }}>
+                        <NomeServico nome={s.nome} />
+                      </span>
+                      <span style={{
+                        fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+                        color: destacado ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
+                        flexShrink: 0,
+                      }}>
+                        {s.precoBase}€
+                      </span>
+                      <Check
+                        size={14}
+                        aria-hidden="true"
+                        style={{ color: "var(--nuit-champagne)", opacity: escolhido ? 1 : 0, flexShrink: 0 }}
+                      />
+                    </li>
+                  )
+                })}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -402,7 +620,7 @@ function Grelha({ itens, onEditar }: { itens: Voucher[]; onEditar: (v: Voucher) 
 
 // ── Formulário de edição ─────────────────────────────────────────────
 
-function FormEditar({ v, onFechar }: { v: Voucher; onFechar: () => void }) {
+function FormEditar({ v, servicos, onFechar }: { v: Voucher; servicos: ServicoCatalogo[]; onFechar: () => void }) {
   const [f, setF] = useState({
     codigo: v.codigo,
     estado: v.estado,
@@ -457,7 +675,15 @@ function FormEditar({ v, onFechar }: { v: Voucher; onFechar: () => void }) {
           </select>
         </CampoForm>
 
-        <CampoForm label="Experiência"><input value={f.servicoNome} onChange={set("servicoNome")} style={inputStyle} /></CampoForm>
+        {/* Na edição o preço não é tocado ao mudar de experiência — pode ter
+            sido vendido a um valor acordado que não é o do catálogo. */}
+        <CampoForm label="Experiência">
+          <SeletorExperiencia
+            servicos={servicos}
+            valor={f.servicoNome}
+            onEscolher={nome => setF(a => ({ ...a, servicoNome: nome }))}
+          />
+        </CampoForm>
         <CampoForm label="Valor pago (€)"><input type="number" step="0.01" value={f.valorPago} onChange={set("valorPago")} style={inputStyle} /></CampoForm>
 
         <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
@@ -586,16 +812,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         </div>
 
         <CampoForm label="Experiência" hint="Ao escolher do catálogo, o valor preenche-se sozinho">
-          <input
-            list="servicos-catalogo"
-            value={f.servicoNome}
-            onChange={e => escolherServico(e.target.value)}
-            placeholder="Essência Plena"
-            style={inputStyle}
-          />
-          <datalist id="servicos-catalogo">
-            {servicos.map(s => <option key={s.nome} value={s.nome}>{s.precoBase}€</option>)}
-          </datalist>
+          <SeletorExperiencia servicos={servicos} valor={f.servicoNome} onEscolher={escolherServico} />
         </CampoForm>
 
         <CampoForm
@@ -739,6 +956,9 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
         @keyframes vfade { from { opacity: 0 } to { opacity: 1 } }
         @keyframes vslide { from { transform: translateX(24px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
         @keyframes vrise { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+        @media (prefers-reduced-motion: reduce) {
+          [style*="animation"] { animation: none !important; }
+        }
       `}</style>
 
       {/* Cabeçalho */}
@@ -909,7 +1129,7 @@ export function VouchersClient({ vouchers, servicos }: { vouchers: Voucher[]; se
           onFechar={() => setACriar(false)}
         />
       )}
-      {aEditar && <FormEditar v={aEditar} onFechar={() => setAEditar(null)} />}
+      {aEditar && <FormEditar v={aEditar} servicos={servicos} onFechar={() => setAEditar(null)} />}
     </div>
   )
 }
