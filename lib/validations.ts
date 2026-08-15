@@ -367,6 +367,48 @@ export const servicoQuerySchema = z.object({
   nome: z.string().trim().max(120).optional(),
 })
 
+// ── Gift Cards / Vouchers ───────────────────────────────────────
+
+export const voucherCreateSchema = z.object({
+  codigo: z.string().trim().min(1).max(40),
+  tipo: z.enum(["digital", "fisico"]).optional(),
+  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  compradorNome: texto.max(200),
+  compradorTelefone: z.string().trim().max(30).optional().nullable(),
+  compradorEmail: z.string().trim().email().max(200).optional().nullable(),
+  servicoNome: texto.max(200),
+  valorPago: precoSchema,
+  beneficiarioNome: z.string().trim().max(200).optional().nullable(),
+  beneficiarioTelefone: z.string().trim().max(30).optional().nullable(),
+  dataCompra: dataISO.optional(),
+  validade: dataISO.optional().nullable(),
+  dataUso: dataISO.optional().nullable(),
+  notas: textoOpcional,
+  clienteId: z.string().trim().max(64).optional().nullable(),
+}).strict()
+
+export const voucherUpdateSchema = z.object({
+  tipo: z.enum(["digital", "fisico"]).optional(),
+  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  compradorNome: texto.max(200).optional(),
+  compradorTelefone: z.string().trim().max(30).optional().nullable(),
+  compradorEmail: z.string().trim().email().max(200).optional().nullable(),
+  servicoNome: texto.max(200).optional(),
+  valorPago: precoSchema.optional(),
+  beneficiarioNome: z.string().trim().max(200).optional().nullable(),
+  beneficiarioTelefone: z.string().trim().max(30).optional().nullable(),
+  validade: dataISO.optional().nullable(),
+  dataUso: dataISO.optional().nullable(),
+  notas: textoOpcional,
+  clienteId: z.string().trim().max(64).optional().nullable(),
+}).strict()
+
+export const voucherQuerySchema = z.object({
+  estado: z.enum(["ativo", "usado", "expirado", "cancelado"]).optional(),
+  tipo: z.enum(["digital", "fisico"]).optional(),
+  codigo: z.string().trim().max(40).optional(),
+})
+
 // ── Preços Personalizados ─────────────────────────────────────
 
 export const precoPersonalizadoCreateSchema = z.object({
