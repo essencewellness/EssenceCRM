@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
-import { adicionarMeses, origemDoVoucher } from "@/lib/utils"
+import { adicionarMeses, origemDoVoucher, linkDoVoucher } from "@/lib/utils"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -17,6 +17,8 @@ const CAMPOS_EDITAVEIS = [
   "codigo", "tipo", "estado", "compradorNome", "compradorTelefone", "compradorEmail",
   "servicoNome", "valorPago", "beneficiarioNome", "beneficiarioTelefone",
   "validade", "dataUso", "notas",
+  // O que aparece no voucher que a pessoa recebe
+  "nomesNoVoucher", "mensagemVoucher",
   // De quem é a receita desta venda. Null = da Bea (o normal); passa-se
   // para a Cristina quando é ela que vai fazer a sessão.
   "terapeutaId",
@@ -121,7 +123,11 @@ export async function criarVoucher(dados: {
   beneficiarioNome?: string
   dataCompra?: string
   notas?: string
-}): Promise<{ ok: true } | { ok: false; erro: string }> {
+  nomesNoVoucher?: string
+  mensagemVoucher?: string
+  /** Descrição do serviço no catálogo — vai no link para a página mostrar. */
+  descricaoServico?: string
+}): Promise<{ ok: true; link: string } | { ok: false; erro: string }> {
   const session = await verificarSessao()
 
   const parsed = voucherCreateSchema.safeParse(dados)
@@ -152,6 +158,8 @@ export async function criarVoucher(dados: {
         dataCompra,
         validade,
         notas: parsed.data.notas ?? null,
+        nomesNoVoucher: parsed.data.nomesNoVoucher ?? null,
+        mensagemVoucher: parsed.data.mensagemVoucher ?? null,
       },
     })
 
@@ -191,7 +199,21 @@ export async function criarVoucher(dados: {
     }
 
     revalidatePath("/vouchers")
-    return { ok: true }
+    // O link é o que a Bea vai enviar à pessoa — devolvido já pronto para
+    // não haver um segundo passo noutra ferramenta.
+    return {
+      ok: true,
+      link: linkDoVoucher({
+        codigo: voucher.codigo,
+        servicoNome: voucher.servicoNome,
+        nomesNoVoucher: voucher.nomesNoVoucher,
+        compradorNome: voucher.compradorNome,
+        beneficiarioNome: voucher.beneficiarioNome,
+        mensagemVoucher: voucher.mensagemVoucher,
+        validade: voucher.validade,
+        descricaoServico: dados.descricaoServico ?? null,
+      }),
+    }
   } catch {
     return { ok: false, erro: "Erro ao criar voucher" }
   }

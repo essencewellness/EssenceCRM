@@ -9,7 +9,7 @@ export default async function VouchersPage() {
     prisma.servico.findMany({
       where: { ativo: true },
       orderBy: { nome: "asc" },
-      select: { nome: true, precoBase: true },
+      select: { nome: true, precoBase: true, descricao: true },
     }),
     prisma.user.findMany({
       where: { ativo: true, role: "terapeuta" },
@@ -33,13 +33,15 @@ export default async function VouchersPage() {
     validade: v.validade ? v.validade.toISOString() : null,
     dataUso: v.dataUso ? v.dataUso.toISOString() : null,
     notas: v.notas,
+    nomesNoVoucher: v.nomesNoVoucher,
+    mensagemVoucher: v.mensagemVoucher,
     terapeutaId: v.terapeutaId,
   }))
 
   return (
     <VouchersClient
       vouchers={vouchersSerializados}
-      servicos={servicos.map(s => ({ nome: s.nome, precoBase: Number(s.precoBase) }))}
+      servicos={servicos.map(s => ({ nome: s.nome, precoBase: Number(s.precoBase), descricao: s.descricao }))}
       terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name || t.email }))}
     />
   )

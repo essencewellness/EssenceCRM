@@ -571,6 +571,15 @@ model GiftCard {
 
   notas                String?
 
+  // ── Campos que só existem para o voucher que a pessoa recebe ──
+  // Quem oferece, tal como aparece impresso no voucher. Pode ser diferente
+  // do compradorNome: às vezes é um grupo de amigas a oferecer, e o voucher
+  // leva os nomes todos enquanto o registo/lead guarda só quem falou
+  // connosco. Null = usar o compradorNome.
+  nomesNoVoucher       String?
+  // Mensagem pessoal mostrada no voucher ("Mereces este momento...").
+  mensagemVoucher      String?
+
   // De quem é esta receita. Por omissão fica a null, que o financeiro lê
   // como "da Bea" — todos os vouchers entram no financeiro dela. Passa-se
   // para a Cristina quando é ela que vai fazer a sessão, para o dinheiro

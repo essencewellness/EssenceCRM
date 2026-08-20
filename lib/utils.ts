@@ -56,3 +56,51 @@ export function adicionarMeses(data: Date, meses: number): Date {
   if (d.getDate() !== diaOriginal) d.setDate(0)
   return d
 }
+
+// ── Link do voucher que a cliente recebe ─────────────────────────────
+// A página vive no site público (repo `essencewellness/website`, ficheiro
+// site/vouchers/voucher.html) e recebe tudo por query string. O CRM só
+// constrói o link — não duplica a página.
+//
+// `desc` é um parâmetro novo que o CRM envia sempre: a página tem
+// descrições embutidas só para alguns serviços antigos, e o catálogo do
+// CRM tem muitos mais. Enquanto a página não souber ler `desc`, ignora-o
+// sem estragar nada (o resto do link continua igual).
+export const BASE_LINK_VOUCHER = "https://essencewellnesspt.com/vouchers/voucher.html"
+
+export interface DadosLinkVoucher {
+  codigo: string
+  servicoNome: string
+  /** Quem oferece, como aparece no voucher. Pode ser vários nomes. */
+  nomesNoVoucher?: string | null
+  /** Fallback quando não há nomes próprios para o voucher. */
+  compradorNome: string
+  beneficiarioNome?: string | null
+  mensagemVoucher?: string | null
+  validade?: Date | string | null
+  /** Descrição do serviço, vinda do catálogo do CRM. */
+  descricaoServico?: string | null
+}
+
+/** Validade no formato dd/mm/aaaa que a página do voucher mostra tal e qual. */
+function validadePtPT(valor: Date | string | null | undefined): string {
+  if (!valor) return ""
+  const d = valor instanceof Date ? valor : new Date(valor)
+  if (Number.isNaN(d.getTime())) return ""
+  const dia = String(d.getDate()).padStart(2, "0")
+  const mes = String(d.getMonth() + 1).padStart(2, "0")
+  return `${dia}/${mes}/${d.getFullYear()}`
+}
+
+export function linkDoVoucher(v: DadosLinkVoucher): string {
+  const params = new URLSearchParams()
+  params.set("de", (v.nomesNoVoucher?.trim() || v.compradorNome).trim())
+  params.set("para", (v.beneficiarioNome?.trim() || "ti").trim())
+  params.set("massagem", v.servicoNome)
+  if (v.mensagemVoucher?.trim()) params.set("mensagem", v.mensagemVoucher.trim())
+  params.set("codigo", v.codigo)
+  const validade = validadePtPT(v.validade)
+  if (validade) params.set("validade", validade)
+  if (v.descricaoServico?.trim()) params.set("desc", v.descricaoServico.trim())
+  return `${BASE_LINK_VOUCHER}?${params.toString()}`
+}

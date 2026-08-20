@@ -394,6 +394,10 @@ export const voucherCreateSchema = z.object({
   notas: textoOpcional,
   clienteId: z.string().trim().max(64).optional().nullable(),
   sessaoId: z.string().trim().max(64).optional().nullable(),
+  // Nomes tal como aparecem no voucher — pode ser um grupo ("Ana, Rita e
+  // Sofia") enquanto compradorNome guarda só quem falou connosco.
+  nomesNoVoucher: z.string().trim().max(200).optional().nullable(),
+  mensagemVoucher: z.string().trim().max(500).optional().nullable(),
   // Null = receita da Bea (o normal). Preenchido quando a sessão vai ser
   // feita pela Cristina e o dinheiro tem de entrar nas contas dela.
   terapeutaId: z.string().trim().max(64).optional().nullable(),
@@ -415,6 +419,10 @@ export const voucherUpdateSchema = z.object({
   notas: textoOpcional,
   clienteId: z.string().trim().max(64).optional().nullable(),
   sessaoId: z.string().trim().max(64).optional().nullable(),
+  // Nomes tal como aparecem no voucher — pode ser um grupo ("Ana, Rita e
+  // Sofia") enquanto compradorNome guarda só quem falou connosco.
+  nomesNoVoucher: z.string().trim().max(200).optional().nullable(),
+  mensagemVoucher: z.string().trim().max(500).optional().nullable(),
   terapeutaId: z.string().trim().max(64).optional().nullable(),
 }).strict()
 

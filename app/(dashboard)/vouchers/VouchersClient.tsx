@@ -7,12 +7,14 @@ import {
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
-import { adicionarMeses } from "@/lib/utils"
+import { adicionarMeses, linkDoVoucher } from "@/lib/utils"
 import { criarVoucher, atualizarVoucher } from "./actions"
 
 export interface ServicoCatalogo {
   nome: string
   precoBase: number
+  /** Vai no link do voucher para a página mostrar o texto do serviço. */
+  descricao?: string | null
 }
 
 export interface Voucher {
@@ -30,6 +32,11 @@ export interface Voucher {
   validade: string | null
   dataUso: string | null
   notas: string | null
+  // O que aparece no voucher que a pessoa recebe. `nomesNoVoucher` pode ser
+  // um grupo ("Ana, Rita e Sofia") enquanto compradorNome guarda só quem
+  // falou connosco.
+  nomesNoVoucher: string | null
+  mensagemVoucher: string | null
   // Null = receita da Bea (o normal). Preenchido quando a sessão vai ser
   // feita pela Cristina e o dinheiro tem de entrar nas contas dela.
   terapeutaId: string | null
@@ -870,6 +877,8 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
     validade: v.validade ? v.validade.slice(0, 10) : "",
     dataUso: v.dataUso ? v.dataUso.slice(0, 10) : "",
     notas: v.notas ?? "",
+    nomesNoVoucher: v.nomesNoVoucher ?? "",
+    mensagemVoucher: v.mensagemVoucher ?? "",
     terapeutaId: v.terapeutaId ?? "",
   })
   const [isPending, start] = useTransition()
@@ -885,6 +894,8 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
         compradorTelefone: telefoneOuVazio(f.compradorTelefone) ?? null,
         beneficiarioTelefone: telefoneOuVazio(f.beneficiarioTelefone) ?? null,
         terapeutaId: f.terapeutaId || null,
+        nomesNoVoucher: f.nomesNoVoucher.trim() || null,
+        mensagemVoucher: f.mensagemVoucher.trim() || null,
       })
       if (res.ok) { toast("Voucher atualizado.", "success"); onFechar() }
       else toast(res.erro, "error")
@@ -893,6 +904,21 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value })
+
+  // Deliberadamente construído a partir do voucher GRAVADO, não do estado do
+  // formulário: um link copiado de campos por guardar apontaria para dados
+  // que ainda não existem.
+  const linkAtual = linkDoVoucher({
+    codigo: v.codigo,
+    servicoNome: v.servicoNome,
+    nomesNoVoucher: v.nomesNoVoucher,
+    compradorNome: v.compradorNome,
+    beneficiarioNome: v.beneficiarioNome,
+    mensagemVoucher: v.mensagemVoucher,
+    validade: v.validade,
+    descricaoServico:
+      servicos.find(x => x.nome.toLowerCase() === v.servicoNome.trim().toLowerCase())?.descricao ?? null,
+  })
 
   return (
     <Painel titulo="Editar voucher" sub={v.codigo} onFechar={onFechar}>
@@ -948,6 +974,69 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
           </CampoForm>
         </div>
 
+        <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
+
+        <p style={{
+          ...rotulo, opacity: 0.9, letterSpacing: "0.14em",
+          color: "var(--nuit-champagne)",
+        }}>
+          O que aparece no voucher
+        </p>
+
+        <CampoForm
+          label="Nome ou nomes no voucher"
+          hint="Vazio = usa o comprador. Preenche quando são várias pessoas a oferecer."
+        >
+          <input value={f.nomesNoVoucher} onChange={set("nomesNoVoucher")} placeholder="Ex: Ana, Rita e Sofia" style={inputStyle} />
+        </CampoForm>
+
+        <CampoForm label="Mensagem no voucher" hint="Opcional — aparece como dedicatória.">
+          <textarea value={f.mensagemVoucher} onChange={set("mensagemVoucher")} rows={3} placeholder="Ex: Mereces este momento só para ti." style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
+        </CampoForm>
+
+        <CampoForm label="Link para enviar" hint="Reflete o que está gravado — guarda primeiro se mudaste algo acima.">
+          <textarea
+            readOnly
+            value={linkAtual}
+            rows={3}
+            onFocus={e => e.currentTarget.select()}
+            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "12.5px" }}
+          />
+        </CampoForm>
+
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <Botao
+            variante="fantasma"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(linkAtual)
+                toast("Link copiado.", "success")
+              } catch {
+                toast("Não deu para copiar. Seleciona o link e copia à mão.", "error")
+              }
+            }}
+            style={{ flex: 1, minWidth: "140px" }}
+          >
+            Copiar link
+          </Botao>
+          <a
+            href={linkAtual}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              padding: "11px 16px", borderRadius: "8px",
+              border: "1px solid rgba(212,184,134,0.30)",
+              color: "var(--nuit-champagne)", textDecoration: "none",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+            }}
+          >
+            Pré-visualizar
+          </a>
+        </div>
+
+        <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
+
         <CampoForm label="Receita de">
           <select value={f.terapeutaId} onChange={set("terapeutaId")} style={{ ...inputStyle, cursor: "pointer" }}>
             <option value="">Beatriz (por omissão)</option>
@@ -973,6 +1062,90 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
   )
 }
 
+// ── Link pronto a enviar ─────────────────────────────────────────────
+// Substitui o passo que antes obrigava a ir ao gerador do site à parte:
+// o voucher fica registado no CRM E o link sai daqui pronto para WhatsApp.
+
+function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) {
+  const [copiado, setCopiado] = useState(false)
+  const { toast } = useToast()
+
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2200)
+    } catch {
+      // clipboard bloqueado (permissões/http) — o campo fica selecionável
+      toast("Não deu para copiar. Seleciona o link e copia à mão.", "error")
+    }
+  }
+
+  const linkWhatsapp = `https://wa.me/?text=${encodeURIComponent(link)}`
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: "11px",
+        padding: "14px 15px", borderRadius: "9px",
+        backgroundColor: "rgba(139,176,143,0.10)",
+        border: "1px solid rgba(139,176,143,0.30)",
+      }}>
+        <Check size={17} style={{ color: "#8bb08f", flexShrink: 0 }} />
+        <span style={{ fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>
+          Voucher criado e registado. Falta só enviá-lo.
+        </span>
+      </div>
+
+      <CampoForm label="Link do voucher" hint="É esta a página que a pessoa vai abrir.">
+        <textarea
+          readOnly
+          value={link}
+          rows={3}
+          onFocus={e => e.currentTarget.select()}
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "12.5px" }}
+        />
+      </CampoForm>
+
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <Botao onClick={copiar} style={{ flex: 1, minWidth: "150px" }}>
+          {copiado ? "Copiado ✓" : "Copiar link"}
+        </Botao>
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            padding: "11px 16px", borderRadius: "8px",
+            border: "1px solid rgba(212,184,134,0.30)",
+            color: "var(--nuit-champagne)", textDecoration: "none",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+          }}
+        >
+          Pré-visualizar
+        </a>
+        <a
+          href={linkWhatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            padding: "11px 16px", borderRadius: "8px",
+            border: "1px solid rgba(139,176,143,0.35)",
+            color: "#8bb08f", textDecoration: "none",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+          }}
+        >
+          Enviar por WhatsApp
+        </a>
+      </div>
+
+      <Botao variante="fantasma" onClick={onFechar}>Concluir</Botao>
+    </div>
+  )
+}
+
 // ── Formulário de criação ────────────────────────────────────────────
 
 function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
@@ -995,7 +1168,12 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
     beneficiarioNome: "",
     dataCompra: escreverDataISO(new Date()),
     notas: "",
+    nomesNoVoucher: "",
+    mensagemVoucher: "",
   })
+  // Depois de criar, o painel passa a mostrar o link em vez do formulário —
+  // é o passo que antes obrigava a ir ao gerador do site à parte.
+  const [linkCriado, setLinkCriado] = useState<string | null>(null)
   const [isPending, start] = useTransition()
   const { toast } = useToast()
 
@@ -1037,10 +1215,24 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         beneficiarioNome: f.beneficiarioNome.trim() || undefined,
         dataCompra: f.dataCompra || undefined,
         notas: f.notas.trim() || undefined,
+        nomesNoVoucher: f.nomesNoVoucher.trim() || undefined,
+        mensagemVoucher: f.mensagemVoucher.trim() || undefined,
+        descricaoServico:
+          servicos.find(x => x.nome.toLowerCase() === f.servicoNome.trim().toLowerCase())?.descricao ?? undefined,
       })
-      if (res.ok) { toast("Voucher criado.", "success"); onFechar() }
+      if (res.ok) { toast("Voucher criado.", "success"); setLinkCriado(res.link) }
       else toast(res.erro, "error")
     })
+  }
+
+  // Criado: o painel deixa de ser um formulário e passa a ser a entrega
+  // do link. Fechar aqui é seguro — já está tudo gravado.
+  if (linkCriado) {
+    return (
+      <Painel titulo="Voucher criado" sub={f.codigo} onFechar={onFechar}>
+        <LinkPronto link={linkCriado} onFechar={onFechar} />
+      </Painel>
+    )
   }
 
   return (
@@ -1120,6 +1312,37 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
 
         <CampoForm label="Notas">
           <textarea value={f.notas} onChange={set("notas")} rows={2} placeholder="Ex: comprou via WhatsApp" style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
+        </CampoForm>
+
+        <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
+
+        <p style={{
+          ...rotulo, opacity: 0.9, letterSpacing: "0.14em",
+          color: "var(--nuit-champagne)",
+        }}>
+          O que aparece no voucher
+        </p>
+
+        <CampoForm
+          label="Nome ou nomes no voucher"
+          hint="Deixa vazio para usar o comprador. Preenche quando são várias pessoas a oferecer — o registo e a lead ficam só com quem falou connosco."
+        >
+          <input
+            value={f.nomesNoVoucher}
+            onChange={set("nomesNoVoucher")}
+            placeholder="Ex: Ana, Rita e Sofia"
+            style={inputStyle}
+          />
+        </CampoForm>
+
+        <CampoForm label="Mensagem no voucher" hint="Opcional — aparece como dedicatória.">
+          <textarea
+            value={f.mensagemVoucher}
+            onChange={set("mensagemVoucher")}
+            rows={3}
+            placeholder="Ex: Mereces este momento só para ti. Com carinho."
+            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
+          />
         </CampoForm>
 
         <div style={{ display: "flex", gap: "10px", marginTop: "6px" }}>
