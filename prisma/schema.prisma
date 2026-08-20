@@ -252,6 +252,23 @@ model Sessao {
   fichaCondicoesAlergias  String?
   fichaAromasPreferidos   String?
 
+  // Formulários públicos de uso único (WhatsApp): preenchido quando o envio
+  // é aceite pela primeira vez. Um segundo GET com este campo já preenchido
+  // mostra "já enviaste" em vez do formulário; um segundo POST não regrava —
+  // devolve sucesso na mesma sem tocar nos dados (retry de rede não pode
+  // ficar sem saída, mas também não pode substituir o que já foi enviado).
+  // Campo dedicado e não terapeutaId/estado: esses podem ser alterados por
+  // outras vias (dashboard, N8N) sem que ninguém tenha passado por este
+  // formulário — usá-los como sinal de "já submetido por aqui" bloquearia
+  // o formulário por um motivo que não tem nada a ver com ele.
+  onboardingSubmetidoEm   DateTime?
+  atribuicaoSubmetidaEm   DateTime?
+  // pos-sessao e confirmar-sessao são a exceção: os únicos escritores
+  // possíveis de "estado = realizada" / "confirmacaoPresenca" são,
+  // respetivamente, estes dois formulários (mais o dashboard, que já é
+  // autenticado e fora do âmbito de "uso único" de um link WhatsApp) — por
+  // isso reutilizam esses campos em vez de duplicar mais um.
+
   // Terapeuta que realizou a sessão
   terapeutaId  String?
   user         User?    @relation("TerapeutaSessao", fields: [terapeutaId], references: [id])

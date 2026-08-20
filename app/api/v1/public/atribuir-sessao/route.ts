@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, servico: true, data: true, hora: true, duracao: true, preco: true,
-      clienteId: true,
+      clienteId: true, atribuicaoSubmetidaEm: true, terapeutaId: true,
       cliente: {
         select: {
           nome: true, telefone: true, totalSessoes: true, criadoEm: true,
@@ -40,6 +40,21 @@ export async function GET(request: NextRequest) {
   })
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
+
+  // Uso único: já foi submetido por este formulário — não há nada para
+  // preencher outra vez. O terapeutaHabitual serve só para mostrar quem
+  // ficou atribuída, sem repetir todas as queries pesadas do caso normal.
+  if (sessao.atribuicaoSubmetidaEm) {
+    const terapeutaAtual = sessao.terapeutaId
+      ? await prisma.user.findFirst({ where: { id: sessao.terapeutaId }, select: { name: true } })
+      : null
+    return NextResponse.json({
+      jaSubmetido: true,
+      cliente: { nome: sessao.cliente.nome },
+      sessao: { servico: sessao.servico, data: sessao.data, hora: sessao.hora },
+      terapeutaAtribuida: terapeutaAtual?.name ?? null,
+    })
   }
 
   const [terapeutas, servicoCatalogo, sessoesAnteriores, notas] = await Promise.all([
@@ -103,7 +118,10 @@ export async function POST(request: NextRequest) {
   try {
     const sessao = await prisma.sessao.findFirst({
       where: { id: sessaoId, apagadoEm: null },
-      select: { id: true, clienteId: true, estado: true, cliente: { select: { terapeutaPrincipalId: true } } },
+      select: {
+        id: true, clienteId: true, estado: true, atribuicaoSubmetidaEm: true,
+        cliente: { select: { terapeutaPrincipalId: true } },
+      },
     })
     if (!sessao) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
@@ -112,6 +130,13 @@ export async function POST(request: NextRequest) {
     // Sessão cancelada não deve receber atribuição de terapeuta/preço via link antigo
     if (sessao.estado === "cancelada") {
       return NextResponse.json({ ok: true, jaAtualizada: false })
+    }
+
+    // Uso único: já foi submetido antes. Devolve sucesso sem regravar nada —
+    // um duplo toque ou um retry de rede (resposta perdida, form reenviado)
+    // não pode falhar à cliente nem sobrepor o que já ficou certo.
+    if (sessao.atribuicaoSubmetidaEm) {
+      return NextResponse.json({ ok: true, jaSubmetido: true })
     }
 
     const terapeuta = await prisma.user.findFirst({
@@ -148,6 +173,7 @@ export async function POST(request: NextRequest) {
         terapeuta: nomeTerapeuta,
         terapeuta2Id: terapeuta2?.id ?? null,
         preco,
+        atribuicaoSubmetidaEm: new Date(),
       },
     })
 

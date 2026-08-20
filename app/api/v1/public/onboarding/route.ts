@@ -8,7 +8,7 @@ export const preferredRegion = "fra1"
 import { NextRequest, NextResponse, after } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
-import { onboardingPublicSchema, validarBody } from "@/lib/validations"
+import { onboardingPublicSchema, onboardingQuerySchema, validarBody, validarQuery } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
@@ -18,6 +18,32 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 // injetarAvisoRGPD). Incrementar sempre que o texto mudar — fica no audit log
 // como prova de QUE declaração a cliente consentiu ao enviar.
 const CONSENT_VERSAO = "v2-2026-07-21"
+
+// Uso único (link personalizado): a cliente já preencheu esta ficha antes de
+// uma sessão concreta. Sem GET aqui, essence-forms.js só descobria isto no
+// fim do multi-step, ao tentar submeter — deixava preencher tudo para nada.
+export async function GET(request: NextRequest) {
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "onboarding-get",
+    limite: 60,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
+
+  const q = validarQuery(request.url, onboardingQuerySchema)
+  if (!q.ok) return q.resposta
+  const { sessaoId, t } = q.data
+
+  const erroToken = await validarLinkToken(request, sessaoId, "onboarding-get", t)
+  if (erroToken) return erroToken
+
+  const sessao = await prisma.sessao.findFirst({
+    where: { id: sessaoId, apagadoEm: null },
+    select: { onboardingSubmetidoEm: true },
+  })
+
+  return NextResponse.json({ jaSubmetido: !!sessao?.onboardingSubmetidoEm })
+}
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -49,6 +75,20 @@ export async function POST(request: NextRequest) {
   if (idAlvo) {
     const erroToken = await validarLinkToken(request, idAlvo, "onboarding", t)
     if (erroToken) return erroToken
+  }
+
+  // Uso único (link personalizado): já preencheu esta ficha antes de uma
+  // sessão concreta — não regrava nada nem dispara o webhook outra vez. Um
+  // duplo toque ou um retry de rede não pode substituir dados clínicos já
+  // enviados por dados diferentes de uma segunda tentativa.
+  if (sessaoId) {
+    const sessaoAtual = await prisma.sessao.findFirst({
+      where: { id: sessaoId, apagadoEm: null },
+      select: { onboardingSubmetidoEm: true },
+    })
+    if (sessaoAtual?.onboardingSubmetidoEm) {
+      return NextResponse.json({ ok: true, jaSubmetido: true })
+    }
   }
 
   try {
@@ -127,14 +167,21 @@ export async function POST(request: NextRequest) {
       if (sessao && sessao.estado === "cancelada") {
         sessao = null
       }
-      if (sessao && consentimentoSaude) {
+      if (sessao) {
         await prisma.sessao.update({
           where: { id: sessao.id },
           data: {
-            ...(historicoEstadoEmocional ? { fichaEstadoEmocional: historicoEstadoEmocional } : {}),
-            ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
-            ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),
-            ...(historicoCondicoesAlergias ? { fichaCondicoesAlergias: historicoCondicoesAlergias } : {}),
+            ...(consentimentoSaude ? {
+              ...(historicoEstadoEmocional ? { fichaEstadoEmocional: historicoEstadoEmocional } : {}),
+              ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
+              ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),
+              ...(historicoCondicoesAlergias ? { fichaCondicoesAlergias: historicoCondicoesAlergias } : {}),
+            } : {}),
+            // Marca a ficha como preenchida independentemente de
+            // consentimentoSaude (que só controla se os dados clínicos são
+            // gravados, não se a ficha foi enviada) — sem isto, uma cliente
+            // que recuse os dados de saúde podia reabrir o link para sempre.
+            onboardingSubmetidoEm: new Date(),
           },
         })
       }

@@ -1229,10 +1229,12 @@
           }),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const respostaPatch = await res.json().catch(() => ({}));
 
         mostrarConfirmacao({
           nomeCliente: clienteSelecionado?.nome || 'Cliente',
           servico, preco: precoServico, data, hora, dataRetorno,
+          jaSubmetido: !!respostaPatch.jaSubmetido,
         });
         return; // sessão marcada como realizada — não há o que repetir aqui
       }
@@ -1299,7 +1301,10 @@
   // Substitui o form pelo ecrã de confirmação — só no modo link de sessão
   // (Calendly), onde o link é de uso único. No modo manual o form limpa-se
   // sozinho para a Bea poder registar a sessão seguinte sem sair da página.
-  function mostrarConfirmacao({ nomeCliente, servico, preco, data, hora, dataRetorno }) {
+  function mostrarConfirmacao({ nomeCliente, servico, preco, data, hora, dataRetorno, jaSubmetido }) {
+    const titulo = document.querySelector('.done-title');
+    if (titulo) titulo.textContent = jaSubmetido ? 'Sessão já registada.' : 'Sessão registada.';
+
     const resumo = document.getElementById('done-summary');
     resumo.replaceChildren();
 
@@ -1321,11 +1326,15 @@
     if (dataRetorno) linha('Regresso recomendado', new Date(`${dataRetorno}T00:00:00`).toLocaleDateString('pt-PT'));
 
     const next = document.getElementById('done-next');
-    next.replaceChildren(
-      document.createTextNode('A cliente vai receber um pedido de '),
-      Object.assign(document.createElement('strong'), { textContent: 'feedback' }),
-      document.createTextNode(' amanhã às 19h — automático, não precisas de fazer nada.')
-    );
+    if (jaSubmetido) {
+      next.replaceChildren(document.createTextNode('Esta sessão já foi registada antes — não há nada mais a fazer aqui. Para corrigir algo, usa o dashboard.'));
+    } else {
+      next.replaceChildren(
+        document.createTextNode('A cliente vai receber um pedido de '),
+        Object.assign(document.createElement('strong'), { textContent: 'feedback' }),
+        document.createTextNode(' amanhã às 19h — automático, não precisas de fazer nada.')
+      );
+    }
 
     document.getElementById('cliente-banner').classList.remove('visible');
     document.querySelector('.search-wrap').style.display = 'none';
@@ -1396,8 +1405,24 @@
       // Endpoint público (sem X-API-Key) — protegido pelo link token assinado (?t=).
       const res = await fetch(`${API_BASE}/api/v1/public/pos-sessao?sessaoId=${encodeURIComponent(id)}${tokenQS}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const { sessao, cliente, servicos, terapeutas } = await res.json();
+      const body = await res.json();
+      const { sessao, cliente } = body;
       if (!sessao) throw new Error('Sessão sem dados');
+
+      // Uso único: já foi registada — mostra o resumo em vez do formulário.
+      if (body.jaSubmetido) {
+        mostrarConfirmacao({
+          nomeCliente: cliente.nome,
+          servico: sessao.servico,
+          preco: sessao.preco,
+          data: sessao.data ? sessao.data.split('T')[0] : null,
+          hora: sessao.hora,
+          jaSubmetido: true,
+        });
+        return;
+      }
+
+      const { servicos, terapeutas } = body;
 
       document.getElementById('sessao-id').value = sessao.id;
 

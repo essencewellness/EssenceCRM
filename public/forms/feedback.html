@@ -882,6 +882,25 @@
 
   // Se não tiver clienteId, apenas mostramos o formulário normalmente.
   // O API retorna 200 silencioso para IDs inválidos (anti-enumeração).
+
+  // Uso único: já deste feedback para esta sessão antes — mostra logo o
+  // ecrã final em vez de deixar preencher tudo outra vez para nada (a API
+  // já ignorava um segundo envio, mas em silêncio — isto avisa antes).
+  (async function verificarJaEnviado() {
+    if (!clienteId || !sessaoId) return;
+    try {
+      const qs = new URLSearchParams({ clienteId, sessaoId, ...(linkToken ? { t: linkToken } : {}) });
+      const res = await fetch(`${API_BASE}/api/v1/public/feedback?${qs.toString()}`);
+      if (!res.ok) return; // sem verificação possível, deixa preencher normalmente
+      const dados = await res.json();
+      if (dados.jaSubmetido) {
+        feedbackEnviado = true;
+        mostrarDone('🌿', 'Já nos deste o teu feedback.', 'Obrigada — já recebemos a tua opinião sobre esta sessão.');
+      }
+    } catch {
+      // falha a verificar não pode bloquear quem ainda não enviou
+    }
+  })();
 </script>
 </body>
 </html>

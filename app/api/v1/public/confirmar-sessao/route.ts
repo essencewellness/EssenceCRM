@@ -47,6 +47,9 @@ export async function GET(request: NextRequest) {
     data: sessao.data,
     hora: sessao.hora,
     estado: sessao.estado,
+    // Uso único: já confirmou antes — o formulário mostra logo isso em vez
+    // do botão "Confirmar", para não parecer que ainda está por fazer.
+    jaSubmetido: sessao.confirmacaoPresenca === true,
     confirmacaoPresenca: sessao.confirmacaoPresenca,
     calendlyRescheduleUrl: sessao.calendlyRescheduleUrl,
   })
@@ -87,6 +90,13 @@ export async function POST(request: NextRequest) {
   // Sessão já concluída/cancelada — nada a confirmar, devolve o estado tal como está
   if (sessao.estado === "realizada" || sessao.estado === "cancelada" || sessao.estado === "falta") {
     return NextResponse.json({ sessaoId: sessao.id, estado: sessao.estado, jaAtualizada: false })
+  }
+
+  // Uso único: já tinha confirmado antes — não regrava nada. Sem isto, reabrir
+  // o link (ou um duplo toque) disparava outra vez o webhook sessaoConfirmada
+  // para o N8N a cada confirmação repetida, mesmo sem mudar nada de real.
+  if (sessao.estado === "confirmada") {
+    return NextResponse.json({ sessaoId: sessao.id, estado: sessao.estado, jaSubmetido: true })
   }
 
   await prisma.sessao.update({

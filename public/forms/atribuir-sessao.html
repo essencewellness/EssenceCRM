@@ -167,6 +167,22 @@
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
 
+      // Uso único: já foi preenchido antes — mostra logo o estado, sem
+      // gastar tempo (nem risco) a mostrar um formulário para nada.
+      if (data.jaSubmetido) {
+        elLoading.style.display = "none";
+        const h2 = elSuccess.querySelector("h2");
+        const p = elSuccess.querySelector("p");
+        if (h2) h2.textContent = "Já preenchido.";
+        if (p) {
+          p.textContent = data.terapeutaAtribuida
+            ? `Esta sessão já foi atribuída a ${data.terapeutaAtribuida}.`
+            : "Esta sessão já tem os dados preenchidos.";
+        }
+        elSuccess.style.display = "block";
+        return;
+      }
+
       const visitaBadge = document.getElementById("visita-badge");
       visitaBadge.replaceChildren();
       const badge = document.createElement("span");

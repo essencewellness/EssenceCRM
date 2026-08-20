@@ -258,6 +258,14 @@ export const leadPublicSchema = z.object({
   website: z.string().max(500).optional(),
 }).strict()
 
+// Pré-checagem de uso único — ver GET /api/v1/public/onboarding. Só faz
+// sentido quando a ficha é para uma sessão concreta (link personalizado);
+// sem sessaoId (lead nova a preencher às cegas) não há nada para trancar.
+export const onboardingQuerySchema = z.object({
+  sessaoId: z.string().trim().max(64),
+  t: z.string().trim().max(128).optional().nullable(),
+})
+
 export const onboardingPublicSchema = z.object({
   clienteId: z.string().trim().max(64).optional().nullable(),
   sessaoId: z.string().trim().max(64).optional().nullable(),
@@ -566,6 +574,13 @@ export const indicacaoAmigaSchema = z.object({
   // Campo único — o cliente escreve WhatsApp ou email, o servidor decide qual
   // é (contém "@" → email, senão telefone). Menos fricção que dois campos.
   contacto: z.string().trim().max(120).optional().nullable(),
+})
+
+// Pré-checagem de uso único — ver GET /api/v1/public/feedback.
+export const feedbackQuerySchema = z.object({
+  clienteId: z.string().trim().max(64),
+  sessaoId:  z.string().trim().max(64).optional().nullable(),
+  t:         z.string().trim().max(128).optional().nullable(),
 })
 
 export const feedbackPublicSchema = z.object({

@@ -43,6 +43,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
 
+  // Uso único: sessão já registada como realizada — não há nada para
+  // preencher outra vez (o voucher associado, se houver, já fechou).
+  // Correções depois disto passam pelo dashboard, não por este link.
+  if (sessao.estado === "realizada") {
+    return NextResponse.json({
+      jaSubmetido: true,
+      cliente: { nome: sessao.cliente.nome },
+      sessao: { servico: sessao.servico, data: sessao.data, hora: sessao.hora },
+    })
+  }
+
   const [servicos, terapeutas] = await Promise.all([
     prisma.servico.findMany({
       where: { ativo: true },
@@ -104,6 +115,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     const eraRealizada = sessaoAntes.estado === "realizada"
+
+    // Uso único: já foi registada antes — não regrava nada (nem os campos
+    // clínicos, nem o pagamento). Um duplo toque ou um retry de rede não
+    // pode sobrepor um registo que já ficou certo; correções a partir daqui
+    // são feitas no dashboard, não por este link.
+    if (eraRealizada) {
+      return NextResponse.json({ sessaoId: sessaoAntes.id, estado: sessaoAntes.estado, jaSubmetido: true })
+    }
 
     // Update da sessão + recálculo de métricas na mesma transação — evita a
     // janela de corrida com outras escritas concorrentes no mesmo cliente.

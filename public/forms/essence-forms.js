@@ -39,6 +39,35 @@
   const total      = visible.length;
   let curEl        = visible[0];
 
+  // Uso único (link personalizado): já preencheste esta ficha antes de uma
+  // sessão concreta — mostra logo o ecrã final em vez de deixar preencher
+  // tudo outra vez para nada. Só verifica quando há sessaoId: sem ele (lead
+  // solta, sem sessão associada) não há nada para trancar.
+  if (CTX.sessaoId) {
+    (async function verificarJaEnviado() {
+      try {
+        const qs = new URLSearchParams({ sessaoId: CTX.sessaoId, ...(CTX.linkToken ? { t: CTX.linkToken } : {}) });
+        const res = await fetch(API_BASE + "/api/v1/public/onboarding?" + qs.toString());
+        if (!res.ok) return; // sem verificação possível, deixa preencher normalmente
+        const dados = await res.json();
+        if (!dados.jaSubmetido) return;
+
+        allSteps.forEach((el) => el.classList.remove("active"));
+        const sc = document.getElementById("success");
+        if (!sc) return;
+        sc.style.display = "block";
+        const nok = document.getElementById("nome-ok");
+        if (nok) nok.textContent = CTX.nome || "";
+        const titulo = sc.querySelector("h2");
+        if (titulo) titulo.textContent = "Já recebemos a tua ficha, " + (CTX.nome ? CTX.nome + "." : ".");
+        const pf = document.getElementById("prog-fill");
+        if (pf) pf.style.width = "100%";
+      } catch {
+        // falha a verificar não pode bloquear quem ainda não enviou
+      }
+    })();
+  }
+
   function idxOf(el) { return visible.indexOf(el); }
   function stepNum(el) { return el.id.split("-")[1]; }
 

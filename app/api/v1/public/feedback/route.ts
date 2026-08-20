@@ -4,10 +4,41 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
-import { feedbackPublicSchema, validarBody, mapearNpsParaRating, normalizarTelefone } from "@/lib/validations"
+import { feedbackPublicSchema, feedbackQuerySchema, validarBody, validarQuery, mapearNpsParaRating, normalizarTelefone } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { validarLinkToken } from "@/lib/link-token"
 import { auditar } from "@/lib/audit"
+
+// Uso único: só faz sentido pré-checar quando há sessaoId — sem ele (feedback
+// solto, não ligado a uma sessão específica) não há um registo único para
+// verificar contra, e mais do que um feedback "geral" da mesma cliente é
+// válido (aniversário, campanha, etc.).
+export async function GET(request: NextRequest) {
+  const bloqueio = await verificarRateLimit(request, {
+    recurso: "feedback-get",
+    limite: 60,
+    janelaSeg: 3600,
+  })
+  if (bloqueio) return bloqueio
+
+  const q = validarQuery(request.url, feedbackQuerySchema)
+  if (!q.ok) return q.resposta
+  const { clienteId, sessaoId, t } = q.data
+
+  const erroToken = await validarLinkToken(request, sessaoId ?? clienteId, "feedback-get", t)
+  if (erroToken) return erroToken
+
+  if (!sessaoId) {
+    return NextResponse.json({ jaSubmetido: false })
+  }
+
+  const feedbackExistente = await prisma.feedback.findFirst({
+    where: { sessaoId, clienteId },
+    select: { id: true },
+  })
+
+  return NextResponse.json({ jaSubmetido: !!feedbackExistente })
+}
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
