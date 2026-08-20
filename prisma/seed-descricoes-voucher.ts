@@ -73,16 +73,16 @@ const DESCRICOES: Record<string, string> = {
 
   // ── Dia da Mulher ──────────────────────────────────────────────────
   "Massagem Essência (Dia da Mulher)":
-    "60 minutos em que a única prioridade és tu. É a Massagem Essência: chegas e há tempo para respirar antes de começar, a massagem adapta-se ao que o corpo pedir nesse dia, e no fim fica o chá, para não saíres a correr.",
+    "Há quanto tempo não paras só para ti? É a Massagem Essência: 60 minutos em que a única prioridade és tu. Chegas e há tempo para respirar antes de começar, a massagem adapta-se ao que o corpo pedir nesse dia, e no fim fica o chá, para não saíres a correr.",
 
   "Massagem Essência a Duas (Dia da Mulher)":
     "Do género de tarde que fica na memória. É a Massagem Essência a Duas: 60 minutos só vossos, as duas sessões ao mesmo tempo, cada corpo tratado à sua maneira, com acolhimento à chegada e chá no fim.",
 
   "Ritual Luz & Alma (Dia da Mulher)":
-    "Quando o cansaço já é de fundo, precisa de calor e de tempo. É o Ritual Luz & Alma: massagem com Cera Quente Nutritiva e essências premium que escolhes antes da sessão. A pele fica diferente ao toque. Levas ainda uma Vela de Cristal, para a sensação não acabar à porta.",
+    "Quando o cansaço já é de fundo, precisa de calor e de tempo. É o Ritual Luz & Alma: 60 minutos de massagem com Cera Quente Nutritiva e essências premium que escolhes antes da sessão. A pele fica diferente ao toque. Levas ainda uma Vela de Cristal, para a sensação não acabar à porta.",
 
   "Ritual Luz & Alma a Duas (Dia da Mulher)":
-    "Quando as duas precisam e nenhuma quer ir sozinha. É o Ritual Luz & Alma a Duas: massagem com Cera Quente Nutritiva, cada uma com as suas essências, as sessões ao mesmo tempo. Saem as duas com o corpo solto e a pele nutrida, e cada uma leva a sua Vela de Cristal.",
+    "Quando as duas precisam e nenhuma quer ir sozinha. É o Ritual Luz & Alma a Duas: 60 minutos de massagem com Cera Quente Nutritiva, cada uma com as suas essências, as sessões ao mesmo tempo. Saem as duas com o corpo solto e a pele nutrida, e cada uma leva a sua Vela de Cristal.",
 
   // ── Dia dos Namorados ──────────────────────────────────────────────
   "Massagem Conexão (Dia dos Namorados)":
