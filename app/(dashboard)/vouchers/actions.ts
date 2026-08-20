@@ -150,7 +150,7 @@ export async function criarVoucher(dados: {
   // nasce atribuído às duas, em vez de ficar preso à Bea por omissão até
   // uma sessão ser marcada "realizada".
   let terapeuta2Id: string | null = null
-  if (/a dois|casal/i.test(parsed.data.servicoNome)) {
+  if (/a dois|a duas|casal/i.test(parsed.data.servicoNome)) {
     const [idBea, terapeutasAtivas] = await Promise.all([
       getTerapeutaPrincipalPadraoId(),
       prisma.user.findMany({ where: { role: "terapeuta", ativo: true }, select: { id: true } }),

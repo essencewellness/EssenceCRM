@@ -841,7 +841,7 @@
   function servicoEhADois() {
     const sel = document.getElementById('servico');
     const nome = sel.options[sel.selectedIndex]?.textContent || '';
-    return /a dois|casal/i.test(nome);
+    return /a dois|a duas|casal/i.test(nome);
   }
 
   function atualizarLinhaTerapeuta2() {

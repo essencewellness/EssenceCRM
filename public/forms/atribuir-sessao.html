@@ -250,7 +250,7 @@
       // para perguntar — são sempre as duas. Fora deste caso exato (uma só
       // terapeuta ativa, ou um dia terceira), a pergunta continua a ser
       // feita normalmente, para nunca adivinhar errado.
-      eADois = /a dois|casal/i.test(data.sessao.servico || "") && (data.terapeutas || []).length === 2;
+      eADois = /a dois|a duas|casal/i.test(data.sessao.servico || "") && (data.terapeutas || []).length === 2;
       terapeutasADois = eADois ? data.terapeutas : null;
 
       const blocoADois = document.getElementById("bloco-a-dois");
