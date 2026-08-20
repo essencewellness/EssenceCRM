@@ -1443,7 +1443,10 @@
         selServico.value = sessao.servico;
       }
 
-      // Terapeutas: idem, vêm no bundle público. O PATCH não altera a terapeuta.
+      // Terapeutas: idem, vêm no bundle público. O PATCH não altera a
+      // terapeuta principal (só a 2.ª, ver abaixo) — o select fica
+      // desativado, mas mostra o valor certo em vez do primeiro da lista.
+      catalogoTerapeutas = terapeutas;
       const selTerapeuta = document.getElementById('terapeuta');
       selTerapeuta.innerHTML = '';
       terapeutas.forEach(t => {
@@ -1452,7 +1455,16 @@
         opt.textContent = t.name || 'Terapeuta';
         selTerapeuta.appendChild(opt);
       });
+      if (sessao.terapeutaId) selTerapeuta.value = sessao.terapeutaId;
       selTerapeuta.disabled = true;
+
+      // 2.ª terapeuta: se "quem vai realizar a sessão?" (atribuir-sessao.html)
+      // já respondeu isto — o caso normal numa massagem a dois, resolvido
+      // automaticamente sem perguntar — mostra aqui em vez de aparecer vazio
+      // e a submissão apagar sem querer o que já estava certo.
+      preencherTerapeuta2();
+      if (sessao.terapeuta2Id) document.getElementById('terapeuta2').value = sessao.terapeuta2Id;
+      atualizarLinhaTerapeuta2();
     } catch (err) {
       console.error(err);
       // Fallback: sem sessão carregada, o formulário volta ao modo manual

@@ -63,7 +63,7 @@ export async function PATCH(
   try {
     const sessaoAntes = await prisma.sessao.findFirst({
       where: { id, apagadoEm: null },
-      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true },
+      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true, terapeutaId: true, terapeuta2Id: true },
     })
 
     if (!sessaoAntes) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
@@ -142,7 +142,13 @@ export async function PATCH(
     if (ficaRealizada && !eraRealizada) {
       // Transição para "realizada" — webhook + mensagem de avaliação, só
       // depois da transação committar e fora dela (fire-and-forget, lib/sessoes).
-      await dispararEfeitosSessaoRealizada(sessaoAntes, sessao.preco)
+      // terapeutaId/terapeuta2Id vêm do resultado do update, não de
+      // sessaoAntes: este PATCH interno pode mudar a terapeuta na mesma
+      // chamada em que marca a sessão como realizada.
+      await dispararEfeitosSessaoRealizada(
+        { ...sessaoAntes, terapeutaId: sessao.terapeutaId, terapeuta2Id: sessao.terapeuta2Id },
+        sessao.preco
+      )
       // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
       // desfasado à espera do cron das 7h (lib/crm-estados).
       await recalcularEstadoCliente(sessaoAntes.clienteId)

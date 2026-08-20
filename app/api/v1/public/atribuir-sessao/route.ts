@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, atribuirSessaoSchema)
   if (!v.ok) return v.resposta
-  const { sessaoId, t, terapeutaId, preco, nota, website } = v.data
+  const { sessaoId, t, terapeutaId, terapeuta2Id, preco, nota, website } = v.data
 
   // Honeypot preenchido = bot
   if (website) {
@@ -122,6 +122,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Terapeuta inválida" }, { status: 400 })
     }
 
+    // Segunda terapeuta (massagem a dois) — validada só se vier preenchida.
+    // Tem de ser diferente da primeira: as duas ao mesmo tempo não faz
+    // sentido serem a mesma pessoa.
+    let terapeuta2: { id: string; name: string | null } | null = null
+    if (terapeuta2Id) {
+      if (terapeuta2Id === terapeutaId) {
+        return NextResponse.json({ error: "As duas terapeutas têm de ser diferentes" }, { status: 400 })
+      }
+      terapeuta2 = await prisma.user.findFirst({
+        where: { id: terapeuta2Id, ativo: true, role: "terapeuta" },
+        select: { id: true, name: true },
+      })
+      if (!terapeuta2) {
+        return NextResponse.json({ error: "Segunda terapeuta inválida" }, { status: 400 })
+      }
+    }
+
     const nomeTerapeuta = terapeuta.name ?? "terapeuta"
 
     await prisma.sessao.update({
@@ -129,6 +146,7 @@ export async function POST(request: NextRequest) {
       data: {
         terapeutaId: terapeuta.id,
         terapeuta: nomeTerapeuta,
+        terapeuta2Id: terapeuta2?.id ?? null,
         preco,
       },
     })
@@ -172,7 +190,7 @@ export async function POST(request: NextRequest) {
       acao: "atribuir_sessao.submetido",
       entidade: "Sessao",
       entidadeId: sessao.id,
-      detalhe: { terapeutaId: terapeuta.id, preco, temNota: !!nota, notaCriada },
+      detalhe: { terapeutaId: terapeuta.id, terapeuta2Id: terapeuta2?.id ?? null, preco, temNota: !!nota, notaCriada },
       ip: request.headers.get("x-forwarded-for"),
     })
 

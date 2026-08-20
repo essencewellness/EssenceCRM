@@ -83,7 +83,14 @@
         <div id="notas-lista"></div>
       </div>
 
-      <div class="plain-fg">
+      <!-- Massagem a dois: não há nada para escolher — são sempre as duas
+           terapeutas, ao mesmo tempo. Este bloco substitui o seletor. -->
+      <div class="plain-fg" id="bloco-a-dois" style="display:none;">
+        <label class="plain-label">Quem vai fazer a massagem</label>
+        <div class="plain-input" id="texto-a-dois" style="display:flex;align-items:center;min-height:44px;"></div>
+      </div>
+
+      <div class="plain-fg" id="bloco-individual">
         <label class="plain-label" for="terapeuta">Quem vai fazer a massagem *</label>
         <select id="terapeuta" class="plain-select"></select>
       </div>
@@ -119,6 +126,9 @@
   "use strict";
   const API_BASE = location.protocol === "file:" ? "http://localhost:3000" : "";
   const sessaoId = new URLSearchParams(location.search).get("sessaoId");
+  // Massagem a dois: preenchido no carregar(), lido no submit.
+  let eADois = false;
+  let terapeutasADois = null;
   const linkToken = new URLSearchParams(location.search).get("t");
   const tokenQS = linkToken ? `&t=${encodeURIComponent(linkToken)}` : "";
 
@@ -220,23 +230,42 @@
         notasBox.style.display = "none";
       }
 
+      // Massagem a dois: com exatamente 2 terapeutas ativas, não há nada
+      // para perguntar — são sempre as duas. Fora deste caso exato (uma só
+      // terapeuta ativa, ou um dia terceira), a pergunta continua a ser
+      // feita normalmente, para nunca adivinhar errado.
+      eADois = /a dois|casal/i.test(data.sessao.servico || "") && (data.terapeutas || []).length === 2;
+      terapeutasADois = eADois ? data.terapeutas : null;
+
+      const blocoADois = document.getElementById("bloco-a-dois");
+      const blocoIndividual = document.getElementById("bloco-individual");
       const selTerapeuta = document.getElementById("terapeuta");
-      selTerapeuta.replaceChildren();
-      if (data.terapeutas && data.terapeutas.length) {
-        data.terapeutas.forEach((t) => {
-          const opt = document.createElement("option");
-          opt.value = t.id;
-          opt.textContent = t.name || t.id;
-          selTerapeuta.appendChild(opt);
-        });
-        if (data.cliente.terapeutaHabitual) {
-          selTerapeuta.value = data.cliente.terapeutaHabitual.id;
-        }
+
+      if (eADois) {
+        blocoADois.style.display = "block";
+        blocoIndividual.style.display = "none";
+        document.getElementById("texto-a-dois").textContent =
+          data.terapeutas.map((t) => t.name || t.id).join(" e ");
       } else {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Sem terapeutas ativas";
-        selTerapeuta.appendChild(opt);
+        blocoADois.style.display = "none";
+        blocoIndividual.style.display = "block";
+        selTerapeuta.replaceChildren();
+        if (data.terapeutas && data.terapeutas.length) {
+          data.terapeutas.forEach((t) => {
+            const opt = document.createElement("option");
+            opt.value = t.id;
+            opt.textContent = t.name || t.id;
+            selTerapeuta.appendChild(opt);
+          });
+          if (data.cliente.terapeutaHabitual) {
+            selTerapeuta.value = data.cliente.terapeutaHabitual.id;
+          }
+        } else {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "Sem terapeutas ativas";
+          selTerapeuta.appendChild(opt);
+        }
       }
 
       const precoInicial = data.precoBase ?? data.sessao.precoAtual ?? "";
@@ -264,7 +293,11 @@
     const payload = {
       sessaoId,
       ...(linkToken ? { t: linkToken } : {}),
-      terapeutaId: document.getElementById("terapeuta").value,
+      // A dois: as duas terapeutas já foram decididas ao carregar, sem
+      // pergunta nenhuma — vão as duas na mesma ordem que foram mostradas.
+      ...(eADois
+        ? { terapeutaId: terapeutasADois[0].id, terapeuta2Id: terapeutasADois[1].id }
+        : { terapeutaId: document.getElementById("terapeuta").value }),
       preco: document.getElementById("preco").value,
       nota: document.getElementById("nota").value.trim() || null,
       website: document.getElementById("website").value,

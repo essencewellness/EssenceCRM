@@ -110,11 +110,19 @@ export default async function FinanceiroPage({
     // receita pertence a este mês, não ao mês em que a massagem acontecer.
     // `terapeutaId` a null significa "da Bea" (ver schema): por isso o
     // filtro por ela tem de apanhar também as linhas sem atribuição.
+    // `terapeuta2Id` entra numa massagem a dois — o mesmo voucher aparece
+    // nas duas vistas filtradas, sem duplicar o valor na vista sem filtro.
     prisma.giftCard.findMany({
       where: {
         dataCompra: { gte: inicio, lt: fim },
         ...(alvo
-          ? { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] }
+          ? {
+              OR: [
+                { terapeutaId: alvo },
+                { terapeuta2Id: alvo },
+                ...(alvo === idBea ? [{ terapeutaId: null }] : []),
+              ],
+            }
           : {}),
       },
       select: {

@@ -25,6 +25,7 @@ model User {
   sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")
   sessoesComoSegunda   Sessao[]  @relation("Terapeuta2Sessao")
   vouchersAtribuidos   GiftCard[] @relation("TerapeutaGiftCard")
+  vouchersComoSegunda  GiftCard[] @relation("Terapeuta2GiftCard")
   clientesPrincipais   Cliente[] @relation("TerapeutaCliente")
   tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
   tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
@@ -586,10 +587,13 @@ model GiftCard {
   mensagemVoucher      String?
 
   // De quem é esta receita. Por omissão fica a null, que o financeiro lê
-  // como "da Bea" — todos os vouchers entram no financeiro dela. Passa-se
-  // para a Cristina quando é ela que vai fazer a sessão, para o dinheiro
-  // aparecer nas contas de quem faz o trabalho.
+  // como "da Bea" — todo o voucher começa por ser dela. Reatribuído
+  // automaticamente quando a sessão que o voucher paga passa a "realizada"
+  // (ver lib/sessoes.ts): copia-se sempre quem a Bea respondeu em "quem vai
+  // realizar a sessão?" — se for a Cristina, o valor passa para ela; se for
+  // a dois, entra nas contas das duas (terapeuta2Id).
   terapeutaId          String?
+  terapeuta2Id         String?
 
   // Quando resgatado, pode ligar ao cliente no CRM. Esta é a BENEFICIÁRIA
   // (quem marca e recebe a massagem), que pode não ser quem comprou.
@@ -610,6 +614,7 @@ model GiftCard {
   cliente              Cliente?      @relation("BeneficiarioGiftCard", fields: [clienteId], references: [id])
   compradorCliente     Cliente?      @relation("CompradorGiftCard", fields: [compradorClienteId], references: [id])
   terapeuta            User?         @relation("TerapeutaGiftCard", fields: [terapeutaId], references: [id])
+  terapeuta2           User?         @relation("Terapeuta2GiftCard", fields: [terapeuta2Id], references: [id])
 
   @@index([codigo])
   @@index([estado])
@@ -617,6 +622,7 @@ model GiftCard {
   @@index([dataCompra])
   @@index([sessaoId])
   @@index([terapeutaId])
+  @@index([terapeuta2Id])
   @@index([compradorClienteId])
 }
 

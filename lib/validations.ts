@@ -312,6 +312,10 @@ export const atribuirSessaoSchema = z.object({
   sessaoId: z.string().trim().min(1).max(64),
   t: z.string().trim().max(128).optional(), // link token assinado
   terapeutaId: z.string().trim().max(64),
+  // Massagem a dois: preenchido automaticamente pelo formulário (sem
+  // perguntar) quando o serviço é "a dois"/"casal" — as duas terapeutas
+  // fazem sempre a sessão em conjunto, não há ninguém para escolher.
+  terapeuta2Id: z.string().trim().max(64).optional().nullable(),
   preco: precoSchema,
   nota: z.string().trim().max(2000).optional().nullable(),
   website: z.string().max(500).optional(), // honeypot

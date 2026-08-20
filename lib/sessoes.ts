@@ -12,6 +12,7 @@
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { paraNumero } from "@/lib/serialize"
+import { auditar } from "@/lib/audit"
 import type { Prisma } from "@/lib/prisma-client"
 
 interface SessaoAntes {
@@ -19,6 +20,13 @@ interface SessaoAntes {
   clienteId: string
   servico: string | null
   terapeuta: string | null
+  // Quem realmente vai fazer a sessão (FK), não o rótulo de texto acima.
+  // Usados só para reatribuir o voucher associado — ver mais abaixo. Cada
+  // chamador tem de passar o valor JÁ ATUALIZADO por esta escrita (o
+  // resultado do update, não uma leitura anterior a ele), porque um PATCH
+  // pode mudar a terapeuta na mesma chamada em que marca "realizada".
+  terapeutaId: string | null
+  terapeuta2Id: string | null
 }
 
 export async function dispararEfeitosSessaoRealizada(
@@ -37,20 +45,40 @@ export async function dispararEfeitosSessaoRealizada(
   // ver WF01), fechar o ciclo: agendado -> usado. Sem isto o voucher ficava
   // "agendado" para sempre, mesmo depois da massagem acontecer de verdade.
   //
+  // Este bloco inteiro só corre quando existe mesmo um voucher ligado a
+  // esta sessão (o `if` logo abaixo) — a reatribuição de receita entre
+  // terapeutas que acontece aqui dentro NUNCA se aplica a uma sessão sem
+  // voucher.
+  //
   // Awaited de propósito (ao contrário do webhook acima): é uma escrita na
   // nossa própria BD, e em serverless uma promessa não esperada pode ser
   // cortada quando a resposta é devolvida — deixando o voucher preso em
   // "agendado" sem erro nenhum visível.
   const voucherDestaSessao = await prisma.giftCard.findFirst({
     where: { sessaoId: sessaoAntes.id, estado: "agendado" },
-    select: { id: true },
+    select: { id: true, codigo: true, terapeutaId: true, terapeuta2Id: true },
   })
 
   if (voucherDestaSessao) {
+    const mudouTerapeuta =
+      voucherDestaSessao.terapeutaId !== sessaoAntes.terapeutaId ||
+      voucherDestaSessao.terapeuta2Id !== sessaoAntes.terapeuta2Id
     await prisma.$transaction([
       prisma.giftCard.update({
         where: { id: voucherDestaSessao.id },
-        data: { estado: "usado", dataUso: new Date() },
+        data: {
+          estado: "usado",
+          dataUso: new Date(),
+          // Reatribuição automática: o voucher nasce sempre da Bea
+          // (terapeutaId null), mas quem realmente fica com a receita é
+          // quem faz a sessão. Copia-se o que já foi respondido em "quem
+          // vai realizar a sessão?" (atribuir-sessao.html / pos-sessao.html)
+          // — se for a Cristina, o valor passa inteiro para ela; numa
+          // massagem a dois entra nas contas das duas ao mesmo tempo,
+          // exatamente como já acontece com uma sessão paga na hora.
+          terapeutaId: sessaoAntes.terapeutaId,
+          terapeuta2Id: sessaoAntes.terapeuta2Id,
+        },
       }),
       // A receita desta sessão entrou quando o voucher foi comprado, não
       // agora — por isso "isento" e não "pago" (contá-la aqui duplicava-a).
@@ -66,6 +94,26 @@ export async function dispararEfeitosSessaoRealizada(
         data: { estadoPagamento: "isento", metodoPagamento: "voucher" },
       }),
     ])
+
+    // Registo de auditoria só quando a receita realmente muda de mãos — não
+    // em todo fecho de voucher, senão fica ruído. entidadeId é o CÓDIGO do
+    // voucher (o número que a Bea reconhece, ex. "EWD2026-30"), nunca o id
+    // interno da base de dados — é o que se procura para investigar depois.
+    if (mudouTerapeuta) {
+      auditar({
+        quem: "sistema",
+        acao: "voucher.receita_reatribuida",
+        entidade: "GiftCard",
+        entidadeId: voucherDestaSessao.codigo,
+        detalhe: {
+          sessaoId: sessaoAntes.id,
+          de: voucherDestaSessao.terapeutaId,
+          de2: voucherDestaSessao.terapeuta2Id,
+          para: sessaoAntes.terapeutaId,
+          para2: sessaoAntes.terapeuta2Id,
+        },
+      })
+    }
   }
 
   const templateAvaliacao = await prisma.templateMensagem.findUnique({

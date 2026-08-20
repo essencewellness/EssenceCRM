@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, clienteId: true, data: true, hora: true, servico: true, preco: true, estado: true,
+      terapeutaId: true, terapeuta2Id: true,
       cliente: { select: { nome: true } },
     },
   })
@@ -59,6 +60,9 @@ export async function GET(request: NextRequest) {
     sessao: {
       id: sessao.id, data: sessao.data, hora: sessao.hora,
       servico: sessao.servico, preco: sessao.preco, estado: sessao.estado,
+      // Já atribuídas antes (atribuir-sessao.html) — o form pré-preenche com
+      // isto para não as apagar sem querer ao guardar o registo pós-sessão.
+      terapeutaId: sessao.terapeutaId, terapeuta2Id: sessao.terapeuta2Id,
     },
     cliente: { nome: sessao.cliente.nome },
     servicos,
@@ -87,7 +91,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const sessaoAntes = await prisma.sessao.findFirst({
       where: { id: sessaoId, apagadoEm: null },
-      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true, data: true },
+      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true, terapeutaId: true, data: true },
     })
     if (!sessaoAntes) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
@@ -161,7 +165,13 @@ export async function PATCH(request: NextRequest) {
     if (!eraRealizada) {
       // Webhook + mensagem de avaliação: só depois da transação committar,
       // fora dela — fire-and-forget (lib/sessoes).
-      await dispararEfeitosSessaoRealizada(sessaoAntes, sessao.preco)
+      // terapeutaId vem de sessaoAntes (este PATCH não o altera) mas
+      // terapeuta2Id vem do resultado do update: é o único dos dois que
+      // pode ter sido definido nesta mesma chamada.
+      await dispararEfeitosSessaoRealizada(
+        { ...sessaoAntes, terapeuta2Id: sessao.terapeuta2Id },
+        sessao.preco
+      )
       // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
       // desfasado à espera do cron das 7h (lib/crm-estados).
       await recalcularEstadoCliente(sessaoAntes.clienteId)
