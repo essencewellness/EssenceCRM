@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
 import { adicionarMeses, origemDoVoucher, linkCurtoDoVoucher } from "@/lib/utils"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -143,6 +144,22 @@ export async function criarVoucher(dados: {
   const dataCompra = parsed.data.dataCompra ? new Date(parsed.data.dataCompra) : new Date()
   const validade = adicionarMeses(dataCompra, 6)
 
+  // Serviço "a dois": sabe-se logo à compra que são as duas terapeutas — sem
+  // ambiguidade nenhuma a resolver mais tarde na sessão (é por isso que o
+  // forms de atribuição nem pergunta nestes casos). Por isso o voucher já
+  // nasce atribuído às duas, em vez de ficar preso à Bea por omissão até
+  // uma sessão ser marcada "realizada".
+  let terapeuta2Id: string | null = null
+  if (/a dois|casal/i.test(parsed.data.servicoNome)) {
+    const [idBea, terapeutasAtivas] = await Promise.all([
+      getTerapeutaPrincipalPadraoId(),
+      prisma.user.findMany({ where: { role: "terapeuta", ativo: true }, select: { id: true } }),
+    ])
+    if (terapeutasAtivas.length === 2) {
+      terapeuta2Id = terapeutasAtivas.find(t => t.id !== idBea)?.id ?? null
+    }
+  }
+
   try {
     const voucher = await prisma.giftCard.create({
       data: {
@@ -158,6 +175,7 @@ export async function criarVoucher(dados: {
         notas: parsed.data.notas ?? null,
         nomesNoVoucher: parsed.data.nomesNoVoucher ?? null,
         mensagemVoucher: parsed.data.mensagemVoucher ?? null,
+        terapeuta2Id,
       },
     })
 
