@@ -158,20 +158,23 @@ export async function POST(request: NextRequest) {
     // Gravar dados específicos desta sessão na Sessao (snapshot do dia)
     let sessao = null
     if (sessaoId) {
-      sessao = await prisma.sessao.findFirst({
+      const sessaoEncontrada = await prisma.sessao.findFirst({
         where: { id: sessaoId, apagadoEm: null },
         select: { id: true, servico: true, data: true, hora: true, estado: true },
       })
       // Sessão cancelada não recebe snapshot clínico via link antigo (mas o
-      // cliente continua a ser identificado/atualizado normalmente acima)
-      if (sessao && sessao.estado === "cancelada") {
-        sessao = null
-      }
-      if (sessao) {
+      // cliente continua a ser identificado/atualizado normalmente acima) —
+      // `sessao` (usado no webhook abaixo) fica null nesse caso, mas a
+      // marcação de "uso único" corre sempre que a sessão existe, cancelada
+      // ou não: sem isto, o link de uma sessão cancelada nunca trancava e
+      // podia ser reenviado sem fim, disparando o webhook a cada vez.
+      sessao = sessaoEncontrada && sessaoEncontrada.estado !== "cancelada" ? sessaoEncontrada : null
+
+      if (sessaoEncontrada) {
         await prisma.sessao.update({
-          where: { id: sessao.id },
+          where: { id: sessaoEncontrada.id },
           data: {
-            ...(consentimentoSaude ? {
+            ...(sessao && consentimentoSaude ? {
               ...(historicoEstadoEmocional ? { fichaEstadoEmocional: historicoEstadoEmocional } : {}),
               ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
               ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),

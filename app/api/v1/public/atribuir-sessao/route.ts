@@ -185,10 +185,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // O terapeuta/preço acima são reescritos de propósito — reabrir o link para
-    // corrigir o preço é uso normal. Já a observação era criada sempre, pelo que
-    // cada correção (ou duplo toque, ou separador restaurado pelo browser)
-    // deixava uma nota repetida. Só cria se não houver uma igual nas últimas 24h.
+    // Só chega aqui na primeira submissão (uso único, ver acima). A
+    // deduplicação da nota fica de qualquer forma — cobre o caso de dois
+    // separadores abertos ao mesmo tempo a submeter em paralelo, antes de
+    // qualquer um marcar atribuicaoSubmetidaEm.
     let notaCriada = false
     if (nota) {
       const duplicada = await prisma.observacao.findFirst({

@@ -50,7 +50,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       jaSubmetido: true,
       cliente: { nome: sessao.cliente.nome },
-      sessao: { servico: sessao.servico, data: sessao.data, hora: sessao.hora },
+      // preco convertido explicitamente: é Decimal do Prisma, e este ramo
+      // não passa pelo serializarDecimais() usado no resto da rota (ver
+      // return mais abaixo) — sem isto ia para o JSON num formato que o
+      // frontend não esperava.
+      sessao: { servico: sessao.servico, data: sessao.data, hora: sessao.hora, preco: sessao.preco === null ? null : Number(sessao.preco) },
     })
   }
 
