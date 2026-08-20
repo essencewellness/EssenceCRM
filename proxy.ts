@@ -13,7 +13,10 @@ import { isSecureCookieEnv } from "@/lib/env"
 //   encontrado em produção 2026-07-31: zero execuções desde sempre).
 // - /api/health: monitorização externa (Vercel, UptimeRobot) sem qualquer auth
 // - /forms: formulários públicos (onboarding/pós-sessão) servidos de /public
-const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/api/cron", "/api/health", "/forms"]
+// - /v: link curto do voucher (crm.essencewellnesspt.com/v/<código>) — a
+//   cliente clica isto a partir do WhatsApp, sem sessão nenhuma; sem estar
+//   aqui, era redirecionada para /login em vez de ver o voucher
+const PREFIXOS_PUBLICOS = ["/login", "/api/auth", "/api/v1", "/api/cron", "/api/health", "/forms", "/v/"]
 
 function buildCsp(nonce: string): string {
   const dev = process.env.NODE_ENV !== "production"
@@ -72,8 +75,10 @@ export async function proxy(req: NextRequest) {
   }
 
   // API e formulários estáticos não recebem CSP com nonce aqui:
-  // a API devolve JSON; os /forms têm CSP própria no next.config.ts
-  if (pathname.startsWith("/api") || pathname.startsWith("/forms")) {
+  // a API devolve JSON; os /forms têm CSP própria no next.config.ts.
+  // /v é só um redirecionamento (sem HTML nenhum, nada de scripts a
+  // autorizar) — mesmo motivo.
+  if (pathname.startsWith("/api") || pathname.startsWith("/forms") || pathname.startsWith("/v/")) {
     return NextResponse.next()
   }
 

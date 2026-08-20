@@ -104,3 +104,13 @@ export function linkDoVoucher(v: DadosLinkVoucher): string {
   if (v.descricaoServico?.trim()) params.set("desc", v.descricaoServico.trim())
   return `${BASE_LINK_VOUCHER}?${params.toString()}`
 }
+
+// Link curto que se manda de verdade à cliente: crm.essencewellnesspt.com/v/<código>.
+// A rota (app/v/[codigo]/route.ts) faz o lookup do voucher em tempo real e
+// redireciona para o link completo acima — por isso este link nunca fica
+// desatualizado: se o voucher for editado depois de enviado (nome, mensagem,
+// validade...), quem voltar a clicar vê sempre a versão mais recente, sem
+// ser preciso reenviar nada.
+export function linkCurtoDoVoucher(codigo: string): string {
+  return `https://crm.essencewellnesspt.com/v/${encodeURIComponent(codigo)}`
+}

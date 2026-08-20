@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
-import { adicionarMeses, origemDoVoucher, linkDoVoucher } from "@/lib/utils"
+import { adicionarMeses, origemDoVoucher, linkCurtoDoVoucher } from "@/lib/utils"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -125,16 +125,10 @@ export async function criarVoucher(dados: {
   notas?: string
   nomesNoVoucher?: string
   mensagemVoucher?: string
-  /** Descrição do serviço no catálogo — vai no link para a página mostrar. */
-  descricaoServico?: string
 }): Promise<{ ok: true; link: string } | { ok: false; erro: string }> {
   const session = await verificarSessao()
 
-  // descricaoServico não é campo do voucher — só serve para montar o link
-  // mais abaixo. O schema é .strict() de propósito (mass-assignment
-  // impossível), por isso tem de ficar de fora do que é validado.
-  const { descricaoServico, ...dadosVoucher } = dados
-  const parsed = voucherCreateSchema.safeParse(dadosVoucher)
+  const parsed = voucherCreateSchema.safeParse(dados)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
     return { ok: false, erro: `${issue?.path.join(".") ?? "Campo"}: ${issue?.message ?? "inválido"}` }
@@ -204,20 +198,10 @@ export async function criarVoucher(dados: {
 
     revalidatePath("/vouchers")
     // O link é o que a Bea vai enviar à pessoa — devolvido já pronto para
-    // não haver um segundo passo noutra ferramenta.
-    return {
-      ok: true,
-      link: linkDoVoucher({
-        codigo: voucher.codigo,
-        servicoNome: voucher.servicoNome,
-        nomesNoVoucher: voucher.nomesNoVoucher,
-        compradorNome: voucher.compradorNome,
-        beneficiarioNome: voucher.beneficiarioNome,
-        mensagemVoucher: voucher.mensagemVoucher,
-        validade: voucher.validade,
-        descricaoServico: descricaoServico ?? null,
-      }),
-    }
+    // não haver um segundo passo noutra ferramenta. É o link curto: a rota
+    // app/v/[codigo] resolve os dados completos em tempo real a partir do
+    // código, por isso não precisa de os receber já montados aqui.
+    return { ok: true, link: linkCurtoDoVoucher(voucher.codigo) }
   } catch {
     return { ok: false, erro: "Erro ao criar voucher" }
   }

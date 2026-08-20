@@ -7,14 +7,12 @@ import {
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
-import { adicionarMeses, linkDoVoucher } from "@/lib/utils"
+import { adicionarMeses, linkCurtoDoVoucher } from "@/lib/utils"
 import { criarVoucher, atualizarVoucher } from "./actions"
 
 export interface ServicoCatalogo {
   nome: string
   precoBase: number
-  /** Texto que a página do voucher mostra por baixo do nome do serviço. */
-  descricaoVoucher?: string | null
 }
 
 export interface Voucher {
@@ -905,20 +903,11 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF({ ...f, [k]: e.target.value })
 
-  // Deliberadamente construído a partir do voucher GRAVADO, não do estado do
-  // formulário: um link copiado de campos por guardar apontaria para dados
-  // que ainda não existem.
-  const linkAtual = linkDoVoucher({
-    codigo: v.codigo,
-    servicoNome: v.servicoNome,
-    nomesNoVoucher: v.nomesNoVoucher,
-    compradorNome: v.compradorNome,
-    beneficiarioNome: v.beneficiarioNome,
-    mensagemVoucher: v.mensagemVoucher,
-    validade: v.validade,
-    descricaoServico:
-      servicos.find(x => x.nome.toLowerCase() === v.servicoNome.trim().toLowerCase())?.descricaoVoucher ?? null,
-  })
+  // Link curto (crm.essencewellnesspt.com/v/<código>) — a rota resolve os
+  // dados completos em tempo real a partir do código, por isso reflete
+  // sempre o que está gravado, mesmo que este painel edite algo depois de
+  // o link já ter sido enviado. Não depende de nenhum campo do formulário.
+  const linkAtual = linkCurtoDoVoucher(v.codigo)
 
   return (
     <Painel titulo="Editar voucher" sub={v.codigo} onFechar={onFechar}>
@@ -1217,8 +1206,6 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         notas: f.notas.trim() || undefined,
         nomesNoVoucher: f.nomesNoVoucher.trim() || undefined,
         mensagemVoucher: f.mensagemVoucher.trim() || undefined,
-        descricaoServico:
-          servicos.find(x => x.nome.toLowerCase() === f.servicoNome.trim().toLowerCase())?.descricaoVoucher ?? undefined,
       })
       if (res.ok) { toast("Voucher criado.", "success"); setLinkCriado(res.link) }
       else toast(res.erro, "error")
