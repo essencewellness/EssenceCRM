@@ -127,7 +127,7 @@ export default async function FinanceiroPage({
       },
       select: {
         id: true, codigo: true, servicoNome: true, valorPago: true,
-        dataCompra: true, compradorNome: true,
+        dataCompra: true, compradorNome: true, terapeuta2Id: true,
       },
       orderBy: { dataCompra: "desc" },
     }),
@@ -163,23 +163,33 @@ export default async function FinanceiroPage({
     cliente: s.cliente,
   }))
 
+  // Voucher a dois, visto na vista de UMA terapeuta específica: o valor
+  // atribuído a ela é metade — a outra metade é da colega. Na vista "todos"
+  // (alvo null) mostra-se o valor cheio, porque aí representa a venda toda,
+  // não a fatia de ninguém.
+  const valorAtribuidoVoucher = (v: { valorPago: Prisma.Decimal; terapeuta2Id: string | null }) =>
+    alvo && v.terapeuta2Id ? Number(v.valorPago) / 2 : Number(v.valorPago)
+
   // Cada venda de voucher vira uma linha da tabela do mês. O "cliente" é o
   // comprador — é quem pagou —, e o id leva prefixo para nunca colidir com
   // um id de sessão nas keys do React.
-  const linhasVoucher: SessaoRow[] = vendasVoucherRaw.map(v => ({
-    id: `voucher-${v.id}`,
-    data: v.dataCompra.toISOString(),
-    servico: `Voucher — ${v.servicoNome}`,
-    preco: String(v.valorPago),
-    estado: "realizada",
-    estadoPagamento: "pago",
-    valorPago: String(v.valorPago),
-    metodoPagamento: "voucher",
-    repasseNecessario: false,
-    repasseFeito: false,
-    cliente: { id: `voucher-${v.id}`, nome: v.compradorNome },
-    voucherCodigo: v.codigo,
-  }))
+  const linhasVoucher: SessaoRow[] = vendasVoucherRaw.map(v => {
+    const valor = valorAtribuidoVoucher(v)
+    return {
+      id: `voucher-${v.id}`,
+      data: v.dataCompra.toISOString(),
+      servico: `Voucher — ${v.servicoNome}`,
+      preco: String(valor),
+      estado: "realizada",
+      estadoPagamento: "pago",
+      valorPago: String(valor),
+      metodoPagamento: "voucher",
+      repasseNecessario: false,
+      repasseFeito: false,
+      cliente: { id: `voucher-${v.id}`, nome: v.compradorNome },
+      voucherCodigo: v.codigo,
+    }
+  })
 
   const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher]
     .sort((a, b) => b.data.localeCompare(a.data))
@@ -254,7 +264,7 @@ export default async function FinanceiroPage({
   // aparecia em receita nenhuma — a sessão que o voucher paga fica "isento"
   // (para não duplicar), e a venda não era contada em lado nenhum.
   for (const v of vendasVoucherRaw) {
-    const valor = Number(v.valorPago)
+    const valor = valorAtribuidoVoucher(v)
     receitaTotal += valor
     porMetodo.voucher! += valor
   }
