@@ -130,7 +130,11 @@ export async function criarVoucher(dados: {
 }): Promise<{ ok: true; link: string } | { ok: false; erro: string }> {
   const session = await verificarSessao()
 
-  const parsed = voucherCreateSchema.safeParse(dados)
+  // descricaoServico não é campo do voucher — só serve para montar o link
+  // mais abaixo. O schema é .strict() de propósito (mass-assignment
+  // impossível), por isso tem de ficar de fora do que é validado.
+  const { descricaoServico, ...dadosVoucher } = dados
+  const parsed = voucherCreateSchema.safeParse(dadosVoucher)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
     return { ok: false, erro: `${issue?.path.join(".") ?? "Campo"}: ${issue?.message ?? "inválido"}` }
@@ -211,7 +215,7 @@ export async function criarVoucher(dados: {
         beneficiarioNome: voucher.beneficiarioNome,
         mensagemVoucher: voucher.mensagemVoucher,
         validade: voucher.validade,
-        descricaoServico: dados.descricaoServico ?? null,
+        descricaoServico: descricaoServico ?? null,
       }),
     }
   } catch {
