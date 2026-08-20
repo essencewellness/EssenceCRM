@@ -429,7 +429,12 @@ model MensagemIA {
 model Servico {
   id             String   @id @default(cuid())
   nome           String   @unique
+  // Nota interna do catálogo (campo "Breve descrição" em /servicos).
   descricao      String?
+  // Texto que aparece no voucher que a cliente recebe. Registo diferente da
+  // `descricao`: é escrito para ela ("Recebeste uma..."), não para o
+  // catálogo. Separado de propósito — quem edita um não quer mexer no outro.
+  descricaoVoucher String?
   duracaoMinutos Int      @default(60)
   precoBase      Decimal  @db.Decimal(10, 2)
   ativo          Boolean  @default(true)

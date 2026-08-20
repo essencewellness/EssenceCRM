@@ -13,8 +13,8 @@ import { criarVoucher, atualizarVoucher } from "./actions"
 export interface ServicoCatalogo {
   nome: string
   precoBase: number
-  /** Vai no link do voucher para a página mostrar o texto do serviço. */
-  descricao?: string | null
+  /** Texto que a página do voucher mostra por baixo do nome do serviço. */
+  descricaoVoucher?: string | null
 }
 
 export interface Voucher {
@@ -917,7 +917,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
     mensagemVoucher: v.mensagemVoucher,
     validade: v.validade,
     descricaoServico:
-      servicos.find(x => x.nome.toLowerCase() === v.servicoNome.trim().toLowerCase())?.descricao ?? null,
+      servicos.find(x => x.nome.toLowerCase() === v.servicoNome.trim().toLowerCase())?.descricaoVoucher ?? null,
   })
 
   return (
@@ -1218,7 +1218,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         nomesNoVoucher: f.nomesNoVoucher.trim() || undefined,
         mensagemVoucher: f.mensagemVoucher.trim() || undefined,
         descricaoServico:
-          servicos.find(x => x.nome.toLowerCase() === f.servicoNome.trim().toLowerCase())?.descricao ?? undefined,
+          servicos.find(x => x.nome.toLowerCase() === f.servicoNome.trim().toLowerCase())?.descricaoVoucher ?? undefined,
       })
       if (res.ok) { toast("Voucher criado.", "success"); setLinkCriado(res.link) }
       else toast(res.erro, "error")

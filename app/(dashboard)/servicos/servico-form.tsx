@@ -54,6 +54,14 @@ export default function ServicoForm() {
           <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Descrição</label>
           <input name="descricao" style={inputStyle} placeholder="Breve descrição (opcional)" />
         </div>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Texto no voucher</label>
+          <textarea
+            name="descricaoVoucher"
+            style={{ ...inputStyle, minHeight: "84px", resize: "vertical", lineHeight: 1.6 }}
+            placeholder="O que a cliente lê no voucher. Escreve para ela: &quot;Recebeste uma…&quot;"
+          />
+        </div>
         {erro && <p style={{ gridColumn: "1 / -1", color: "#b44", fontSize: "13px", margin: 0 }}>{erro}</p>}
         <div style={{ gridColumn: "1 / -1" }}>
           <button type="submit" disabled={aGuardar} style={{

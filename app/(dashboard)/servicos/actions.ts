@@ -8,6 +8,9 @@ export async function criarServico(formData: FormData) {
   const precoBase = parseFloat(formData.get("precoBase") as string)
   const duracaoMinutos = parseInt(formData.get("duracaoMinutos") as string) || 60
   const descricao = (formData.get("descricao") as string) || null
+  // Texto que aparece no voucher que a cliente recebe — registo diferente
+  // da descrição do catálogo (ver schema).
+  const descricaoVoucher = (formData.get("descricaoVoucher") as string) || null
 
   if (!nome || isNaN(precoBase) || precoBase < 0) {
     return { erro: "Nome e preço base são obrigatórios" }
@@ -22,6 +25,7 @@ export async function criarServico(formData: FormData) {
       precoBase: new Prisma.Decimal(precoBase),
       duracaoMinutos,
       descricao,
+      descricaoVoucher,
     },
   })
 

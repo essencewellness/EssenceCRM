@@ -9,7 +9,7 @@ export default async function VouchersPage() {
     prisma.servico.findMany({
       where: { ativo: true },
       orderBy: { nome: "asc" },
-      select: { nome: true, precoBase: true, descricao: true },
+      select: { nome: true, precoBase: true, descricaoVoucher: true },
     }),
     prisma.user.findMany({
       where: { ativo: true, role: "terapeuta" },
@@ -41,7 +41,7 @@ export default async function VouchersPage() {
   return (
     <VouchersClient
       vouchers={vouchersSerializados}
-      servicos={servicos.map(s => ({ nome: s.nome, precoBase: Number(s.precoBase), descricao: s.descricao }))}
+      servicos={servicos.map(s => ({ nome: s.nome, precoBase: Number(s.precoBase), descricaoVoucher: s.descricaoVoucher }))}
       terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name || t.email }))}
     />
   )
