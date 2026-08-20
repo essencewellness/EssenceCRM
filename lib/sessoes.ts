@@ -13,6 +13,7 @@ import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { paraNumero } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import type { Prisma } from "@/lib/prisma-client"
 
 interface SessaoAntes {
@@ -41,6 +42,33 @@ export async function dispararEfeitosSessaoRealizada(
     terapeuta: sessaoAntes.terapeuta ?? "bea",
   })
 
+  // Dashboard financeiro da Beatriz (Google Sheets): sessão paga na hora
+  // (não veio de voucher — esse já contou a receita na compra, ver bloco
+  // abaixo) e que envolve a Beatriz, sozinha ou a dois (metade do valor).
+  // Busca-se os campos de pagamento em fresco porque cada chamador desta
+  // função tem um select diferente e nem todos os têm à mão.
+  const [sessaoCompleta, voucherLigadoAEstaSessao, idBea] = await Promise.all([
+    prisma.sessao.findUnique({
+      where: { id: sessaoAntes.id },
+      select: { valorPago: true, metodoPagamento: true, estadoPagamento: true, data: true, cliente: { select: { nome: true } } },
+    }),
+    prisma.giftCard.findFirst({ where: { sessaoId: sessaoAntes.id }, select: { id: true } }),
+    getTerapeutaPrincipalPadraoId(),
+  ])
+  const envolveABea = sessaoAntes.terapeutaId === idBea || sessaoAntes.terapeutaId === null || sessaoAntes.terapeuta2Id === idBea
+  if (!voucherLigadoAEstaSessao && envolveABea && sessaoCompleta?.estadoPagamento === "pago" && sessaoCompleta.valorPago) {
+    const ehADois = sessaoAntes.terapeuta2Id !== null
+    void webhooks.sessaoReceitaBea({
+      sessaoId: sessaoAntes.id,
+      clienteNome: sessaoCompleta.cliente.nome,
+      servico: sessaoAntes.servico,
+      valor: ehADois ? Number(sessaoCompleta.valorPago) / 2 : Number(sessaoCompleta.valorPago),
+      data: sessaoCompleta.data.toISOString(),
+      metodoPagamento: sessaoCompleta.metodoPagamento,
+      notas: ehADois ? "Casal" : null,
+    })
+  }
+
   // Se esta sessão foi paga com um voucher (ligado no momento da marcação,
   // ver WF01), fechar o ciclo: agendado -> usado. Sem isto o voucher ficava
   // "agendado" para sempre, mesmo depois da massagem acontecer de verdade.
@@ -56,7 +84,7 @@ export async function dispararEfeitosSessaoRealizada(
   // "agendado" sem erro nenhum visível.
   const voucherDestaSessao = await prisma.giftCard.findFirst({
     where: { sessaoId: sessaoAntes.id, estado: "agendado" },
-    select: { id: true, codigo: true, terapeutaId: true, terapeuta2Id: true },
+    select: { id: true, codigo: true, terapeutaId: true, terapeuta2Id: true, servicoNome: true, valorPago: true },
   })
 
   if (voucherDestaSessao) {
@@ -113,6 +141,33 @@ export async function dispararEfeitosSessaoRealizada(
           para2: sessaoAntes.terapeuta2Id,
         },
       })
+
+      // Dashboard financeiro da Beatriz: só reage a vouchers INDIVIDUAIS —
+      // os a dois já entraram no sheet a metade, sempre, independentemente
+      // de quem faz (ver criarVoucher()), por isso nunca precisam de mexer
+      // aqui. Um individual só pode mudar de mãos numa direção: nasce
+      // sempre da Bea, por isso "bea_ganha" cobre só o caso raro de uma
+      // correção manual a reverter uma atribuição anterior à Cristina.
+      const eraIndividual = voucherDestaSessao.terapeuta2Id === null && sessaoAntes.terapeuta2Id === null
+      if (eraIndividual) {
+        const antesEraBea = voucherDestaSessao.terapeutaId === null || voucherDestaSessao.terapeutaId === idBea
+        const agoraEBea = sessaoAntes.terapeutaId === null || sessaoAntes.terapeutaId === idBea
+        if (antesEraBea && !agoraEBea) {
+          void webhooks.voucherReceitaReatribuida({
+            codigo: voucherDestaSessao.codigo,
+            servicoNome: voucherDestaSessao.servicoNome,
+            valor: Number(voucherDestaSessao.valorPago),
+            direcao: "bea_perde",
+          })
+        } else if (!antesEraBea && agoraEBea) {
+          void webhooks.voucherReceitaReatribuida({
+            codigo: voucherDestaSessao.codigo,
+            servicoNome: voucherDestaSessao.servicoNome,
+            valor: Number(voucherDestaSessao.valorPago),
+            direcao: "bea_ganha",
+          })
+        }
+      }
     }
   }
 

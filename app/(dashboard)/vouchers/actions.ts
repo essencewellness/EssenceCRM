@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { voucherCreateSchema, voucherUpdateSchema, normalizarTelefone } from "@/lib/validations"
 import { adicionarMeses, origemDoVoucher, linkCurtoDoVoucher } from "@/lib/utils"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { webhooks } from "@/lib/webhooks"
 import { Prisma } from "@/lib/prisma-client"
 
 async function verificarSessao() {
@@ -213,6 +214,18 @@ export async function criarVoucher(dados: {
         })
       }
     }
+
+    // Dashboard financeiro da Beatriz (Google Sheets): todo o voucher conta
+    // para ela — individual, valor inteiro; a dois, sempre metade (a outra
+    // metade é da Cristina e não entra neste sheet, que é só dela).
+    void webhooks.voucherVendido({
+      codigo: voucher.codigo,
+      servicoNome: voucher.servicoNome,
+      valor: terapeuta2Id ? parsed.data.valorPago / 2 : parsed.data.valorPago,
+      compradorNome: voucher.compradorNome,
+      dataCompra: voucher.dataCompra.toISOString(),
+      notas: terapeuta2Id ? "Casal" : null,
+    })
 
     revalidatePath("/vouchers")
     // O link é o que a Bea vai enviar à pessoa — devolvido já pronto para

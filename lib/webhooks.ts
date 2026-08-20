@@ -159,4 +159,40 @@ export const webhooks = {
     data?: string | null
     hora?: string | null
   }) => dispararWebhook("sessao.confirmada", payload),
+
+  // Dashboard financeiro da Beatriz (Google Sheets — 05_DASHBOARD_FINANCEIRO).
+  // Só entram vendas de voucher que contam para a receita DELA: individuais
+  // (valor inteiro) e a dois (sempre metade, ver criarVoucher()).
+  voucherVendido: (payload: {
+    codigo: string
+    servicoNome: string
+    valor: number
+    compradorNome: string
+    dataCompra: string
+    notas?: string | null
+  }) => dispararWebhook("voucher.vendido", payload),
+
+  // Sessão paga diretamente (não veio de um voucher — esse já contou a
+  // receita na compra) e que envolve a Beatriz, a título individual ou a
+  // dois (nesse caso o valor já vem a metade).
+  sessaoReceitaBea: (payload: {
+    sessaoId: string
+    clienteNome: string
+    servico: string | null
+    valor: number
+    data: string
+    metodoPagamento: string | null
+    notas?: string | null
+  }) => dispararWebhook("sessao.receita_bea", payload),
+
+  // Voucher individual cuja receita muda de mãos depois de já ter entrado
+  // no sheet da Beatriz (forms "quem vai realizar a sessão?" respondeu
+  // Cristina, ou o inverso, mais raro). O N8N usa o código para encontrar
+  // a linha no sheet e remover/adicionar consoante a direção.
+  voucherReceitaReatribuida: (payload: {
+    codigo: string
+    servicoNome: string
+    valor: number
+    direcao: "bea_perde" | "bea_ganha"
+  }) => dispararWebhook("voucher.receita_reatribuida", payload),
 }
