@@ -3,6 +3,7 @@ import { KpiCardPremium } from "@/components/kpi-card"
 import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
 import { AutoRefresh } from "@/components/auto-refresh"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { Calendar } from "lucide-react"
 import type { Prisma } from "@/lib/prisma-client"
@@ -48,9 +49,10 @@ interface DashboardPageProps {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const { terapeuta: terapeutaFiltroId } = await searchParams
-  const { filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
+  const { alvo, filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
   const filtroSessao = filtroSessaoBase as Prisma.SessaoWhereInput
   const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput
+  const idBea = await getTerapeutaPrincipalPadraoId()
 
   const { hoje, amanha, semanaFim } = buildDateRange()
   const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
@@ -65,7 +67,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     totalClientesActivos, totalMensagensPendentes,
     ativosEsteMes, ativosMesAnterior, totalClientes, clientesEmRisco,
     inativas30a60, inativas61a90, inativasMais90,
-    alertasSatisfacao, tarefasHoje, tarefasVencidas, receitaMes,
+    alertasSatisfacao, tarefasHoje, tarefasVencidas, receitaMesSessoes, vendasVoucherMes,
   ] = await Promise.all([
     prisma.sessao.findMany({
       where: { data: { gte: hoje, lt: amanha }, ...filtroSessao },
@@ -131,10 +133,31 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       orderBy: { dataLimite: "asc" },
       take: 5,
     }).catch(() => []),
-    // Receita do mês
+    // Receita do mês — mesmo critério do /financeiro (dinheiro que entrou de
+    // facto, não o preço de tabela de sessões "realizada"): soma valorPago
+    // das sessões pagas diretamente + vendas de voucher pelo mês da COMPRA
+    // (não da sessão). Antes somava-se Sessao.preco de sessões "realizada",
+    // o que nunca incluía vendas de voucher (a sessão paga por voucher fica
+    // "isento", não "pago" — nunca entrava aqui) — bug real encontrado
+    // 2026-08-21: Bea via o dashboard "sem os valores dos vouchers".
     prisma.sessao.aggregate({
-      where: { data: { gte: inicioMes }, estado: "realizada", ...filtroSessao },
-      _sum: { preco: true },
+      where: { data: { gte: inicioMes }, estadoPagamento: "pago", ...filtroSessao },
+      _sum: { valorPago: true },
+    }),
+    prisma.giftCard.findMany({
+      where: {
+        dataCompra: { gte: inicioMes },
+        ...(alvo
+          ? {
+              OR: [
+                { terapeutaId: alvo },
+                { terapeuta2Id: alvo },
+                ...(alvo === idBea ? [{ terapeutaId: null }] : []),
+              ],
+            }
+          : {}),
+      },
+      select: { valorPago: true, terapeuta2Id: true },
     }),
   ])
 
@@ -142,7 +165,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const pctMesAnterior = totalClientes > 0 ? Math.round((ativosMesAnterior / totalClientes) * 100) : 0
   const tendencia = pctEsteMes - pctMesAnterior
 
-  const receitaMesTotal = Number(receitaMes._sum.preco ?? 0)
+  // Voucher a dois, visto na vista de uma terapeuta específica: só a fatia
+  // dela (metade) — mesmo critério do /financeiro (ver lá o comentário).
+  const receitaVouchersMes = vendasVoucherMes.reduce(
+    (soma, v) => soma + (alvo && v.terapeuta2Id ? Number(v.valorPago) / 2 : Number(v.valorPago)),
+    0
+  )
+  const receitaMesTotal = Number(receitaMesSessoes._sum.valorPago ?? 0) + receitaVouchersMes
   const saudacao = getSaudacao()
 
   const sessoesHojeRows = sessõesHoje.map(s => ({
