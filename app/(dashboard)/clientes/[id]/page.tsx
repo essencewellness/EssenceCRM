@@ -609,11 +609,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                {cliente.mensagens.map((msg) => (
+                {cliente.mensagens.map((msg, i) => (
                   <div key={msg.id} className="card-hover" style={{
                     backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
                     border: "1px solid rgba(212,184,134,0.16)", padding: "18px",
                     boxShadow: "0 1px 3px rgba(22,26,38,0.04)",
+                    animation: "fadeUp var(--dur-med) var(--ease-out) both",
+                    animationDelay: `${Math.min(i, 10) * 26}ms`,
                   }}>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
                       <MensagemEstadoBadge estado={msg.estado} />
@@ -632,7 +634,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
                     <div style={{
                       padding: "14px", borderRadius: "8px",
-                      backgroundColor: "var(--muted-foreground)",
+                      backgroundColor: "var(--muted)",
                       border: "1px solid rgba(212,184,134,0.16)",
                       marginBottom: "8px",
                     }}>
@@ -721,7 +723,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             value: "packs",
             label: "Packs & Preços",
             content: (
-              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div className="anim-fade-up" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 <div style={{ backgroundColor: "var(--nuit-overlay)", borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                     <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
@@ -735,11 +737,18 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     </p>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                      {cliente.packs.map(p => {
+                      {cliente.packs.map((p, i) => {
                         const restantes = p.totalSessoes - p.sessoesUsadas
                         const pct = Math.round((p.sessoesUsadas / p.totalSessoes) * 100)
                         return (
-                          <div key={p.id} style={{ padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.16)", opacity: p.ativo ? 1 : 0.5 }}>
+                          <div key={p.id} className="card-hover" style={{
+                            padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.16)", opacity: p.ativo ? 1 : 0.5,
+                            // Só transform, nunca opacity: um pack terminado tem opacity:0.5
+                            // fixo — animar opacity aqui entrava em conflito com esse valor
+                            // final (a keyframe "both" ganhava e ficava sempre a 1).
+                            animation: "riseOnly var(--dur-med) var(--ease-out) both",
+                            animationDelay: `${Math.min(i, 10) * 26}ms`,
+                          }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
                               <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", flex: 1 }}><NomeServico nome={p.servico.nome} /></span>
                               <span style={{
@@ -786,8 +795,12 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {cliente.precos.map(p => (
-                          <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)" }}>
+                        {cliente.precos.map((p, i) => (
+                          <tr key={p.id} style={{
+                            borderBottom: "1px solid rgba(212,184,134,0.1)",
+                            animation: "fadeUp var(--dur-fast) var(--ease-out) both",
+                            animationDelay: `${Math.min(i, 10) * 26}ms`,
+                          }}>
                             <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
                             <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)" }}>€{Number(p.valor).toFixed(2)}</td>
