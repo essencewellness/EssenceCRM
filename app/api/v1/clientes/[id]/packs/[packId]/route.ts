@@ -50,7 +50,7 @@ export async function PATCH(
       void webhooks.packAtualizado({
         packId,
         clienteId: id,
-        servicoNome: pack.servico.nome,
+        servicoNome: pack.servico?.nome ?? "Massagens",
         sessoesUsadas: packAtualizado.sessoesUsadas,
         totalSessoes: packAtualizado.totalSessoes,
         ativo: packAtualizado.ativo,

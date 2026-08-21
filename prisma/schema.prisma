@@ -493,7 +493,12 @@ model PrecoPersonalizado {
 model Pack {
   id            String   @id @default(cuid())
   clienteId     String
-  servicoId     String
+  // Opcional: um pack de massagens não está preso a um ritual — a cliente
+  // escolhe Essência Plena, Puro Aroma ou Cera Quente em cada marcação (o
+  // preço do pack é o mesmo seja qual for). servicoId fica null nesse caso;
+  // só é preenchido nos packs de Drenagem, onde a duração (60/90 min) É o
+  // serviço real do catálogo. Ver site/packs-massagens vs packs-drenagem.
+  servicoId     String?
   totalSessoes  Int
   sessoesUsadas Int      @default(0)
   valorTotal    Decimal  @db.Decimal(10, 2)
@@ -515,7 +520,7 @@ model Pack {
   atualizadoEm DateTime @updatedAt
 
   cliente    Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  servico    Servico         @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  servico    Servico?        @relation(fields: [servicoId], references: [id], onDelete: Cascade)
   terapeuta  User?           @relation("TerapeutaPack", fields: [terapeutaId], references: [id])
   pagamentos PackPagamento[]
 

@@ -456,7 +456,8 @@ export const precoPersonalizadoCreateSchema = z.object({
 // ── Packs de Sessões ──────────────────────────────────────────
 
 export const packCreateSchema = z.object({
-  servicoId: z.string().trim().max(64),
+  // Opcional: pack de massagens não está preso a um ritual (ver schema.prisma).
+  servicoId: z.string().trim().max(64).optional().nullable(),
   totalSessoes: z.coerce.number().int().min(1).max(100),
   valorTotal: precoSchema,
   descricao: z.string().trim().max(200).optional().nullable(),

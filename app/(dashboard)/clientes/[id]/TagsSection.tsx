@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
 import { Plus, X, Tag, Zap, Search } from "lucide-react"
 import { CORES_PALETA, TIPO_ETIQUETA_LABELS, calcularTagActividade } from "@/lib/etiquetas"
@@ -34,7 +35,9 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
   const [novoTipo, setNovoTipo] = useState<"saude" | "campanha" | "preferencia">("campanha")
   const [novoBloqueio, setNovoBloqueio] = useState(false)
   const [erro, setErro] = useState("")
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [posicao, setPosicao] = useState({ top: 0, left: 0 })
+  const botaoRef = useRef<HTMLDivElement>(null)
+  const painelRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
   const tagActivity = calcularTagActividade(ultimaSessao)
@@ -53,12 +56,17 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
 
   useEffect(() => {
     if (!abertoDropdown) return
+    // O painel vive num portal (ver return) — um clique lá dentro não é
+    // "dentro" de botaoRef no DOM, por isso os dois refs têm de ser
+    // verificados, senão o próprio clique para abrir a lista fechava-a
+    // logo a seguir.
     function handler(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setAbertoDropdown(false)
-        setMostraFormCriar(false)
-        setPesquisa("")
-      }
+      const alvo = e.target as Node
+      if (botaoRef.current?.contains(alvo)) return
+      if (painelRef.current?.contains(alvo)) return
+      setAbertoDropdown(false)
+      setMostraFormCriar(false)
+      setPesquisa("")
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
@@ -188,10 +196,18 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         )
       })}
 
-      {/* Botão + dropdown */}
-      <div ref={dropdownRef} style={{ position: "relative", display: "inline-block", marginTop: "8px" }}>
+      {/* Botão + dropdown (painel em portal — ver comentário no useEffect acima) */}
+      <div ref={botaoRef} style={{ position: "relative", display: "inline-block", marginTop: "8px" }}>
         <motion.button
-          onClick={() => { setAbertoDropdown(o => !o); setMostraFormCriar(false); setErro("") }}
+          onClick={() => {
+            if (!abertoDropdown && botaoRef.current) {
+              const r = botaoRef.current.getBoundingClientRect()
+              setPosicao({ top: r.bottom + 6, left: r.left })
+            }
+            setAbertoDropdown(o => !o)
+            setMostraFormCriar(false)
+            setErro("")
+          }}
           disabled={isPending}
           whileHover={{ borderColor: "var(--nuit-champagne-soft)", color: "var(--nuit-champagne-soft)", scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
@@ -215,18 +231,28 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
           Adicionar etiqueta
         </motion.button>
 
+        {typeof document !== "undefined" && createPortal(
         <AnimatePresence>
           {abertoDropdown && (
             <motion.div
+              ref={painelRef}
               initial={{ opacity: 0, scale: 0.94, y: -6 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: -6, transition: { duration: 0.15 } }}
               transition={{ type: "spring", stiffness: 420, damping: 26 }}
               style={{
-                position: "absolute", top: "calc(100% + 6px)", left: 0,
+                // "fixed" + coordenadas calculadas ao abrir (não "absolute"):
+                // isto está agora num portal em document.body, fora da árvore
+                // com os cartões/separadores animados (motion, framer) que
+                // criam os seus próprios stacking contexts via transform —
+                // um z-index normal não ganha a um irmão nessas condições,
+                // só sair da árvore resolve (bug real visto em produção,
+                // 2026-08-22: o painel aparecia por baixo dos separadores
+                // e dos cartões de estatística).
+                position: "fixed", top: `${posicao.top}px`, left: `${posicao.left}px`,
                 backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
                 borderRadius: "6px", boxShadow: "0 8px 28px rgba(14,17,25,0.45)",
-                zIndex: 50, width: "260px", overflow: "hidden",
+                zIndex: 200, width: "260px", overflow: "hidden",
                 transformOrigin: "top left",
               }}
             >
@@ -442,7 +468,9 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
               </AnimatePresence>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+        )}
       </div>
     </div>
   )

@@ -29,7 +29,9 @@ export interface TerapeutaOpcao { id: string; nome: string }
 export interface PagamentoPack { id: string; valor: number; metodoPagamento: string | null; notas: string | null; criadoEm: string }
 export interface PackDoCliente {
   id: string
-  servico: { nome: string }
+  // null = pack de massagens — a cliente escolhe o ritual (Essência Plena,
+  // Puro Aroma ou Cera Quente) em cada marcação, não é fixo no pack.
+  servico: { nome: string } | null
   totalSessoes: number
   sessoesUsadas: number
   valorTotal: number
@@ -48,19 +50,49 @@ export interface PrecoPersonalizado {
   servico: { nome: string; precoBase: number }
 }
 
-// Presets tirados dos preços reais publicados em
-// site/packs-massagens/index.html e site/packs-drenagem/index.html — nunca
-// inventar valores aqui, só copiar o que já está no site.
+// Catálogo fixo — preços tirados diretamente de
+// site/packs-massagens/index.html e site/packs-drenagem/index.html (o
+// último tem toggle 60/90 min em JS, ver data-per60/data-per90/data-total60/
+// data-total90 no HTML). Nunca inventar valores aqui, só copiar o que já
+// está no site — e nunca deixar editar à mão (pedido do Nuno, 2026-08-22).
 const PRESETS = [
-  { label: "Pack 5 · Massagens", categoria: "massagens", totalSessoes: 5, valorTotal: 200, servicoNome: "Essência Plena",
-    descricao: "Válido para Essência Plena, Puro Aroma ou Cera Quente (60 min), à escolha em cada sessão." },
-  { label: "Pack 10 · Massagens", categoria: "massagens", totalSessoes: 10, valorTotal: 350, servicoNome: "Essência Plena",
-    descricao: "Válido para Essência Plena, Puro Aroma ou Cera Quente (60 min), à escolha em cada sessão. Pode ser pago em 2x." },
-  { label: "Pack 5 · Drenagem", categoria: "drenagem", totalSessoes: 5, valorTotal: 275, servicoNome: "Drenagem Linfática",
-    descricao: "Drenagem linfática manual de corpo inteiro, 60 min." },
-  { label: "Pack 10 · Drenagem", categoria: "drenagem", totalSessoes: 10, valorTotal: 500, servicoNome: "Drenagem Linfática",
-    descricao: "Drenagem linfática manual de corpo inteiro, 60 min. Pode ser pago em 2x." },
+  {
+    label: "Pack 5 · Massagens", totalSessoes: 5, valorTotal: 200, permite2x: false,
+    servicoNome: null as string | null,
+    descricao: "Essência Plena, Puro Aroma ou Cera Quente (60 min) — a cliente escolhe em cada sessão.",
+  },
+  {
+    label: "Pack 10 · Massagens", totalSessoes: 10, valorTotal: 350, permite2x: true,
+    servicoNome: null as string | null,
+    descricao: "Essência Plena, Puro Aroma ou Cera Quente (60 min) — a cliente escolhe em cada sessão.",
+  },
+  {
+    label: "Pack 5 · Drenagem 60 min", totalSessoes: 5, valorTotal: 275, permite2x: false,
+    servicoNome: "Drenagem Linfática",
+    descricao: "Drenagem linfática manual, sessão de 60 min.",
+  },
+  {
+    label: "Pack 5 · Drenagem 90 min", totalSessoes: 5, valorTotal: 400, permite2x: false,
+    servicoNome: "Drenagem Linfática 90 min",
+    descricao: "Drenagem linfática manual, versão aprofundada de 90 min.",
+  },
+  {
+    label: "Pack 10 · Drenagem 60 min", totalSessoes: 10, valorTotal: 500, permite2x: true,
+    servicoNome: "Drenagem Linfática",
+    descricao: "Drenagem linfática manual, sessão de 60 min.",
+  },
+  {
+    label: "Pack 10 · Drenagem 90 min", totalSessoes: 10, valorTotal: 750, permite2x: true,
+    servicoNome: "Drenagem Linfática 90 min",
+    descricao: "Drenagem linfática manual, versão aprofundada de 90 min.",
+  },
 ] as const
+
+// Pack de massagens não tem servico (ver PackDoCliente.servico) — mostra-se
+// o rótulo genérico do catálogo em vez de rebentar em pack.servico.nome.
+function nomePack(pack: Pick<PackDoCliente, "servico">): string {
+  return pack.servico?.nome ?? "Pack de Massagens"
+}
 
 function EstadoPagamentoBadge({ estado }: { estado: string }) {
   const cfg = {
@@ -122,7 +154,7 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
 
   return (
     <div
-      role="dialog" aria-modal="true" aria-label={`Registar pagamento do pack de ${pack.servico.nome}`}
+      role="dialog" aria-modal="true" aria-label={`Registar pagamento do pack de ${nomePack(pack)}`}
       style={{
         position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center",
         backgroundColor: "rgba(9,11,18,0.68)", backdropFilter: "blur(2px)", padding: "20px",
@@ -144,7 +176,7 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
         </div>
 
         <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--muted-foreground)", marginBottom: "16px" }}>
-          <NomeServico nome={pack.servico.nome} /> · falta €{(pack.valorTotal - pack.valorPago).toFixed(2)} de €{pack.valorTotal.toFixed(2)}
+          <NomeServico nome={nomePack(pack)} /> · falta €{(pack.valorTotal - pack.valorPago).toFixed(2)} de €{pack.valorTotal.toFixed(2)}
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -193,11 +225,11 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
 }) {
   const [pending, startTransition] = useTransition()
   const [presetAtivo, setPresetAtivo] = useState<number | null>(null)
-  const [servicoId, setServicoId] = useState(servicos[0]?.id ?? "")
-  const [totalSessoes, setTotalSessoes] = useState("5")
-  const [valorTotal, setValorTotal] = useState("")
-  const [descricao, setDescricao] = useState("")
   const [terapeutaId, setTerapeutaId] = useState("")
+  // Só perguntado quando o preset ativo permite 2x (packs de 10 — pedido do
+  // Nuno, 2026-08-22). "null" = ainda por escolher, bloqueia o submeter.
+  const [pagamento, setPagamento] = useState<"integral" | "2x" | null>(null)
+  const [metodo, setMetodo] = useState("mbway_essence")
   const [erro, setErro] = useState("")
   const focoAnteriorRef = useRef<HTMLElement | null>(null)
   const primeiroCampoRef = useRef<HTMLButtonElement>(null)
@@ -215,43 +247,55 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
     }
   }, [onFechar])
 
-  function aplicarPreset(i: number) {
-    const p = PRESETS[i]
+  const preset = presetAtivo !== null ? PRESETS[presetAtivo] : null
+
+  function escolherPreset(i: number) {
     setPresetAtivo(i)
-    setTotalSessoes(String(p.totalSessoes))
-    setValorTotal(String(p.valorTotal))
-    setDescricao(p.descricao)
-    const servico = servicos.find(s => s.nome === p.servicoNome)
-    if (servico) setServicoId(servico.id)
+    setPagamento(null)
+    setErro("")
   }
 
   function submeter() {
     setErro("")
-    const sessoesN = Number(totalSessoes)
-    const valorN = Number(valorTotal)
-    if (!servicoId) { setErro("Escolhe um serviço."); return }
-    if (!sessoesN || sessoesN < 1) { setErro("Indica o número de sessões."); return }
-    if (!valorN || valorN <= 0) { setErro("Indica o valor total."); return }
+    if (!preset) { setErro("Escolhe um pack."); return }
+    if (!terapeutaId) { setErro("Escolhe a terapeuta."); return }
+    if (preset.permite2x && !pagamento) { setErro("Escolhe como vai ser pago."); return }
 
     startTransition(async () => {
+      const servico = preset.servicoNome ? servicos.find(s => s.nome === preset.servicoNome) : null
       const res = await criarPack(clienteId, {
-        servicoId, totalSessoes: sessoesN, valorTotal: valorN,
-        descricao: descricao.trim() || undefined, terapeutaId: terapeutaId || undefined,
+        servicoId: servico?.id ?? null,
+        totalSessoes: preset.totalSessoes,
+        valorTotal: preset.valorTotal,
+        descricao: preset.descricao,
+        terapeutaId,
       })
       if (!res.ok) { setErro(res.erro); return }
+
+      // "pergunta como vai pagar" — a resposta já regista o pagamento (ou a
+      // 1ª parcela) no mesmo passo, em vez de obrigar a abrir outro modal
+      // logo a seguir a criar o pack.
+      if (pagamento) {
+        const valor = pagamento === "integral" ? preset.valorTotal : Math.round((preset.valorTotal / 2) * 100) / 100
+        const notas = pagamento === "2x" ? "1ª parcela" : undefined
+        const resPag = await registarPagamentoPack(res.packId, clienteId, { valor, metodoPagamento: metodo, notas })
+        if (!resPag.ok) { setErro(`Pack criado, mas o pagamento falhou: ${resPag.erro}`); return }
+      }
       onCriado()
     })
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-    borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px",
-    fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
-  }
   const labelStyle: React.CSSProperties = {
     display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em",
     textTransform: "uppercase", marginBottom: "5px",
   }
+  const opcaoStyle = (ativa: boolean): React.CSSProperties => ({
+    flex: 1, padding: "10px 8px", borderRadius: "7px", fontSize: "12px", fontWeight: 600, cursor: "pointer",
+    fontFamily: "var(--font-sans, sans-serif)", textAlign: "center",
+    border: ativa ? "1px solid rgba(212,184,134,0.5)" : "1px solid rgba(212,184,134,0.14)",
+    backgroundColor: ativa ? "rgba(212,184,134,0.12)" : "transparent",
+    color: ativa ? GOLD : CREAM,
+  })
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Criar pack" style={{
@@ -272,10 +316,10 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
 
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
-            <label style={labelStyle}>Preços do site (opcional — preenche tudo)</label>
+            <label style={labelStyle}>Pack — preços fixos do site</label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
               {PRESETS.map((p, i) => (
-                <button key={p.label} type="button" ref={i === 0 ? primeiroCampoRef : undefined} onClick={() => aplicarPreset(i)}
+                <button key={p.label} type="button" ref={i === 0 ? primeiroCampoRef : undefined} onClick={() => escolherPreset(i)}
                   style={{
                     padding: "9px 8px", borderRadius: "7px", fontSize: "11.5px", fontWeight: 600, cursor: "pointer",
                     fontFamily: "var(--font-sans, sans-serif)", textAlign: "left",
@@ -292,40 +336,48 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
             </div>
           </div>
 
-          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px", display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div>
-              <label style={labelStyle}>Serviço</label>
-              <select value={servicoId} onChange={e => setServicoId(e.target.value)} style={inputStyle}>
-                {servicos.map(s => <option key={s.id} value={s.id}>{s.nome}</option>)}
-              </select>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div>
-                <label style={labelStyle}>Total de sessões</label>
-                <input type="number" min="1" max="100" value={totalSessoes} onChange={e => setTotalSessoes(e.target.value)} style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Valor total (€)</label>
-                <input type="number" step="0.01" min="0.01" value={valorTotal} onChange={e => setValorTotal(e.target.value)} style={inputStyle} />
-              </div>
-            </div>
-            <div>
-              <label style={labelStyle}>Terapeuta</label>
-              <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={inputStyle}>
-                <option value="">Beatriz Leão (por omissão)</option>
-                {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Descrição (opcional)</label>
-              <input type="text" value={descricao} onChange={e => setDescricao(e.target.value)} style={inputStyle} />
-            </div>
+          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
+            <label style={labelStyle}>Terapeuta</label>
+            <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={{
+              width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+              borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px",
+              fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
+            }}>
+              <option value="">Escolhe a terapeuta</option>
+              {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+            </select>
           </div>
 
-          {Number(totalSessoes) === 10 && (
-            <p style={{ fontSize: "11.5px", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
-              Packs de 10 sessões podem ser pagos em 2x — depois de criado, regista a 1ª parcela agora e a 2ª mais tarde (na 5ª sessão), diretamente no cartão do pack.
-            </p>
+          {preset?.permite2x && (
+            <div>
+              <label style={labelStyle}>Como vai pagar?</label>
+              <div style={{ display: "flex", gap: "6px", marginBottom: pagamento === "2x" ? "10px" : 0 }}>
+                <button type="button" onClick={() => setPagamento("integral")} style={opcaoStyle(pagamento === "integral")}>
+                  Integral · €{preset.valorTotal}
+                </button>
+                <button type="button" onClick={() => setPagamento("2x")} style={opcaoStyle(pagamento === "2x")}>
+                  2x · €{(preset.valorTotal / 2).toFixed(0)} + €{(preset.valorTotal / 2).toFixed(0)}
+                </button>
+              </div>
+              {pagamento === "2x" && (
+                <p style={{ fontSize: "11px", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+                  Regista-se a 1ª parcela agora (€{(preset.valorTotal / 2).toFixed(2)}); a 2ª fica pendente para a 5ª sessão, no cartão do pack.
+                </p>
+              )}
+            </div>
+          )}
+
+          {pagamento && (
+            <div>
+              <label style={labelStyle}>Método de pagamento{pagamento === "2x" ? " (1ª parcela)" : ""}</label>
+              <select value={metodo} onChange={e => setMetodo(e.target.value)} style={{
+                width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px",
+                fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
+              }}>
+                {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </div>
           )}
 
           {erro && <p style={{ color: "var(--destructive)", fontSize: "12px" }}>{erro}</p>}
@@ -373,7 +425,7 @@ function PackCard({ pack, clienteId, index }: { pack: PackDoCliente; clienteId: 
       }}>
         <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "8px" }}>
           <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: CREAM, flex: 1 }}>
-            <NomeServico nome={pack.servico.nome} />
+            <NomeServico nome={nomePack(pack)} />
           </span>
           <span style={{
             fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",

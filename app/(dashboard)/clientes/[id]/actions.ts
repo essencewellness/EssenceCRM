@@ -368,11 +368,11 @@ export async function atualizarTerapeutaSessao(
 export async function criarPack(
   clienteId: string,
   dados: {
-    servicoId: string
+    servicoId?: string | null
     totalSessoes: number
     valorTotal: number
     descricao?: string | null
-    terapeutaId?: string | null
+    terapeutaId: string
   }
 ): Promise<{ ok: true; packId: string } | { ok: false; erro: string }> {
   try {
@@ -386,23 +386,24 @@ export async function criarPack(
     if (dados.valorTotal <= 0) {
       return { ok: false, erro: "O valor total tem de ser maior que zero" }
     }
-
-    if (dados.terapeutaId) {
-      const terapeuta = await prisma.user.findFirst({
-        where: { id: dados.terapeutaId, ativo: true, role: "terapeuta" },
-        select: { id: true },
-      })
-      if (!terapeuta) return { ok: false, erro: "Terapeuta inválida" }
+    if (!dados.terapeutaId) {
+      return { ok: false, erro: "Escolhe a terapeuta" }
     }
+
+    const terapeuta = await prisma.user.findFirst({
+      where: { id: dados.terapeutaId, ativo: true, role: "terapeuta" },
+      select: { id: true },
+    })
+    if (!terapeuta) return { ok: false, erro: "Terapeuta inválida" }
 
     const pack = await prisma.pack.create({
       data: {
         clienteId,
-        servicoId: dados.servicoId,
+        servicoId: dados.servicoId ?? null,
         totalSessoes: dados.totalSessoes,
         valorTotal: dados.valorTotal,
         descricao: dados.descricao ?? null,
-        terapeutaId: dados.terapeutaId ?? null,
+        terapeutaId: dados.terapeutaId,
       },
     })
 
@@ -473,7 +474,7 @@ export async function registarPagamentoPack(
     void webhooks.packPagamentoRegistado({
       packId,
       clienteNome: pack.cliente.nome,
-      servicoNome: pack.servico.nome,
+      servicoNome: pack.servico?.nome ?? "Massagens",
       valor: dados.valor,
       data: new Date().toISOString(),
       metodoPagamento: dados.metodoPagamento ?? null,

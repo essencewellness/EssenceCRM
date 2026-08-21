@@ -736,7 +736,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 clienteId={cliente.id}
                 packs={cliente.packs.map(p => ({
                   id: p.id,
-                  servico: { nome: p.servico.nome },
+                  servico: p.servico ? { nome: p.servico.nome } : null,
                   totalSessoes: p.totalSessoes,
                   sessoesUsadas: p.sessoesUsadas,
                   valorTotal: Number(p.valorTotal),

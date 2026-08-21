@@ -232,7 +232,7 @@ export default async function FinanceiroPage({
   const linhasPack: SessaoRow[] = pagamentosPackMesRaw.map(pg => ({
     id: `pack-${pg.id}`,
     data: pg.criadoEm.toISOString(),
-    servico: `Pack — ${pg.pack.servico.nome}${pg.notas ? ` (${pg.notas})` : ""}`,
+    servico: `Pack — ${pg.pack.servico?.nome ?? "Massagens"}${pg.notas ? ` (${pg.notas})` : ""}`,
     preco: String(pg.valor),
     estado: "realizada",
     estadoPagamento: "pago",

@@ -61,11 +61,15 @@ export async function POST(
   try {
     const [cliente, servico] = await Promise.all([
       prisma.cliente.findFirst({ where: { id, apagadoEm: null }, select: { id: true } }),
-      prisma.servico.findUnique({ where: { id: servicoId }, select: { id: true, ativo: true, nome: true } }),
+      // Opcional: pack de massagens não está preso a um serviço (a cliente
+      // escolhe o ritual na marcação) — só se valida se vier um servicoId.
+      servicoId
+        ? prisma.servico.findUnique({ where: { id: servicoId }, select: { id: true, ativo: true, nome: true } })
+        : Promise.resolve(null),
     ])
 
     if (!cliente) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
-    if (!servico || !servico.ativo) return respostaErro("Serviço não encontrado ou inativo", "SERVICO_NAO_ENCONTRADO", 404)
+    if (servicoId && (!servico || !servico.ativo)) return respostaErro("Serviço não encontrado ou inativo", "SERVICO_NAO_ENCONTRADO", 404)
 
     if (terapeutaId) {
       const terapeuta = await prisma.user.findFirst({ where: { id: terapeutaId, ativo: true, role: "terapeuta" }, select: { id: true } })
