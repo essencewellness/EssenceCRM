@@ -10,6 +10,7 @@ import { recalcularMetricasCliente } from "@/lib/metricas"
 import { sessaoUpdateSchema } from "@/lib/validations"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
+import { calcularReatribuicaoBea } from "@/lib/reatribuicao-financeira"
 
 // Garante que a terapeuta autenticada é admin OU a dona do cliente
 // (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
@@ -283,40 +284,58 @@ export async function atualizarTerapeutaSessao(
           where: { id: voucherLigado.id },
           data: { terapeutaId: terapeuta.id, terapeuta2Id: terapeuta2?.id ?? null },
         })
-        // Só vouchers individuais reagem — os a dois já entram sempre a
-        // metade, independentemente de quem faz (ver criarVoucher()).
-        const eraIndividual = voucherLigado.terapeuta2Id === null && !terapeuta2
-        if (eraIndividual) {
-          const antesEraBea = voucherLigado.terapeutaId === null || voucherLigado.terapeutaId === idBea
-          const agoraEBea = terapeuta.id === idBea
-          if (antesEraBea !== agoraEBea) {
+        // Compara quanto a Bea deveria ter no sheet antes e depois — cobre
+        // não só "mudou de dono" mas também um voucher criado individual
+        // cuja sessão real acaba por ser a dois (ou o inverso): o valor
+        // dela passa de 100% para 50%, não é um simples sim/não.
+        const { valorAntes, valorDepois } = calcularReatribuicaoBea({
+          valorTotal: Number(voucherLigado.valorPago),
+          idBea,
+          terapeutaIdAntes: voucherLigado.terapeutaId,
+          terapeuta2IdAntes: voucherLigado.terapeuta2Id,
+          terapeutaIdDepois: terapeuta.id,
+          terapeuta2IdDepois: terapeuta2?.id ?? null,
+        })
+        if (valorAntes !== valorDepois) {
+          if (valorAntes > 0) {
             void webhooks.voucherReceitaReatribuida({
-              codigo: voucherLigado.codigo,
-              servicoNome: voucherLigado.servicoNome,
-              valor: Number(voucherLigado.valorPago),
-              compradorNome: voucherLigado.compradorNome,
-              dataCompra: voucherLigado.dataCompra.toISOString(),
-              direcao: antesEraBea ? "bea_perde" : "bea_ganha",
+              codigo: voucherLigado.codigo, servicoNome: voucherLigado.servicoNome, valor: valorAntes,
+              compradorNome: voucherLigado.compradorNome, dataCompra: voucherLigado.dataCompra.toISOString(),
+              direcao: "bea_perde",
+            })
+          }
+          if (valorDepois > 0) {
+            void webhooks.voucherReceitaReatribuida({
+              codigo: voucherLigado.codigo, servicoNome: voucherLigado.servicoNome, valor: valorDepois,
+              compradorNome: voucherLigado.compradorNome, dataCompra: voucherLigado.dataCompra.toISOString(),
+              direcao: "bea_ganha",
             })
           }
         }
-      } else if (sessaoAntes.estadoPagamento === "pago" && sessaoAntes.valorPago) {
+      } else if (sessaoAntes.estadoPagamento === "pago" && sessaoAntes.valorPago !== null) {
         // Sessão paga diretamente (sem voucher) — pode já ter sido enviada
-        // ao sheet via sessaoReceitaBea. Mesmo critério de "individual": só
-        // corrige quando nenhum dos dois lados é a dois.
-        const eraIndividual = sessaoAntes.terapeuta2Id === null && !terapeuta2
-        if (eraIndividual) {
-          const antesEraBea = sessaoAntes.terapeutaId === null || sessaoAntes.terapeutaId === idBea
-          const agoraEBea = terapeuta.id === idBea
-          if (antesEraBea !== agoraEBea) {
+        // ao sheet via sessaoReceitaBea.
+        const { valorAntes, valorDepois } = calcularReatribuicaoBea({
+          valorTotal: Number(sessaoAntes.valorPago),
+          idBea,
+          terapeutaIdAntes: sessaoAntes.terapeutaId,
+          terapeuta2IdAntes: sessaoAntes.terapeuta2Id,
+          terapeutaIdDepois: terapeuta.id,
+          terapeuta2IdDepois: terapeuta2?.id ?? null,
+        })
+        if (valorAntes !== valorDepois) {
+          if (valorAntes > 0) {
             void webhooks.sessaoReceitaReatribuida({
-              sessaoId,
-              clienteNome: sessaoAntes.cliente.nome,
-              servico: sessaoAntes.servico,
-              valor: Number(sessaoAntes.valorPago),
-              data: sessaoAntes.data.toISOString(),
-              metodoPagamento: sessaoAntes.metodoPagamento,
-              direcao: antesEraBea ? "bea_perde" : "bea_ganha",
+              sessaoId, clienteNome: sessaoAntes.cliente.nome, servico: sessaoAntes.servico, valor: valorAntes,
+              data: sessaoAntes.data.toISOString(), metodoPagamento: sessaoAntes.metodoPagamento,
+              direcao: "bea_perde",
+            })
+          }
+          if (valorDepois > 0) {
+            void webhooks.sessaoReceitaReatribuida({
+              sessaoId, clienteNome: sessaoAntes.cliente.nome, servico: sessaoAntes.servico, valor: valorDepois,
+              data: sessaoAntes.data.toISOString(), metodoPagamento: sessaoAntes.metodoPagamento,
+              direcao: "bea_ganha",
             })
           }
         }

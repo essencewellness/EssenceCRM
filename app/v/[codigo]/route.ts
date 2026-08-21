@@ -23,10 +23,25 @@ export async function GET(
   const { codigo } = await params
   // Tolerante a maiúsculas/minúsculas e espaços: o link é sempre gerado
   // certo pelo CRM, mas alguém pode copiar/colar ou escrever à mão.
-  const codigoNormalizado = decodeURIComponent(codigo).trim().toUpperCase()
+  // Next.js já entrega o segmento decodificado — voltar a fazer
+  // decodeURIComponent() num "%" solto (link colado partido a meio) lança
+  // URIError sem apanhar, e a pessoa via um 500 em vez do redirecionamento
+  // gracioso que este bloco todo existe para dar.
+  let codigoNormalizado: string
+  try {
+    codigoNormalizado = decodeURIComponent(codigo).trim().toUpperCase()
+  } catch {
+    return NextResponse.redirect("https://essencewellnesspt.com/", { status: 302 })
+  }
+
+  // SQLite (dev local) não suporta mode: "insensitive" — só a Neon em
+  // produção. Mesmo critério já usado em app/api/v1/clientes/route.ts.
+  const isProd = process.env.DATABASE_URL?.startsWith("postgresql")
 
   const voucher = await prisma.giftCard.findFirst({
-    where: { codigo: { equals: codigoNormalizado, mode: "insensitive" } },
+    where: isProd
+      ? { codigo: { equals: codigoNormalizado, mode: "insensitive" } }
+      : { codigo: codigoNormalizado },
     select: {
       codigo: true, servicoNome: true, compradorNome: true, nomesNoVoucher: true,
       beneficiarioNome: true, mensagemVoucher: true, validade: true,
@@ -40,7 +55,9 @@ export async function GET(
   }
 
   const servico = await prisma.servico.findFirst({
-    where: { nome: { equals: voucher.servicoNome, mode: "insensitive" } },
+    where: isProd
+      ? { nome: { equals: voucher.servicoNome, mode: "insensitive" } }
+      : { nome: voucher.servicoNome },
     select: { descricaoVoucher: true },
   })
 

@@ -14,6 +14,7 @@ import { webhooks } from "@/lib/webhooks"
 import { paraNumero } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { calcularReatribuicaoBea } from "@/lib/reatribuicao-financeira"
 import type { Prisma } from "@/lib/prisma-client"
 
 interface SessaoAntes {
@@ -56,7 +57,7 @@ export async function dispararEfeitosSessaoRealizada(
     getTerapeutaPrincipalPadraoId(),
   ])
   const envolveABea = sessaoAntes.terapeutaId === idBea || sessaoAntes.terapeutaId === null || sessaoAntes.terapeuta2Id === idBea
-  if (!voucherLigadoAEstaSessao && envolveABea && sessaoCompleta?.estadoPagamento === "pago" && sessaoCompleta.valorPago) {
+  if (!voucherLigadoAEstaSessao && envolveABea && sessaoCompleta?.estadoPagamento === "pago" && sessaoCompleta.valorPago !== null) {
     const ehADois = sessaoAntes.terapeuta2Id !== null
     void webhooks.sessaoReceitaBea({
       sessaoId: sessaoAntes.id,
@@ -142,30 +143,35 @@ export async function dispararEfeitosSessaoRealizada(
         },
       })
 
-      // Dashboard financeiro da Beatriz: só reage a vouchers INDIVIDUAIS —
-      // os a dois já entraram no sheet a metade, sempre, independentemente
-      // de quem faz (ver criarVoucher()), por isso nunca precisam de mexer
-      // aqui. Um individual só pode mudar de mãos numa direção: nasce
-      // sempre da Bea, por isso "bea_ganha" cobre só o caso raro de uma
-      // correção manual a reverter uma atribuição anterior à Cristina.
-      const eraIndividual = voucherDestaSessao.terapeuta2Id === null && sessaoAntes.terapeuta2Id === null
-      if (eraIndividual) {
-        const antesEraBea = voucherDestaSessao.terapeutaId === null || voucherDestaSessao.terapeutaId === idBea
-        const agoraEBea = sessaoAntes.terapeutaId === null || sessaoAntes.terapeutaId === idBea
-        if (antesEraBea && !agoraEBea) {
+      // Dashboard financeiro da Beatriz: compara quanto ela deveria ter no
+      // sheet antes e depois — não só "individual mudou de dono" (o que
+      // deixava passar em branco um voucher criado individual cuja sessão
+      // afinal acaba por ser a dois, ou vice-versa: nesses casos o valor
+      // dela passa de 100% para 50%, não é um "sim/não").
+      const { valorAntes, valorDepois } = calcularReatribuicaoBea({
+        valorTotal: Number(voucherDestaSessao.valorPago),
+        idBea,
+        terapeutaIdAntes: voucherDestaSessao.terapeutaId,
+        terapeuta2IdAntes: voucherDestaSessao.terapeuta2Id,
+        terapeutaIdDepois: sessaoAntes.terapeutaId,
+        terapeuta2IdDepois: sessaoAntes.terapeuta2Id,
+      })
+      if (valorAntes !== valorDepois) {
+        if (valorAntes > 0) {
           void webhooks.voucherReceitaReatribuida({
             codigo: voucherDestaSessao.codigo,
             servicoNome: voucherDestaSessao.servicoNome,
-            valor: Number(voucherDestaSessao.valorPago),
+            valor: valorAntes,
             compradorNome: voucherDestaSessao.compradorNome,
             dataCompra: voucherDestaSessao.dataCompra.toISOString(),
             direcao: "bea_perde",
           })
-        } else if (!antesEraBea && agoraEBea) {
+        }
+        if (valorDepois > 0) {
           void webhooks.voucherReceitaReatribuida({
             codigo: voucherDestaSessao.codigo,
             servicoNome: voucherDestaSessao.servicoNome,
-            valor: Number(voucherDestaSessao.valorPago),
+            valor: valorDepois,
             compradorNome: voucherDestaSessao.compradorNome,
             dataCompra: voucherDestaSessao.dataCompra.toISOString(),
             direcao: "bea_ganha",

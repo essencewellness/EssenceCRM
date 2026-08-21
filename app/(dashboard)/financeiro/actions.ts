@@ -86,8 +86,11 @@ export async function atualizarPagamento(
   const emAberto = dados.estadoPagamento === "pago" || dados.estadoPagamento === "parcial"
   const repasseNecessario = ehOutraTerapeuta && ehMbway && emAberto
   // Numa massagem a dois só metade do valor é da outra terapeuta — a outra
-  // metade é trabalho da Bea, que fica com ela mesma.
-  const valorRepasse = repasseNecessario && ehADois && dados.valorPago
+  // metade é trabalho da Bea, que fica com ela mesma. Comparação explícita
+  // com null/undefined, não truthy — um valorPago de 0€ (sessão de oferta)
+  // é um valor real, não "por preencher" (bug real: um €0 a dois ficava com
+  // repasseNecessario=true mas valorRepasse=null).
+  const valorRepasse = repasseNecessario && ehADois && dados.valorPago !== null && dados.valorPago !== undefined
     ? Math.round((dados.valorPago / 2) * 100) / 100
     : null
 
@@ -116,7 +119,8 @@ export async function atualizarPagamento(
     envolveABea &&
     dados.estadoPagamento === "pago" &&
     sessao.estadoPagamento !== "pago" &&
-    dados.valorPago
+    dados.valorPago !== null &&
+    dados.valorPago !== undefined
   ) {
     void webhooks.sessaoReceitaBea({
       sessaoId,
