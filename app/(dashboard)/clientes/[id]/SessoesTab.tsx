@@ -16,7 +16,7 @@ type Sessao = {
   duracao: number | null
   servico: string | null
   preco: number | null
-  terapeuta: string
+  terapeuta: string | null
   estadoEmocional: string | null
   resumoSessao: string | null
   notasPosSessao: string | null
@@ -482,7 +482,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   {sessao.servico ?? "—"}
                 </TableCell>
                 <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)", textTransform: "capitalize" }}>
-                  {sessao.terapeuta}
+                  {sessao.terapeuta ?? "Por atribuir"}
                 </TableCell>
                 <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#b9a07a", textAlign: "right" }}>
                   {formatCurrency(sessao.preco ?? 0)}
@@ -664,7 +664,7 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)",
                   padding: "18px",
                 }}>
-                  <DetailItem label="Terapeuta" value={sessaoAberta.terapeuta} />
+                  <DetailItem label="Terapeuta" value={sessaoAberta.terapeuta ?? "Por atribuir"} />
                   <InlineEditField
                     label="Preço"
                     type="currency"

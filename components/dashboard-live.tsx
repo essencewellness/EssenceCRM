@@ -13,7 +13,7 @@ interface SessaoRow {
   clienteNome: string
   clienteIniciais: string
   servico: string | null
-  terapeuta: string
+  terapeuta: string | null
   estado: string
 }
 
@@ -299,7 +299,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           backgroundColor: "rgba(160,169,150,0.08)",
           border: "1px solid rgba(160,169,150,0.20)", color: "#a0a996",
         }}>
-          {sessao.terapeuta}
+          {sessao.terapeuta ?? "Por atribuir"}
         </span>
 
         <BadgeEstado estado={sessao.estado} />
@@ -641,7 +641,7 @@ export function ProximosDiasCard({
                           fontFamily: "var(--font-sans, sans-serif)",
                           fontSize: "11px", color: "var(--nuit-bone-soft)",
                         }}>
-                          {s.terapeuta}
+                          {s.terapeuta ?? "Por atribuir"}
                         </span>
                         <BadgeEstado estado={s.estado} />
                       </motion.div>

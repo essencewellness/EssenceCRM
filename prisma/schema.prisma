@@ -236,7 +236,12 @@ model Sessao {
   duracao     Int?      // duração em minutos
   servico     String?
   preco       Decimal?  @db.Decimal(10, 2)
-  terapeuta   String    @default("bea")
+  // Nome livre da terapeuta, só para exibição — null enquanto ninguém foi
+  // atribuída (a Bea ainda não respondeu "quem vai realizar a sessão?").
+  // Nunca usar isto para saber de quem é a receita — isso é terapeutaId
+  // (FK), onde null SIM significa "da Bea por omissão" (convenção diferente
+  // e intencional, usada no financeiro/vouchers/repasse).
+  terapeuta   String?
 
   // Conteúdo clínico (preenchido pela Bea no form pós-sessão)
   aromaSessao         String?

@@ -165,7 +165,11 @@ export async function POST(request: NextRequest) {
         data: new Date(dataEvento),
         servico: nomeServico,
         estado: "agendada",
-        terapeuta: "bea",
+        // terapeuta fica null de propósito — só passa a ter valor quando a
+        // Bea responder "quem vai realizar a sessão?" (atribuir-sessao.html
+        // ou pos-sessao.html). Escrever "bea" aqui já causou um bug real: o
+        // repasse à Cristina nunca disparava porque este texto nunca era
+        // corrigido para sessões que afinal eram dela.
         ...(calendlyEventId ? { calendlyEventId } : {}),
         ...(calendlyEventUri ? { calendlyEventUri } : {}),
       },

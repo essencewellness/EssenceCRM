@@ -67,7 +67,7 @@ export async function gerarPdfSessao(
     ["Hora", sessao.hora ?? "—"],
     ["Duração", sessao.duracao ? `${sessao.duracao} minutos` : "—"],
     ["Serviço", sessao.servico ?? "—"],
-    ["Terapeuta", sessao.terapeuta === "bea" ? "Beatriz Leão" : sessao.terapeuta],
+    ["Terapeuta", sessao.terapeuta === "bea" ? "Beatriz Leão" : (sessao.terapeuta ?? "Por atribuir")],
     ["Aroma utilizado", sessao.aromaSessao ?? "—"],
     ["Estado emocional", sessao.estadoEmocional ?? "—"],
   ]
