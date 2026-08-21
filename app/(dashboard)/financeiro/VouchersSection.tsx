@@ -39,7 +39,7 @@ const ESTADO_V: Record<string, { bg: string; color: string; label: string }> = {
   ativo:     { bg: "rgba(80,200,120,0.12)",   color: "#6fcf97", label: "Ativo" },
   usado:     { bg: "rgba(100,150,230,0.12)",  color: "#7cb4f0", label: "Usado" },
   expirado:  { bg: "rgba(212,140,50,0.12)",   color: "#d48c45", label: "Expirado" },
-  cancelado: { bg: "rgba(237,231,227,0.07)",  color: "rgba(237,231,227,0.35)", label: "Cancelado" },
+  cancelado: { bg: "rgba(237,231,227,0.07)",  color: "var(--muted-foreground)", label: "Cancelado" },
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
@@ -202,7 +202,7 @@ function CriarVoucherModal({
     borderRadius: "7px",
     border: ativo ? `1px solid rgba(212,184,134,0.4)` : `1px solid rgba(212,184,134,0.1)`,
     backgroundColor: ativo ? "rgba(212,184,134,0.12)" : "transparent",
-    color: ativo ? GOLD : "rgba(237,231,227,0.4)",
+    color: ativo ? GOLD : "var(--muted-foreground)",
     fontSize: "12px", fontWeight: 700, cursor: "pointer",
     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
     transition: "all 0.15s",
@@ -250,7 +250,7 @@ function CriarVoucherModal({
             aria-label="Fechar"
             style={{
               background: "none", border: "none", cursor: "pointer",
-              color: "rgba(237,231,227,0.35)", fontSize: "20px", lineHeight: 1,
+              color: "var(--muted-foreground)", fontSize: "20px", lineHeight: 1,
               padding: "2px 6px",
             }}
           >
@@ -382,7 +382,7 @@ function CriarVoucherModal({
               style={{
                 padding: "9px 18px", borderRadius: "8px", fontSize: "13px",
                 border: `1px solid ${BORDER}`, background: "transparent",
-                color: "rgba(237,231,227,0.5)", cursor: "pointer",
+                color: "var(--muted-foreground)", cursor: "pointer",
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
               }}
             >
@@ -433,7 +433,7 @@ function SuccessModal({ codigo, onFechar }: { codigo: string; onFechar: () => vo
         }}>
           Voucher criado!
         </h3>
-        <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.5)", fontSize: "13px", marginBottom: "16px" }}>
+        <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px", marginBottom: "16px" }}>
           Código gerado:
         </p>
         <div style={{
@@ -552,7 +552,7 @@ export function VouchersSection({
           { label: "Valor total", valor: `€${valorTotal.toFixed(2)}`, cor: GOLD },
         ].map(({ label, valor, cor }) => (
           <div key={label} style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "14px 16px" }}>
-            <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.4)", fontSize: "10px", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "10px", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
               {label}
             </div>
             <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: cor, fontSize: "22px", fontWeight: 400 }}>
@@ -572,7 +572,7 @@ export function VouchersSection({
               padding: "4px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: 600,
               border: `1px solid ${filtro === f ? "rgba(212,184,134,0.35)" : BORDER}`,
               backgroundColor: filtro === f ? "rgba(212,184,134,0.1)" : "transparent",
-              color: filtro === f ? GOLD : "rgba(237,231,227,0.4)",
+              color: filtro === f ? GOLD : "var(--muted-foreground)",
               cursor: "pointer", textTransform: "capitalize",
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             }}
@@ -586,7 +586,7 @@ export function VouchersSection({
       {/* Tabela */}
       {visiveis.length === 0 ? (
         <div style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "32px", textAlign: "center" }}>
-          <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.3)", fontSize: "13px" }}>
+          <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px" }}>
             {vouchers.length === 0 ? "Ainda não há vouchers. Clica em «+ Criar Voucher» para adicionar." : "Nenhum voucher nesta categoria."}
           </p>
         </div>
@@ -629,33 +629,33 @@ export function VouchersSection({
                   <td style={{ padding: "12px 14px", color: CREAM, fontSize: "13px", whiteSpace: "nowrap" }}>
                     {v.compradorNome}
                     {v.compradorTelefone && (
-                      <div style={{ color: "rgba(237,231,227,0.35)", fontSize: "11px", marginTop: "1px" }}>{v.compradorTelefone}</div>
+                      <div style={{ color: "var(--muted-foreground)", fontSize: "11px", marginTop: "1px" }}>{v.compradorTelefone}</div>
                     )}
                   </td>
-                  <td style={{ padding: "12px 14px", color: "rgba(237,231,227,0.6)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td style={{ padding: "12px 14px", color: "var(--muted-foreground)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {v.servicoNome}
                   </td>
-                  <td style={{ padding: "12px 14px", color: "rgba(237,231,227,0.6)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td style={{ padding: "12px 14px", color: "var(--muted-foreground)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {v.beneficiarioNome ?? (
-                      <span style={{ color: "rgba(237,231,227,0.25)", fontStyle: "italic" }}>próprio</span>
+                      <span style={{ color: "var(--muted-foreground)", fontStyle: "italic" }}>próprio</span>
                     )}
                     {v.beneficiarioTelefone && (
-                      <div style={{ color: "rgba(237,231,227,0.3)", fontSize: "11px" }}>{v.beneficiarioTelefone}</div>
+                      <div style={{ color: "var(--muted-foreground)", fontSize: "11px" }}>{v.beneficiarioTelefone}</div>
                     )}
                   </td>
                   <td style={{ padding: "12px 14px", textAlign: "right", color: GOLD, fontSize: "13px", whiteSpace: "nowrap", fontFamily: "var(--font-heading, Georgia, serif)" }}>
                     €{Number(v.valorPago).toFixed(2)}
                   </td>
-                  <td style={{ padding: "12px 14px", textAlign: "right", color: "rgba(237,231,227,0.5)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td style={{ padding: "12px 14px", textAlign: "right", color: "var(--muted-foreground)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {new Date(v.dataCompra).toLocaleDateString("pt-PT")}
                   </td>
-                  <td style={{ padding: "12px 14px", textAlign: "right", color: "rgba(237,231,227,0.4)", fontSize: "12px", whiteSpace: "nowrap" }}>
+                  <td style={{ padding: "12px 14px", textAlign: "right", color: "var(--muted-foreground)", fontSize: "12px", whiteSpace: "nowrap" }}>
                     {v.validade ? new Date(v.validade).toLocaleDateString("pt-PT") : "—"}
                   </td>
                   <td style={{ padding: "12px 14px" }}>
                     <EstadoBadge estado={v.estado} />
                     {v.dataUso && (
-                      <div style={{ color: "rgba(237,231,227,0.3)", fontSize: "10px", marginTop: "2px" }}>
+                      <div style={{ color: "var(--muted-foreground)", fontSize: "10px", marginTop: "2px" }}>
                         {new Date(v.dataUso).toLocaleDateString("pt-PT")}
                       </div>
                     )}

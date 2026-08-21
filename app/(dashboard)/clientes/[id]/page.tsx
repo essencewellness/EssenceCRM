@@ -632,7 +632,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
                     <div style={{
                       padding: "14px", borderRadius: "8px",
-                      backgroundColor: "rgba(237,231,227,0.5)",
+                      backgroundColor: "var(--muted-foreground)",
                       border: "1px solid rgba(212,184,134,0.16)",
                       marginBottom: "8px",
                     }}>

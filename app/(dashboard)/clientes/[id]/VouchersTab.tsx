@@ -70,11 +70,11 @@ function Linha({ v, papel }: { v: VoucherDoCliente; papel: "comprou" | "recebeu"
             color: "var(--nuit-bone)", fontWeight: 600,
           }}>
             {v.codigo}
-            <span style={{ fontWeight: 400, color: "rgba(237,231,227,0.5)" }}> · {v.servicoNome}</span>
+            <span style={{ fontWeight: 400, color: "var(--muted-foreground)" }}> · {v.servicoNome}</span>
           </div>
           <div style={{
             fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
-            color: "rgba(237,231,227,0.4)", marginTop: "3px",
+            color: "var(--muted-foreground)", marginTop: "3px",
           }}>
             {formatarData(v.dataCompra)} · {contraparte}
             {v.dataUso ? ` · usado em ${formatarData(v.dataUso)}` : v.validade ? ` · válido até ${formatarData(v.validade)}` : ""}
@@ -122,7 +122,7 @@ function Bloco({ titulo, sub, vouchers, papel }: {
           </h3>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
-            color: "rgba(237,231,227,0.4)", marginTop: "3px",
+            color: "var(--muted-foreground)", marginTop: "3px",
           }}>
             {sub}
           </p>
@@ -156,7 +156,7 @@ export function VouchersTab({ comprados, recebidos }: {
         <Gift size={22} color="rgba(212,184,134,0.3)" aria-hidden="true" style={{ margin: "0 auto 10px" }} />
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
-          color: "rgba(237,231,227,0.4)", lineHeight: 1.6,
+          color: "var(--muted-foreground)", lineHeight: 1.6,
         }}>
           Sem vouchers associados.
           <br />

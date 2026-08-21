@@ -41,9 +41,9 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
     }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "13px", color: CREAM }}>
-          {repasse.cliente.nome} <span style={{ color: "rgba(237,231,227,0.4)" }}>· {repasse.servico ?? "—"}</span>
+          {repasse.cliente.nome} <span style={{ color: "var(--muted-foreground)" }}>· {repasse.servico ?? "—"}</span>
         </div>
-        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: "rgba(237,231,227,0.4)", marginTop: "2px" }}>
+        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: "var(--muted-foreground)", marginTop: "2px" }}>
           {new Date(repasse.data).toLocaleDateString("pt-PT")}
           {repasse.metodoPagamento ? ` · ${METODO_LABEL[repasse.metodoPagamento] ?? repasse.metodoPagamento}` : ""}
           {repasse.valorRepasse !== null && repasse.valorPago
@@ -90,7 +90,7 @@ export function RepassesCristina({ repasses, total }: { repasses: RepasseRow[]; 
       </div>
       <p style={{
         fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "12px",
-        color: "rgba(237,231,227,0.4)", marginBottom: "12px", lineHeight: 1.6,
+        color: "var(--muted-foreground)", marginBottom: "12px", lineHeight: 1.6,
       }}>
         Estas sessões foram pagas por MBWay — que cai sempre na conta da Bea. Marca &ldquo;Repassado&rdquo; só depois de entregares o dinheiro à Cristina em mão.
       </p>

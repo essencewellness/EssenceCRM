@@ -53,7 +53,7 @@ export default async function TemplatesPage() {
         }}>
           <p style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            color: `rgba(237,231,227,0.3)`, fontSize: "13px",
+            color: `var(--muted-foreground)`, fontSize: "13px",
           }}>
             Nenhum template criado. Use a API para criar templates.
           </p>
@@ -92,7 +92,7 @@ export default async function TemplatesPage() {
                     display: "inline-flex",
                     padding: "2px 8px", borderRadius: "4px",
                     backgroundColor: t.ativo ? "rgba(80,200,120,0.12)" : "rgba(237,231,227,0.06)",
-                    color: t.ativo ? "#6fcf97" : "rgba(237,231,227,0.3)",
+                    color: t.ativo ? "#6fcf97" : "var(--muted-foreground)",
                     fontSize: "11px", fontWeight: 600,
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                     letterSpacing: "0.04em",
@@ -102,7 +102,7 @@ export default async function TemplatesPage() {
                 </div>
                 <p style={{
                   fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                  fontSize: "13px", color: `rgba(237,231,227,0.55)`,
+                  fontSize: "13px", color: `var(--muted-foreground)`,
                   whiteSpace: "pre-wrap", lineHeight: 1.6,
                 }}>
                   {t.texto}

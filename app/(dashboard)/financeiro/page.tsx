@@ -336,7 +336,7 @@ export default async function FinanceiroPage({
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(porMetodo).map(([metodo, valor]) => (
               <div key={metodo} style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.45)", fontSize: "11px", marginBottom: "6px" }}>
+                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "11px", marginBottom: "6px" }}>
                   {METODO_LABEL_PT[metodo] ?? metodo}
                 </div>
                 <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "20px", fontWeight: 400 }}>
@@ -351,7 +351,7 @@ export default async function FinanceiroPage({
           <SectionTitle>Top clientes por receita</SectionTitle>
           <div style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", overflow: "hidden" }}>
             {topReceita.length === 0 && (
-              <p style={{ padding: "20px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.3)", fontSize: "13px" }}>
+              <p style={{ padding: "20px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px" }}>
                 Ainda sem receita registada.
               </p>
             )}
@@ -362,7 +362,7 @@ export default async function FinanceiroPage({
                 borderBottom: i < topReceita.length - 1 ? `1px solid ${BORDER}` : "none",
               }}>
                 <span style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: i < 3 ? GOLD : "rgba(237,231,227,0.35)", width: "16px", fontWeight: 700 }}>
+                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: i < 3 ? GOLD : "var(--muted-foreground)", width: "16px", fontWeight: 700 }}>
                     {i + 1}
                   </span>
                   <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "13px", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -431,7 +431,7 @@ function KpiCard({ label, valor, tipo }: { label: string; valor: string; tipo: "
 
   return (
     <div style={{ backgroundColor: CARD_BG, border: `1px solid ${borderColor}`, borderRadius: "10px", padding: "18px 16px" }}>
-      <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(237,231,227,0.45)", fontSize: "11px", marginBottom: "8px" }}>
+      <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "11px", marginBottom: "8px" }}>
         {label}
       </div>
       <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: valorColor, fontSize: "24px", fontWeight: 400 }}>

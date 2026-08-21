@@ -42,7 +42,7 @@ const ESTADO_PAG_MAP: Record<string, { bg: string; color: string; border: string
   pago:     { bg: "rgba(111,207,151,0.12)", color: "#6fcf97", border: "rgba(111,207,151,0.35)", label: "Pago" },
   pendente: { bg: "rgba(212,140,50,0.12)",  color: "#d48c45", border: "rgba(212,140,50,0.35)",  label: "Pendente" },
   parcial:  { bg: "rgba(124,180,240,0.12)", color: "#7cb4f0", border: "rgba(124,180,240,0.35)", label: "Parcial" },
-  isento:   { bg: "rgba(237,231,227,0.07)", color: "rgba(237,231,227,0.5)", border: "rgba(237,231,227,0.18)", label: "Isento" },
+  isento:   { bg: "rgba(237,231,227,0.07)", color: "var(--muted-foreground)", border: "rgba(237,231,227,0.18)", label: "Isento" },
 }
 
 function PagamentoBadge({ estado }: { estado: string }) {
@@ -104,7 +104,7 @@ function SegmentedEstado({ valor, onChange }: { valor: string; onChange: (v: typ
               fontSize: "12.5px", fontWeight: 600,
               backgroundColor: ativo ? cor.bg : "transparent",
               border: `1.5px solid ${ativo ? cor.border : BORDER}`,
-              color: ativo ? cor.color : "rgba(237,231,227,0.55)",
+              color: ativo ? cor.color : "var(--muted-foreground)",
               minHeight: "44px",
               transition: "background-color 150ms, border-color 150ms, color 150ms",
             }}
@@ -212,7 +212,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               {sessao.cliente.nome}
             </h2>
             <p style={{
-              margin: "3px 0 0", fontSize: "12.5px", color: "rgba(237,231,227,0.45)",
+              margin: "3px 0 0", fontSize: "12.5px", color: "var(--muted-foreground)",
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             }}>
               {sessao.servico ?? "Sessão"} · {new Date(sessao.data).toLocaleDateString("pt-PT")}
@@ -225,7 +225,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               display: "flex", alignItems: "center", justifyContent: "center",
               width: "32px", height: "32px", borderRadius: "8px", flexShrink: 0,
               background: "transparent", border: "none", cursor: "pointer",
-              color: "rgba(237,231,227,0.4)",
+              color: "var(--muted-foreground)",
             }}
           >
             <X size={17} />
@@ -287,7 +287,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
                 <p style={{
                   margin: 0, padding: "10px 12px", borderRadius: "8px",
                   backgroundColor: "rgba(212,184,134,0.06)",
-                  fontSize: "12px", color: "rgba(237,231,227,0.5)", lineHeight: 1.5,
+                  fontSize: "12px", color: "var(--muted-foreground)", lineHeight: 1.5,
                   fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                 }}>
                   Voucher já pago pela compradora — sem valor a registar agora.
@@ -302,7 +302,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               style={{
                 flex: 1, padding: "12px", borderRadius: "9px", fontSize: "13.5px",
                 border: `1px solid ${BORDER}`, background: "transparent",
-                color: "rgba(237,231,227,0.6)", cursor: "pointer", fontWeight: 600,
+                color: "var(--muted-foreground)", cursor: "pointer", fontWeight: 600,
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)", minHeight: "44px",
               }}
             >
@@ -365,7 +365,7 @@ export function TabelaSessoesPagamento({
       }}>
         <p style={{
           fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-          color: "rgba(237,231,227,0.3)", fontSize: "13px",
+          color: "var(--muted-foreground)", fontSize: "13px",
         }}>
           Sem sessões em {mesLabel}.
         </p>
@@ -401,10 +401,10 @@ export function TabelaSessoesPagamento({
               <td style={{ padding: "12px 16px", color: CREAM, fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
                 {s.cliente.nome}
               </td>
-              <td style={{ padding: "12px 16px", color: "rgba(237,231,227,0.55)", fontSize: "13px" }}>
+              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "13px" }}>
                 {s.servico ?? "—"}
               </td>
-              <td style={{ padding: "12px 16px", color: "rgba(237,231,227,0.55)", fontSize: "13px", whiteSpace: "nowrap" }}>
+              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "13px", whiteSpace: "nowrap" }}>
                 {new Date(s.data).toLocaleDateString("pt-PT")}
               </td>
               <td style={{ padding: "12px 16px" }}>
@@ -441,7 +441,7 @@ export function TabelaSessoesPagamento({
                   // Venda de voucher: o dinheiro já entrou na compra, não há
                   // pagamento por registar nem nada para editar aqui.
                   <span style={{
-                    color: "rgba(237,231,227,0.3)", fontSize: "11.5px",
+                    color: "var(--muted-foreground)", fontSize: "11.5px",
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                   }}>
                     {s.voucherCodigo}
@@ -485,7 +485,7 @@ export function TabelaSessoesPagamento({
                 )}
               </td>
               <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
-                <div style={{ color: "rgba(237,231,227,0.7)", fontSize: "13px" }}>
+                <div style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
                   {s.valorPago
                     ? `€${Number(s.valorPago).toFixed(2)}`
                     : s.preco
@@ -493,7 +493,7 @@ export function TabelaSessoesPagamento({
                     : "—"}
                 </div>
                 {s.metodoPagamento && (
-                  <div style={{ color: "rgba(237,231,227,0.35)", fontSize: "10.5px", marginTop: "2px" }}>
+                  <div style={{ color: "var(--muted-foreground)", fontSize: "10.5px", marginTop: "2px" }}>
                     {METODO_LABEL[s.metodoPagamento] ?? s.metodoPagamento}
                   </div>
                 )}

@@ -1031,7 +1031,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             <option value="">Beatriz (por omissão)</option>
             {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
           </select>
-          <p style={{ fontSize: "11px", color: "rgba(237,231,227,0.4)", margin: "6px 0 0", lineHeight: 1.5 }}>
+          <p style={{ fontSize: "11px", color: "var(--muted-foreground)", margin: "6px 0 0", lineHeight: 1.5 }}>
             Onde este valor entra no Financeiro. Muda para a Cristina quando for ela a fazer a sessão.
           </p>
         </CampoForm>
