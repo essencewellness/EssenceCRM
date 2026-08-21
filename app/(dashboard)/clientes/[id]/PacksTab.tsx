@@ -6,6 +6,7 @@
 // pagamentos, incluindo o caso do Pack 10 pago em 2x (metade na 1.ª sessão,
 // metade na 5.ª — regra do site).
 import { useEffect, useRef, useState, useTransition } from "react"
+import { createPortal } from "react-dom"
 import { Calendar, CreditCard, Plus, X } from "lucide-react"
 import { NomeServico } from "@/components/NomeServico"
 import { criarPack, registarPagamentoPack } from "./actions"
@@ -172,11 +173,13 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
     })
   }
 
-  return (
+  if (typeof document === "undefined") return null
+
+  return createPortal(
     <div
       role="dialog" aria-modal="true" aria-label={`Registar pagamento do pack de ${nomePack(pack)}`}
       style={{
-        position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center",
+        position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
         backgroundColor: "rgba(9,11,18,0.68)", backdropFilter: "blur(2px)", padding: "20px",
       }}
       onClick={onFechar}
@@ -231,7 +234,8 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -317,9 +321,11 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
     color: ativa ? GOLD : CREAM,
   })
 
-  return (
+  if (typeof document === "undefined") return null
+
+  return createPortal(
     <div role="dialog" aria-modal="true" aria-label="Criar pack" style={{
-      position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center",
+      position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
       backgroundColor: "rgba(9,11,18,0.68)", backdropFilter: "blur(2px)", padding: "20px",
     }} onClick={onFechar}>
       <div onClick={e => e.stopPropagation()} style={{
@@ -413,7 +419,8 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

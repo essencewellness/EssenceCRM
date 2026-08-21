@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { atualizarObservacoesSessao, atualizarCampoSessao, atualizarTerapeutaSessao, eliminarSessao } from "./actions"
 import { InlineEditField } from "@/components/clientes/InlineEditField"
 import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, MessageSquare, FileText, Trash2, AlertTriangle, MapPin, Sparkles } from "lucide-react"
@@ -526,10 +527,10 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
       </div>
 
       {/* Modal de detalhe */}
-      {sessaoAberta && (
+      {sessaoAberta && typeof document !== "undefined" && createPortal(
         <div
           style={{
-            position: "fixed", inset: 0, zIndex: 50,
+            position: "fixed", inset: 0, zIndex: 200,
             backgroundColor: "rgba(14,17,25,0.78)",
             backdropFilter: "blur(6px)",
             WebkitBackdropFilter: "blur(6px)",
@@ -837,7 +838,8 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

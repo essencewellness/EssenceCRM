@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { createPortal } from "react-dom"
 import { Trash2, X } from "lucide-react"
 import { eliminarCliente } from "./actions"
 
@@ -59,10 +60,10 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
         Apagar
       </button>
 
-      {aberto && (
+      {aberto && typeof document !== "undefined" && createPortal(
         <div
           style={{
-            position: "fixed", inset: 0, zIndex: 50,
+            position: "fixed", inset: 0, zIndex: 200,
             backgroundColor: "rgba(22,26,38,0.45)",
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "20px",
@@ -217,7 +218,8 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
