@@ -56,7 +56,7 @@ export async function POST(
   const { id } = await params
   const v = await validarBody(request, packCreateSchema)
   if (!v.ok) return v.resposta
-  const { servicoId, totalSessoes, valorTotal, descricao } = v.data
+  const { servicoId, totalSessoes, valorTotal, descricao, terapeutaId } = v.data
 
   try {
     const [cliente, servico] = await Promise.all([
@@ -67,6 +67,11 @@ export async function POST(
     if (!cliente) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
     if (!servico || !servico.ativo) return respostaErro("Serviço não encontrado ou inativo", "SERVICO_NAO_ENCONTRADO", 404)
 
+    if (terapeutaId) {
+      const terapeuta = await prisma.user.findFirst({ where: { id: terapeutaId, ativo: true, role: "terapeuta" }, select: { id: true } })
+      if (!terapeuta) return respostaErro("Terapeuta não encontrada ou inativa", "TERAPEUTA_NAO_ENCONTRADA", 404)
+    }
+
     const pack = await prisma.pack.create({
       data: {
         clienteId: id,
@@ -74,6 +79,7 @@ export async function POST(
         totalSessoes,
         valorTotal: new Prisma.Decimal(valorTotal),
         descricao: descricao ?? null,
+        terapeutaId: terapeutaId ?? null,
         ativo: true,
       },
       include: { servico: { select: { nome: true } } },

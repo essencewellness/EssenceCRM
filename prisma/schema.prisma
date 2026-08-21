@@ -26,6 +26,7 @@ model User {
   sessoesComoSegunda   Sessao[]  @relation("Terapeuta2Sessao")
   vouchersAtribuidos   GiftCard[] @relation("TerapeutaGiftCard")
   vouchersComoSegunda  GiftCard[] @relation("Terapeuta2GiftCard")
+  packsAtribuidos      Pack[]     @relation("TerapeutaPack")
   clientesPrincipais   Cliente[] @relation("TerapeutaCliente")
   tarefasCriadas       Tarefa[]  @relation("TarefaCriada")
   tarefasAtribuidas    Tarefa[]  @relation("TarefaAtribuida")
@@ -499,14 +500,46 @@ model Pack {
   descricao     String?
   ativo         Boolean  @default(true)
 
+  // Soma de PackPagamento.valor — mantido desnormalizado (recalculado a cada
+  // registarPagamentoPack) para não ter de somar a lista toda em cada leitura
+  // do perfil do cliente. "pendente" | "parcial" | "pago".
+  valorPago       Decimal @default(0) @db.Decimal(10, 2)
+  estadoPagamento String  @default("pendente")
+
+  // Packs são individuais (não têm versão "a dois") — a receita é sempre
+  // desta terapeuta, nunca dividida. null = Bea, mesma convenção de
+  // Sessao.terapeutaId/GiftCard.terapeutaId.
+  terapeutaId String?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  servico Servico @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  cliente    Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servico    Servico         @relation(fields: [servicoId], references: [id], onDelete: Cascade)
+  terapeuta  User?           @relation("TerapeutaPack", fields: [terapeutaId], references: [id])
+  pagamentos PackPagamento[]
 
   @@index([clienteId])
   @@index([ativo])
+  @@index([terapeutaId])
+}
+
+// Um pack de 10 sessões pode ser pago em 2x (metade na 1.ª sessão, metade na
+// 5.ª — regra do site, ver packs-massagens/packs-drenagem) — por isso é uma
+// lista de pagamentos, não um único valorPago+estadoPagamento como a Sessao
+// (que só tem uma cobrança). Pack.valorPago/estadoPagamento ficam
+// desnormalizados a partir daqui.
+model PackPagamento {
+  id              String   @id @default(cuid())
+  packId          String
+  valor           Decimal  @db.Decimal(10, 2)
+  metodoPagamento String?
+  notas           String?
+  criadoEm        DateTime @default(now())
+
+  pack Pack @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@index([packId])
 }
 
 // ── Templates e Campanhas ────────────────────────────────────

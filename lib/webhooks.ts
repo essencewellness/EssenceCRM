@@ -213,4 +213,19 @@ export const webhooks = {
     metodoPagamento: string | null
     direcao: "bea_perde" | "bea_ganha"
   }) => dispararWebhook("sessao.receita_reatribuida", payload),
+
+  // Pagamento (integral ou uma parcela de 2x) registado num pack de sessões.
+  // terapeutaId aqui (não "envolveBea"): ao contrário de sessão/voucher, um
+  // pack nunca é "a dois" — a receita é sempre 100% de uma só terapeuta.
+  // Ainda sem workflow N8N ligado a este evento (ver nota em
+  // registarPagamentoPack) — fica pronto para quando um for criado.
+  packPagamentoRegistado: (payload: {
+    packId: string
+    clienteNome: string
+    servicoNome: string
+    valor: number
+    data: string
+    metodoPagamento: string | null
+    terapeutaId: string | null
+  }) => dispararWebhook("pack.pagamento_registado", payload),
 }

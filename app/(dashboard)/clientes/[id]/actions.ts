@@ -360,3 +360,139 @@ export async function atualizarTerapeutaSessao(
     return { ok: false, erro: "Erro ao guardar. Tenta novamente." }
   }
 }
+
+// ── Packs de sessões ──────────────────────────────────────────
+// Packs são individuais (nunca "a dois") — a receita é sempre só desta
+// terapeuta, nunca dividida (ao contrário de sessão/voucher a dois).
+
+export async function criarPack(
+  clienteId: string,
+  dados: {
+    servicoId: string
+    totalSessoes: number
+    valorTotal: number
+    descricao?: string | null
+    terapeutaId?: string | null
+  }
+): Promise<{ ok: true; packId: string } | { ok: false; erro: string }> {
+  try {
+    const session = await auth()
+    if (!session?.user) throw new Error("Não autorizado")
+    await verificarDonoCliente(session, clienteId)
+
+    if (dados.totalSessoes < 1 || dados.totalSessoes > 100) {
+      return { ok: false, erro: "Número de sessões inválido" }
+    }
+    if (dados.valorTotal <= 0) {
+      return { ok: false, erro: "O valor total tem de ser maior que zero" }
+    }
+
+    if (dados.terapeutaId) {
+      const terapeuta = await prisma.user.findFirst({
+        where: { id: dados.terapeutaId, ativo: true, role: "terapeuta" },
+        select: { id: true },
+      })
+      if (!terapeuta) return { ok: false, erro: "Terapeuta inválida" }
+    }
+
+    const pack = await prisma.pack.create({
+      data: {
+        clienteId,
+        servicoId: dados.servicoId,
+        totalSessoes: dados.totalSessoes,
+        valorTotal: dados.valorTotal,
+        descricao: dados.descricao ?? null,
+        terapeutaId: dados.terapeutaId ?? null,
+      },
+    })
+
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "pack.criado",
+      entidade: "Pack",
+      entidadeId: pack.id,
+      detalhe: { clienteId, totalSessoes: dados.totalSessoes, valorTotal: dados.valorTotal, terapeutaId: dados.terapeutaId ?? null },
+    })
+
+    revalidatePath(`/clientes/${clienteId}`)
+    return { ok: true, packId: pack.id }
+  } catch (e) {
+    console.error("criarPack:", e)
+    return { ok: false, erro: "Erro ao criar o pack. Tenta novamente." }
+  }
+}
+
+export async function registarPagamentoPack(
+  packId: string,
+  clienteId: string,
+  dados: { valor: number; metodoPagamento?: string | null; notas?: string | null }
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  try {
+    const session = await auth()
+    if (!session?.user) throw new Error("Não autorizado")
+    await verificarDonoCliente(session, clienteId)
+
+    if (dados.valor <= 0) return { ok: false, erro: "O valor tem de ser maior que zero" }
+
+    const pack = await prisma.pack.findUnique({
+      where: { id: packId },
+      select: {
+        clienteId: true, valorTotal: true, valorPago: true, terapeutaId: true,
+        servico: { select: { nome: true } }, cliente: { select: { nome: true } },
+      },
+    })
+    if (!pack || pack.clienteId !== clienteId) return { ok: false, erro: "Pack não encontrado" }
+
+    const valorPagoAntes = Number(pack.valorPago)
+    const novoValorPago = valorPagoAntes + dados.valor
+    const valorTotalNum = Number(pack.valorTotal)
+    // Comparação com margem de 1 cêntimo — floats de Decimal→Number podem
+    // ficar a 349.9999999 em vez de 350, e "pago" nunca acontecia.
+    const novoEstado = novoValorPago >= valorTotalNum - 0.01 ? "pago" : novoValorPago > 0 ? "parcial" : "pendente"
+
+    await prisma.$transaction([
+      prisma.packPagamento.create({
+        data: {
+          packId,
+          valor: dados.valor,
+          metodoPagamento: dados.metodoPagamento ?? null,
+          notas: dados.notas ?? null,
+        },
+      }),
+      prisma.pack.update({
+        where: { id: packId },
+        data: { valorPago: novoValorPago, estadoPagamento: novoEstado },
+      }),
+    ])
+
+    // Dashboard financeiro (Google Sheets) — mesmo padrão fire-and-forget dos
+    // outros eventos de receita. Sem workflow N8N ligado ainda para este
+    // evento específico: a variável de ambiente não estando definida faz
+    // isto ser silenciosamente ignorado (comportamento documentado em
+    // lib/webhooks.ts), não é um erro.
+    void webhooks.packPagamentoRegistado({
+      packId,
+      clienteNome: pack.cliente.nome,
+      servicoNome: pack.servico.nome,
+      valor: dados.valor,
+      data: new Date().toISOString(),
+      metodoPagamento: dados.metodoPagamento ?? null,
+      terapeutaId: pack.terapeutaId,
+    })
+
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "pack.pagamento_registado",
+      entidade: "Pack",
+      entidadeId: packId,
+      detalhe: { valor: dados.valor, valorPagoTotal: novoValorPago, estadoPagamento: novoEstado },
+    })
+
+    revalidatePath(`/clientes/${clienteId}`)
+    revalidatePath("/financeiro")
+    return { ok: true }
+  } catch (e) {
+    console.error("registarPagamentoPack:", e)
+    return { ok: false, erro: "Erro ao registar o pagamento. Tenta novamente." }
+  }
+}

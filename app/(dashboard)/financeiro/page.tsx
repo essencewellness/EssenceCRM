@@ -68,7 +68,13 @@ export default async function FinanceiroPage({
   // pertencem a ela por omissão.
   const idBea = await getTerapeutaPrincipalPadraoId()
 
-  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, servicosRaw, repassesRaw] = await Promise.all([
+  // Packs são individuais (nunca "a dois") — filtro simples por
+  // pack.terapeutaId, sem o OR terapeutaId/terapeuta2Id das sessões/vouchers.
+  const filtroPack: Prisma.PackPagamentoWhereInput = alvo
+    ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
+    : {}
+
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, servicosRaw, repassesRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -108,6 +114,12 @@ export default async function FinanceiroPage({
         : {},
       select: { valorPago: true, terapeuta2Id: true },
     }),
+    // Mesma lógica para pagamentos de pack — "Receita total" tinha o mesmo
+    // problema que os vouchers tinham antes de 2026-08-21.
+    prisma.packPagamento.findMany({
+      where: filtroPack,
+      select: { valor: true },
+    }),
     prisma.sessao.groupBy({
       by: ["clienteId"],
       where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
@@ -142,6 +154,18 @@ export default async function FinanceiroPage({
         dataCompra: true, compradorNome: true, terapeuta2Id: true,
       },
       orderBy: { dataCompra: "desc" },
+    }),
+    // Pagamentos de pack registados este mês — "quando forem lá criados
+    // adiciona ao financeiro" (pedido do Nuno, 2026-08-22). Pelo mês do
+    // PAGAMENTO (como voucher), não do pack em si — um pack criado em julho
+    // com a 2ª parcela paga em agosto conta essa parcela em agosto.
+    prisma.packPagamento.findMany({
+      where: { ...filtroPack, criadoEm: { gte: inicio, lt: fim } },
+      select: {
+        id: true, valor: true, metodoPagamento: true, notas: true, criadoEm: true,
+        pack: { select: { id: true, servico: { select: { nome: true } }, cliente: { select: { id: true, nome: true } } } },
+      },
+      orderBy: { criadoEm: "desc" },
     }),
     prisma.servico.findMany({
       where: { ativo: true },
@@ -203,7 +227,23 @@ export default async function FinanceiroPage({
     }
   })
 
-  const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher]
+  // Cada pagamento de pack vira uma linha — se um pack de 10 é pago em 2x,
+  // são duas linhas em dois meses possivelmente diferentes, uma por parcela.
+  const linhasPack: SessaoRow[] = pagamentosPackMesRaw.map(pg => ({
+    id: `pack-${pg.id}`,
+    data: pg.criadoEm.toISOString(),
+    servico: `Pack — ${pg.pack.servico.nome}${pg.notas ? ` (${pg.notas})` : ""}`,
+    preco: String(pg.valor),
+    estado: "realizada",
+    estadoPagamento: "pago",
+    valorPago: String(pg.valor),
+    metodoPagamento: pg.metodoPagamento,
+    repasseNecessario: false,
+    repasseFeito: false,
+    cliente: pg.pack.cliente,
+  }))
+
+  const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher, ...linhasPack]
     .sort((a, b) => b.data.localeCompare(a.data))
 
   const repasses: RepasseRow[] = repassesRaw.map(r => ({
@@ -281,8 +321,19 @@ export default async function FinanceiroPage({
     porMetodo.voucher! += valor
   }
 
+  // Pagamentos de pack: valor inteiro (packs nunca são "a dois", ao
+  // contrário de sessão/voucher — não há metade a atribuir a outra
+  // terapeuta). Método real do pagamento, não uma categoria "pack" à parte.
+  for (const pg of pagamentosPackMesRaw) {
+    const valor = Number(pg.valor)
+    receitaTotal += valor
+    const m = pg.metodoPagamento === "mbway" ? "mbway_beatriz" : pg.metodoPagamento
+    if (m && m in porMetodo) porMetodo[m]! += valor
+  }
+
   const receitaVouchersSempre = vendasVoucherAllTime.reduce((soma, v) => soma + valorAtribuidoVoucher(v), 0)
-  const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0) + receitaVouchersSempre
+  const receitaPacksSempre = pagamentosPackAllTime.reduce((soma, pg) => soma + Number(pg.valor), 0)
+  const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0) + receitaVouchersSempre + receitaPacksSempre
   const pendentes = sessoes.filter(s => s.estadoPagamento === "pendente" && s.estado === "realizada")
 
   return (

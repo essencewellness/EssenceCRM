@@ -460,6 +460,9 @@ export const packCreateSchema = z.object({
   totalSessoes: z.coerce.number().int().min(1).max(100),
   valorTotal: precoSchema,
   descricao: z.string().trim().max(200).optional().nullable(),
+  // Packs são individuais (nunca "a dois") — null = Bea, mesma convenção de
+  // Sessao.terapeutaId/GiftCard.terapeutaId.
+  terapeutaId: z.string().trim().max(64).optional().nullable(),
 }).strict()
 
 export const packUpdateSchema = z.object({

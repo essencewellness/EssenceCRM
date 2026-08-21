@@ -14,6 +14,7 @@ import { construirEventosTimeline } from "@/lib/timeline"
 import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { DeleteClienteButton } from "./DeleteClienteButton"
 import { SessoesTab } from "./SessoesTab"
+import { PacksTab } from "./PacksTab"
 import { ObservacoesTimeline } from "@/components/observacoes-timeline"
 import { NomeServico } from "@/components/NomeServico"
 import { EstadoEditor } from "./EstadoEditor"
@@ -78,7 +79,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
   const { id } = await params
   const ctx = await getContextoUtilizador()
 
-  const [cliente, todasEtiquetas, tarefasCliente, terapeutas] = await Promise.all([
+  const [cliente, todasEtiquetas, tarefasCliente, terapeutas, servicosCatalogo] = await Promise.all([
     prisma.cliente.findUnique({
       where: { id },
       include: {
@@ -87,7 +88,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
         mensagens: { orderBy: { geradaEm: "desc" } },
         observacoes: { orderBy: { criadoEm: "desc" } },
         precos: { include: { servico: { select: { nome: true, precoBase: true } } }, orderBy: { criadoEm: "desc" } },
-        packs: { include: { servico: { select: { nome: true } } }, orderBy: { criadoEm: "desc" } },
+        packs: {
+          include: {
+            servico: { select: { nome: true } },
+            terapeuta: { select: { name: true } },
+            pagamentos: { orderBy: { criadoEm: "asc" } },
+          },
+          orderBy: { criadoEm: "desc" },
+        },
         // Os dois papéis de um voucher: comprado por esta pessoa, ou
         // oferecido a ela por outra. Ver VouchersTab.
         vouchersComprados: { orderBy: { dataCompra: "desc" } },
@@ -105,6 +113,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
       take: 50,
     }),
     listarTerapeutas(),
+    prisma.servico.findMany({ where: { ativo: true }, select: { id: true, nome: true }, orderBy: { nome: "asc" } }),
   ])
 
   if (!cliente) notFound()
@@ -723,96 +732,37 @@ export default async function ClientePage({ params }: ClientePageProps) {
             value: "packs",
             label: "Packs & Preços",
             content: (
-              <div className="anim-fade-up" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                <div style={{ backgroundColor: "var(--nuit-overlay)", borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                    <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                    <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>
-                      Packs de Sessões
-                    </h2>
-                  </div>
-                  {cliente.packs.length === 0 ? (
-                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                      Sem packs activos para este cliente.
-                    </p>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                      {cliente.packs.map((p, i) => {
-                        const restantes = p.totalSessoes - p.sessoesUsadas
-                        const pct = Math.round((p.sessoesUsadas / p.totalSessoes) * 100)
-                        return (
-                          <div key={p.id} className="card-hover" style={{
-                            padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.16)", opacity: p.ativo ? 1 : 0.5,
-                            // Só transform, nunca opacity: um pack terminado tem opacity:0.5
-                            // fixo — animar opacity aqui entrava em conflito com esse valor
-                            // final (a keyframe "both" ganhava e ficava sempre a 1).
-                            animation: "riseOnly var(--dur-med) var(--ease-out) both",
-                            animationDelay: `${Math.min(i, 10) * 26}ms`,
-                          }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", flex: 1 }}><NomeServico nome={p.servico.nome} /></span>
-                              <span style={{
-                                fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",
-                                background: p.ativo ? "rgba(74,124,89,0.12)" : "rgba(160,100,80,0.1)",
-                                color: p.ativo ? "#4a7c59" : "#a06450",
-                              }}>{p.ativo ? "Ativo" : "Terminado"}</span>
-                              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)" }}>€{Number(p.valorTotal).toFixed(2)}</span>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                              <div style={{ flex: 1, height: "6px", borderRadius: "3px", background: "rgba(212,184,134,0.1)", overflow: "hidden" }}>
-                                <div style={{ height: "100%", width: `${pct}%`, background: p.ativo ? "var(--nuit-sage)" : "var(--nuit-champagne-soft)", borderRadius: "3px", transition: "width 0.3s" }} />
-                              </div>
-                              <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap" }}>
-                                {p.sessoesUsadas}/{p.totalSessoes} sessões · {restantes} restantes
-                              </span>
-                            </div>
-                            {p.descricao && <p style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "6px" }}>{p.descricao}</p>}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ backgroundColor: "var(--nuit-overlay)", borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                    <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-                    <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>
-                      Preços Personalizados
-                    </h2>
-                  </div>
-                  {cliente.precos.length === 0 ? (
-                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                      Sem preços personalizados — usa os preços base dos serviços.
-                    </p>
-                  ) : (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
-                          {["Serviço", "Preço Base", "Preço Personalizado", "Motivo", "Validade"].map(h => (
-                            <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cliente.precos.map((p, i) => (
-                          <tr key={p.id} style={{
-                            borderBottom: "1px solid rgba(212,184,134,0.1)",
-                            animation: "fadeUp var(--dur-fast) var(--ease-out) both",
-                            animationDelay: `${Math.min(i, 10) * 26}ms`,
-                          }}>
-                            <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
-                            <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
-                            <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)" }}>€{Number(p.valor).toFixed(2)}</td>
-                            <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
-                            <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
+              <PacksTab
+                clienteId={cliente.id}
+                packs={cliente.packs.map(p => ({
+                  id: p.id,
+                  servico: { nome: p.servico.nome },
+                  totalSessoes: p.totalSessoes,
+                  sessoesUsadas: p.sessoesUsadas,
+                  valorTotal: Number(p.valorTotal),
+                  valorPago: Number(p.valorPago),
+                  estadoPagamento: p.estadoPagamento,
+                  descricao: p.descricao,
+                  ativo: p.ativo,
+                  terapeuta: p.terapeuta,
+                  pagamentos: p.pagamentos.map(pg => ({
+                    id: pg.id,
+                    valor: Number(pg.valor),
+                    metodoPagamento: pg.metodoPagamento,
+                    notas: pg.notas,
+                    criadoEm: pg.criadoEm.toISOString(),
+                  })),
+                }))}
+                precos={cliente.precos.map(p => ({
+                  id: p.id,
+                  motivo: p.motivo,
+                  validade: p.validade ? p.validade.toISOString() : null,
+                  valor: Number(p.valor),
+                  servico: { nome: p.servico.nome, precoBase: Number(p.servico.precoBase) },
+                }))}
+                servicos={servicosCatalogo}
+                terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name ?? t.username ?? "—" }))}
+              />
             ),
           },
           {
