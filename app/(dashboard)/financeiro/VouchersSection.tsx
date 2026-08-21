@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { criarVoucher, atualizarEstadoVoucher } from "./actions"
 
 const GOLD = "var(--nuit-champagne)"
@@ -137,6 +137,26 @@ function CriarVoucherModal({
   const [erro, setErro] = useState("")
 
   const servicoFinal = servicoNome === "__outro__" ? servicoCustom : servicoNome
+  const focoAnteriorRef = useRef<HTMLElement | null>(null)
+  const primeiroCampoRef = useRef<HTMLInputElement>(null)
+
+  // Escape fecha, foco entra no primeiro campo e volta para quem abriu o
+  // modal ao fechar — mesmo padrão do modal de pagamento (auditoria a11y,
+  // skill frontend-a11y, 2026-08-21).
+  useEffect(() => {
+    focoAnteriorRef.current = document.activeElement as HTMLElement
+    primeiroCampoRef.current?.focus()
+    function aoTeclado(e: KeyboardEvent) {
+      if (e.key === "Escape") onFechar()
+    }
+    window.addEventListener("keydown", aoTeclado)
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", aoTeclado)
+      document.body.style.overflow = ""
+      focoAnteriorRef.current?.focus()
+    }
+  }, [onFechar])
 
   // Pré-preenche o valor quando se seleciona um serviço do catálogo
   function onServicoChange(nome: string) {
@@ -196,7 +216,11 @@ function CriarVoucherModal({
         onClick={onFechar}
       />
       {/* modal */}
-      <div style={{
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Novo Voucher"
+        style={{
         position: "fixed", zIndex: 100,
         top: "50%", left: "50%",
         transform: "translate(-50%, -50%)",
@@ -223,6 +247,7 @@ function CriarVoucherModal({
           </div>
           <button
             onClick={onFechar}
+            aria-label="Fechar"
             style={{
               background: "none", border: "none", cursor: "pointer",
               color: "rgba(237,231,227,0.35)", fontSize: "20px", lineHeight: 1,
@@ -253,7 +278,7 @@ function CriarVoucherModal({
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div style={{ gridColumn: "1 / -1" }}>
                 <Grupo label="Nome *">
-                  <input value={compradorNome} onChange={e => setCompradorNome(e.target.value)} style={inputStyle} placeholder="Nome completo" />
+                  <input ref={primeiroCampoRef} value={compradorNome} onChange={e => setCompradorNome(e.target.value)} style={inputStyle} placeholder="Nome completo" />
                 </Grupo>
               </div>
               <Grupo label="Telefone">

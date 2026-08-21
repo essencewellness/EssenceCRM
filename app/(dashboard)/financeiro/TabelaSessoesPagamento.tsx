@@ -142,12 +142,17 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
   const [valor, setValor] = useState(precoRef ? Number(precoRef).toFixed(2) : "")
   const [metodo, setMetodo] = useState(sessao.metodoPagamento ?? "mbway_essence")
   const primeiroCampoRef = useRef<HTMLButtonElement>(null)
+  const focoAnteriorRef = useRef<HTMLElement | null>(null)
 
   const mostrarDetalhes = estado === "pago" || estado === "parcial"
   // voucher já foi pago pela compradora quando o comprou — não há valor a registar agora
   const mostrarValor = mostrarDetalhes && metodo !== "voucher"
 
   useEffect(() => {
+    // Guarda quem tinha o foco antes de abrir (o botão "Registar pagamento"
+    // da linha) para o devolver ao fechar — sem isto, quem navega por
+    // teclado perdia o sítio na tabela sempre que fechava o modal.
+    focoAnteriorRef.current = document.activeElement as HTMLElement
     primeiroCampoRef.current?.focus()
     function aoTeclado(e: KeyboardEvent) {
       if (e.key === "Escape") onFechar()
@@ -157,6 +162,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
     return () => {
       window.removeEventListener("keydown", aoTeclado)
       document.body.style.overflow = ""
+      focoAnteriorRef.current?.focus()
     }
   }, [onFechar])
 
