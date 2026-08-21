@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { DM_Serif_Display, Manrope } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
@@ -35,11 +36,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // proxy.ts gera um nonce por pedido e exige CSP script-src com
+  // 'strict-dynamic' — sem o nonce aqui, este script inline era bloqueado
+  // em silêncio em produção (não em dev, onde não há CSP restritiva) e a
+  // preferência de tema guardada nunca chegava a aplicar-se antes do
+  // primeiro paint, sendo depois reescrita para "dark" pelo próprio
+  // ThemeProvider ao ler a classe (errada) já presente no <html>.
+  const nonce = (await headers()).get("x-nonce") ?? undefined
   return (
     <html
       lang="pt"
@@ -49,7 +57,7 @@ export default function RootLayout({
       className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased dark`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
         <a
