@@ -705,7 +705,7 @@ export function TarefasWidget({
 
       {tarefasVencidas.length > 0 && (
         <div style={{ marginBottom: "12px" }}>
-          <p style={{
+          <p className="value-pulse" style={{
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "9px", fontWeight: 600,
             color: "var(--destructive)", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",

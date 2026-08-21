@@ -301,6 +301,17 @@
 }
 .btn-lift:active { transform: translateY(0) scale(0.97); }
 
+/* ── Flash discreto num campo (InlineEditField) logo a seguir a gravar ──
+   Uma vez só, nunca em loop — confirma "gravado" sem precisar de um toast
+   por cada campo (a ficha do cliente tem dezenas destes na mesma página). */
+.field-saved-flash {
+  animation: fieldSavedFlash 900ms cubic-bezier(0.22,0.61,0.36,1) both;
+}
+@keyframes fieldSavedFlash {
+  0%   { background-color: rgba(212,184,134,0.22); }
+  100% { background-color: transparent; }
+}
+
 /* ── Badge/valor que pulsa só quando há urgência real (usar com condição,
    nunca sempre — ex: "Por cobrar" > 0, tarefas vencidas) ── */
 .value-pulse {

@@ -10,6 +10,7 @@ export function EdicaoPerfilToggle() {
     <button
       type="button"
       onClick={() => setEditing(!editing)}
+      className="btn-lift"
       style={{
         display: "inline-flex", alignItems: "center", gap: "6px",
         padding: "7px 14px", borderRadius: "6px",

@@ -73,6 +73,7 @@ export function InlineEditField({
   const [valorLocal, setValorLocal] = useState<Valor>(value)
   const [rascunho, setRascunho] = useState(value == null ? "" : String(value))
   const [isPending, startTransition] = useTransition()
+  const [salvo, setSalvo] = useState(false)
   const inputRef = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null)
   const { toast } = useToast()
 
@@ -135,7 +136,13 @@ export function InlineEditField({
         setValorLocal(anterior)
         setRascunho(anterior == null ? "" : String(anterior))
         toast(res.erro, "error")
+        return
       }
+      // Flash discreto no próprio campo em vez de um toast — este componente
+      // está montado dezenas de vezes por página (ficha inteira do cliente),
+      // um toast por gravação individual inundava o canto do ecrã.
+      setSalvo(true)
+      setTimeout(() => setSalvo(false), 900)
     })
   }
 
@@ -274,10 +281,11 @@ export function InlineEditField({
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
         {!hideLabel && <span style={rotuloStyle}>{label}</span>}
-        <span style={{
+        <span className={salvo ? "field-saved-flash" : undefined} style={{
           fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
           color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
           fontStyle: textoExibido ? "normal" : "italic",
+          borderRadius: "3px",
           ...(semTruncar
             ? { whiteSpace: "pre-wrap", lineHeight: 1.7 }
             : { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }),
@@ -298,6 +306,7 @@ export function InlineEditField({
         onClick={abrir}
         disabled={readOnly}
         aria-label={hideLabel ? label : undefined}
+        className={salvo ? "field-saved-flash" : undefined}
         style={{
           display: "flex", alignItems: semTruncar ? "flex-start" : "center", gap: "6px",
           background: "none", border: "none", padding: "2px 5px", margin: "-2px -5px",
