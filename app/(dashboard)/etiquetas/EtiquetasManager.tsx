@@ -115,7 +115,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
               padding: "9px 18px", borderRadius: "4px", cursor: "pointer",
               fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
               letterSpacing: "0.08em", textTransform: "uppercase",
-              color: "#fff", backgroundColor: "#b9a07a", border: "none",
+              color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", border: "none",
             }}
           >
             + Nova Etiqueta
@@ -143,7 +143,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
                   flex: 1, padding: "6px 0", borderRadius: "4px", fontSize: "10px",
                   fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                   letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer",
-                  color: novoTipo === t ? "#b9a07a" : "var(--nuit-bone-soft)",
+                  color: novoTipo === t ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
                   border: `1px solid ${novoTipo === t ? "rgba(185,160,122,0.5)" : "rgba(212,184,134,0.18)"}`,
                   backgroundColor: novoTipo === t ? "rgba(185,160,122,0.08)" : "transparent",
                 }}>
@@ -169,13 +169,13 @@ export function EtiquetasManager({ etiquetas }: Props) {
               ))}
             </div>
 
-            {erroNovo && <p style={{ fontSize: "11px", color: "#b06050", marginBottom: "10px", fontFamily: "var(--font-sans, sans-serif)" }}>{erroNovo}</p>}
+            {erroNovo && <p style={{ fontSize: "11px", color: "var(--destructive)", marginBottom: "10px", fontFamily: "var(--font-sans, sans-serif)" }}>{erroNovo}</p>}
 
             <div style={{ display: "flex", gap: "8px" }}>
               <button onClick={() => { setMostraCriar(false); setErroNovo("") }} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", backgroundColor: "transparent", cursor: "pointer" }}>
                 Cancelar
               </button>
-              <button onClick={handleCriar} disabled={!novoNome.trim() || isPending} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "#b9a07a", cursor: novoNome.trim() ? "pointer" : "not-allowed", opacity: novoNome.trim() ? 1 : 0.5 }}>
+              <button onClick={handleCriar} disabled={!novoNome.trim() || isPending} style={{ flex: 1, padding: "8px", borderRadius: "4px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: novoNome.trim() ? "pointer" : "not-allowed", opacity: novoNome.trim() ? 1 : 0.5 }}>
                 {isPending ? "A criar…" : "Criar"}
               </button>
             </div>
@@ -244,7 +244,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
                             <button key={cor} onClick={() => setEditCor(cor)} style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: cor, border: editCor === cor ? "2px solid var(--nuit-bone)" : "2px solid transparent", cursor: "pointer", padding: 0 }} />
                           ))}
                         </div>
-                        {erro && <span style={{ fontSize: "11px", color: "#b06050", fontFamily: "var(--font-sans, sans-serif)" }}>{erro}</span>}
+                        {erro && <span style={{ fontSize: "11px", color: "var(--destructive)", fontFamily: "var(--font-sans, sans-serif)" }}>{erro}</span>}
                         <button onClick={() => handleAtualizar(tag.id)} disabled={isPending} style={{ background: "none", border: "none", cursor: "pointer", color: "#7a9e7e", padding: "2px" }}><Check size={14} /></button>
                         <button onClick={cancelarEdicao} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--nuit-smoke)", padding: "2px" }}><X size={14} /></button>
                       </>
@@ -264,11 +264,11 @@ export function EtiquetasManager({ etiquetas }: Props) {
                         {!isAutomatica && (
                           <>
                             <button onClick={() => iniciarEdicao(tag)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--nuit-smoke)", padding: "4px" }}
-                              onMouseEnter={e => (e.currentTarget.style.color = "#b9a07a")}
+                              onMouseEnter={e => (e.currentTarget.style.color = "var(--nuit-champagne-soft)")}
                               onMouseLeave={e => (e.currentTarget.style.color = "var(--nuit-smoke)")}
                             ><Edit2 size={13} /></button>
                             <button onClick={() => handleApagar(tag.id, tag.nome, tag._count.clientes)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--nuit-smoke)", padding: "4px" }}
-                              onMouseEnter={e => (e.currentTarget.style.color = "#b06050")}
+                              onMouseEnter={e => (e.currentTarget.style.color = "var(--destructive)")}
                               onMouseLeave={e => (e.currentTarget.style.color = "var(--nuit-smoke)")}
                             ><Trash2 size={13} /></button>
                           </>

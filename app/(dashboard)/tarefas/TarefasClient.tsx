@@ -67,7 +67,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
     (t) => t.dataLimite && new Date(t.dataLimite) < new Date()
   ).length
 
-  const GOLD = "#b9a07a"
+  const GOLD = "var(--nuit-champagne-soft)"
   const chip = (label: string, value: string) => {
     const active = filtroTerapeuta === value
     return (
@@ -95,7 +95,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#ece6d6]">Tarefas</h1>
+          <h1 className="text-2xl font-bold text-[var(--nuit-bone)]">Tarefas</h1>
           <p className="text-sm text-[var(--nuit-bone-soft)] mt-0.5">
             {tarefasAtivas.length} ativa{tarefasAtivas.length !== 1 ? "s" : ""}
             {vencidas > 0 && (
@@ -110,8 +110,8 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
             onClick={() => setMostrarFiltros((p) => !p)}
             className={`flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg border transition-colors cursor-pointer ${
               mostrarFiltros
-                ? "border-[rgba(185,160,122,0.4)] bg-[rgba(185,160,122,0.1)] text-[#d4b886]"
-                : "border-[rgba(212,184,134,0.16)] text-[#d8d2c2] hover:bg-[rgba(212,184,134,0.06)]"
+                ? "border-[rgba(185,160,122,0.4)] bg-[rgba(185,160,122,0.1)] text-[var(--nuit-champagne)]"
+                : "border-[rgba(212,184,134,0.16)] text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -121,7 +121,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
             <button
               onClick={() => setVista("lista")}
               className={`p-2 transition-colors cursor-pointer ${
-                vista === "lista" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
+                vista === "lista" ? "bg-[rgba(185,160,122,0.1)] text-[var(--nuit-champagne)]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
               }`}
               title="Vista em lista"
             >
@@ -130,7 +130,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
             <button
               onClick={() => setVista("kanban")}
               className={`p-2 transition-colors cursor-pointer ${
-                vista === "kanban" ? "bg-[rgba(185,160,122,0.1)] text-[#d4b886]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
+                vista === "kanban" ? "bg-[rgba(185,160,122,0.1)] text-[var(--nuit-champagne)]" : "text-[var(--nuit-bone-soft)] hover:bg-[rgba(212,184,134,0.06)]"
               }`}
               title="Vista kanban"
             >
@@ -157,11 +157,11 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
 
       {/* Filtros */}
       {mostrarFiltros && (
-        <div className="bg-[#1f2433] rounded-xl p-4 border border-[rgba(212,184,134,0.16)] shadow-sm mb-6 flex flex-wrap gap-3">
+        <div className="bg-[var(--nuit-overlay)] rounded-xl p-4 border border-[rgba(212,184,134,0.16)] shadow-sm mb-6 flex flex-wrap gap-3">
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[#161a26] rounded-lg px-3 py-1.5 text-[#d8d2c2] focus:outline-none cursor-pointer"
+            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[var(--nuit-midnight)] rounded-lg px-3 py-1.5 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
           >
             <option value="">Todos os estados</option>
             {ESTADOS.map((e) => <option key={e} value={e}>{e.replace("_", " ")}</option>)}
@@ -169,7 +169,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           <select
             value={filtroPrioridade}
             onChange={(e) => setFiltroPrioridade(e.target.value)}
-            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[#161a26] rounded-lg px-3 py-1.5 text-[#d8d2c2] focus:outline-none cursor-pointer"
+            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[var(--nuit-midnight)] rounded-lg px-3 py-1.5 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
           >
             <option value="">Todas as prioridades</option>
             {PRIORIDADES.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -177,7 +177,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           <select
             value={filtroTipo}
             onChange={(e) => setFiltroTipo(e.target.value)}
-            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[#161a26] rounded-lg px-3 py-1.5 text-[#d8d2c2] focus:outline-none cursor-pointer"
+            className="text-sm border border-[rgba(212,184,134,0.16)] bg-[var(--nuit-midnight)] rounded-lg px-3 py-1.5 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
           >
             <option value="">Todos os tipos</option>
             {TIPOS.map((t) => <option key={t} value={t}>{t.replace("_", " ")}</option>)}
@@ -185,7 +185,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           {(filtroEstado || filtroPrioridade || filtroTipo) && (
             <button
               onClick={() => { setFiltroEstado(""); setFiltroPrioridade(""); setFiltroTipo("") }}
-              className="text-sm text-[var(--nuit-bone-soft)] hover:text-[#d8d2c2] cursor-pointer"
+              className="text-sm text-[var(--nuit-bone-soft)] hover:text-[var(--nuit-bone-soft)] cursor-pointer"
             >
               Limpar filtros
             </button>
@@ -197,7 +197,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-20 bg-[#1f2433] rounded-xl animate-pulse" />
+            <div key={i} className="h-20 bg-[var(--nuit-overlay)] rounded-xl animate-pulse" />
           ))}
         </div>
       ) : tarefas.length === 0 ? (

@@ -32,10 +32,10 @@ interface ClientePageProps {
 
 function MensagemEstadoBadge({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
-    pendente: { label: "Pendente", color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
-    aprovada: { label: "Aprovada", color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
+    pendente: { label: "Pendente", color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)" },
+    aprovada: { label: "Aprovada", color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)" },
     enviada: { label: "Enviada", color: "var(--nuit-bone)", bg: "rgba(22,26,38,0.06)" },
-    rejeitada: { label: "Rejeitada", color: "#b06050", bg: "rgba(176,96,80,0.08)" },
+    rejeitada: { label: "Rejeitada", color: "var(--destructive)", bg: "rgba(176,96,80,0.08)" },
   }
   const cfg = map[estado] ?? { label: estado, color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" }
   return (
@@ -165,14 +165,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
     .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime())[0] ?? null
 
   const statCards = [
-    { label: "Total de Sessões", value: totalSessoesDisplay.toString(), Icon: CalendarDays, color: "#b9a07a" },
-    { label: "Total Gasto", value: formatCurrency(Number(cliente.totalGasto)), Icon: Wallet, color: "#a0a996" },
+    { label: "Total de Sessões", value: totalSessoesDisplay.toString(), Icon: CalendarDays, color: "var(--nuit-champagne-soft)" },
+    { label: "Total Gasto", value: formatCurrency(Number(cliente.totalGasto)), Icon: Wallet, color: "var(--nuit-sage)" },
     {
       label: proximaSessao ? "Próxima Sessão" : "Última Sessão",
       value: proximaSessao ? diasRelativos(proximaSessao.data) : diasRelativos(cliente.ultimaSessao),
-      Icon: CalendarDays, color: "#b9a07a",
+      Icon: CalendarDays, color: "var(--nuit-champagne-soft)",
     },
-    { label: "Canal Preferido", value: canalLabel[cliente.canalPreferido] ?? cliente.canalPreferido, Icon: MessageSquare, color: "#a0a996" },
+    { label: "Canal Preferido", value: canalLabel[cliente.canalPreferido] ?? cliente.canalPreferido, Icon: MessageSquare, color: "var(--nuit-sage)" },
   ]
 
   return (
@@ -186,7 +186,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
           fontSize: "12px", color: "var(--nuit-bone-soft)", textDecoration: "none",
           transition: "color 150ms",
         }}
-          className="hover:text-[#b9a07a]"
+          className="hover:text-[var(--nuit-champagne-soft)]"
         >
           <ArrowLeft size={14} />
           Clientes
@@ -210,7 +210,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             border: "2px solid rgba(185,160,122,0.3)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "24px", fontWeight: 400, color: "#b9a07a",
+            fontSize: "24px", fontWeight: 400, color: "var(--nuit-champagne-soft)",
           }}>
             {getInitials(cliente.nome)}
           </div>
@@ -472,11 +472,11 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         <div style={{ marginLeft: "auto" }}>
                           {(() => {
                             const map: Record<string, { label: string; color: string; bg: string }> = {
-                              realizada: { label: "Realizada", color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
-                              agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
-                              cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)" },
+                              realizada: { label: "Realizada", color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)" },
+                              agendada:  { label: "Agendada",  color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)" },
+                              cancelada: { label: "Cancelada", color: "var(--destructive)", bg: "rgba(176,96,80,0.08)" },
                               concluida: { label: "Concluída", color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" },
-                              falta:     { label: "Falta",     color: "#b06050", bg: "rgba(176,96,80,0.08)" },
+                              falta:     { label: "Falta",     color: "var(--destructive)", bg: "rgba(176,96,80,0.08)" },
                             }
                             const cfg = map[s.estado] ?? { label: s.estado, color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" }
                             return (
@@ -512,7 +512,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         {s.preco !== null && (
                           <span style={{
                             fontFamily: "var(--font-sans, sans-serif)",
-                            fontSize: "13px", fontWeight: 600, color: "#b9a07a",
+                            fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                             marginLeft: "auto",
                           }}>
                             {formatCurrency(Number(s.preco))}
@@ -523,19 +523,19 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "12px" }}>
                         {s.estadoEmocional && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(176,96,80,0.05)", border: "1px solid rgba(176,96,80,0.15)" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#b06050", textTransform: "uppercase", marginBottom: "4px" }}>Estado Emocional</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--destructive)", textTransform: "uppercase", marginBottom: "4px" }}>Estado Emocional</p>
                             <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.5 }}>{s.estadoEmocional}</p>
                           </div>
                         )}
                         {s.resumoSessao && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(160,169,150,0.05)", border: "1px solid rgba(160,169,150,0.2)", gridColumn: "1/-1" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#a0a996", textTransform: "uppercase", marginBottom: "4px" }}>Observações</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-sage)", textTransform: "uppercase", marginBottom: "4px" }}>Observações</p>
                             <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.resumoSessao}</p>
                           </div>
                         )}
                         {s.notasPosSessao && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(185,160,122,0.04)", border: "1px solid rgba(185,160,122,0.15)", gridColumn: "1/-1" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "#b9a07a", textTransform: "uppercase", marginBottom: "4px" }}>Notas para a Próxima Sessão</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "4px" }}>Notas para a Próxima Sessão</p>
                             <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.notasPosSessao}</p>
                           </div>
                         )}
@@ -659,7 +659,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       }}>
                         <p style={{
                           fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
-                          letterSpacing: "0.16em", color: "#a0a996", textTransform: "uppercase",
+                          letterSpacing: "0.16em", color: "var(--nuit-sage)", textTransform: "uppercase",
                           marginBottom: "8px",
                         }}>
                           Mensagem final (editada)
@@ -681,7 +681,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       {msg.aprovadaEm && <span>Aprovada em {formatDate(msg.aprovadaEm)}</span>}
                       {msg.enviadaEm && <span>Enviada em {formatDate(msg.enviadaEm)}</span>}
                       {msg.converteu !== null && msg.converteu !== undefined && (
-                        <span style={{ color: msg.converteu ? "#a0a996" : "#b06050" }}>
+                        <span style={{ color: msg.converteu ? "var(--nuit-sage)" : "var(--destructive)" }}>
                           {msg.converteu ? "Converteu" : "Não converteu"}
                         </span>
                       )}
@@ -747,11 +747,11 @@ export default async function ClientePage({ params }: ClientePageProps) {
                                 background: p.ativo ? "rgba(74,124,89,0.12)" : "rgba(160,100,80,0.1)",
                                 color: p.ativo ? "#4a7c59" : "#a06450",
                               }}>{p.ativo ? "Ativo" : "Terminado"}</span>
-                              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#b9a07a" }}>€{Number(p.valorTotal).toFixed(2)}</span>
+                              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)" }}>€{Number(p.valorTotal).toFixed(2)}</span>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                               <div style={{ flex: 1, height: "6px", borderRadius: "3px", background: "rgba(212,184,134,0.1)", overflow: "hidden" }}>
-                                <div style={{ height: "100%", width: `${pct}%`, background: p.ativo ? "#a0a996" : "#b9a07a", borderRadius: "3px", transition: "width 0.3s" }} />
+                                <div style={{ height: "100%", width: `${pct}%`, background: p.ativo ? "var(--nuit-sage)" : "var(--nuit-champagne-soft)", borderRadius: "3px", transition: "width 0.3s" }} />
                               </div>
                               <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap" }}>
                                 {p.sessoesUsadas}/{p.totalSessoes} sessões · {restantes} restantes
@@ -790,7 +790,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                           <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)" }}>
                             <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{Number(p.servico.precoBase).toFixed(2)}</td>
-                            <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "#b9a07a" }}>€{Number(p.valor).toFixed(2)}</td>
+                            <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)" }}>€{Number(p.valor).toFixed(2)}</td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
                             <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
                           </tr>

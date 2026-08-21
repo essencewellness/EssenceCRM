@@ -12,7 +12,7 @@ interface AnimatedProgressProps {
 
 export function AnimatedProgress({
   value,
-  color = "#b9a07a",
+  color = "var(--nuit-champagne-soft)",
   delay = 0,
   height = 4,
 }: AnimatedProgressProps) {

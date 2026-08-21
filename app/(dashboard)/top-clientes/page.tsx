@@ -13,7 +13,7 @@ export const revalidate = 30
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function AvatarCliente({ nome, posicao, cor }: { nome: string; posicao?: number; cor?: string }) {
-  const medalColors = ["#b9a07a", "#9d9d9a", "#b06050"];
+  const medalColors = ["var(--nuit-champagne-soft)", "#9d9d9a", "var(--destructive)"];
   return (
     <div style={{ position: "relative" }}>
       <div style={{
@@ -22,7 +22,7 @@ function AvatarCliente({ nome, posicao, cor }: { nome: string; posicao?: number;
         fontFamily: "var(--font-sans, sans-serif)",
         fontSize: "12px", fontWeight: 700,
         backgroundColor: cor ? cor + "18" : "rgba(185,160,122,0.10)",
-        color: cor ?? "#b9a07a",
+        color: cor ?? "var(--nuit-champagne-soft)",
         border: `1.5px solid ${cor ? cor + "30" : "rgba(185,160,122,0.28)"}`,
       }}>
         {getInitials(nome)}
@@ -35,7 +35,7 @@ function AvatarCliente({ nome, posicao, cor }: { nome: string; posicao?: number;
           fontSize: "8px", fontWeight: 800,
           fontFamily: "var(--font-sans, sans-serif)",
           backgroundColor: medalColors[posicao - 1] ?? "#9d9d9a",
-          color: posicao === 1 ? "#161a26" : "#ffffff",
+          color: posicao === 1 ? "var(--nuit-midnight)" : "#ffffff",
         }}>
           {posicao}
         </span>
@@ -56,13 +56,13 @@ function CanalIcon({ canal }: { canal: string | null }) {
   const isEmail = canal.toLowerCase().includes("email");
   if (isWhatsApp) return (
     <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "#9d9d9a" }}>
-      <MessageCircle size={10} color="#a0a996" />
+      <MessageCircle size={10} color="var(--nuit-sage)" />
       WhatsApp
     </span>
   );
   if (isEmail) return (
     <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "#6d6d6d" }}>
-      <Mail size={10} color="#a0a996" />
+      <Mail size={10} color="var(--nuit-sage)" />
       Email
     </span>
   );
@@ -75,15 +75,15 @@ function CanalIcon({ canal }: { canal: string | null }) {
 
 function EstadoBadgeMini({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
-    lead:            { label: "Lead",       color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
-    novo:            { label: "Nova",       color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
-    ativa_recente:   { label: "Ativa",      color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
+    lead:            { label: "Lead",       color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)" },
+    novo:            { label: "Nova",       color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)" },
+    ativa_recente:   { label: "Ativa",      color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)" },
     ativa_frequente: { label: "Frequente",  color: "#7a9e7e", bg: "rgba(122,158,126,0.10)" },
-    vip_embaixadora: { label: "VIP",        color: "#161a26", bg: "#d4b886" },
+    vip_embaixadora: { label: "VIP",        color: "var(--nuit-midnight)", bg: "var(--nuit-champagne)" },
     vip_em_risco:    { label: "Em Risco",   color: "#d4956b", bg: "rgba(212,149,107,0.10)" },
-    reativacao:      { label: "Reativação", color: "#b06050", bg: "rgba(176,96,80,0.08)"  },
+    reativacao:      { label: "Reativação", color: "var(--destructive)", bg: "rgba(176,96,80,0.08)"  },
     perdida:         { label: "Perdida",    color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" },
-    blacklist:       { label: "Blacklist",  color: "#b06050", bg: "rgba(176,96,80,0.12)"  },
+    blacklist:       { label: "Blacklist",  color: "var(--destructive)", bg: "rgba(176,96,80,0.12)"  },
   };
   const cfg = map[estado] ?? { label: estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)" };
   return (
@@ -91,7 +91,7 @@ function EstadoBadgeMini({ estado }: { estado: string }) {
       padding: "3px 8px", borderRadius: "0px",
       fontSize: "9px", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
       fontFamily: "var(--font-sans, sans-serif)", color: cfg.color, backgroundColor: cfg.bg,
-      border: cfg.bg === "#d4b886" ? "none" : `1px solid ${cfg.color}44`,
+      border: cfg.bg === "var(--nuit-champagne)" ? "none" : `1px solid ${cfg.color}44`,
     }}>
       {cfg.label}
     </span>
@@ -168,9 +168,9 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
       {/* Stat cards — scale in com stagger */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", marginBottom: "28px" }}>
         {[
-          { label: "Total Clientes", value: resumo._count.id, desc: "clientes registadas", icon: <Users size={16} color="#a0a996" />, delay: "0.28s" },
-          { label: "Média Gasto",    value: formatCurrency(mediaGasto), desc: "por cliente",        icon: <TrendingUp size={16} color="#b9a07a" />, delay: "0.38s" },
-          { label: "Cliente Top",    value: clienteTop?.nome ?? "—", desc: clienteTop ? formatCurrency(Number(clienteTop.totalGasto)) : "sem dados", icon: <Crown size={16} color="#b9a07a" />, delay: "0.48s" },
+          { label: "Total Clientes", value: resumo._count.id, desc: "clientes registadas", icon: <Users size={16} color="var(--nuit-sage)" />, delay: "0.28s" },
+          { label: "Média Gasto",    value: formatCurrency(mediaGasto), desc: "por cliente",        icon: <TrendingUp size={16} color="var(--nuit-champagne-soft)" />, delay: "0.38s" },
+          { label: "Cliente Top",    value: clienteTop?.nome ?? "—", desc: clienteTop ? formatCurrency(Number(clienteTop.totalGasto)) : "sem dados", icon: <Crown size={16} color="var(--nuit-champagne-soft)" />, delay: "0.48s" },
         ].map(({ label, value, desc, icon, delay }) => (
           <div
             key={label}
@@ -219,9 +219,9 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
               padding: "10px 12px", borderRadius: "0px",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "9.5px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
-              color: tab === key ? "#b9a07a" : "#9d9d9a",
+              color: tab === key ? "var(--nuit-champagne-soft)" : "#9d9d9a",
               backgroundColor: tab === key ? "rgba(185,160,122,0.07)" : "transparent",
-              borderBottom: tab === key ? "1px solid #b9a07a" : "1px solid transparent",
+              borderBottom: tab === key ? "1px solid var(--nuit-champagne-soft)" : "1px solid transparent",
               borderTop: "none", borderLeft: "none", borderRight: "none",
               textDecoration: "none", transition: "all 150ms",
             }}
@@ -254,7 +254,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
               {clientesPorValor.map((cliente, i) => {
                 const primEtiqueta = cliente.etiquetas[0]?.etiqueta;
                 const pct = maxGasto > 0 ? (Number(cliente.totalGasto) / maxGasto) * 100 : 0;
-                const progressColor = i === 0 ? "#b9a07a" : i < 3 ? "#a0a996" : "#ddd6c4";
+                const progressColor = i === 0 ? "var(--nuit-champagne-soft)" : i < 3 ? "var(--nuit-sage)" : "#ddd6c4";
                 const dias = diasDesdeUltimaSessao(cliente.ultimaSessao);
                 // Top 3 entram com scale, resto com fadeUp stagger
                 const animClass = i < 3 ? "anim-scale-in" : "anim-fade-up";
@@ -367,7 +367,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           </div>
                           <AnimatedProgress
                             value={pct}
-                            color="#a0a996"
+                            color="var(--nuit-sage)"
                             delay={0.6 + i * 0.05}
                           />
                         </div>
@@ -410,7 +410,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                 animationDelay: "0.55s",
               }}
             >
-              <Users size={22} color="#a0a996" opacity={0.6} style={{ marginBottom: "16px" }} />
+              <Users size={22} color="var(--nuit-sage)" opacity={0.6} style={{ marginBottom: "16px" }} />
               <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "#6d6d6d" }}>
                 Nenhuma cliente em risco de abandono.
               </p>
@@ -449,7 +449,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         <div style={{ position: "relative" }}>
                           <AvatarCliente nome={cliente.nome} cor={primEtiqueta?.cor} />
                           {urgente && (
-                            <span className="badge-pulse" style={{ position: "absolute", top: "-3px", right: "-3px", width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "#b06050", border: "2px solid var(--nuit-overlay)" }} />
+                            <span className="badge-pulse" style={{ position: "absolute", top: "-3px", right: "-3px", width: "10px", height: "10px", borderRadius: "50%", backgroundColor: "var(--destructive)", border: "2px solid var(--nuit-overlay)" }} />
                           )}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -463,10 +463,10 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
                           {dias === 9999 ? (
-                            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 700, color: "#b06050" }}>Nunca teve sessão</p>
+                            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 700, color: "var(--destructive)" }}>Nunca teve sessão</p>
                           ) : (
                             <>
-                              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 700, color: urgente ? "#b06050" : "var(--nuit-champagne)" }}>{dias} dias</p>
+                              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 700, color: urgente ? "var(--destructive)" : "var(--nuit-champagne)" }}>{dias} dias</p>
                               <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>sem sessão</p>
                             </>
                           )}
@@ -477,7 +477,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                       </div>
                       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 600, color: "#b06050" }}>Sem sessão há {dias} dias</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 600, color: "var(--destructive)" }}>Sem sessão há {dias} dias</span>}
                         {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", fontStyle: "italic" }}>{notasTrunc}</span>}
                       </div>
                     </div>

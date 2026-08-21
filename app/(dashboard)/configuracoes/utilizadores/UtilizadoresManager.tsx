@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { criarUtilizador, redefinirPassword, desativarUtilizador, ativarUtilizador } from "./actions";
 
-const GOLD = "#d4b886";
+const GOLD = "var(--nuit-champagne)";
 
 type UtilizadorRow = {
   id: string;
@@ -27,7 +27,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #e0d8cc",
   borderRadius: "3px",
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "13px", color: "#161a26", outline: "none",
+  fontSize: "13px", color: "var(--nuit-midnight)", outline: "none",
 };
 
 export function UtilizadoresManager({ utilizadores }: { utilizadores: UtilizadorRow[] }) {
@@ -111,18 +111,18 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
   return (
     <div style={{ maxWidth: "680px" }}>
       {mensagem && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{mensagem}</p>}
-      {erro && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
+      {erro && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
 
       {/* Lista de utilizadores */}
       <div style={secaoStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", fontWeight: 400 }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400 }}>
             Utilizadores ({lista.length})
           </h2>
           <button
             onClick={() => setMostrarFormCriar(!mostrarFormCriar)}
             style={{
-              backgroundColor: GOLD, color: "#161a26",
+              backgroundColor: GOLD, color: "var(--nuit-midnight)",
               border: "none", borderRadius: "3px",
               padding: "8px 16px",
               fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
@@ -152,7 +152,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: u.ativo ? "#161a26" : "#9d9d9a" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: u.ativo ? "var(--nuit-midnight)" : "#9d9d9a" }}>
                 {u.name ?? u.email}
                 {!u.ativo && <span style={{ marginLeft: "8px", fontSize: "10px", color: "#9d9d9a" }}>(inativo)</span>}
               </p>
@@ -182,7 +182,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                   border: `1px solid ${u.ativo ? "rgba(176,96,80,0.4)" : "rgba(122,158,126,0.4)"}`,
                   borderRadius: "3px", padding: "5px 10px",
                   fontFamily: "var(--font-sans)", fontSize: "11px",
-                  color: u.ativo ? "#b06050" : "#7a9e7e",
+                  color: u.ativo ? "var(--destructive)" : "#7a9e7e",
                   cursor: "pointer",
                 }}
               >
@@ -209,7 +209,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                 onClick={() => handleRedefinir(redefinirId)}
                 disabled={loading}
                 style={{
-                  backgroundColor: GOLD, color: "#161a26",
+                  backgroundColor: GOLD, color: "var(--nuit-midnight)",
                   border: "none", borderRadius: "3px", padding: "9px 16px",
                   fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
                   cursor: "pointer",
@@ -225,7 +225,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
       {/* Form criar utilizador */}
       {mostrarFormCriar && (
         <form onSubmit={handleCriar} style={secaoStyle}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", fontWeight: 400, marginBottom: "20px" }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "20px" }}>
             Novo Utilizador
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
@@ -255,7 +255,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
             <button type="submit" disabled={loading} style={{
-              backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px",
+              backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px",
               padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
               letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer",
             }}>

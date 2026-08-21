@@ -67,6 +67,7 @@
   --nuit-smoke-deep:     #a89a7f;  /* dividers/hairlines finos, não é texto */
   --nuit-paper:          #f6f1e5;  /* mesma superfície — sempre clara nos dois modos */
   --nuit-paper-deep:     #ebe5d4;
+  --nuit-sage:           #5f6b52;  /* estado positivo/confirmado — auditoria a11y 2026-08-21: #a0a996 (valor dark) tem ~1.8:1 sobre paper, falha AA; esta versão passa ~4.75:1 */
 
   --background:          var(--nuit-midnight);
   --foreground:          var(--nuit-bone-soft);
@@ -136,6 +137,7 @@
   --nuit-smoke-deep:     #4d5260;  /* canónico NUIT — dividers/hairlines finos, não é texto */
   --nuit-paper:          #f6f1e5;
   --nuit-paper-deep:     #ebe5d4;
+  --nuit-sage:           #a0a996;  /* estado positivo/confirmado — valor original, inalterado */
 
   /* Tokens semânticos — mapeados para NUIT dark */
   --background:          var(--nuit-midnight);

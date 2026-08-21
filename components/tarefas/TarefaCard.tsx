@@ -7,14 +7,14 @@ import { ptBR } from "date-fns/locale"
 const PRIORIDADE_CLASSES: Record<string, string> = {
   urgente: "border-l-4 border-red-500",
   alta:    "border-l-4 border-orange-400",
-  normal:  "border-l-4 border-[#b9a07a]",
-  baixa:   "border-l-4 border-[#4d5260]",
+  normal:  "border-l-4 border-[var(--nuit-champagne-soft)]",
+  baixa:   "border-l-4 border-[var(--nuit-smoke-deep)]",
 }
 
 const PRIORIDADE_BADGE: Record<string, string> = {
   urgente: "bg-red-500/15 text-red-300",
   alta:    "bg-orange-500/15 text-orange-300",
-  normal:  "bg-[rgba(185,160,122,0.15)] text-[#d4b886]",
+  normal:  "bg-[rgba(185,160,122,0.15)] text-[var(--nuit-champagne)]",
   baixa:   "bg-[rgba(122,126,138,0.15)] text-[#9aa0ad]",
 }
 
@@ -56,7 +56,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
 
   return (
     <div
-      className={`bg-[#1f2433] rounded-xl p-4 shadow-sm border border-[rgba(212,184,134,0.12)] cursor-pointer transition-shadow hover:shadow-md ${PRIORIDADE_CLASSES[tarefa.prioridade] ?? "border-l-4 border-[#4d5260]"}`}
+      className={`bg-[var(--nuit-overlay)] rounded-xl p-4 shadow-sm border border-[rgba(212,184,134,0.12)] cursor-pointer transition-shadow hover:shadow-md ${PRIORIDADE_CLASSES[tarefa.prioridade] ?? "border-l-4 border-[var(--nuit-smoke-deep)]"}`}
       onClick={() => setExpanded((p) => !p)}
     >
       <div className="flex items-start gap-3">
@@ -65,7 +65,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${PRIORIDADE_BADGE[tarefa.prioridade]}`}>
               {tarefa.prioridade}
             </span>
-            <span className="font-medium text-sm text-[#ece6d6] truncate">{tarefa.titulo}</span>
+            <span className="font-medium text-sm text-[var(--nuit-bone)] truncate">{tarefa.titulo}</span>
           </div>
           <div className="flex items-center gap-3 text-xs text-[var(--nuit-bone-soft)] flex-wrap">
             {tarefa.cliente && (
@@ -86,7 +86,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
           <button
             onClick={(e) => { e.stopPropagation(); marcarConcluida() }}
             disabled={loading}
-            className="text-[#4d5260] hover:text-[#7a9e7e] transition-colors cursor-pointer shrink-0"
+            className="text-[var(--nuit-smoke-deep)] hover:text-[#7a9e7e] transition-colors cursor-pointer shrink-0"
             title="Marcar como concluída"
           >
             <CheckSquare className="w-5 h-5" />
@@ -97,7 +97,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
       {expanded && (
         <div className="mt-3 pt-3 border-t border-[rgba(212,184,134,0.1)]" onClick={(e) => e.stopPropagation()}>
           {tarefa.descricao && (
-            <p className="text-sm text-[#d8d2c2] mb-3">{tarefa.descricao}</p>
+            <p className="text-sm text-[var(--nuit-bone-soft)] mb-3">{tarefa.descricao}</p>
           )}
           <div className="flex items-center gap-2 text-xs text-[var(--nuit-bone-soft)] mb-3">
             <span>Tipo: {tarefa.tipo.replace("_", " ")}</span>

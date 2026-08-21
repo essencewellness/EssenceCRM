@@ -65,7 +65,7 @@ export function TopBar() {
         style={{
           position: "absolute", top: 0, left: 0, right: 0,
           height: "1.5px",
-          background: "linear-gradient(to right, transparent, #b9a07a, transparent)",
+          background: "linear-gradient(to right, transparent, var(--nuit-champagne-soft), transparent)",
           transformOrigin: "left",
           pointerEvents: "none",
         }}
@@ -82,7 +82,7 @@ export function TopBar() {
           style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
             fontSize: "16px", fontWeight: 400,
-            color: "#161a26", letterSpacing: "0.01em",
+            color: "var(--nuit-midnight)", letterSpacing: "0.01em",
           }}
         >
           {title}

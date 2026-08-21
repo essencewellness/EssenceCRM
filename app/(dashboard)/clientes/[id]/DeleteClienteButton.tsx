@@ -53,7 +53,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
           fontSize: "11px", fontWeight: 600, letterSpacing: "0.04em",
           cursor: "pointer", transition: "all 150ms",
         }}
-        className="hover:bg-[rgba(176,96,80,0.06)] hover:border-[rgba(176,96,80,0.5)] hover:text-[#b06050]"
+        className="hover:bg-[rgba(176,96,80,0.06)] hover:border-[rgba(176,96,80,0.5)] hover:text-[var(--destructive)]"
       >
         <Trash2 size={12} />
         Apagar
@@ -90,7 +90,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
               }}>
-                <Trash2 size={16} color="#b06050" />
+                <Trash2 size={16} color="var(--destructive)" />
               </div>
               <button
                 onClick={() => fechar()}
@@ -124,7 +124,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                 color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 display: "block", marginBottom: "8px",
               }}>
-                Escreve <span style={{ color: "#b06050" }}>{primeiroNome}</span> para confirmar
+                Escreve <span style={{ color: "var(--destructive)" }}>{primeiroNome}</span> para confirmar
               </label>
               <input
                 id="confirm-nome"
@@ -163,7 +163,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                   type="checkbox"
                   checked={apagarSessoes}
                   onChange={(e) => setApagarSessoes(e.target.checked)}
-                  style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "#b06050", cursor: "pointer", flexShrink: 0 }}
+                  style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
                 />
                 <span style={{
                   fontFamily: "var(--font-body, sans-serif)",
@@ -178,7 +178,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
             {erro && (
               <p style={{
                 fontFamily: "var(--font-body, sans-serif)",
-                fontSize: "12.5px", color: "#b06050", lineHeight: 1.5, marginBottom: "16px",
+                fontSize: "12.5px", color: "var(--destructive)", lineHeight: 1.5, marginBottom: "16px",
               }}>
                 {erro}
               </p>
@@ -204,7 +204,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                 disabled={!confirmado || isPending}
                 style={{
                   padding: "9px 18px", borderRadius: "8px",
-                  backgroundColor: confirmado ? "#b06050" : "rgba(176,96,80,0.12)",
+                  backgroundColor: confirmado ? "var(--destructive)" : "rgba(176,96,80,0.12)",
                   border: "none",
                   fontFamily: "var(--font-sans, sans-serif)",
                   fontSize: "12px", fontWeight: 600,

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { atualizarPerfil, alterarPassword } from "./actions";
 
-const GOLD = "#d4b886";
+const GOLD = "var(--nuit-champagne)";
 
 interface PerfilFormProps {
   nomeInicial: string;
@@ -39,7 +39,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
     border: "1px solid #e0d8cc",
     borderRadius: "3px",
     fontFamily: "var(--font-sans, sans-serif)",
-    fontSize: "14px", color: "#161a26",
+    fontSize: "14px", color: "var(--nuit-midnight)",
     outline: "none",
   };
 
@@ -96,7 +96,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
 
   const tituloSecao: React.CSSProperties = {
     fontFamily: "var(--font-heading, Georgia, serif)",
-    fontSize: "15px", color: "#161a26",
+    fontSize: "15px", color: "var(--nuit-midnight)",
     fontWeight: 400, marginBottom: "20px",
     paddingBottom: "12px",
     borderBottom: "1px solid #e8e2d9",
@@ -126,13 +126,13 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
               style={inputStyle}
             />
           </div>
-          {erroPerfil && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "12px" }}>{erroPerfil}</p>}
+          {erroPerfil && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px" }}>{erroPerfil}</p>}
           {mensagemPerfil && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px" }}>{mensagemPerfil}</p>}
           <button
             type="submit"
             disabled={loadingPerfil}
             style={{
-              backgroundColor: GOLD, color: "#161a26",
+              backgroundColor: GOLD, color: "var(--nuit-midnight)",
               border: "none", borderRadius: "3px",
               padding: "10px 20px",
               fontFamily: "var(--font-sans, sans-serif)",
@@ -177,13 +177,13 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
             style={inputStyle}
           />
         </div>
-        {erroPassword && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "12px" }}>{erroPassword}</p>}
+        {erroPassword && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px" }}>{erroPassword}</p>}
         {mensagemPassword && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px" }}>{mensagemPassword}</p>}
         <button
           type="submit"
           disabled={loadingPassword}
           style={{
-            backgroundColor: GOLD, color: "#161a26",
+            backgroundColor: GOLD, color: "var(--nuit-midnight)",
             border: "none", borderRadius: "3px",
             padding: "10px 20px",
             fontFamily: "var(--font-sans, sans-serif)",

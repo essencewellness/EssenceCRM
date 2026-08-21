@@ -26,7 +26,7 @@ export function FiltroTerapeuta({ terapeutas }: { terapeutas: Terapeuta[] }) {
     return qs ? `${pathname}?${qs}` : pathname
   }
 
-  const GOLD = "#b9a07a"
+  const GOLD = "var(--nuit-champagne-soft)"
   const chip = (label: string, isActive: boolean, to: string, key: string) => (
     <Link
       key={key}

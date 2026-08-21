@@ -52,7 +52,7 @@ const rotuloStyle: React.CSSProperties = {
 const inputBaseStyle: React.CSSProperties = {
   fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
   color: "var(--nuit-bone)", backgroundColor: "var(--nuit-deep, #0E1119)",
-  border: "1px solid #b9a07a", borderRadius: "5px",
+  border: "1px solid var(--nuit-champagne-soft)", borderRadius: "5px",
   padding: "5px 8px", outline: "none", width: "100%",
 }
 
@@ -187,13 +187,13 @@ export function InlineEditField({
           <span style={{
             width: "28px", height: "16px", borderRadius: "100px",
             backgroundColor: valorLocal ? "rgba(160,169,150,0.35)" : "rgba(157,157,154,0.15)",
-            border: `1px solid ${valorLocal ? "#a0a996" : "rgba(212,184,134,0.22)"}`,
+            border: `1px solid ${valorLocal ? "var(--nuit-sage)" : "rgba(212,184,134,0.22)"}`,
             position: "relative", transition: "background-color 0.15s", flexShrink: 0,
           }}>
             <span style={{
               position: "absolute", top: "1px", left: valorLocal ? "13px" : "1px",
               width: "12px", height: "12px", borderRadius: "50%",
-              backgroundColor: valorLocal ? "#a0a996" : "var(--nuit-smoke)",
+              backgroundColor: valorLocal ? "var(--nuit-sage)" : "var(--nuit-smoke)",
               transition: "left 0.15s",
             }} />
           </span>

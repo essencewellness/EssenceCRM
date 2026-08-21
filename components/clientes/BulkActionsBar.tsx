@@ -92,7 +92,7 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
         {/* Eliminar selecionados */}
         <button
           onClick={() => setMostrarDeleteModal(true)}
-          style={{ color: "#b06050" }}
+          style={{ color: "var(--destructive)" }}
           className="flex items-center gap-1.5 text-sm bg-[rgba(176,96,80,0.10)] hover:bg-[rgba(176,96,80,0.20)] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />

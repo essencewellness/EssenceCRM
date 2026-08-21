@@ -83,10 +83,10 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
       backgroundColor: "rgba(185,160,122,0.06)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-        <FileText size={13} color="#b9a07a" />
+        <FileText size={13} color="var(--nuit-champagne-soft)" />
         <span style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700,
-          letterSpacing: "0.16em", color: "#b9a07a", textTransform: "uppercase",
+          letterSpacing: "0.16em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
         }}>
           Resumo da Sessão
         </span>
@@ -115,7 +115,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
           lineHeight: 1.7, whiteSpace: "pre-wrap",
           margin: pessoais ? "0 0 10px" : 0,
         }}>
-          <strong style={{ color: "#b9a07a", fontWeight: 600 }}>Clínico: </strong>{clinicas}
+          <strong style={{ color: "var(--nuit-champagne-soft)", fontWeight: 600 }}>Clínico: </strong>{clinicas}
         </p>
       )}
 
@@ -155,12 +155,12 @@ function formatarAroma(texto: string) {
 
 function SessaoEstadoBadge({ estado }: { estado: string }) {
   const map: Record<string, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
-    realizada:  { label: "Realizada",  color: "#a0a996", bg: "rgba(160,169,150,0.12)", Icon: CheckCircle2 },
-    agendada:   { label: "Agendada",   color: "#b9a07a", bg: "rgba(185,160,122,0.10)", Icon: Clock },
+    realizada:  { label: "Realizada",  color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)", Icon: CheckCircle2 },
+    agendada:   { label: "Agendada",   color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)", Icon: Clock },
     confirmada: { label: "Confirmada", color: "#8a9bb0", bg: "rgba(138,155,176,0.12)", Icon: CheckCircle2 },
-    cancelada:  { label: "Cancelada",  color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
+    cancelada:  { label: "Cancelada",  color: "var(--destructive)", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
     concluida:  { label: "Concluída",  color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", Icon: CheckCircle2 },
-    falta:      { label: "Falta",      color: "#b06050", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
+    falta:      { label: "Falta",      color: "var(--destructive)", bg: "rgba(176,96,80,0.08)",   Icon: XCircle },
   }
   const cfg = map[estado] ?? { label: estado, color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", Icon: Clock }
   return (
@@ -282,8 +282,8 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
       backgroundColor: "rgba(185,160,122,0.04)",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-        <Sparkles size={13} color="#b9a07a" />
-        <p style={{ ...rotulo, marginBottom: 0, color: "#b9a07a" }}>Ficha da terapeuta (gerada por IA)</p>
+        <Sparkles size={13} color="var(--nuit-champagne-soft)" />
+        <p style={{ ...rotulo, marginBottom: 0, color: "var(--nuit-champagne-soft)" }}>Ficha da terapeuta (gerada por IA)</p>
         {b.tipo_cliente && (
           <span style={{ marginLeft: "auto", fontSize: "10px", fontWeight: 600, color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
             {b.tipo_cliente}{b.contagem_visitas ? ` · ${b.contagem_visitas}ª visita` : ""}
@@ -293,8 +293,8 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
 
       {b.alertas && (
         <div style={{
-          borderLeft: "2px solid #b06050", backgroundColor: "rgba(176,96,80,0.08)",
-          color: "#b06050", padding: "12px 14px", fontSize: "13px", lineHeight: 1.6,
+          borderLeft: "2px solid var(--destructive)", backgroundColor: "rgba(176,96,80,0.08)",
+          color: "var(--destructive)", padding: "12px 14px", fontSize: "13px", lineHeight: 1.6,
           marginBottom: "16px",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -315,12 +315,12 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
             {b.mapa_corporal.map((z, i) => (
               <div key={i} style={{ backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.14)", borderRadius: "8px", padding: "10px 12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
-                  <MapPin size={11} color="#b9a07a" />
+                  <MapPin size={11} color="var(--nuit-champagne-soft)" />
                   <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>{z.zona}</span>
                 </div>
                 {(z.prioridade || z.motivo) && (
                   <div style={{ fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "4px" }}>
-                    {z.prioridade && <strong style={{ color: "#b9a07a" }}>{z.prioridade}</strong>}
+                    {z.prioridade && <strong style={{ color: "var(--nuit-champagne-soft)" }}>{z.prioridade}</strong>}
                     {z.prioridade && z.motivo ? " · " : ""}
                     {z.motivo}
                   </div>
@@ -338,7 +338,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {b.recomendacoes.map((r, i) => (
               <div key={i} style={{ display: "flex", gap: "8px", fontSize: "12.5px", color: "var(--nuit-bone-soft)", lineHeight: 1.6 }}>
-                <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", color: "#b9a07a", flexShrink: 0 }}>{i + 1}.</span>
+                <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", color: "var(--nuit-champagne-soft)", flexShrink: 0 }}>{i + 1}.</span>
                 <span>{r}</span>
               </div>
             ))}
@@ -359,11 +359,11 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
 }
 
 const ESTADOS_SESSAO = [
-  { value: "agendada",   label: "Agendada",   cor: "#b9a07a" },
+  { value: "agendada",   label: "Agendada",   cor: "var(--nuit-champagne-soft)" },
   { value: "confirmada", label: "Confirmada", cor: "#8a9bb0" },
-  { value: "realizada",  label: "Realizada",  cor: "#a0a996" },
-  { value: "cancelada",  label: "Cancelada",  cor: "#b06050" },
-  { value: "falta",      label: "Falta",      cor: "#b06050" },
+  { value: "realizada",  label: "Realizada",  cor: "var(--nuit-sage)" },
+  { value: "cancelada",  label: "Cancelada",  cor: "var(--destructive)" },
+  { value: "falta",      label: "Falta",      cor: "var(--destructive)" },
 ]
 
 interface Props {
@@ -513,7 +513,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                 <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)", textTransform: "capitalize" }}>
                   {sessao.terapeuta ?? "Por atribuir"}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#b9a07a", textAlign: "right" }}>
+                <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)", textAlign: "right" }}>
                   {formatCurrency(sessao.preco ?? 0)}
                 </TableCell>
                 <TableCell>
@@ -628,7 +628,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       title="Eliminar sessão"
                       style={{
                         background: "none", border: "none", cursor: "pointer",
-                        color: "#b06050", padding: "4px", opacity: 0.7,
+                        color: "var(--destructive)", padding: "4px", opacity: 0.7,
                         transition: "opacity 0.15s",
                       }}
                       onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
@@ -638,7 +638,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                     </button>
                   ) : (
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", color: "#b06050", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
+                      <span style={{ fontSize: "11px", color: "var(--destructive)", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                         Eliminar?
                       </span>
                       <button
@@ -647,7 +647,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                         style={{
                           padding: "4px 10px", fontSize: "10px", fontWeight: 700,
                           fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
-                          background: "#b06050", color: "#fff", border: "none",
+                          background: "var(--destructive)", color: "#fff", border: "none",
                           borderRadius: "4px", cursor: "pointer",
                           opacity: isPending ? 0.5 : 1,
                         }}
@@ -771,7 +771,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       padding: "9px 16px", borderRadius: "8px",
                       backgroundColor: "rgba(185,160,122,0.08)",
                       border: "1px solid rgba(185,160,122,0.25)",
-                      fontSize: "12px", fontWeight: 600, color: "#b9a07a",
+                      fontSize: "12px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                       textDecoration: "none",
                       fontFamily: "var(--font-sans)",
                       width: "fit-content",
@@ -801,7 +801,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                   }}>
                     <p style={{
                       fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
-                      letterSpacing: "0.18em", color: "#b9a07a", textTransform: "uppercase",
+                      letterSpacing: "0.18em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
                       marginBottom: "14px",
                     }}>
                       Ficha preenchida pela cliente
@@ -820,7 +820,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                   title="Observações da Terapeuta"
                   icon={MessageSquare}
                   value={sessaoAberta.resumoSessao}
-                  color="#a0a996"
+                  color="var(--nuit-sage)"
                   placeholder="Adicionar observações"
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "resumoSessao", v)}
                 />
@@ -830,7 +830,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                   title="Observações Clínicas & Pessoais"
                   icon={Star}
                   value={sessaoAberta.notasPosSessao}
-                  color="#b9a07a"
+                  color="var(--nuit-champagne-soft)"
                   placeholder="Adicionar notas"
                   onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "notasPosSessao", v)}
                 />

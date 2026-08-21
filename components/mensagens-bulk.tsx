@@ -7,10 +7,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, XCircle, Pencil, Send, CheckCheck, Sparkles } from "lucide-react";
 import { useToast } from "@/components/ui/toast-nuit";
 
-const INK = "#161a26";
-const CHAMPAGNE = "#b9a07a";
+const INK = "var(--nuit-midnight)";
+const CHAMPAGNE = "var(--nuit-champagne-soft)";
 const SAGE = "#5f7a5f";
-const TERRA = "#b06050";
+const TERRA = "var(--destructive)";
 const CARD = "var(--nuit-overlay)";
 const BORDER = "rgba(212,184,134,0.18)";
 
@@ -260,7 +260,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
             type="checkbox"
             checked={todasSelecionadas}
             onChange={alternarTodas}
-            style={{ width: "15px", height: "15px", accentColor: "#d4b886", cursor: "pointer" }}
+            style={{ width: "15px", height: "15px", accentColor: "var(--nuit-champagne)", cursor: "pointer" }}
             aria-label="Selecionar todas as mensagens"
           />
           <motion.span
@@ -268,7 +268,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 }}
-            style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#ece6d6", fontWeight: 500 }}
+            style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone)", fontWeight: 500 }}
           >
             {selecionadas.size === 0
               ? "Selecionar todas"
@@ -287,7 +287,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
           style={{
             display: "inline-flex", alignItems: "center", gap: "8px",
             padding: "10px 20px", border: "none", borderRadius: "3px",
-            backgroundColor: "#d4b886", color: INK,
+            backgroundColor: "var(--nuit-champagne)", color: INK,
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "11px", fontWeight: 600,
             letterSpacing: "0.18em", textTransform: "uppercase",

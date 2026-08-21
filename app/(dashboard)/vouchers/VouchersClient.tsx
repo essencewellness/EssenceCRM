@@ -47,7 +47,7 @@ export interface TerapeutaOpcao {
 
 // Ordem = prioridade de atenção: o que precisa de acção fica sempre primeiro.
 const ESTADOS = [
-  { value: "ativo",     label: "Por marcar", plural: "Por marcar",  cor: "#d4b886", bg: "rgba(212,184,134,0.12)" },
+  { value: "ativo",     label: "Por marcar", plural: "Por marcar",  cor: "var(--nuit-champagne)", bg: "rgba(212,184,134,0.12)" },
   { value: "agendado",  label: "Agendado",   plural: "Agendados",   cor: "#8ea9c9", bg: "rgba(142,169,201,0.14)" },
   { value: "usado",     label: "Utilizado",  plural: "Utilizados",  cor: "#8bb08f", bg: "rgba(139,176,143,0.14)" },
   { value: "expirado",  label: "Expirado",   plural: "Expirados",   cor: "#9d9d9a", bg: "rgba(157,157,154,0.12)" },

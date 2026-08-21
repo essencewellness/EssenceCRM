@@ -4,10 +4,10 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const BONE = "#ece6d6";
-const CHAMPAGNE = "#d4b886";
+const BONE = "var(--nuit-bone)";
+const CHAMPAGNE = "var(--nuit-champagne)";
 const SMOKE = "var(--nuit-bone-soft)";
-const DEEP = "#0e1119";
+const DEEP = "var(--nuit-deep)";
 const TERRA = "#c98a78";
 
 // callbackUrl só pode ser caminho interno — nunca URL absoluta (open redirect)
@@ -137,7 +137,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
           className="w-full py-3 transition-opacity duration-200 mt-2 disabled:opacity-60 hover:opacity-85 cursor-pointer"
           style={{
             backgroundColor: CHAMPAGNE,
-            color: "#161a26",
+            color: "var(--nuit-midnight)",
             border: "none",
             borderRadius: "3px",
             fontFamily: "var(--font-sans, sans-serif)",

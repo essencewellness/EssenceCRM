@@ -35,9 +35,9 @@ interface DiaRow {
 // ─── Badge de estado ──────────────────────────────────────────────────────────
 
 const ESTADOS: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  agendada:  { label: "Agendada",  color: "#b9a07a", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.25)" },
-  confirmada:{ label: "Confirmada",color: "#a0a996", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
-  cancelada: { label: "Cancelada", color: "#b06050", bg: "rgba(176,96,80,0.08)",   border: "rgba(176,96,80,0.20)"  },
+  agendada:  { label: "Agendada",  color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)", border: "rgba(185,160,122,0.25)" },
+  confirmada:{ label: "Confirmada",color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)", border: "rgba(160,169,150,0.28)" },
+  cancelada: { label: "Cancelada", color: "var(--destructive)", bg: "rgba(176,96,80,0.08)",   border: "rgba(176,96,80,0.20)"  },
   concluida: { label: "Concluída", color: "var(--nuit-bone-soft)", bg: "rgba(122,126,138,0.10)", border: "rgba(122,126,138,0.22)"},
 }
 
@@ -131,19 +131,19 @@ export function DashboardHeader({
             <span style={{ position: "relative", display: "flex", width: "8px", height: "8px" }}>
               <span style={{
                 position: "absolute", inset: 0, borderRadius: "50%",
-                backgroundColor: "#a0a996",
+                backgroundColor: "var(--nuit-sage)",
                 animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite",
                 opacity: 0.6,
               }} />
               <span style={{
                 position: "relative", width: "8px", height: "8px",
-                borderRadius: "50%", backgroundColor: "#a0a996",
+                borderRadius: "50%", backgroundColor: "var(--nuit-sage)",
                 display: "inline-block",
               }} />
             </span>
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", fontWeight: 600, color: "#a0a996",
+              fontSize: "12px", fontWeight: 600, color: "var(--nuit-sage)",
             }}>
               {totalHoje} sessão{totalHoje !== 1 ? "ões" : ""} hoje
             </span>
@@ -191,7 +191,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
               border: "1px solid rgba(185,160,122,0.20)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9a07a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--nuit-champagne-soft)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
             </div>
@@ -277,7 +277,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
               textDecoration: "none", display: "block",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}
-            className="hover:text-[#d4b886] transition-colors"
+            className="hover:text-[var(--nuit-champagne)] transition-colors"
           >
             {sessao.clienteNome}
           </Link>
@@ -297,7 +297,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9px", fontWeight: 500, letterSpacing: "0.18em", textTransform: "uppercase",
           backgroundColor: "rgba(160,169,150,0.08)",
-          border: "1px solid rgba(160,169,150,0.20)", color: "#a0a996",
+          border: "1px solid rgba(160,169,150,0.20)", color: "var(--nuit-sage)",
         }}>
           {sessao.terapeuta ?? "Por atribuir"}
         </span>
@@ -334,7 +334,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
               border: "1px solid rgba(160,169,150,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a0a996" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--nuit-sage)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
               </svg>
             </div>
@@ -351,7 +351,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
                 minWidth: "18px", height: "18px",
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9px", fontWeight: 600,
-                backgroundColor: "rgba(160,169,150,0.12)", color: "#a0a996",
+                backgroundColor: "rgba(160,169,150,0.12)", color: "var(--nuit-sage)",
               }}>
                 {mensagens.length}
               </span>
@@ -430,7 +430,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         border: "1px solid rgba(160,169,150,0.22)",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "11px", fontWeight: 700, color: "#a0a996",
+        fontSize: "11px", fontWeight: 700, color: "var(--nuit-sage)",
       }}>
         {mensagem.clienteIniciais}
       </div>
@@ -521,7 +521,7 @@ export function ProximosDiasCard({
               border: "1px solid rgba(185,160,122,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9a07a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--nuit-champagne-soft)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
               </svg>
             </div>
@@ -708,7 +708,7 @@ export function TarefasWidget({
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "9px", fontWeight: 600,
-            color: "#b06050", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+            color: "var(--destructive)", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
           }}>
             Vencidas ({tarefasVencidas.length})
           </p>
@@ -716,7 +716,7 @@ export function TarefasWidget({
             {tarefasVencidas.map((t) => (
               <motion.div key={t.id} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
                 <Link href="/tarefas" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textDecoration: "none" }}>
-                  <span style={{ fontSize: "10px", marginTop: "2px", color: "#b06050", flexShrink: 0 }}>●</span>
+                  <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--destructive)", flexShrink: 0 }}>●</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontFamily: "var(--font-sans, sans-serif)",
@@ -743,7 +743,7 @@ export function TarefasWidget({
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "9px", fontWeight: 600,
-            color: "#b9a07a", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
+            color: "var(--nuit-champagne-soft)", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
           }}>
             Hoje ({tarefasHoje.length})
           </p>
@@ -833,7 +833,7 @@ export function AlertasWidget({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-        <AlertTriangle size={13} style={{ color: "#b06050" }} />
+        <AlertTriangle size={13} style={{ color: "var(--destructive)" }} />
         <h3 style={{
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
@@ -861,7 +861,7 @@ export function AlertasWidget({
             </div>
             <span style={{
               fontFamily: "var(--font-heading, serif)",
-              fontSize: "20px", fontWeight: 400, color: "#b06050",
+              fontSize: "20px", fontWeight: 400, color: "var(--destructive)",
             }}>{clientesEmRisco}</span>
           </Link>
         </motion.div>
@@ -871,7 +871,7 @@ export function AlertasWidget({
         <div style={{ padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 600, color: "#b06050",
+            fontSize: "11px", fontWeight: 600, color: "var(--destructive)",
             marginBottom: "6px",
           }}>Avaliações baixas</p>
           {alertas.slice(0, 3).map((s) => (
@@ -882,7 +882,7 @@ export function AlertasWidget({
               padding: "2px 0",
             }}>
               <span>{s.cliente.nome}</span>
-              <span style={{ color: "#b06050" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
+              <span style={{ color: "var(--destructive)" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
             </p>
           ))}
         </div>
@@ -979,7 +979,7 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
                 {c.diasInativa !== null && (
                   <span style={{
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "11px", fontWeight: 600, color: "#b9a07a",
+                    fontSize: "11px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                   }}>{c.diasInativa}d</span>
                 )}
               </Link>

@@ -19,18 +19,18 @@ export default function GlobalError({
 
   return (
     <html lang="pt">
-      <body style={{ backgroundColor: "#161a26", color: "#ece6d6", fontFamily: "sans-serif" }}>
+      <body style={{ backgroundColor: "var(--nuit-midnight)", color: "var(--nuit-bone)", fontFamily: "sans-serif" }}>
         <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "9px", letterSpacing: "0.32em", textTransform: "uppercase", color: "#d4b886", marginBottom: "14px" }}>
+            <p style={{ fontSize: "9px", letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--nuit-champagne)", marginBottom: "14px" }}>
               Essence Wellness · CRM
             </p>
             <h1 style={{ fontSize: "22px", marginBottom: "10px" }}>Ocorreu um erro grave</h1>
-            <p style={{ fontSize: "13px", color: "#d8d2c2", marginBottom: "20px" }}>
+            <p style={{ fontSize: "13px", color: "var(--nuit-bone-soft)", marginBottom: "20px" }}>
               A aplicação encontrou um problema inesperado. Recarrega a página.
             </p>
             {error.digest && (
-              <p style={{ fontSize: "10px", color: "#d8d2c2", wordBreak: "break-all" }}>
+              <p style={{ fontSize: "10px", color: "var(--nuit-bone-soft)", wordBreak: "break-all" }}>
                 Referência: {error.digest}
               </p>
             )}

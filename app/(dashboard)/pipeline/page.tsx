@@ -15,15 +15,15 @@ const ESTADOS: {
   bg: string;
   href: string;
 }[] = [
-  { key: "lead",            label: "Lead",            desc: "Interesse inicial, ainda não marcou",  color: "#b9a07a", bg: "rgba(185,160,122,0.08)", href: "/clientes?estado=lead"            },
-  { key: "novo",            label: "Novo",            desc: "Primeira sessão recente",              color: "#a0a996", bg: "rgba(160,169,150,0.10)", href: "/clientes?estado=novo"            },
+  { key: "lead",            label: "Lead",            desc: "Interesse inicial, ainda não marcou",  color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.08)", href: "/clientes?estado=lead"            },
+  { key: "novo",            label: "Novo",            desc: "Primeira sessão recente",              color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.10)", href: "/clientes?estado=novo"            },
   { key: "ativa_recente",   label: "Ativa Recente",   desc: "Sessão nos últimos 45 dias",          color: "#7a9e7e", bg: "rgba(122,158,126,0.10)", href: "/clientes?estado=ativa_recente"   },
   { key: "ativa_frequente", label: "Ativa Frequente", desc: "3+ sessões e visita regular",         color: "#4a8e5e", bg: "rgba(74,142,94,0.10)",   href: "/clientes?estado=ativa_frequente" },
-  { key: "vip_embaixadora", label: "VIP Embaixadora", desc: "Top clientes, promotoras da marca",   color: "#b9a07a", bg: "#d4b88618",              href: "/clientes?estado=vip_embaixadora" },
+  { key: "vip_embaixadora", label: "VIP Embaixadora", desc: "Top clientes, promotoras da marca",   color: "var(--nuit-champagne-soft)", bg: "var(--nuit-champagne)18",              href: "/clientes?estado=vip_embaixadora" },
   { key: "vip_em_risco",    label: "VIP em Risco",    desc: "VIP sem sessão há mais de 45 dias",   color: "#d4956b", bg: "rgba(212,149,107,0.10)", href: "/clientes?estado=vip_em_risco"    },
-  { key: "reativacao",      label: "Reativação",      desc: "Sem sessão há mais de 60 dias",       color: "#b06050", bg: "rgba(176,96,80,0.08)",   href: "/clientes?estado=reativacao"      },
+  { key: "reativacao",      label: "Reativação",      desc: "Sem sessão há mais de 60 dias",       color: "var(--destructive)", bg: "rgba(176,96,80,0.08)",   href: "/clientes?estado=reativacao"      },
   { key: "perdida",         label: "Perdida",         desc: "Sem sessão há mais de 180 dias",      color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)", href: "/clientes?estado=perdida"         },
-  { key: "blacklist",       label: "Blacklist",       desc: "Bloqueada — sem comunicação",         color: "#b06050", bg: "rgba(176,96,80,0.12)",   href: "/clientes?estado=blacklist"       },
+  { key: "blacklist",       label: "Blacklist",       desc: "Bloqueada — sem comunicação",         color: "var(--destructive)", bg: "rgba(176,96,80,0.12)",   href: "/clientes?estado=blacklist"       },
 ];
 
 interface PageProps {
@@ -84,7 +84,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
           fontWeight: 500, letterSpacing: "0.32em", textTransform: "uppercase",
-          color: "#b9a07a", marginBottom: "6px",
+          color: "var(--nuit-champagne-soft)", marginBottom: "6px",
         }}>
           Essence Wellness · CRM
         </p>
@@ -102,8 +102,8 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "28px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
           {[
-            { label: "Total clientes", value: totalClientes,      icon: <Users       size={15} color="#a0a996" /> },
-            { label: "Sessões hoje",   value: sessoesHoje,        icon: <Calendar    size={15} color="#b9a07a" /> },
+            { label: "Total clientes", value: totalClientes,      icon: <Users       size={15} color="var(--nuit-sage)" /> },
+            { label: "Sessões hoje",   value: sessoesHoje,        icon: <Calendar    size={15} color="var(--nuit-champagne-soft)" /> },
             { label: "Em risco",       value: clientesEmRisco,    icon: <AlertTriangle size={15} color="#d4956b" /> },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
@@ -128,8 +128,8 @@ export default async function PipelinePage({ searchParams }: PageProps) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
           {[
             { label: "Ativas este mês", value: ativosMes,            icon: <TrendingUp    size={15} color="#7a9e7e" /> },
-            { label: "Msg. pendentes",  value: mensagensPendentes,   icon: <MessageSquare size={15} color="#b9a07a" /> },
-            { label: "Em fila envio",   value: emFila,               icon: <MessageSquare size={15} color="#a0a996" /> },
+            { label: "Msg. pendentes",  value: mensagensPendentes,   icon: <MessageSquare size={15} color="var(--nuit-champagne-soft)" /> },
+            { label: "Em fila envio",   value: emFila,               icon: <MessageSquare size={15} color="var(--nuit-sage)" /> },
           ].map(({ label, value, icon }) => (
             <div key={label} style={{
               backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
@@ -235,7 +235,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
 
                   <span style={{
                     fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-                    color: "#b9a07a", flexShrink: 0,
+                    color: "var(--nuit-champagne-soft)", flexShrink: 0,
                   }}>
                     Ver →
                   </span>

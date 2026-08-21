@@ -212,7 +212,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 style={{
                   padding: "4px 12px", borderRadius: "100px", cursor: "pointer",
                   fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
-                  color: ativo ? "#b9a07a" : "#9d9d9a",
+                  color: ativo ? "var(--nuit-champagne-soft)" : "#9d9d9a",
                   backgroundColor: ativo ? "rgba(185,160,122,0.10)" : "transparent",
                   border: `1px solid ${ativo ? "rgba(185,160,122,0.40)" : "rgba(157,157,154,0.25)"}`,
                   transition: "all 150ms",
@@ -228,7 +228,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {/* Barra de acções */}
       {temFiltros && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", backgroundColor: "rgba(185,160,122,0.06)", borderRadius: "6px", border: "1px solid rgba(185,160,122,0.20)" }}>
-          <Zap size={13} color="#b9a07a" />
+          <Zap size={13} color="var(--nuit-champagne-soft)" />
           <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", flex: 1 }}>
             <strong style={{ color: "var(--nuit-bone)" }}>{totalResultados}</strong> cliente{totalResultados !== 1 ? "s" : ""} encontrada{totalResultados !== 1 ? "s" : ""}
           </span>
@@ -239,7 +239,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
               padding: "6px 14px", borderRadius: "4px", cursor: totalResultados > 0 ? "pointer" : "not-allowed",
               fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
               letterSpacing: "0.06em", textTransform: "uppercase",
-              color: "#fff", backgroundColor: "#b9a07a", border: "none",
+              color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", border: "none",
               opacity: totalResultados > 0 ? 1 : 0.5,
             }}
           >
@@ -281,7 +281,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   <strong style={{ color: "var(--nuit-bone)" }}>{resultado.totalCriadas}</strong> mensagens criadas e aguardam aprovação.
                 </p>
                 {resultado.totalExcluidas > 0 && (
-                  <p style={{ fontSize: "12px", color: "#b06050", fontFamily: "var(--font-sans, sans-serif)" }}>
+                  <p style={{ fontSize: "12px", color: "var(--destructive)", fontFamily: "var(--font-sans, sans-serif)" }}>
                     ⚕ {resultado.totalExcluidas} cliente{resultado.totalExcluidas > 1 ? "s excluídas" : " excluída"} (restrição de saúde)
                   </p>
                 )}
@@ -294,7 +294,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   </button>
                   <a
                     href="/mensagens"
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "#b9a07a", cursor: "pointer", textAlign: "center", textDecoration: "none" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: "pointer", textAlign: "center", textDecoration: "none" }}
                   >
                     Ver mensagens
                   </a>
@@ -349,7 +349,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   <button
                     onClick={handleCriarCampanha}
                     disabled={!nomeCampanha.trim() || !templateId || isPending}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "#b9a07a", cursor: nomeCampanha.trim() && templateId ? "pointer" : "not-allowed", opacity: nomeCampanha.trim() && templateId ? 1 : 0.5 }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: nomeCampanha.trim() && templateId ? "pointer" : "not-allowed", opacity: nomeCampanha.trim() && templateId ? 1 : 0.5 }}
                   >
                     {isPending ? "A criar…" : "Criar campanha"}
                   </button>

@@ -54,9 +54,9 @@ function agrupar(tarefas: Tarefa[]) {
 }
 
 const GRUPO_META = {
-  vencidas: { label: "Vencidas", cor: "#b06050" },
+  vencidas: { label: "Vencidas", cor: "var(--destructive)" },
   hoje:     { label: "Hoje", cor: "#d4956b" },
-  semana:   { label: "Esta semana", cor: "#b9a07a" },
+  semana:   { label: "Esta semana", cor: "var(--nuit-champagne-soft)" },
   depois:   { label: "Mais tarde", cor: "var(--nuit-bone-soft)" },
   semprazo: { label: "Sem prazo", cor: "var(--nuit-bone-soft)" },
 }

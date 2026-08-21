@@ -42,7 +42,7 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
     })
   }
 
-  const GOLD = "#b9a07a"
+  const GOLD = "var(--nuit-champagne-soft)"
 
   // Visualização estática (terapeutas não podem reatribuir)
   if (!podeEditar) {
@@ -117,7 +117,7 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
               display: "flex", alignItems: "center", gap: "8px",
               width: "100%", padding: "9px 12px",
               fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-              color: !atualId ? "#b06050" : "var(--nuit-bone-soft)",
+              color: !atualId ? "var(--destructive)" : "var(--nuit-bone-soft)",
               backgroundColor: "transparent",
               border: "none", borderTop: "1px solid rgba(212,184,134,0.12)", cursor: "pointer", textAlign: "left",
             }}

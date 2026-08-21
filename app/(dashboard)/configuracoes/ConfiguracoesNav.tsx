@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const GOLD = "#d4b886";
+const GOLD = "var(--nuit-champagne)";
 
 const tabsAdmin = [
   { href: "/configuracoes/perfil",       label: "O Meu Perfil" },
@@ -41,7 +41,7 @@ export function ConfiguracoesNav({ isAdmin }: { isAdmin: boolean }) {
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "13px",
               fontWeight: isActive ? 600 : 400,
-              color: isActive ? "#161a26" : "#9d9d9a",
+              color: isActive ? "var(--nuit-midnight)" : "#9d9d9a",
               padding: "8px 14px",
               borderBottom: isActive ? `2px solid ${GOLD}` : "2px solid transparent",
               textDecoration: "none",

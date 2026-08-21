@@ -17,7 +17,7 @@ export function EdicaoPerfilToggle() {
         fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em",
         cursor: "pointer", transition: "all 0.15s",
         ...(editing
-          ? { backgroundColor: "rgba(160,169,150,0.15)", border: "1px solid #a0a996", color: "#a0a996" }
+          ? { backgroundColor: "rgba(160,169,150,0.15)", border: "1px solid var(--nuit-sage)", color: "var(--nuit-sage)" }
           : { backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-bone-soft)" }),
       }}
     >

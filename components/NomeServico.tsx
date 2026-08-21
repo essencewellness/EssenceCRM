@@ -11,7 +11,7 @@ export function NomeServico({ nome }: { nome: string }) {
   return (
     <>
       {antes}
-      <em style={{ fontStyle: "italic", color: "#b9a07a", fontWeight: 700 }}>{termo}</em>
+      <em style={{ fontStyle: "italic", color: "var(--nuit-champagne-soft)", fontWeight: 700 }}>{termo}</em>
       {depois}
     </>
   )

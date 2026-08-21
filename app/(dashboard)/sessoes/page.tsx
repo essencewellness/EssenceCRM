@@ -9,12 +9,12 @@ import type { Prisma } from "@/lib/prisma-client";
 export const revalidate = 30;
 
 const ESTADO_SESSAO: Record<string, { label: string; color: string; bg: string }> = {
-  agendada:          { label: "Agendada",          color: "#b9a07a", bg: "rgba(185,160,122,0.10)" },
+  agendada:          { label: "Agendada",          color: "var(--nuit-champagne-soft)", bg: "rgba(185,160,122,0.10)" },
   confirmada:        { label: "Confirmada",         color: "#7a9e7e", bg: "rgba(122,158,126,0.10)" },
-  aguarda_terapeuta: { label: "Aguarda terapeuta",  color: "#a0a996", bg: "rgba(160,169,150,0.12)" },
+  aguarda_terapeuta: { label: "Aguarda terapeuta",  color: "var(--nuit-sage)", bg: "rgba(160,169,150,0.12)" },
   realizada:         { label: "Realizada",          color: "#7a9e7e", bg: "rgba(122,158,126,0.12)" },
   cancelada:         { label: "Cancelada",          color: "var(--nuit-bone-soft)", bg: "rgba(157,157,154,0.10)" },
-  falta:             { label: "Falta",              color: "#b06050", bg: "rgba(176,96,80,0.10)"   },
+  falta:             { label: "Falta",              color: "var(--destructive)", bg: "rgba(176,96,80,0.10)"   },
 };
 
 interface PageProps {
@@ -103,7 +103,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
           fontWeight: 500, letterSpacing: "0.32em", textTransform: "uppercase",
-          color: "#b9a07a", marginBottom: "6px",
+          color: "var(--nuit-champagne-soft)", marginBottom: "6px",
         }}>
           Essence Wellness · CRM
         </p>
@@ -120,8 +120,8 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       {/* KPIs rápidos */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>
         {[
-          { label: "Total sessões", value: totalSessoes, icon: <Calendar size={15} color="#a0a996" /> },
-          { label: "Hoje",          value: sessoesHoje,  icon: <Clock    size={15} color="#b9a07a" /> },
+          { label: "Total sessões", value: totalSessoes, icon: <Calendar size={15} color="var(--nuit-sage)" /> },
+          { label: "Hoje",          value: sessoesHoje,  icon: <Clock    size={15} color="var(--nuit-champagne-soft)" /> },
           { label: "Realizadas",    value: contagemPorEstado["realizada"] ?? 0, icon: <User size={15} color="#7a9e7e" /> },
         ].map(({ label, value, icon }) => (
           <div key={label} style={{
@@ -151,8 +151,8 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <Link key={key} href={buildUrl({ data: key })} style={{
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
-              border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
-              color: ativo ? "#b9a07a" : "var(--nuit-bone-soft)",
+              border: ativo ? "1px solid var(--nuit-champagne-soft)" : "1px solid rgba(212,184,134,0.16)",
+              color: ativo ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
@@ -165,8 +165,8 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <Link key={key} href={buildUrl({ estado: key })} style={{
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
-              border: ativo ? "1px solid #b9a07a" : "1px solid rgba(212,184,134,0.16)",
-              color: ativo ? "#b9a07a" : "var(--nuit-bone-soft)",
+              border: ativo ? "1px solid var(--nuit-champagne-soft)" : "1px solid rgba(212,184,134,0.16)",
+              color: ativo ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
               backgroundColor: ativo ? "rgba(185,160,122,0.08)" : "transparent",
               transition: "all 120ms",
             }}>{label}</Link>
@@ -232,7 +232,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                   >
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: isHoje ? "#b9a07a" : "var(--nuit-bone-soft)",
+                      color: isHoje ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
                       fontWeight: isHoje ? 600 : 400,
                     }}>
                       {isHoje ? "Hoje" : formatDate(sessao.data)}

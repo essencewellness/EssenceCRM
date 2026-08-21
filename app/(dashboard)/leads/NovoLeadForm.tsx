@@ -7,7 +7,7 @@ import { UserPlus, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { criarLeadManual } from "./actions"
 
-const GOLD = "#b9a07a"
+const GOLD = "var(--nuit-champagne-soft)"
 
 export function NovoLeadForm() {
   const router = useRouter()
@@ -47,7 +47,7 @@ export function NovoLeadForm() {
           height: "38px", padding: "0 16px",
           fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700,
           letterSpacing: "0.14em", textTransform: "uppercase",
-          color: "#161a26", backgroundColor: GOLD, border: `1px solid ${GOLD}`,
+          color: "var(--nuit-midnight)", backgroundColor: GOLD, border: `1px solid ${GOLD}`,
           cursor: "pointer",
         }}
       >
@@ -66,11 +66,11 @@ export function NovoLeadForm() {
               initial={{ opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              style={{ width: "100%", maxWidth: "420px", backgroundColor: "#161a26", border: "1px solid rgba(212,184,134,0.20)", borderRadius: "2px", padding: "24px" }}
+              style={{ width: "100%", maxWidth: "420px", backgroundColor: "var(--nuit-midnight)", border: "1px solid rgba(212,184,134,0.20)", borderRadius: "2px", padding: "24px" }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-                <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px", color: "#ece6d6" }}>Adicionar lead</h2>
-                <button onClick={() => setAberto(false)} style={{ color: "#7a7e8a", cursor: "pointer" }}><X size={16} /></button>
+                <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px", color: "var(--nuit-bone)" }}>Adicionar lead</h2>
+                <button onClick={() => setAberto(false)} style={{ color: "var(--nuit-smoke)", cursor: "pointer" }}><X size={16} /></button>
               </div>
 
               <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "18px", lineHeight: 1.6 }}>
@@ -97,7 +97,7 @@ export function NovoLeadForm() {
               </div>
 
               {erro && (
-                <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#b06050", marginTop: "12px" }}>{erro}</p>
+                <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--destructive)", marginTop: "12px" }}>{erro}</p>
               )}
 
               <button
@@ -107,7 +107,7 @@ export function NovoLeadForm() {
                   marginTop: "20px", width: "100%", height: "40px",
                   fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700,
                   letterSpacing: "0.16em", textTransform: "uppercase",
-                  color: "#161a26", backgroundColor: GOLD, border: "none",
+                  color: "var(--nuit-midnight)", backgroundColor: GOLD, border: "none",
                   opacity: aGuardar || !nome.trim() ? 0.5 : 1,
                   cursor: aGuardar || !nome.trim() ? "not-allowed" : "pointer",
                 }}

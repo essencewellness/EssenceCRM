@@ -18,12 +18,12 @@ interface EventoTimeline {
 
 const TIPO_CONFIG: Record<string, { icon: React.ElementType; cor: string; bg: string; iconColor: string }> = {
   sessao_realizada:   { icon: Calendar,      cor: "var(--nuit-bone)",     bg: "rgba(122,158,126,0.12)",   iconColor: "#7a9e7e" },
-  sessao_agendada:    { icon: Clock,         cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "#b9a07a" },
-  mensagem_enviada:   { icon: MessageSquare, cor: "var(--nuit-bone-soft)",bg: "rgba(160,169,150,0.12)",   iconColor: "#a0a996" },
-  mensagem_pendente:  { icon: MessageSquare, cor: "var(--nuit-bone-soft)",    bg: "rgba(185,160,122,0.08)",   iconColor: "#b9a07a" },
+  sessao_agendada:    { icon: Clock,         cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "var(--nuit-champagne-soft)" },
+  mensagem_enviada:   { icon: MessageSquare, cor: "var(--nuit-bone-soft)",bg: "rgba(160,169,150,0.12)",   iconColor: "var(--nuit-sage)" },
+  mensagem_pendente:  { icon: MessageSquare, cor: "var(--nuit-bone-soft)",    bg: "rgba(185,160,122,0.08)",   iconColor: "var(--nuit-champagne-soft)" },
   estado_alterado:    { icon: ArrowRight,    cor: "var(--nuit-bone-soft)",bg: "rgba(212,149,107,0.10)",   iconColor: "#d4956b" },
   tarefa_concluida:   { icon: CheckSquare,   cor: "var(--nuit-bone-soft)",bg: "rgba(122,158,126,0.10)",   iconColor: "#7a9e7e" },
-  etiqueta_adicionada:{ icon: Tag,           cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "#b9a07a" },
+  etiqueta_adicionada:{ icon: Tag,           cor: "var(--nuit-bone-soft)",bg: "rgba(185,160,122,0.10)",   iconColor: "var(--nuit-champagne-soft)" },
   etiqueta_removida:  { icon: Tag,           cor: "var(--nuit-bone-soft)",    bg: "rgba(157,157,154,0.10)",   iconColor: "#9d9d9a" },
   audit:              { icon: RefreshCw,     cor: "var(--nuit-bone-soft)",    bg: "rgba(157,157,154,0.08)",   iconColor: "#9d9d9a" },
 }

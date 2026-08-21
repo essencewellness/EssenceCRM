@@ -4,7 +4,7 @@ import { useState } from "react";
 import { criarTemplate, atualizarTemplate, apagarTemplate } from "./actions";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
-const GOLD = "#d4b886";
+const GOLD = "var(--nuit-champagne)";
 
 const TIPOS = ["reativacao", "reengagement", "onboarding", "voucher", "geral"];
 
@@ -30,7 +30,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #e0d8cc",
   borderRadius: "3px",
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "13px", color: "#161a26", outline: "none",
+  fontSize: "13px", color: "var(--nuit-midnight)", outline: "none",
 };
 
 export function TemplatesManager({ templates }: { templates: Template[] }) {
@@ -134,13 +134,13 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
         loading={loading}
       />
       {mensagem && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{mensagem}</p>}
-      {erro && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
+      {erro && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
 
       <div style={{ marginBottom: "20px", display: "flex", justifyContent: "flex-end" }}>
         <button
           onClick={() => setMostrarFormCriar(!mostrarFormCriar)}
           style={{
-            backgroundColor: GOLD, color: "#161a26",
+            backgroundColor: GOLD, color: "var(--nuit-midnight)",
             border: "none", borderRadius: "3px", padding: "8px 16px",
             fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
             letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer",
@@ -153,7 +153,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
       {/* Form criar */}
       {mostrarFormCriar && (
         <form onSubmit={handleCriar} style={{ ...secaoStyle, borderColor: GOLD + "44" }}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "14px", color: "#161a26", fontWeight: 400, marginBottom: "16px" }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "14px", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "16px" }}>
             Novo Template
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
@@ -183,7 +183,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
             <input value={form.variaveis} onChange={e => setForm(f => ({ ...f, variaveis: e.target.value }))} placeholder="nome, servico, data" style={inputStyle} />
           </div>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button type="submit" disabled={loading} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
+            <button type="submit" disabled={loading} style={{ backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
               {loading ? "A criar…" : "Criar"}
             </button>
             <button type="button" onClick={() => setMostrarFormCriar(false)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "9px 18px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
@@ -224,7 +224,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>Ativo</span>
                   </label>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={() => handleAtualizar(t.id)} disabled={loading} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
+                    <button onClick={() => handleAtualizar(t.id)} disabled={loading} style={{ backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, cursor: "pointer" }}>
                       Guardar
                     </button>
                     <button onClick={() => setEditandoId(null)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "7px 14px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
@@ -236,7 +236,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "10px" }}>
                     <div>
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#161a26" }}>
+                      <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-midnight)" }}>
                         {t.nome}
                         {!t.ativo && <span style={{ marginLeft: "8px", fontSize: "10px", color: "#9d9d9a" }}>(inativo)</span>}
                       </p>
@@ -245,7 +245,7 @@ export function TemplatesManager({ templates }: { templates: Template[] }) {
                       <button onClick={() => iniciarEdicao(t)} style={{ backgroundColor: "transparent", border: "1px solid #e0d8cc", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)", cursor: "pointer" }}>
                         Editar
                       </button>
-                      <button onClick={() => setConfirmApagarId(t.id)} disabled={loading} style={{ backgroundColor: "transparent", border: "1px solid rgba(176,96,80,0.3)", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "#b06050", cursor: "pointer" }}>
+                      <button onClick={() => setConfirmApagarId(t.id)} disabled={loading} style={{ backgroundColor: "transparent", border: "1px solid rgba(176,96,80,0.3)", borderRadius: "3px", padding: "4px 10px", fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--destructive)", cursor: "pointer" }}>
                         Apagar
                       </button>
                     </div>

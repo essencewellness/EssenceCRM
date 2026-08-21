@@ -25,7 +25,7 @@ export default async function ConfigServicosPage() {
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "20px", fontWeight: 400, color: "#161a26",
+          fontSize: "20px", fontWeight: 400, color: "var(--nuit-midnight)",
           marginBottom: "6px",
         }}>
           Catálogo de Serviços
@@ -62,15 +62,15 @@ export default async function ConfigServicosPage() {
             <tbody>
               {servicos.map(s => (
                 <tr key={s.id} style={{ borderBottom: "1px solid #f2ede6", opacity: s.ativo ? 1 : 0.5 }}>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "#161a26" }}><NomeServico nome={s.nome} /></td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "var(--nuit-midnight)" }}><NomeServico nome={s.nome} /></td>
                   <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#161a26" }}>€{Number(s.precoBase).toFixed(0)}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-midnight)" }}>€{Number(s.precoBase).toFixed(0)}</td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{
                       fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "20px",
                       fontFamily: "var(--font-sans)", letterSpacing: "0.06em",
                       background: s.ativo ? "rgba(122,158,126,0.12)" : "rgba(176,96,80,0.10)",
-                      color: s.ativo ? "#7a9e7e" : "#b06050",
+                      color: s.ativo ? "#7a9e7e" : "var(--destructive)",
                     }}>
                       {s.ativo ? "Ativo" : "Inativo"}
                     </span>
@@ -82,7 +82,7 @@ export default async function ConfigServicosPage() {
                         fontFamily: "var(--font-sans)", fontWeight: 600,
                         fontSize: "11px", cursor: "pointer",
                         background: s.ativo ? "rgba(176,96,80,0.10)" : "rgba(122,158,126,0.12)",
-                        color: s.ativo ? "#b06050" : "#7a9e7e",
+                        color: s.ativo ? "var(--destructive)" : "#7a9e7e",
                       }}>
                         {s.ativo ? "Desativar" : "Ativar"}
                       </button>

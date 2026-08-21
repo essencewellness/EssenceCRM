@@ -42,12 +42,12 @@ export default async function ServicosPage() {
             <tr key={s.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.10)", opacity: s.ativo ? 1 : 0.45 }}>
               <td style={{ padding: "10px 12px", fontSize: "14px", color: "var(--nuit-bone)", fontWeight: 500 }}><NomeServico nome={s.nome} /></td>
               <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
-              <td style={{ padding: "10px 12px", fontSize: "13px", color: "#b9a07a", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
+              <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-champagne-soft)", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
               <td style={{ padding: "10px 12px" }}>
                 <span style={{
                   fontSize: "11px", fontWeight: 600, padding: "3px 8px", borderRadius: "20px",
                   background: s.ativo ? "rgba(122,158,126,0.12)" : "rgba(176,96,80,0.10)",
-                  color: s.ativo ? "#7a9e7e" : "#b06050",
+                  color: s.ativo ? "#7a9e7e" : "var(--destructive)",
                 }}>
                   {s.ativo ? "Ativo" : "Inativo"}
                 </span>
@@ -59,7 +59,7 @@ export default async function ServicosPage() {
                     border: `1px solid ${s.ativo ? "rgba(176,96,80,0.30)" : "rgba(122,158,126,0.30)"}`,
                     fontWeight: 600, fontSize: "12px", cursor: "pointer",
                     background: "transparent",
-                    color: s.ativo ? "#b06050" : "#7a9e7e",
+                    color: s.ativo ? "var(--destructive)" : "#7a9e7e",
                   }}>
                     {s.ativo ? "Desativar" : "Ativar"}
                   </button>

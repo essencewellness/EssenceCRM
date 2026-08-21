@@ -27,7 +27,7 @@ const badgeStyle = (estado: string): React.CSSProperties => ({
     : estado === "inativo"
       ? "rgba(176,96,80,0.10)"
       : "rgba(157,157,154,0.12)",
-  color: estado === "ativo" ? "#7a9e7e" : estado === "inativo" ? "#b06050" : "#9d9d9a",
+  color: estado === "ativo" ? "#7a9e7e" : estado === "inativo" ? "var(--destructive)" : "#9d9d9a",
 });
 
 export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
@@ -88,14 +88,14 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
         backgroundColor: "#faf8f6", border: "1px solid #e0d8cc",
         borderRadius: "4px", padding: "24px", marginBottom: "20px",
       }}>
-        <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", fontWeight: 400, marginBottom: "20px", paddingBottom: "12px", borderBottom: "1px solid #e8e2d9" }}>
+        <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "20px", paddingBottom: "12px", borderBottom: "1px solid #e8e2d9" }}>
           Sistemas Ligados
         </h2>
         {integracoes.map(int => (
           <div key={int.nome} style={{ padding: "14px 0", borderTop: "1px solid #f0ebe3", display: "flex", alignItems: "flex-start", gap: "16px" }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "#161a26" }}>{int.nome}</p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-midnight)" }}>{int.nome}</p>
                 <span style={badgeStyle(int.estado)}>{int.estado}</span>
               </div>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", lineHeight: 1.5, marginBottom: "4px" }}>{int.descricao}</p>
@@ -118,7 +118,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
               </button>
             )}
             {resultados[int.nome] !== undefined && (
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: resultados[int.nome] ? "#7a9e7e" : "#b06050" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: resultados[int.nome] ? "#7a9e7e" : "var(--destructive)" }}>
                 {resultados[int.nome] ? "✓ OK" : "✗ Falhou"}
               </span>
             )}
@@ -131,7 +131,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
         backgroundColor: "#faf8f6", border: "1px solid #e0d8cc",
         borderRadius: "4px", padding: "24px",
       }}>
-        <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#161a26", fontWeight: 400, marginBottom: "20px", paddingBottom: "12px", borderBottom: "1px solid #e8e2d9" }}>
+        <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "20px", paddingBottom: "12px", borderBottom: "1px solid #e8e2d9" }}>
           Webhooks de Saída (CRM → N8N)
         </h2>
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginBottom: "16px", lineHeight: 1.6 }}>
@@ -142,7 +142,7 @@ export function IntegracoesPanel({ data }: { data: IntegracoesData }) {
             const ativo = data.webhooksConfigurados[ev.key] ?? false;
             return (
               <div key={ev.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", backgroundColor: "#fff", border: "1px solid #e8e2d9", borderRadius: "3px" }}>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "#161a26" }}>{ev.label}</span>
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--nuit-midnight)" }}>{ev.label}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ fontFamily: "monospace", fontSize: "10px", color: "#9d9d9a" }}>WEBHOOK_N8N_{ev.key.toUpperCase().replace(/\./g, "_")}</span>
                   <span style={badgeStyle(ativo ? "ativo" : "inativo")}>{ativo ? "ativo" : "inativo"}</span>

@@ -193,7 +193,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         <motion.button
           onClick={() => { setAbertoDropdown(o => !o); setMostraFormCriar(false); setErro("") }}
           disabled={isPending}
-          whileHover={{ borderColor: "#b9a07a", color: "#b9a07a", scale: 1.02 }}
+          whileHover={{ borderColor: "var(--nuit-champagne-soft)", color: "var(--nuit-champagne-soft)", scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           transition={{ type: "spring", stiffness: 400, damping: 22 }}
           style={{
@@ -298,7 +298,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           display: "flex", alignItems: "center", gap: "8px",
                           width: "100%", padding: "10px 12px",
                           fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
-                          color: "#b9a07a", backgroundColor: "transparent",
+                          color: "var(--nuit-champagne-soft)", backgroundColor: "transparent",
                           border: "none", cursor: "pointer",
                         }}
                       >
@@ -349,7 +349,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                             fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                             letterSpacing: "0.08em", textTransform: "uppercase",
                             border: "1px solid", cursor: "pointer",
-                            color: novoTipo === t ? "#b9a07a" : "var(--nuit-bone-soft)",
+                            color: novoTipo === t ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
                             borderColor: novoTipo === t ? "rgba(185,160,122,0.5)" : "rgba(212,184,134,0.18)",
                             backgroundColor: novoTipo === t ? "rgba(185,160,122,0.08)" : "transparent",
                             transition: "all 150ms",
@@ -399,7 +399,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          style={{ fontSize: "11px", color: "#b06050", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}
+                          style={{ fontSize: "11px", color: "var(--destructive)", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}
                         >
                           {erro}
                         </motion.p>
@@ -428,7 +428,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         style={{
                           flex: 1, padding: "7px", borderRadius: "4px", fontSize: "12px",
                           fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
-                          border: "none", color: "#fff", backgroundColor: "#b9a07a",
+                          border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)",
                           cursor: novoNome.trim() ? "pointer" : "not-allowed",
                           opacity: novoNome.trim() ? 1 : 0.5,
                           boxShadow: novoNome.trim() ? "0 4px 12px rgba(185,160,122,0.30)" : "none",

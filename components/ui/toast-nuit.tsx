@@ -47,9 +47,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           {items.map(t => {
             const cfg = {
               success: { Icon: CheckCircle2, color: "#6fcf97", border: "rgba(95,122,95,0.45)", accent: "rgba(95,122,95,0.08)" },
-              error:   { Icon: XCircle,      color: "#b06050", border: "rgba(176,96,80,0.45)",  accent: "rgba(176,96,80,0.08)"  },
-              info:    { Icon: Info,          color: "#b9a07a", border: "rgba(212,184,134,0.40)", accent: "rgba(212,184,134,0.06)" },
-              queue:   { Icon: Send,          color: "#b9a07a", border: "rgba(185,160,122,0.45)", accent: "rgba(185,160,122,0.08)" },
+              error:   { Icon: XCircle,      color: "var(--destructive)", border: "rgba(176,96,80,0.45)",  accent: "rgba(176,96,80,0.08)"  },
+              info:    { Icon: Info,          color: "var(--nuit-champagne-soft)", border: "rgba(212,184,134,0.40)", accent: "rgba(212,184,134,0.06)" },
+              queue:   { Icon: Send,          color: "var(--nuit-champagne-soft)", border: "rgba(185,160,122,0.45)", accent: "rgba(185,160,122,0.08)" },
             }[t.type]
             const { Icon } = cfg
 

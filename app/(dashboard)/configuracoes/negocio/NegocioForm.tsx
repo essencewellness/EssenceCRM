@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { guardarConfigNegocio, guardarConfigAutomacoes } from "./actions";
 
-const GOLD = "#d4b886";
+const GOLD = "var(--nuit-champagne)";
 
 interface ConfigNegocio {
   nomeNegocio: string;
@@ -32,7 +32,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #e0d8cc",
   borderRadius: "3px",
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "13px", color: "#161a26", outline: "none",
+  fontSize: "13px", color: "var(--nuit-midnight)", outline: "none",
 };
 
 const secaoStyle: React.CSSProperties = {
@@ -45,7 +45,7 @@ const secaoStyle: React.CSSProperties = {
 
 const tituloSecao: React.CSSProperties = {
   fontFamily: "var(--font-heading, Georgia, serif)",
-  fontSize: "15px", color: "#161a26",
+  fontSize: "15px", color: "var(--nuit-midnight)",
   fontWeight: 400, marginBottom: "20px",
   paddingBottom: "12px",
   borderBottom: "1px solid #e8e2d9",
@@ -140,9 +140,9 @@ export function NegocioForm({ config }: { config: ConfigNegocio }) {
           <label style={labelStyle}>Assinatura Referral</label>
           <input value={negocio.assinaturaReferral} onChange={e => setNegocio(n => ({ ...n, assinaturaReferral: e.target.value }))} style={inputStyle} />
         </div>
-        {erroNegocio && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{erroNegocio}</p>}
+        {erroNegocio && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{erroNegocio}</p>}
         {msgNegocio && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{msgNegocio}</p>}
-        <button type="submit" disabled={loadingNegocio} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer" }}>
+        <button type="submit" disabled={loadingNegocio} style={{ backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px", padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer" }}>
           {loadingNegocio ? "A guardar…" : "Guardar"}
         </button>
       </form>
@@ -181,9 +181,9 @@ export function NegocioForm({ config }: { config: ConfigNegocio }) {
         <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "#9d9d9a", marginBottom: "16px", lineHeight: 1.6 }}>
           Quiet Hours: mensagens automáticas não são enviadas neste intervalo.
         </p>
-        {erroAutomacoes && <p style={{ color: "#b06050", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{erroAutomacoes}</p>}
+        {erroAutomacoes && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{erroAutomacoes}</p>}
         {msgAutomacoes && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px", fontFamily: "var(--font-sans)" }}>{msgAutomacoes}</p>}
-        <button type="submit" disabled={loadingAutomacoes} style={{ backgroundColor: GOLD, color: "#161a26", border: "none", borderRadius: "3px", padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer" }}>
+        <button type="submit" disabled={loadingAutomacoes} style={{ backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px", padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer" }}>
           {loadingAutomacoes ? "A guardar…" : "Guardar"}
         </button>
       </form>

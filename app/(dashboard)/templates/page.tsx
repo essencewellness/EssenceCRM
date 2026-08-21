@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
-const GOLD = "#d4b886"
-const CREAM = "#ece6d6"
-const CARD_BG = "#1f2433"
+const GOLD = "var(--nuit-champagne)"
+const CREAM = "var(--nuit-bone)"
+const CARD_BG = "var(--nuit-overlay)"
 const BORDER = "rgba(212,184,134,0.15)"
 
 export default async function TemplatesPage() {

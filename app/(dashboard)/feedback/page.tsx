@@ -6,9 +6,9 @@ import { AnimatedSection } from "@/components/stagger"
 
 export const revalidate = 30
 
-const GOLD = "#b9a07a"
+const GOLD = "var(--nuit-champagne-soft)"
 const SAGE = "#7a9e7e"
-const TERRA = "#b06050"
+const TERRA = "var(--destructive)"
 
 const MOMENTO_PICO_LABELS: Record<string, string> = {
   Maos_ombros: "As mãos a soltarem a tensão",

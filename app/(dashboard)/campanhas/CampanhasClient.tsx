@@ -6,7 +6,7 @@ import { AnimatedProgress } from "@/components/animated-progress"
 const ESTADO_ESTILO: Record<string, { bg: string; color: string; border: string }> = {
   ativa:     { bg: "rgba(80,200,120,0.12)",  color: "#6fcf97", border: "rgba(80,200,120,0.30)" },
   cancelada: { bg: "rgba(220,60,60,0.12)",   color: "#e07070", border: "rgba(220,60,60,0.30)" },
-  concluida: { bg: "rgba(212,184,134,0.08)", color: "#b9a07a", border: "rgba(212,184,134,0.25)" },
+  concluida: { bg: "rgba(212,184,134,0.08)", color: "var(--nuit-champagne-soft)", border: "rgba(212,184,134,0.25)" },
 }
 
 interface CampanhaDTO {

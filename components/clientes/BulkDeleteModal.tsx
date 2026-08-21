@@ -95,7 +95,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
             display: "flex", alignItems: "center", justifyContent: "center",
             flexShrink: 0,
           }}>
-            <Trash2 size={16} color="#b06050" />
+            <Trash2 size={16} color="var(--destructive)" />
           </div>
           <button
             onClick={onClose}
@@ -129,7 +129,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
             color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             display: "block", marginBottom: "8px",
           }}>
-            Escreve <span style={{ color: "#b06050" }}>{PALAVRA_CONFIRMACAO}</span> para confirmar
+            Escreve <span style={{ color: "var(--destructive)" }}>{PALAVRA_CONFIRMACAO}</span> para confirmar
           </label>
           <input
             id="bulk-confirm-input"
@@ -168,7 +168,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
               type="checkbox"
               checked={apagarSessoesConfirmado}
               onChange={(e) => setApagarSessoesConfirmado(e.target.checked)}
-              style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "#b06050", cursor: "pointer", flexShrink: 0 }}
+              style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
             />
             <span style={{
               fontFamily: "var(--font-body, sans-serif)",
@@ -184,7 +184,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
         {erro && (
           <p style={{
             fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "12.5px", color: "#b06050", lineHeight: 1.5, marginBottom: "16px",
+            fontSize: "12.5px", color: "var(--destructive)", lineHeight: 1.5, marginBottom: "16px",
           }}>
             {erro}
           </p>
@@ -210,7 +210,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
             disabled={!confirmado || loading}
             style={{
               padding: "9px 18px", borderRadius: "8px",
-              backgroundColor: confirmado ? "#b06050" : "rgba(176,96,80,0.12)",
+              backgroundColor: confirmado ? "var(--destructive)" : "rgba(176,96,80,0.12)",
               border: "none",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "12px", fontWeight: 600,

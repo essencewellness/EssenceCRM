@@ -17,7 +17,7 @@ export default async function UtilizadoresPage() {
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "20px", fontWeight: 400, color: "#161a26",
+          fontSize: "20px", fontWeight: 400, color: "var(--nuit-midnight)",
           marginBottom: "6px",
         }}>
           Utilizadores

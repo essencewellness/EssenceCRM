@@ -24,19 +24,19 @@ export default function ErrorBoundary({
   return (
     <main
       className="min-h-screen flex items-center justify-center relative px-6"
-      style={{ backgroundColor: "#161a26" }}
+      style={{ backgroundColor: "var(--nuit-midnight)" }}
     >
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 90% 70% at 50% -20%, #0e1119 0%, transparent 65%)",
+          background: "radial-gradient(ellipse 90% 70% at 50% -20%, var(--nuit-deep) 0%, transparent 65%)",
         }}
       />
 
       <div
         className="relative w-full max-w-sm p-8 text-center"
         style={{
-          backgroundColor: "#1f2433",
+          backgroundColor: "var(--nuit-overlay)",
           border: "1px solid rgba(212,184,134,0.16)",
           borderRadius: "4px",
           boxShadow: "0 30px 60px rgba(0,0,0,0.55), 0 10px 20px rgba(0,0,0,0.30)",
@@ -48,7 +48,7 @@ export default function ErrorBoundary({
             fontSize: "9px",
             letterSpacing: "0.32em",
             textTransform: "uppercase",
-            color: "#d4b886",
+            color: "var(--nuit-champagne)",
             fontWeight: 500,
             marginBottom: "14px",
           }}
@@ -59,7 +59,7 @@ export default function ErrorBoundary({
         <h1
           style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            color: "#ece6d6",
+            color: "var(--nuit-bone)",
             fontSize: "22px",
             marginBottom: "10px",
             letterSpacing: "-0.005em",
@@ -105,8 +105,8 @@ export default function ErrorBoundary({
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 500,
-              color: "#161a26",
-              backgroundColor: "#d4b886",
+              color: "var(--nuit-midnight)",
+              backgroundColor: "var(--nuit-champagne)",
               border: "none",
               borderRadius: "2px",
               padding: "10px 20px",

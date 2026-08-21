@@ -17,9 +17,9 @@ import {
 export const revalidate = 10;
 
 const INK = "var(--nuit-bone)";
-const CHAMPAGNE = "#b9a07a";
+const CHAMPAGNE = "var(--nuit-champagne-soft)";
 const SAGE = "#7a9e7e";
-const TERRA = "#b06050";
+const TERRA = "var(--destructive)";
 const SMOKE = "var(--nuit-bone-soft)";
 const CARD = "var(--nuit-overlay)";
 const BORDER = "rgba(212,184,134,0.16)";
@@ -161,7 +161,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
   const stats = [
     { label: "Pendentes", value: totalPendentes, desc: "aguardam a tua aprovação", icon: <Clock size={16} color={CHAMPAGNE} /> },
     { label: "Na fila", value: totalFila, desc: "saem espaçadas 30–90s", icon: <Hourglass size={16} color={CHAMPAGNE} /> },
-    { label: "Enviadas", value: enviadasMes, desc: "este mês", icon: <Send size={16} color="#a0a996" /> },
+    { label: "Enviadas", value: enviadasMes, desc: "este mês", icon: <Send size={16} color="var(--nuit-sage)" /> },
     { label: "Conversão", value: `${taxaConversao}%`, desc: "voltaram a marcar", icon: <TrendingUp size={16} color={CHAMPAGNE} /> },
   ];
 

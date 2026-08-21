@@ -95,7 +95,7 @@ export default async function LeadsPage() {
                         <span style={{
                           padding: "3px 9px", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.08em",
                           textTransform: "uppercase", fontFamily: "var(--font-sans, sans-serif)",
-                          color: "#b9a07a", border: "1px solid rgba(185,160,122,0.35)",
+                          color: "var(--nuit-champagne-soft)", border: "1px solid rgba(185,160,122,0.35)",
                         }}>
                           {ORIGEM_LABELS[lead.comoNosConheceu] ?? lead.comoNosConheceu}
                         </span>

@@ -39,15 +39,15 @@ function formatCurrency(v: number) {
 }
 
 const estadoMap: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  lead:            { label: "Lead",       color: "#b9a07a", bg: "transparent",             border: "rgba(185,160,122,0.45)" },
-  novo:            { label: "Nova",       color: "#a0a996", bg: "transparent",             border: "rgba(160,169,150,0.45)" },
-  ativa_recente:   { label: "Ativa",      color: "#a0a996", bg: "transparent",             border: "rgba(160,169,150,0.45)" },
+  lead:            { label: "Lead",       color: "var(--nuit-champagne-soft)", bg: "transparent",             border: "rgba(185,160,122,0.45)" },
+  novo:            { label: "Nova",       color: "var(--nuit-sage)", bg: "transparent",             border: "rgba(160,169,150,0.45)" },
+  ativa_recente:   { label: "Ativa",      color: "var(--nuit-sage)", bg: "transparent",             border: "rgba(160,169,150,0.45)" },
   ativa_frequente: { label: "Frequente",  color: "#7a9e7e", bg: "rgba(122,158,126,0.08)", border: "rgba(122,158,126,0.40)" },
-  vip_embaixadora: { label: "VIP",        color: "#161a26", bg: "#d4b886",                 border: "#d4b886" },
+  vip_embaixadora: { label: "VIP",        color: "var(--nuit-midnight)", bg: "var(--nuit-champagne)",                 border: "var(--nuit-champagne)" },
   vip_em_risco:    { label: "Em Risco",   color: "#d4956b", bg: "transparent",             border: "rgba(212,149,107,0.50)" },
-  reativacao:      { label: "Reativação", color: "#b06050", bg: "transparent",             border: "rgba(176,96,80,0.45)" },
+  reativacao:      { label: "Reativação", color: "var(--destructive)", bg: "transparent",             border: "rgba(176,96,80,0.45)" },
   perdida:         { label: "Perdida",    color: "var(--nuit-bone-soft)", bg: "transparent",             border: "rgba(122,126,138,0.35)" },
-  blacklist:       { label: "Blacklist",  color: "#ece6d6", bg: "rgba(22,26,38,0.75)",    border: "rgba(22,26,38,0.60)" },
+  blacklist:       { label: "Blacklist",  color: "var(--nuit-bone)", bg: "rgba(22,26,38,0.75)",    border: "rgba(22,26,38,0.60)" },
 }
 
 const HEADERS = [
@@ -80,7 +80,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
               type="checkbox"
               checked={todosSelec}
               onChange={onToggleTodos}
-              className="cursor-pointer accent-[#b9a07a] w-4 h-4"
+              className="cursor-pointer accent-[var(--nuit-champagne-soft)] w-4 h-4"
             />
           </th>
           {HEADERS.map(({ label, align }) => (
@@ -102,7 +102,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
           const cfg = estadoMap[cliente.estado] ?? { label: cliente.estado, color: "#9d9d9a", bg: "rgba(157,157,154,0.10)", border: "rgba(157,157,154,0.22)" }
           const tagsSaude = cliente.etiquetas.filter(e => e.etiqueta.tipo === "saude")
           const actividade = cliente.proximaSessaoData
-            ? { label: "Agendada", cor: "#b9a07a", dias: null }
+            ? { label: "Agendada", cor: "var(--nuit-champagne-soft)", dias: null }
             : cliente.ultimaSessao
               ? calcularTagActividade(cliente.ultimaSessao)
               : { label: "Sem sessões", cor: "#9d9d9a", dias: null }
@@ -134,7 +134,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                   checked={isSelec}
                   onChange={() => onToggle(cliente.id)}
                   onClick={(e) => e.stopPropagation()}
-                  className="cursor-pointer accent-[#b9a07a] w-4 h-4"
+                  className="cursor-pointer accent-[var(--nuit-champagne-soft)] w-4 h-4"
                 />
               </td>
               <td style={{ padding: "14px 16px" }}>
@@ -143,7 +143,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                     width: "34px", height: "34px", borderRadius: "50%", flexShrink: 0,
                     backgroundColor: "rgba(185,160,122,0.10)", border: "1px solid rgba(185,160,122,0.25)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700, color: "#b9a07a",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700, color: "var(--nuit-champagne-soft)",
                   }}>
                     {getInitials(cliente.nome)}
                   </div>
@@ -196,7 +196,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                 </Link>
               </td>
               <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "#b9a07a", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "var(--nuit-champagne-soft)", textDecoration: "none" }}>
                   {formatCurrency(cliente.totalGasto)}
                 </Link>
               </td>

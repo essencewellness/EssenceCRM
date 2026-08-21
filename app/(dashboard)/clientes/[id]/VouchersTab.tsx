@@ -19,7 +19,7 @@ export interface VoucherDoCliente {
 }
 
 const ESTADOS: Record<string, { label: string; cor: string; bg: string }> = {
-  ativo:     { label: "Por marcar", cor: "#d4b886", bg: "rgba(212,184,134,0.12)" },
+  ativo:     { label: "Por marcar", cor: "var(--nuit-champagne)", bg: "rgba(212,184,134,0.12)" },
   agendado:  { label: "Agendado",   cor: "#8ea9c9", bg: "rgba(142,169,201,0.14)" },
   usado:     { label: "Utilizado",  cor: "#8bb08f", bg: "rgba(139,176,143,0.14)" },
   expirado:  { label: "Expirado",   cor: "#9d9d9a", bg: "rgba(157,157,154,0.12)" },
@@ -130,7 +130,7 @@ function Bloco({ titulo, sub, vouchers, papel }: {
         {papel === "comprou" && (
           <span style={{
             fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "17px",
-            color: "#d4b886", whiteSpace: "nowrap",
+            color: "var(--nuit-champagne)", whiteSpace: "nowrap",
           }}>
             €{total.toFixed(2)}
           </span>

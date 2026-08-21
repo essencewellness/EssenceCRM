@@ -21,7 +21,7 @@ export default async function BlacklistPage() {
             border: "1px solid rgba(176,96,80,0.22)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <ShieldAlert size={16} color="#b06050" />
+            <ShieldAlert size={16} color="var(--destructive)" />
           </div>
           <div>
             <h1 style={{
@@ -86,7 +86,7 @@ export default async function BlacklistPage() {
               borderRadius: "8px", cursor: "pointer",
               fontFamily: "var(--font-sans, sans-serif)",
               fontSize: "11px", fontWeight: 600,
-              letterSpacing: "0.06em", color: "#b06050",
+              letterSpacing: "0.06em", color: "var(--destructive)",
               whiteSpace: "nowrap",
               transition: "all 150ms",
             }}>
@@ -108,7 +108,7 @@ export default async function BlacklistPage() {
             display: "flex", flexDirection: "column", alignItems: "center",
             justifyContent: "center", padding: "60px 24px",
           }}>
-            <ShieldAlert size={28} color="#b06050" opacity={0.18} style={{ marginBottom: "12px" }} />
+            <ShieldAlert size={28} color="var(--destructive)" opacity={0.18} style={{ marginBottom: "12px" }} />
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
               fontStyle: "italic", fontSize: "14px", color: "#9d9d9a",
@@ -160,7 +160,7 @@ export default async function BlacklistPage() {
                           border: "1px solid rgba(176,96,80,0.22)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "10px", fontWeight: 700, color: "#b06050",
+                          fontSize: "10px", fontWeight: 700, color: "var(--destructive)",
                         }}>
                           {c.nome.slice(0, 1).toUpperCase()}
                         </div>

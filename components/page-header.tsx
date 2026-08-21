@@ -28,7 +28,7 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9px", fontWeight: 500,
                 letterSpacing: "0.32em", textTransform: "uppercase",
-                color: "#b9a07a", marginBottom: "6px",
+                color: "var(--nuit-champagne-soft)", marginBottom: "6px",
               }}
             >
               {subtitulo}
@@ -40,7 +40,7 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
             transition={{ duration: 0.42, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-              fontSize: "26px", fontWeight: 400, color: "#161a26",
+              fontSize: "26px", fontWeight: 400, color: "var(--nuit-midnight)",
               letterSpacing: "-0.005em", lineHeight: 1.1,
             }}
           >

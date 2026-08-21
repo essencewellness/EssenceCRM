@@ -106,7 +106,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             padding: "9px 18px", borderRadius: "8px",
             backgroundColor: "transparent",
             border: "1px solid rgba(185,160,122,0.4)",
-            color: "#b9a07a", cursor: "pointer",
+            color: "var(--nuit-champagne-soft)", cursor: "pointer",
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "12px", fontWeight: 600, letterSpacing: "0.06em",
             marginBottom: "28px",
@@ -138,7 +138,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             overflow: "hidden",
             backgroundColor: "var(--nuit-overlay)",
             border: "1px solid rgba(185,160,122,0.3)",
-            borderLeft: "3px solid #b9a07a",
+            borderLeft: "3px solid var(--nuit-champagne-soft)",
             borderRadius: "10px",
             padding: "20px",
             boxShadow: "var(--shadow-2)",
@@ -146,7 +146,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
-            color: "#b9a07a", textTransform: "uppercase", marginBottom: "12px",
+            color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "12px",
           }}>
             Nova observação
           </p>
@@ -172,7 +172,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           {erro && (
             <p style={{
               fontFamily: "var(--font-body)", fontSize: "12px",
-              color: "#b06050", marginTop: "6px",
+              color: "var(--destructive)", marginTop: "6px",
             }}>{erro}</p>
           )}
           <div style={{ display: "flex", gap: "10px", marginTop: "14px", alignItems: "center" }}>
@@ -181,7 +181,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
               disabled={isPending}
               style={{
                 padding: "8px 18px", borderRadius: "7px",
-                backgroundColor: "#b9a07a", color: "#ffffff", border: "none",
+                backgroundColor: "var(--nuit-champagne-soft)", color: "#ffffff", border: "none",
                 fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
                 cursor: isPending ? "default" : "pointer",
                 opacity: isPending ? 0.7 : 1,
@@ -283,7 +283,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                     <div style={{
                       fontFamily: "var(--font-sans, sans-serif)",
                       fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em",
-                      color: "#b9a07a", textTransform: "uppercase", marginTop: "3px",
+                      color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginTop: "3px",
                     }}>
                       {d.mes} {d.ano}
                     </div>
@@ -302,7 +302,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                   }}>
                     <div style={{
                       width: "7px", height: "7px", borderRadius: "50%",
-                      backgroundColor: "#b9a07a",
+                      backgroundColor: "var(--nuit-champagne-soft)",
                       boxShadow: "0 0 0 3px rgba(185,160,122,0.15)",
                     }} />
                   </div>
@@ -331,7 +331,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                         width: "18px", height: "18px", borderRadius: "50%",
                         backgroundColor: "rgba(185,160,122,0.12)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontFamily: "var(--font-heading)", fontSize: "9px", color: "#b9a07a",
+                        fontFamily: "var(--font-heading)", fontSize: "9px", color: "var(--nuit-champagne-soft)",
                       }}>
                         {o.autor[0].toUpperCase()}
                       </div>
@@ -347,7 +347,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                           marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px",
                           fontFamily: "var(--font-body)", fontSize: "11px",
                         }}>
-                          <span style={{ color: erroApagar === o.id ? "#b06050" : "var(--nuit-bone-soft)" }}>
+                          <span style={{ color: erroApagar === o.id ? "var(--destructive)" : "var(--nuit-bone-soft)" }}>
                             {erroApagar === o.id ? "Não deu. Tentar de novo?" : "Apagar esta nota?"}
                           </span>
                           <button
@@ -355,7 +355,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                             disabled={apagando === o.id}
                             style={{
                               padding: "3px 10px", borderRadius: "5px",
-                              backgroundColor: "transparent", color: "#b06050",
+                              backgroundColor: "transparent", color: "var(--destructive)",
                               border: "1px solid rgba(176,96,80,0.45)",
                               fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600,
                               cursor: apagando === o.id ? "default" : "pointer",
@@ -388,7 +388,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                             color: "var(--nuit-bone-soft)", cursor: "pointer",
                             fontSize: "13px", lineHeight: 1, transition: "color 150ms",
                           }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "#b06050" }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--destructive)" }}
                           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--nuit-bone-soft)" }}
                         >
                           ✕

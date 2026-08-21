@@ -42,7 +42,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
         alignItems: "center",
         height: "60px",
         padding: "0 32px",
-        backgroundColor: "#0e1119",
+        backgroundColor: "var(--nuit-deep)",
         borderBottom: "1px solid rgba(212,184,134,0.12)",
       }}
     >
@@ -71,7 +71,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
             fontSize: "17px",
             lineHeight: 1,
-            color: "#ece6d6",
+            color: "var(--nuit-bone)",
             letterSpacing: "-0.005em",
           }}>
             Essence
@@ -80,7 +80,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
             fontSize: "10px",
             lineHeight: 1,
-            color: "#d4b886",
+            color: "var(--nuit-champagne)",
           }}>
             Wellness
           </span>
@@ -115,7 +115,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
                 textTransform: "uppercase",
                 textDecoration: "none",
                 padding: "6px 12px",
-                color: isActive ? "#d4b886" : "#ece6d6",
+                color: isActive ? "var(--nuit-champagne)" : "var(--nuit-bone)",
                 opacity: isActive ? 1 : 0.55,
                 transition: "color 160ms ease, opacity 160ms ease",
                 whiteSpace: "nowrap",
@@ -130,7 +130,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
                   left: "12px",
                   right: "12px",
                   height: "1px",
-                  backgroundColor: "#d4b886",
+                  backgroundColor: "var(--nuit-champagne)",
                 }} />
               )}
             </Link>
@@ -155,7 +155,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
             fontFamily: "var(--font-sans, sans-serif)",
             fontSize: "10px", fontWeight: 600,
             letterSpacing: "0.04em",
-            color: "#d4b886",
+            color: "var(--nuit-champagne)",
             flexShrink: 0,
           }}>
             {initials}

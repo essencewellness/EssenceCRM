@@ -55,7 +55,7 @@ function KanbanColuna({
   return (
     <div
       ref={setNodeRef}
-      className={`bg-[#0e1119] rounded-xl p-4 min-h-64 border border-[rgba(212,184,134,0.1)] transition-all ${isOver ? "ring-2 ring-[#b9a07a]/40 bg-[rgba(185,160,122,0.05)]" : ""}`}
+      className={`bg-[var(--nuit-deep)] rounded-xl p-4 min-h-64 border border-[rgba(212,184,134,0.1)] transition-all ${isOver ? "ring-2 ring-[var(--nuit-champagne-soft)]/40 bg-[rgba(185,160,122,0.05)]" : ""}`}
     >
       <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--nuit-bone-soft)] mb-3">
         {label} ({tarefas.length})
