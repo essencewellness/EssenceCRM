@@ -391,6 +391,7 @@ function CriarVoucherModal({
             <button
               onClick={submeter}
               disabled={pending}
+              className={pending ? undefined : "btn-lift"}
               style={{
                 padding: "9px 22px", borderRadius: "8px", fontSize: "13px",
                 border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
@@ -450,6 +451,7 @@ function SuccessModal({ codigo, onFechar }: { codigo: string; onFechar: () => vo
         </div>
         <button
           onClick={onFechar}
+          className="btn-lift"
           style={{
             padding: "9px 24px", borderRadius: "8px", fontSize: "13px",
             border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",

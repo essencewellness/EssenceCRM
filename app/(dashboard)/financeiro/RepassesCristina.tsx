@@ -2,6 +2,7 @@
 
 import { useTransition } from "react"
 import { marcarRepasseFeito } from "./actions"
+import { useToast } from "@/components/ui/toast-nuit"
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
@@ -33,6 +34,7 @@ export function valorDevido(r: RepasseRow): number {
 
 function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
   const [pending, startTransition] = useTransition()
+  const { toast } = useToast()
 
   return (
     <div style={{
@@ -57,7 +59,11 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
         </span>
         <button
           disabled={pending}
-          onClick={() => startTransition(() => marcarRepasseFeito(repasse.id))}
+          className={pending ? undefined : "btn-lift"}
+          onClick={() => startTransition(async () => {
+            await marcarRepasseFeito(repasse.id)
+            toast(`Repasse a ${repasse.cliente.nome} marcado como feito`, "success")
+          })}
           style={{
             padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: 700,
             border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",

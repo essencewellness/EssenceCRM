@@ -8,6 +8,7 @@ import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersS
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
+import { StaggerList, StaggerItem } from "@/components/stagger"
 import type { Prisma } from "@/lib/prisma-client"
 
 const GOLD = "var(--nuit-champagne)"
@@ -320,12 +321,12 @@ export default async function FinanceiroPage({
       <FiltroTerapeutaSlot />
 
       {/* KPI cards do mês */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard label="Receita do mês" valor={`€${receitaTotal.toFixed(2)}`} tipo="destaque" />
-        <KpiCard label="Sessões pagas" valor={String(porEstado["pago"] ?? 0)} tipo="normal" />
-        <KpiCard label="Por cobrar" valor={String(pendentes.length)} tipo={pendentes.length ? "aviso" : "normal"} />
-        <KpiCard label="Receita total" valor={`€${receitaSempre.toFixed(2)}`} tipo="ouro" />
-      </div>
+      <StaggerList className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StaggerItem><KpiCard label="Receita do mês" valor={`€${receitaTotal.toFixed(2)}`} tipo="destaque" /></StaggerItem>
+        <StaggerItem><KpiCard label="Sessões pagas" valor={String(porEstado["pago"] ?? 0)} tipo="normal" /></StaggerItem>
+        <StaggerItem><KpiCard label="Por cobrar" valor={String(pendentes.length)} tipo={pendentes.length ? "aviso" : "normal"} urgente={pendentes.length > 0} /></StaggerItem>
+        <StaggerItem><KpiCard label="Receita total" valor={`€${receitaSempre.toFixed(2)}`} tipo="ouro" /></StaggerItem>
+      </StaggerList>
 
       <RepassesCristina repasses={repasses} total={totalRepasses} />
 
@@ -418,7 +419,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   )
 }
 
-function KpiCard({ label, valor, tipo }: { label: string; valor: string; tipo: "destaque" | "aviso" | "normal" | "ouro" }) {
+function KpiCard({ label, valor, tipo, urgente }: { label: string; valor: string; tipo: "destaque" | "aviso" | "normal" | "ouro"; urgente?: boolean }) {
   const borderColor =
     tipo === "destaque" ? "rgba(212,184,134,0.35)" :
     tipo === "ouro"     ? "rgba(212,184,134,0.28)" :
@@ -434,7 +435,10 @@ function KpiCard({ label, valor, tipo }: { label: string; valor: string; tipo: "
       <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "11px", marginBottom: "8px" }}>
         {label}
       </div>
-      <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: valorColor, fontSize: "24px", fontWeight: 400 }}>
+      {/* value-pulse só quando urgente=true (ex: há mesmo por cobrar) — nunca
+          pulsa em permanência, senão perde o significado (skill 21st-ui-explore,
+          direção "Camada Ambiente": movimento liga-se ao negócio, não decora). */}
+      <div className={urgente ? "value-pulse" : undefined} style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: valorColor, fontSize: "24px", fontWeight: 400 }}>
         {valor}
       </div>
     </div>

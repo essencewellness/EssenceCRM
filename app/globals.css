@@ -288,6 +288,29 @@
 }
 .btn-reject:active { transform: scale(0.97); }
 
+/* ── Botão com resposta tátil (levanta ao passar o rato, encolhe ao clicar) ──
+   Genérico, para qualquer CTA principal fora dos casos já cobertos acima
+   (aprovar/rejeitar mensagem) — mesma física, aplicação mais larga. */
+.btn-lift {
+  transition: transform 150ms cubic-bezier(0.22,0.61,0.36,1), box-shadow 150ms ease;
+  cursor: pointer;
+}
+.btn-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212,184,134,0.25);
+}
+.btn-lift:active { transform: translateY(0) scale(0.97); }
+
+/* ── Badge/valor que pulsa só quando há urgência real (usar com condição,
+   nunca sempre — ex: "Por cobrar" > 0, tarefas vencidas) ── */
+.value-pulse {
+  animation: valuePulse 2s ease-in-out infinite;
+}
+@keyframes valuePulse {
+  0%, 100% { text-shadow: 0 0 0 rgba(212,140,50,0); }
+  50%       { text-shadow: 0 0 12px rgba(212,140,50,0.35); }
+}
+
 /* ── Link de ação (Ver perfil →) ── */
 .link-action {
   transition: color 150ms ease, transform 150ms ease, letter-spacing 150ms ease;

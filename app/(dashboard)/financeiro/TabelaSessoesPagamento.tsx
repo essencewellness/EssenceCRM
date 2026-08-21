@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react"
 import { Check, Clock, Pencil, X } from "lucide-react"
 import { atualizarPagamento } from "./actions"
+import { useToast } from "@/components/ui/toast-nuit"
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
@@ -143,6 +144,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
   const [metodo, setMetodo] = useState(sessao.metodoPagamento ?? "mbway_essence")
   const primeiroCampoRef = useRef<HTMLButtonElement>(null)
   const focoAnteriorRef = useRef<HTMLElement | null>(null)
+  const { toast } = useToast()
 
   const mostrarDetalhes = estado === "pago" || estado === "parcial"
   // voucher já foi pago pela compradora quando o comprou — não há valor a registar agora
@@ -175,6 +177,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
           ? (metodo as "dinheiro" | "mbway" | "mbway_essence" | "mbway_beatriz" | "transferencia" | "stripe" | "voucher")
           : null,
       })
+      toast("Pagamento guardado", "success")
       onFechar()
     })
   }
@@ -312,6 +315,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               ref={primeiroCampoRef}
               onClick={guardar}
               disabled={pending}
+              className={pending ? undefined : "btn-lift"}
               style={{
                 flex: 1.4, padding: "12px", borderRadius: "9px", fontSize: "13.5px",
                 border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
