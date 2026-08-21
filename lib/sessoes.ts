@@ -84,7 +84,7 @@ export async function dispararEfeitosSessaoRealizada(
   // "agendado" sem erro nenhum visível.
   const voucherDestaSessao = await prisma.giftCard.findFirst({
     where: { sessaoId: sessaoAntes.id, estado: "agendado" },
-    select: { id: true, codigo: true, terapeutaId: true, terapeuta2Id: true, servicoNome: true, valorPago: true },
+    select: { id: true, codigo: true, terapeutaId: true, terapeuta2Id: true, servicoNome: true, valorPago: true, compradorNome: true, dataCompra: true },
   })
 
   if (voucherDestaSessao) {
@@ -157,6 +157,8 @@ export async function dispararEfeitosSessaoRealizada(
             codigo: voucherDestaSessao.codigo,
             servicoNome: voucherDestaSessao.servicoNome,
             valor: Number(voucherDestaSessao.valorPago),
+            compradorNome: voucherDestaSessao.compradorNome,
+            dataCompra: voucherDestaSessao.dataCompra.toISOString(),
             direcao: "bea_perde",
           })
         } else if (!antesEraBea && agoraEBea) {
@@ -164,6 +166,8 @@ export async function dispararEfeitosSessaoRealizada(
             codigo: voucherDestaSessao.codigo,
             servicoNome: voucherDestaSessao.servicoNome,
             valor: Number(voucherDestaSessao.valorPago),
+            compradorNome: voucherDestaSessao.compradorNome,
+            dataCompra: voucherDestaSessao.dataCompra.toISOString(),
             direcao: "bea_ganha",
           })
         }

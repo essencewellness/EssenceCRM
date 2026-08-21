@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 
 async function verificarSessao() {
   const session = await auth()
@@ -56,13 +57,29 @@ export async function atualizarPagamento(
 ) {
   await verificarSessao()
 
-  // Só há um MBWay físico (é da Bea) — se a sessão é da Cristina e o
+  // Só há um MBWay físico (é da Bea) — se quem fez a sessão não foi ela e o
   // pagamento passa a ser por lá, fica um repasse por fazer até a Bea
-  // entregar a parte dela em mão.
-  const sessao = await prisma.sessao.findUnique({ where: { id: sessaoId }, select: { terapeuta: true } })
-  const ehCristina = /cristina/i.test(sessao?.terapeuta ?? "")
+  // entregar a parte da outra terapeuta em mão. Usa terapeutaId/terapeuta2Id
+  // (FK), nunca o campo de texto "terapeuta" — esse fica desatualizado em
+  // sessões vindas do Calendly (grava sempre "bea") e nunca é corrigido para
+  // a segunda terapeuta numa massagem a dois (bug real encontrado 2026-08-20:
+  // o repasse manual nunca disparava para a Cristina por causa disto).
+  const idBea = await getTerapeutaPrincipalPadraoId()
+  const sessao = await prisma.sessao.findUnique({
+    where: { id: sessaoId },
+    select: { terapeutaId: true, terapeuta2Id: true },
+  })
+  const outraTerapeuta = (id: string | null) => id !== null && id !== idBea
+  const ehADois = sessao?.terapeuta2Id !== null && sessao?.terapeuta2Id !== undefined
+  const ehOutraTerapeuta = outraTerapeuta(sessao?.terapeutaId ?? null) || outraTerapeuta(sessao?.terapeuta2Id ?? null)
   const ehMbway = dados.metodoPagamento === "mbway_essence" || dados.metodoPagamento === "mbway_beatriz"
   const emAberto = dados.estadoPagamento === "pago" || dados.estadoPagamento === "parcial"
+  const repasseNecessario = ehOutraTerapeuta && ehMbway && emAberto
+  // Numa massagem a dois só metade do valor é da outra terapeuta — a outra
+  // metade é trabalho da Bea, que fica com ela mesma.
+  const valorRepasse = repasseNecessario && ehADois && dados.valorPago
+    ? Math.round((dados.valorPago / 2) * 100) / 100
+    : null
 
   await prisma.sessao.update({
     where: { id: sessaoId },
@@ -71,7 +88,8 @@ export async function atualizarPagamento(
       valorPago: dados.valorPago ?? null,
       metodoPagamento: dados.metodoPagamento ?? null,
       pagamentoEm: dados.estadoPagamento === "pago" ? new Date() : undefined,
-      repasseNecessario: ehCristina && ehMbway && emAberto,
+      repasseNecessario,
+      valorRepasse,
     },
   })
 

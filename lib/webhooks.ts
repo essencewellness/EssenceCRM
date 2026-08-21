@@ -187,12 +187,16 @@ export const webhooks = {
 
   // Voucher individual cuja receita muda de mãos depois de já ter entrado
   // no sheet da Beatriz (forms "quem vai realizar a sessão?" respondeu
-  // Cristina, ou o inverso, mais raro). O N8N usa o código para encontrar
-  // a linha no sheet e remover/adicionar consoante a direção.
+  // Cristina, ou o inverso, mais raro). O N8N usa a coluna "Código Voucher"
+  // para encontrar a linha exata da compra original: bea_perde apaga essa
+  // linha; bea_ganha volta a criá-la (por isso vão os dados todos, não só
+  // o código — sem eles não dava para reconstruir a linha ao reverter).
   voucherReceitaReatribuida: (payload: {
     codigo: string
     servicoNome: string
     valor: number
+    compradorNome: string
+    dataCompra: string
     direcao: "bea_perde" | "bea_ganha"
   }) => dispararWebhook("voucher.receita_reatribuida", payload),
 }
