@@ -50,11 +50,81 @@
 }
 
 :root {
-  /* ── ESSENCE WELLNESS — NUIT ──
-     Quiet luxury, after dark. Midnight & bone, with champagne as the only metallic.
-     Direction: Aēsop · Aman · Sisley Paris · Kinfolk */
+  /* ── ESSENCE WELLNESS — NUIT · modo claro ──
+     Superfície "paper" da marca (colors_and_type.css .on-paper), a única
+     paleta clara documentada — mesmos valores já validados e em produção
+     no Dashboard Financeiro (05_DASHBOARD_FINANCEIRO/client/src/index.css).
+     Mesmos NOMES de variável do modo escuro: centenas de componentes usam
+     var(--nuit-bone) etc. diretamente — trocar só o valor, nunca o nome. */
+  --nuit-midnight:       #f6f1e5;  /* nuit-paper — fundo principal claro */
+  --nuit-deep:           #ebe5d4;  /* nuit-paper-deep — zonas mais profundas (sidebar) */
+  --nuit-overlay:        #ebe5d4;  /* cards/superfícies sobre paper */
+  --nuit-bone:           #161a26;  /* nuit-ink — texto principal/títulos */
+  --nuit-bone-soft:      #4d5260;  /* nuit-smoke-deep — corpo de texto */
+  --nuit-champagne:      #b9a07a;  /* nuit-champagne-soft — acento em claro */
+  --nuit-champagne-soft: #9a8b6f;
+  --nuit-smoke:          #6b6047;  /* texto secundário/muted em claro */
+  --nuit-smoke-deep:     #a89a7f;  /* dividers/hairlines finos, não é texto */
+  --nuit-paper:          #f6f1e5;  /* mesma superfície — sempre clara nos dois modos */
+  --nuit-paper-deep:     #ebe5d4;
 
-  /* Paleta NUIT (canónica — não alterar) */
+  --background:          var(--nuit-midnight);
+  --foreground:          var(--nuit-bone-soft);
+  --card:                var(--nuit-overlay);
+  --card-foreground:     var(--nuit-bone);
+  --popover:             var(--nuit-midnight);
+  --popover-foreground:  var(--nuit-bone);
+  --primary:             var(--nuit-champagne);
+  --primary-foreground:  var(--nuit-paper);
+  --secondary:           var(--nuit-paper-deep);
+  --secondary-foreground: var(--nuit-bone);
+  --muted:               var(--nuit-paper-deep);
+  --muted-foreground:    var(--nuit-smoke);
+  --accent:              var(--nuit-champagne);
+  --accent-foreground:   var(--nuit-bone);
+  --destructive:         #9a5b50;
+  --border:              rgba(185, 160, 122, 0.5);
+  --input:               var(--nuit-paper);
+  --ring:                var(--nuit-champagne);
+  --chart-1: var(--nuit-champagne);
+  --chart-2: #6f8073;
+  --chart-3: var(--nuit-smoke);
+  --chart-4: #4d5260;
+  --chart-5: #b4756a;
+  --radius: 0.125rem;
+
+  --sidebar:                     var(--nuit-deep);
+  --sidebar-foreground:          var(--nuit-bone-soft);
+  --sidebar-primary:             var(--nuit-champagne);
+  --sidebar-primary-foreground:  var(--nuit-paper);
+  --sidebar-accent:              #e2dbc6;
+  --sidebar-accent-foreground:   #7a6f5a;
+  --sidebar-border:              rgba(185, 160, 122, 0.5);
+  --sidebar-ring:                var(--nuit-champagne);
+
+  --rule:      rgba(185, 160, 122, 0.50);
+  --rule-soft: rgba(22, 26, 38, 0.10);
+  --rule-bone: rgba(22, 26, 38, 0.10);
+  --rule-ink:  rgba(22, 26, 38, 0.10);
+
+  --shadow-1: 0 1px 2px rgba(22,26,38,0.10), 0 1px 1px rgba(22,26,38,0.06);
+  --shadow-2: 0 8px 24px rgba(22,26,38,0.12), 0 2px 6px rgba(22,26,38,0.08);
+  --shadow-3: 0 30px 60px rgba(22,26,38,0.16), 0 10px 20px rgba(22,26,38,0.10);
+
+  --ease-out:  cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast:  160ms;
+  --dur-med:   280ms;
+  --dur-slow:  520ms;
+
+  --font-body: var(--font-sans);
+}
+
+.dark {
+  /* ── ESSENCE WELLNESS — NUIT · modo escuro (canónico) ──
+     Quiet luxury, after dark. Midnight & bone, with champagne as the only metallic.
+     Direction: Aēsop · Aman · Sisley Paris · Kinfolk
+     Valores originais — inalterados, é o visual que já existia antes do
+     modo claro ser introduzido (2026-08-21). */
   --nuit-midnight:       #161a26;
   --nuit-deep:           #0e1119;
   --nuit-overlay:        #1f2433;

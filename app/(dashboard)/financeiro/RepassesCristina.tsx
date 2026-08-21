@@ -3,9 +3,9 @@
 import { useTransition } from "react"
 import { marcarRepasseFeito } from "./actions"
 
-const GOLD = "#d4b886"
-const CREAM = "#ece6d6"
-const CARD_BG = "#1f2433"
+const GOLD = "var(--nuit-champagne)"
+const CREAM = "var(--nuit-bone)"
+const CARD_BG = "var(--nuit-overlay)"
 const BORDER = "rgba(212,184,134,0.15)"
 
 const METODO_LABEL: Record<string, string> = {
@@ -60,7 +60,7 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
           onClick={() => startTransition(() => marcarRepasseFeito(repasse.id))}
           style={{
             padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: 700,
-            border: "none", backgroundColor: GOLD, color: "#0e1119",
+            border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
             cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1,
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
           }}

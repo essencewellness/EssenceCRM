@@ -7,6 +7,7 @@ import {
   MessageSquare, MessageSquareHeart, Menu, X,
   Calendar, BarChart2, Settings, Shield, Star, Megaphone, FileText, LogOut,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
 const MAIN_ITEMS = [
   { href: "/",          label: "Início",     icon: LayoutDashboard },
@@ -92,15 +93,18 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
                 }}>Wellness · CRM</div>
               </div>
             </div>
-            <button
-              onClick={() => setMenuOpen(false)}
-              style={{
-                color: "var(--nuit-smoke)", background: "none", border: "none",
-                cursor: "pointer", padding: "4px",
-              }}
-            >
-              <X size={18} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <ThemeToggle compact />
+              <button
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  color: "var(--nuit-smoke)", background: "none", border: "none",
+                  cursor: "pointer", padding: "4px",
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Itens do menu */}

@@ -3,11 +3,11 @@
 import { useState, useTransition } from "react"
 import { criarVoucher, atualizarEstadoVoucher } from "./actions"
 
-const GOLD = "#d4b886"
-const CREAM = "#ece6d6"
-const CARD_BG = "#1f2433"
-const BORDER = "rgba(212,184,134,0.15)"
-const BG = "#0e1119"
+const GOLD = "var(--nuit-champagne)"
+const CREAM = "var(--nuit-bone)"
+const CARD_BG = "var(--nuit-overlay)"
+const BORDER = "var(--rule-soft)"
+const BG = "var(--nuit-deep)"
 
 export type VoucherRow = {
   id: string
@@ -203,7 +203,7 @@ function CriarVoucherModal({
         width: "min(540px, calc(100vw - 32px))",
         maxHeight: "calc(100vh - 64px)",
         overflowY: "auto",
-        backgroundColor: "#161c2a",
+        backgroundColor: "var(--nuit-deep)",
         border: `1px solid rgba(212,184,134,0.2)`,
         borderRadius: "14px",
         padding: "28px",
@@ -368,7 +368,7 @@ function CriarVoucherModal({
               disabled={pending}
               style={{
                 padding: "9px 22px", borderRadius: "8px", fontSize: "13px",
-                border: "none", backgroundColor: GOLD, color: "#0e1119",
+                border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
                 cursor: pending ? "wait" : "pointer", fontWeight: 700,
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                 opacity: pending ? 0.7 : 1,
@@ -393,7 +393,7 @@ function SuccessModal({ codigo, onFechar }: { codigo: string; onFechar: () => vo
         position: "fixed", zIndex: 100,
         top: "50%", left: "50%",
         transform: "translate(-50%, -50%)",
-        backgroundColor: "#161c2a",
+        backgroundColor: "var(--nuit-deep)",
         border: `1px solid rgba(80,200,120,0.25)`,
         borderRadius: "14px",
         padding: "32px",
@@ -427,7 +427,7 @@ function SuccessModal({ codigo, onFechar }: { codigo: string; onFechar: () => vo
           onClick={onFechar}
           style={{
             padding: "9px 24px", borderRadius: "8px", fontSize: "13px",
-            border: "none", backgroundColor: GOLD, color: "#0e1119",
+            border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
             cursor: "pointer", fontWeight: 700,
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
           }}

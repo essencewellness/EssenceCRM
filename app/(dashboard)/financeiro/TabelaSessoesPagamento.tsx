@@ -4,11 +4,11 @@ import { useEffect, useRef, useState, useTransition } from "react"
 import { Check, Clock, Pencil, X } from "lucide-react"
 import { atualizarPagamento } from "./actions"
 
-const GOLD = "#d4b886"
-const CREAM = "#ece6d6"
-const CARD_BG = "#1f2433"
-const FIELD_BG = "#0e1119"
-const BORDER = "rgba(212,184,134,0.15)"
+const GOLD = "var(--nuit-champagne)"
+const CREAM = "var(--nuit-bone)"
+const CARD_BG = "var(--nuit-overlay)"
+const FIELD_BG = "var(--nuit-deep)"
+const BORDER = "var(--rule-soft)"
 
 export type SessaoRow = {
   id: string
@@ -190,7 +190,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
         onClick={e => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: "400px",
-          backgroundColor: "#1a2035",
+          backgroundColor: "var(--nuit-deep)",
           border: `1px solid rgba(212,184,134,0.28)`,
           borderRadius: "14px",
           padding: "24px",
@@ -308,7 +308,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               disabled={pending}
               style={{
                 flex: 1.4, padding: "12px", borderRadius: "9px", fontSize: "13.5px",
-                border: "none", backgroundColor: GOLD, color: "#0e1119",
+                border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
                 cursor: pending ? "wait" : "pointer", fontWeight: 700,
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                 opacity: pending ? 0.7 : 1, minHeight: "44px",
@@ -407,7 +407,7 @@ export function TabelaSessoesPagamento({
                     <span style={{
                       display: "inline-flex", alignItems: "center",
                       padding: "4px 10px", borderRadius: "100px",
-                      backgroundColor: "rgba(212,184,134,0.12)", color: "#d4b886",
+                      backgroundColor: "rgba(212,184,134,0.12)", color: GOLD,
                       border: "1px solid rgba(212,184,134,0.3)",
                       fontSize: "11.5px", fontWeight: 600,
                       fontFamily: "var(--font-sans, 'Manrope', sans-serif)",

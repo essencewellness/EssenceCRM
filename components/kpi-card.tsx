@@ -75,7 +75,7 @@ export function KpiCardPremium({
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
           fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
-          color: "#b9a07a", textTransform: "uppercase",
+          color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
         }}>
           {titulo}
         </p>

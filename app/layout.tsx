@@ -2,7 +2,19 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Manrope } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import "./globals.css";
+
+// Corre antes da hidratação React — sem isto via <head>, a página nasce
+// sempre no tema do :root (dark) e só troca para light depois do primeiro
+// render, criando um flash visível para quem tem light guardado.
+const THEME_INIT_SCRIPT = `
+try {
+  var t = localStorage.getItem("ew-crm-theme");
+  if (t === "light") document.documentElement.classList.remove("dark");
+  else document.documentElement.classList.add("dark");
+} catch (e) { document.documentElement.classList.add("dark"); }
+`;
 
 const dmSerifDisplay = DM_Serif_Display({
   variable: "--font-heading",
@@ -31,8 +43,14 @@ export default function RootLayout({
   return (
     <html
       lang="pt"
-      className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased`}
+      // "dark" por omissão no HTML servido (SSR não sabe o localStorage do
+      // browser) — o script abaixo corrige para "light" antes do primeiro
+      // paint se for essa a preferência guardada.
+      className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased dark`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#main-content"
@@ -41,11 +59,13 @@ export default function RootLayout({
         >
           Saltar para o conteúdo
         </a>
-        {/* "user" = respeita o prefers-reduced-motion do SO em todas as
-            animações motion/react da app — regra vinculativa do design
-            system NUIT v1.5.0, sem precisar de tocar em cada componente. */}
-        <MotionConfig reducedMotion="user">{children}</MotionConfig>
-        <Toaster position="bottom-right" richColors closeButton />
+        <ThemeProvider>
+          {/* "user" = respeita o prefers-reduced-motion do SO em todas as
+              animações motion/react da app — regra vinculativa do design
+              system NUIT v1.5.0, sem precisar de tocar em cada componente. */}
+          <MotionConfig reducedMotion="user">{children}</MotionConfig>
+          <Toaster position="bottom-right" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

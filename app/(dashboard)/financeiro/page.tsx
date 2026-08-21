@@ -10,10 +10,10 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import type { Prisma } from "@/lib/prisma-client"
 
-const GOLD = "#d4b886"
-const CREAM = "#ece6d6"
-const CARD_BG = "#1f2433"
-const BORDER = "rgba(212,184,134,0.15)"
+const GOLD = "var(--nuit-champagne)"
+const CREAM = "var(--nuit-bone)"
+const CARD_BG = "var(--nuit-overlay)"
+const BORDER = "var(--rule-soft)"
 
 const METODO_LABEL_PT: Record<string, string> = {
   dinheiro: "Dinheiro",

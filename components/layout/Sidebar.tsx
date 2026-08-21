@@ -6,6 +6,7 @@ import {
   MessageSquare, MessageSquareHeart, Megaphone, FileText,
   BarChart2, Star, Shield, Settings, ChevronRight, LogOut, Gift,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
 interface NavItem {
   href: string
@@ -212,6 +213,8 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
         }}>
           Essence Wellness · v1
         </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+        <ThemeToggle compact />
         <form action={logoutAction}>
           <button
             type="submit"
@@ -232,6 +235,7 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
             Sair
           </button>
         </form>
+        </div>
       </div>
     </aside>
   )
