@@ -169,7 +169,7 @@ export function VouchersTab({ comprados, recebidos }: {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div className="anim-fade-up" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <Bloco
         titulo="Comprou"
         sub="Vouchers que esta pessoa pagou"

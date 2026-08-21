@@ -4,6 +4,7 @@ import { formatDate } from "@/lib/utils";
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
 import { Calendar, Clock, User } from "lucide-react";
+import { StaggerList, StaggerItem } from "@/components/stagger";
 import type { Prisma } from "@/lib/prisma-client";
 
 export const revalidate = 30;
@@ -118,13 +119,13 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       <FiltroTerapeutaSlot />
 
       {/* KPIs rápidos */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>
+      <StaggerList style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "24px" }}>
         {[
           { label: "Total sessões", value: totalSessoes, icon: <Calendar size={15} color="var(--nuit-sage)" /> },
           { label: "Hoje",          value: sessoesHoje,  icon: <Clock    size={15} color="var(--nuit-champagne-soft)" /> },
           { label: "Realizadas",    value: contagemPorEstado["realizada"] ?? 0, icon: <User size={15} color="#7a9e7e" /> },
         ].map(({ label, value, icon }) => (
-          <div key={label} style={{
+          <StaggerItem key={label} style={{
             backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
             borderRadius: "2px", padding: "18px 20px",
           }}>
@@ -139,9 +140,9 @@ export default async function SessoesPage({ searchParams }: PageProps) {
               fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "28px",
               fontWeight: 400, color: "var(--nuit-bone)",
             }}>{value}</p>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerList>
 
       {/* Filtros */}
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "20px" }}>
@@ -217,7 +218,11 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                 <Link
                   key={sessao.id}
                   href={`/clientes/${sessao.clienteId}`}
-                  style={{ textDecoration: "none", display: "block" }}
+                  style={{
+                    textDecoration: "none", display: "block",
+                    animation: "fadeUp var(--dur-med) var(--ease-out) both",
+                    animationDelay: `${Math.min(i, 12) * 22}ms`,
+                  }}
                 >
                   <div style={{
                     display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px",
@@ -228,7 +233,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                       : i % 2 === 0 ? "var(--nuit-overlay)" : "rgba(255,255,255,0.02)",
                     transition: "background-color 120ms",
                   }}
-                  className="hover:bg-[rgba(212,184,134,0.06)]"
+                  className="row-hover"
                   >
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",

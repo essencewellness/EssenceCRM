@@ -489,8 +489,8 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
             {sessoes.map((sessao) => (
               <TableRow
                 key={sessao.id}
-                style={{ borderColor: "rgba(212,184,134,0.1)", cursor: "pointer" }}
-                className="hover:bg-[rgba(212,184,134,0.06)]"
+                style={{ borderColor: "rgba(212,184,134,0.1)" }}
+                className="row-hover"
                 tabIndex={0}
                 role="button"
                 onClick={() => setSessaoAberta(sessao)}

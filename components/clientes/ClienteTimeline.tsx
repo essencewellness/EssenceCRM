@@ -96,7 +96,7 @@ export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
                   </p>
                 )}
                 {aberto && evento.detalhe && (
-                  <div style={{ marginTop: "8px", fontSize: "11px", fontFamily: "var(--font-body, sans-serif)", color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)", borderRadius: "4px", padding: "8px 10px", display: "flex", flexDirection: "column", gap: "3px" }}>
+                  <div className="anim-fade-down" style={{ marginTop: "8px", fontSize: "11px", fontFamily: "var(--font-body, sans-serif)", color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)", borderRadius: "4px", padding: "8px 10px", display: "flex", flexDirection: "column", gap: "3px" }}>
                     {!!evento.detalhe.preview && <p style={{ fontStyle: "italic" }}>&ldquo;{String(evento.detalhe.preview)}&rdquo;</p>}
                     {!!evento.detalhe.hora && <p>Hora: {String(evento.detalhe.hora)}</p>}
                     {!!evento.detalhe.terapeuta && <p>Terapeuta: {String(evento.detalhe.terapeuta)}</p>}
