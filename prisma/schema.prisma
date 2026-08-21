@@ -307,6 +307,12 @@ model Sessao {
 
   // Catálogo de serviços (FK opcional — retrocompatível com sessões antigas)
   servicoId        String?
+  // Pack a que esta sessão pertence, se a marcação veio de um link de pack
+  // (?utm_content=<packId> no Calendly — ver PacksTab.tsx e o webhook do
+  // Calendly). Ao ligar aqui, o webhook incrementa Pack.sessoesUsadas — é
+  // assim que se sabe "quantas das 10 já foram feitas".
+  packId           String?
+  pack             Pack?    @relation(fields: [packId], references: [id])
   // Idempotência Calendly — UUID único do evento, impede sessões duplicadas
   calendlyEventId  String? @unique
 
@@ -357,6 +363,7 @@ model Sessao {
   @@index([clienteId])
   @@index([estado])
   @@index([servicoId])
+  @@index([packId])
   @@index([estadoPagamento])
   @@index([terapeutaId])
   @@index([terapeuta2Id])
@@ -523,6 +530,7 @@ model Pack {
   servico    Servico?        @relation(fields: [servicoId], references: [id], onDelete: Cascade)
   terapeuta  User?           @relation("TerapeutaPack", fields: [terapeutaId], references: [id])
   pagamentos PackPagamento[]
+  sessoes    Sessao[]
 
   @@index([clienteId])
   @@index([ativo])

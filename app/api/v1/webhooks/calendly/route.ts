@@ -10,6 +10,7 @@ import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { webhooks } from "@/lib/webhooks"
 
 // Formato Calendly: "t=1234567890,v1=abcdef..." — HMAC-SHA256 de `${t}.${rawBody}`
 function verificarAssinaturaCalendly(rawBody: string, header: string | null): boolean {
@@ -74,6 +75,13 @@ export async function POST(request: NextRequest) {
     const calendlyEventId = event?.uuid ? String(event.uuid).slice(0, 128) : null
     // URI completo do evento (ex: https://api.calendly.com/scheduled_events/UUID)
     const calendlyEventUri = event?.uri ? String(event.uri).slice(0, 300) : null
+    // Marcação a partir de um link de pack (botão "Copiar link Calendly" em
+    // PacksTab.tsx, que anexa ?utm_content=<packId> ao URL do Calendly) —
+    // o N8N pode reencaminhar isto tal como veio (payload.tracking.
+    // utm_content, forma nativa Calendly) ou já mapeado para packId direto.
+    const tracking = payload.tracking as Record<string, unknown> | undefined
+    const packIdRaw = payload.packId ?? tracking?.utm_content ?? null
+    const packId = packIdRaw ? String(packIdRaw).trim().slice(0, 64) : null
 
     // ── Cancelamento ──────────────────────────────────────────────────────────
     if (tipoEvento === "invitee.canceled") {
@@ -159,6 +167,19 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Pack: só liga se pertencer mesmo a este cliente e ainda tiver sessões
+    // por gastar — nunca confiar cegamente no packId vindo de fora (um link
+    // copiado errado, ou reenviado depois do pack já ter sido usado por
+    // completo, não pode contaminar as contas de sessões usadas).
+    let packValido: { id: string; totalSessoes: number; sessoesUsadas: number } | null = null
+    if (packId) {
+      const pack = await prisma.pack.findFirst({
+        where: { id: packId, clienteId: cliente.id, ativo: true },
+        select: { id: true, totalSessoes: true, sessoesUsadas: true },
+      })
+      if (pack && pack.sessoesUsadas < pack.totalSessoes) packValido = pack
+    }
+
     const sessao = await prisma.sessao.create({
       data: {
         clienteId: cliente.id,
@@ -172,15 +193,37 @@ export async function POST(request: NextRequest) {
         // corrigido para sessões que afinal eram dela.
         ...(calendlyEventId ? { calendlyEventId } : {}),
         ...(calendlyEventUri ? { calendlyEventUri } : {}),
+        ...(packValido ? { packId: packValido.id } : {}),
       },
     })
+
+    if (packValido) {
+      const novasSessoesUsadas = packValido.sessoesUsadas + 1
+      const packAtualizado = await prisma.pack.update({
+        where: { id: packValido.id },
+        data: {
+          sessoesUsadas: novasSessoesUsadas,
+          // Fecha o pack sozinho quando esgota — mesma regra do PATCH manual.
+          ...(novasSessoesUsadas >= packValido.totalSessoes ? { ativo: false } : {}),
+        },
+        select: { totalSessoes: true, sessoesUsadas: true, ativo: true, servico: { select: { nome: true } } },
+      })
+      void webhooks.packAtualizado({
+        packId: packValido.id,
+        clienteId: cliente.id,
+        servicoNome: packAtualizado.servico?.nome ?? "Massagens",
+        sessoesUsadas: packAtualizado.sessoesUsadas,
+        totalSessoes: packAtualizado.totalSessoes,
+        ativo: packAtualizado.ativo,
+      })
+    }
 
     auditar({
       quem: "calendly",
       acao: clienteCriado ? "cliente.criado_calendly" : "sessao.agendada_calendly",
       entidade: "Sessao",
       entidadeId: sessao.id,
-      detalhe: { clienteId: cliente.id },
+      detalhe: { clienteId: cliente.id, packId: packValido?.id ?? null },
     })
 
     return respostaSucesso({

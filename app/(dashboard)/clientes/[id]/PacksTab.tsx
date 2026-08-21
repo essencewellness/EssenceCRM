@@ -6,10 +6,30 @@
 // pagamentos, incluindo o caso do Pack 10 pago em 2x (metade na 1.ª sessão,
 // metade na 5.ª — regra do site).
 import { useEffect, useRef, useState, useTransition } from "react"
-import { CreditCard, Plus, X } from "lucide-react"
+import { Calendar, CreditCard, Plus, X } from "lucide-react"
 import { NomeServico } from "@/components/NomeServico"
 import { criarPack, registarPagamentoPack } from "./actions"
 import { formatDate } from "@/lib/utils"
+import { useToast } from "@/components/ui/toast-nuit"
+
+// Link real do Calendly por duração de Drenagem — dados do Nuno, 2026-08-22.
+// Massagens ainda não tem evento Calendly próprio criado; fica null até
+// existir (o botão fica desativado com uma nota em vez de partir).
+const CALENDLY_URL: Record<string, string | null> = {
+  "Drenagem Linfática":         "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-60min",
+  "Drenagem Linfática 90 min":  "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-premium-90min",
+}
+
+// utm_content carrega o packId até ao webhook do Calendly (ver
+// app/api/v1/webhooks/calendly/route.ts) — assim a sessão que vier desta
+// marcação já entra ligada ao pack certo, sem adivinhar por nome.
+function linkCalendlyDoPack(pack: { id: string; servico: { nome: string } | null }, clienteNome: string, clienteEmail: string | null): string | null {
+  const base = pack.servico ? CALENDLY_URL[pack.servico.nome] : null
+  if (!base) return null
+  const params = new URLSearchParams({ utm_content: pack.id, name: clienteNome })
+  if (clienteEmail) params.set("email", clienteEmail)
+  return `${base}?${params.toString()}`
+}
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
@@ -398,12 +418,22 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
 }
 
 // ── Cartão de um pack ────────────────────────────────────────────────
-function PackCard({ pack, clienteId, index }: { pack: PackDoCliente; clienteId: string; index: number }) {
+function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
+  pack: PackDoCliente; clienteId: string; clienteNome: string; clienteEmail: string | null; index: number
+}) {
   const [modalAberto, setModalAberto] = useState<{ valor: number; nota?: string } | null>(null)
+  const { toast } = useToast()
   const restantes = pack.totalSessoes - pack.sessoesUsadas
   const pct = Math.round((pack.sessoesUsadas / pack.totalSessoes) * 100)
   const falta = pack.valorTotal - pack.valorPago
   const metade = pack.valorTotal / 2
+  const linkCalendly = linkCalendlyDoPack(pack, clienteNome, clienteEmail)
+
+  async function copiarLinkCalendly() {
+    if (!linkCalendly) return
+    await navigator.clipboard.writeText(linkCalendly)
+    toast("Link do Calendly copiado — já leva o pack ligado.", "success")
+  }
   // "2x" só faz sentido oferecer o atalho enquanto ainda não há nada pago
   // (1ª parcela) ou já foi paga só a 1ª metade (2ª parcela) — noutro caso
   // (pago, ou pago um valor que não bate certo com metade) mostra-se só o
@@ -474,10 +504,30 @@ function PackCard({ pack, clienteId, index }: { pack: PackDoCliente; clienteId: 
           </div>
         )}
         {pack.estadoPagamento === "pago" && pack.pagamentos.length > 0 && (
-          <p style={{ fontSize: "11px", color: "var(--muted-foreground)" }}>
+          <p style={{ fontSize: "11px", color: "var(--muted-foreground)", marginBottom: pack.ativo && restantes > 0 ? "10px" : 0 }}>
             <CreditCard size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />
             Pago{pack.pagamentos.length > 1 ? ` em ${pack.pagamentos.length}x` : ""} · última em {formatDate(pack.pagamentos[pack.pagamentos.length - 1]!.criadoEm)}
           </p>
+        )}
+
+        {/* Link Calendly com o pack já ligado (?utm_content=packId) — a
+            marcação que vier daqui já chega ao webhook a saber a que pack
+            pertence, sem depender de nomes. */}
+        {pack.ativo && restantes > 0 && (
+          linkCalendly ? (
+            <button onClick={copiarLinkCalendly} className="btn-lift" style={{
+              display: "inline-flex", alignItems: "center", gap: "6px",
+              fontSize: "11px", fontWeight: 700, padding: "6px 12px", borderRadius: "100px",
+              border: "1px solid rgba(212,184,134,0.3)", backgroundColor: "transparent", color: GOLD,
+              cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)",
+            }}>
+              <Calendar size={12} /> Copiar link Calendly
+            </button>
+          ) : (
+            <span style={{ fontSize: "10.5px", color: "var(--muted-foreground)", fontStyle: "italic" }}>
+              Link Calendly de massagens ainda por configurar
+            </span>
+          )
         )}
       </div>
 
@@ -489,8 +539,10 @@ function PackCard({ pack, clienteId, index }: { pack: PackDoCliente; clienteId: 
 }
 
 // ── Aba completa ─────────────────────────────────────────────────────
-export function PacksTab({ clienteId, packs, precos, servicos, terapeutas }: {
+export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, precos, servicos, terapeutas }: {
   clienteId: string
+  clienteNome: string
+  clienteEmail: string | null
   packs: PackDoCliente[]
   precos: PrecoPersonalizado[]
   servicos: ServicoOpcao[]
@@ -523,7 +575,9 @@ export function PacksTab({ clienteId, packs, precos, servicos, terapeutas }: {
           </p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {packs.map((p, i) => <PackCard key={p.id} pack={p} clienteId={clienteId} index={i} />)}
+            {packs.map((p, i) => (
+              <PackCard key={p.id} pack={p} clienteId={clienteId} clienteNome={clienteNome} clienteEmail={clienteEmail} index={i} />
+            ))}
           </div>
         )}
       </div>

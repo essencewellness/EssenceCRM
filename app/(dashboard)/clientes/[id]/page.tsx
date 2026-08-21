@@ -734,6 +734,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
             content: (
               <PacksTab
                 clienteId={cliente.id}
+                clienteNome={cliente.nome}
+                clienteEmail={cliente.email}
                 packs={cliente.packs.map(p => ({
                   id: p.id,
                   servico: p.servico ? { nome: p.servico.nome } : null,
