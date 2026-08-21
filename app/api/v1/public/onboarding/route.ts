@@ -157,6 +157,9 @@ export async function POST(request: NextRequest) {
 
     // Gravar dados específicos desta sessão na Sessao (snapshot do dia)
     let sessao = null
+    // Só true se ESTA chamada venceu a corrida de "uso único" (ver abaixo) —
+    // controla se o webhook onboarding.submetido dispara mais à frente.
+    let ganhouUsoUnico = true
     if (sessaoId) {
       const sessaoEncontrada = await prisma.sessao.findFirst({
         where: { id: sessaoId, apagadoEm: null },
@@ -171,8 +174,15 @@ export async function POST(request: NextRequest) {
       sessao = sessaoEncontrada && sessaoEncontrada.estado !== "cancelada" ? sessaoEncontrada : null
 
       if (sessaoEncontrada) {
-        await prisma.sessao.update({
-          where: { id: sessaoEncontrada.id },
+        // Uso único ATÓMICO: o pré-check lá em cima (linhas ~84-92) só evita
+        // a maioria dos casos — entre ele e esta escrita ainda há uma janela
+        // onde dois pedidos concorrentes passam os dois. O WHERE com
+        // onboardingSubmetidoEm: null torna a transição atómica (mesmo
+        // princípio já usado em confirmacao-envio): só um dos dois consegue
+        // mesmo escrever (count=1); o outro vê count=0 e não dispara o
+        // webhook outra vez.
+        const escrita = await prisma.sessao.updateMany({
+          where: { id: sessaoEncontrada.id, onboardingSubmetidoEm: null },
           data: {
             ...(sessao && consentimentoSaude ? {
               ...(historicoEstadoEmocional ? { fichaEstadoEmocional: historicoEstadoEmocional } : {}),
@@ -187,6 +197,7 @@ export async function POST(request: NextRequest) {
             onboardingSubmetidoEm: new Date(),
           },
         })
+        ganhouUsoUnico = escrita.count > 0
       }
     }
 
@@ -199,8 +210,12 @@ export async function POST(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Disparar webhook após resposta — after() garante execução mesmo em serverless
+    // Disparar webhook após resposta — after() garante execução mesmo em serverless.
+    // Só dispara se esta chamada venceu mesmo a corrida de uso único — senão
+    // é a segunda de duas submissões concorrentes a reenviar dados já enviados.
     after(async () => {
+      if (!ganhouUsoUnico) return
+
       await webhooks.onboardingSubmetido({
         clienteId: cliente.id,
         sessaoId: sessaoId ?? null,

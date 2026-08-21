@@ -99,10 +99,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ sessaoId: sessao.id, estado: sessao.estado, jaSubmetido: true })
   }
 
-  await prisma.sessao.update({
-    where: { id: sessao.id },
+  // Uso único ATÓMICO: o pré-check acima (linha ~98) deixa uma janela entre
+  // dois pedidos concorrentes (duplo toque, retry de rede) — os dois podem
+  // ler "ainda não confirmada" antes de qualquer um escrever. O WHERE com
+  // estado: "confirmada" ainda no where garante que só um consegue mesmo
+  // escrever; sem isto o webhook sessaoConfirmada disparava duas vezes.
+  const escrita = await prisma.sessao.updateMany({
+    where: { id: sessao.id, estado: { not: "confirmada" } },
     data: { confirmacaoPresenca: true, estado: "confirmada" },
   })
+  if (escrita.count === 0) {
+    return NextResponse.json({ sessaoId: sessao.id, estado: "confirmada", jaSubmetido: true })
+  }
 
   auditar({
     quem: "publico",

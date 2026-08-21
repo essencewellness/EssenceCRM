@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { webhooks } from "@/lib/webhooks"
 
 async function verificarSessao() {
   const session = await auth()
@@ -65,13 +66,22 @@ export async function atualizarPagamento(
   // a segunda terapeuta numa massagem a dois (bug real encontrado 2026-08-20:
   // o repasse manual nunca disparava para a Cristina por causa disto).
   const idBea = await getTerapeutaPrincipalPadraoId()
-  const sessao = await prisma.sessao.findUnique({
-    where: { id: sessaoId },
-    select: { terapeutaId: true, terapeuta2Id: true },
-  })
+  const [sessao, voucherLigado] = await Promise.all([
+    prisma.sessao.findUnique({
+      where: { id: sessaoId },
+      select: {
+        terapeutaId: true, terapeuta2Id: true, estadoPagamento: true, servico: true, data: true,
+        cliente: { select: { nome: true } },
+      },
+    }),
+    prisma.giftCard.findFirst({ where: { sessaoId }, select: { id: true } }),
+  ])
   const outraTerapeuta = (id: string | null) => id !== null && id !== idBea
   const ehADois = sessao?.terapeuta2Id !== null && sessao?.terapeuta2Id !== undefined
   const ehOutraTerapeuta = outraTerapeuta(sessao?.terapeutaId ?? null) || outraTerapeuta(sessao?.terapeuta2Id ?? null)
+  // Mesmo critério de "envolve a Bea" usado em lib/sessoes.ts — explícito
+  // sobre QUEM está envolvida, não uma aproximação via "é a dois ou não".
+  const envolveABea = sessao?.terapeutaId === idBea || sessao?.terapeutaId === null || sessao?.terapeuta2Id === idBea
   const ehMbway = dados.metodoPagamento === "mbway_essence" || dados.metodoPagamento === "mbway_beatriz"
   const emAberto = dados.estadoPagamento === "pago" || dados.estadoPagamento === "parcial"
   const repasseNecessario = ehOutraTerapeuta && ehMbway && emAberto
@@ -92,6 +102,32 @@ export async function atualizarPagamento(
       valorRepasse,
     },
   })
+
+  // Dashboard financeiro da Beatriz (Google Sheets): quando esta sessão já
+  // tinha passado por dispararEfeitosSessaoRealizada() (ao ficar "realizada"
+  // sem pagamento definido ainda), aquele disparo não tinha dinheiro para
+  // reportar. Se o pagamento só é preenchido/corrigido aqui — o fluxo normal
+  // de fechar o dia — sem isto a receita nunca chegava à folha. Só dispara
+  // na transição PARA "pago" (nunca tinha sido antes), para não duplicar
+  // o que já foi enviado por outro caminho.
+  if (
+    sessao &&
+    !voucherLigado &&
+    envolveABea &&
+    dados.estadoPagamento === "pago" &&
+    sessao.estadoPagamento !== "pago" &&
+    dados.valorPago
+  ) {
+    void webhooks.sessaoReceitaBea({
+      sessaoId,
+      clienteNome: sessao.cliente.nome,
+      servico: sessao.servico,
+      valor: ehADois ? Math.round((dados.valorPago / 2) * 100) / 100 : dados.valorPago,
+      data: sessao.data.toISOString(),
+      metodoPagamento: dados.metodoPagamento ?? null,
+      notas: ehADois ? "Casal" : null,
+    })
+  }
 
   revalidatePath("/financeiro")
 }

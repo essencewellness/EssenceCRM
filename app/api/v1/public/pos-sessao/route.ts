@@ -118,21 +118,21 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ sessaoId: sessaoAntes.id, estado: sessaoAntes.estado, jaAtualizada: false })
     }
 
-    const eraRealizada = sessaoAntes.estado === "realizada"
-
-    // Uso único: já foi registada antes — não regrava nada (nem os campos
-    // clínicos, nem o pagamento). Um duplo toque ou um retry de rede não
-    // pode sobrepor um registo que já ficou certo; correções a partir daqui
-    // são feitas no dashboard, não por este link.
-    if (eraRealizada) {
-      return NextResponse.json({ sessaoId: sessaoAntes.id, estado: sessaoAntes.estado, jaSubmetido: true })
-    }
-
-    // Update da sessão + recálculo de métricas na mesma transação — evita a
-    // janela de corrida com outras escritas concorrentes no mesmo cliente.
-    const sessao = await prisma.$transaction(async (tx) => {
-      const sessao = await tx.sessao.update({
-        where: { id: sessaoAntes.id },
+    // Sessão cancelada já foi tratada acima; a partir daqui "realizada" é o
+    // único estado que bloqueia a escrita.
+    //
+    // Uso único ATÓMICO: o check "já está realizada?" e a escrita que a marca
+    // como tal têm de ser a mesma operação — ler o estado antes e escrever
+    // depois (como acontecia aqui) deixa uma janela de corrida: um duplo
+    // toque ou um retry de rede dispara dois PATCHs em paralelo, os dois
+    // leem "ainda não realizada" antes de qualquer um escrever, e os dois
+    // passam. O `updateMany` com `estado: { not: "realizada" }` no WHERE
+    // resolve isto da mesma forma que já resolvemos em confirmacao-envio: só
+    // uma das escritas concorrentes consegue mesmo mudar a linha (count=1),
+    // a outra vê count=0 e sabe que perdeu a corrida.
+    const resultado = await prisma.$transaction(async (tx) => {
+      const escrita = await tx.sessao.updateMany({
+        where: { id: sessaoAntes.id, estado: { not: "realizada" } },
         data: {
           estado: "realizada",
           servico,
@@ -159,9 +159,17 @@ export async function PATCH(request: NextRequest) {
         },
       })
 
-      if (!eraRealizada) {
-        await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
-      }
+      // Perdeu a corrida (ou a sessão já estava realizada à entrada): não há
+      // nada mais a fazer nesta chamada — os efeitos já correram na escrita
+      // que ganhou.
+      if (escrita.count === 0) return null
+
+      const sessao = await tx.sessao.findUniqueOrThrow({
+        where: { id: sessaoAntes.id },
+        select: { id: true, estado: true, preco: true, terapeuta2Id: true },
+      })
+
+      await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
 
       // As observações da terapeuta entram diretamente nas notas do cliente
       // (mais recente primeiro) — sem isto, ficavam presas dentro da sessão e
@@ -185,20 +193,23 @@ export async function PATCH(request: NextRequest) {
       return sessao
     })
 
-    if (!eraRealizada) {
-      // Webhook + mensagem de avaliação: só depois da transação committar,
-      // fora dela — fire-and-forget (lib/sessoes).
-      // terapeutaId vem de sessaoAntes (este PATCH não o altera) mas
-      // terapeuta2Id vem do resultado do update: é o único dos dois que
-      // pode ter sido definido nesta mesma chamada.
-      await dispararEfeitosSessaoRealizada(
-        { ...sessaoAntes, terapeuta2Id: sessao.terapeuta2Id },
-        sessao.preco
-      )
-      // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
-      // desfasado à espera do cron das 7h (lib/crm-estados).
-      await recalcularEstadoCliente(sessaoAntes.clienteId)
+    if (!resultado) {
+      return NextResponse.json({ sessaoId: sessaoAntes.id, estado: "realizada", jaSubmetido: true })
     }
+    const sessao = resultado
+
+    // Webhook + mensagem de avaliação: só depois da transação committar,
+    // fora dela — fire-and-forget (lib/sessoes).
+    // terapeutaId vem de sessaoAntes (este PATCH não o altera) mas
+    // terapeuta2Id vem do resultado do update: é o único dos dois que
+    // pode ter sido definido nesta mesma chamada.
+    await dispararEfeitosSessaoRealizada(
+      { ...sessaoAntes, terapeuta2Id: sessao.terapeuta2Id },
+      sessao.preco
+    )
+    // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
+    // desfasado à espera do cron das 7h (lib/crm-estados).
+    await recalcularEstadoCliente(sessaoAntes.clienteId)
 
     auditar({
       quem: "publico",

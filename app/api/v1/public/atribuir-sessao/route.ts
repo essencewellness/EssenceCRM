@@ -166,8 +166,15 @@ export async function POST(request: NextRequest) {
 
     const nomeTerapeuta = terapeuta.name ?? "terapeuta"
 
-    await prisma.sessao.update({
-      where: { id: sessao.id },
+    // Uso único ATÓMICO: o pré-check em cima (linha ~138) ainda deixa uma
+    // janela entre dois pedidos concorrentes (dois separadores abertos, ou
+    // um duplo toque) — os dois podem lê-lo como "por submeter" antes de
+    // qualquer um escrever. O WHERE com atribuicaoSubmetidaEm: null garante
+    // que só um consegue mesmo gravar; é importante aqui em particular
+    // porque isto decide de quem é o dinheiro — dois pedidos concorrentes
+    // com terapeutas diferentes não podem os dois "ganhar".
+    const escrita = await prisma.sessao.updateMany({
+      where: { id: sessao.id, atribuicaoSubmetidaEm: null },
       data: {
         terapeutaId: terapeuta.id,
         terapeuta: nomeTerapeuta,
@@ -176,6 +183,9 @@ export async function POST(request: NextRequest) {
         atribuicaoSubmetidaEm: new Date(),
       },
     })
+    if (escrita.count === 0) {
+      return NextResponse.json({ ok: true, jaSubmetido: true })
+    }
 
     // Se a cliente ainda não tem terapeuta principal, esta atribuição define-a
     if (!sessao.cliente.terapeutaPrincipalId) {

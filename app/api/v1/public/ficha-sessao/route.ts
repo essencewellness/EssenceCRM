@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { fichaSessaoQuerySchema, validarQuery } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { validarLinkToken } from "@/lib/link-token"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 
 export async function GET(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, servico: true, data: true, hora: true, duracao: true,
-      terapeuta: true, briefingJson: true,
+      terapeuta: true, terapeutaId: true, briefingJson: true,
       cliente: { select: { nome: true } },
     },
   })
@@ -40,11 +41,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Ficha ainda não disponível para esta sessão" }, { status: 404 })
   }
 
+  // O campo de texto "terapeuta" agora fica vazio até alguém ser atribuída
+  // (ver Sessao.terapeuta no schema). Este endpoint alimenta o N8N (fluxo 03
+  // — mensagem WhatsApp com a ficha da terapeuta), que precisa sempre de um
+  // nome real, nunca de null — por isso resolve-se aqui pelo terapeutaId
+  // (a mesma verdade usada no financeiro), não pelo texto por preencher.
+  let nomeTerapeuta = sessao.terapeuta
+  if (!nomeTerapeuta) {
+    const idBea = await getTerapeutaPrincipalPadraoId()
+    const idResolvido = sessao.terapeutaId ?? idBea
+    const terapeutaResolvida = idResolvido
+      ? await prisma.user.findFirst({ where: { id: idResolvido }, select: { name: true } })
+      : null
+    nomeTerapeuta = terapeutaResolvida?.name ?? "Beatriz Leão"
+  }
+
   return NextResponse.json({
     cliente: { nome: sessao.cliente.nome },
     sessao: {
       servico: sessao.servico, data: sessao.data, hora: sessao.hora,
-      duracao: sessao.duracao, terapeuta: sessao.terapeuta,
+      duracao: sessao.duracao, terapeuta: nomeTerapeuta,
     },
     briefing: sessao.briefingJson,
   })
