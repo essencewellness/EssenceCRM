@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
-import { atualizarObservacoesSessao, atualizarCampoSessao, eliminarSessao } from "./actions"
+import { atualizarObservacoesSessao, atualizarCampoSessao, atualizarTerapeutaSessao, eliminarSessao } from "./actions"
 import { InlineEditField } from "@/components/clientes/InlineEditField"
 import { CalendarDays, CheckCircle2, Clock, XCircle, X, Star, MessageSquare, FileText, Trash2, AlertTriangle, MapPin, Sparkles } from "lucide-react"
 import { formatDate, formatCurrency } from "@/lib/utils"
@@ -17,6 +17,8 @@ type Sessao = {
   servico: string | null
   preco: number | null
   terapeuta: string | null
+  terapeutaId: string | null
+  terapeuta2Id: string | null
   estadoEmocional: string | null
   resumoSessao: string | null
   notasPosSessao: string | null
@@ -367,9 +369,10 @@ const ESTADOS_SESSAO = [
 interface Props {
   sessoes: Sessao[]
   clienteId: string
+  terapeutas: { id: string; nome: string }[]
 }
 
-export function SessoesTab({ sessoes, clienteId }: Props) {
+export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
   const [sessaoAberta, setSessaoAberta] = useState<Sessao | null>(null)
   const [isPending, startTransition] = useTransition()
   const [confirmarEliminar, setConfirmarEliminar] = useState(false)
@@ -410,6 +413,32 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
     startTransition(async () => {
       await atualizarObservacoesSessao(sessaoAberta.id, clienteId, { estado: novoEstado as "agendada" | "confirmada" | "realizada" | "cancelada" | "falta" })
     })
+  }
+
+  // Terapeuta e 2ª terapeuta viajam juntas numa única chamada ao servidor
+  // (atualizarTerapeutaSessao recebe as duas de cada vez, para nunca gravar
+  // uma sem saber o estado atual da outra) — por isso, ao contrário dos
+  // outros InlineEditField, aqui é preciso manter sessaoAberta sincronizada
+  // manualmente entre uma chamada e a seguinte (mesmo princípio de
+  // mudarEstado acima), senão o segundo campo enviava o valor antigo do
+  // primeiro se os dois fossem mudados em seguida sem recarregar a página.
+  async function mudarTerapeuta(novoTerapeutaId: string) {
+    if (!sessaoAberta) return { ok: false as const, erro: "Sem sessão aberta" }
+    const anterior = sessaoAberta
+    setSessaoAberta({ ...anterior, terapeutaId: novoTerapeutaId || null })
+    const res = await atualizarTerapeutaSessao(anterior.id, clienteId, novoTerapeutaId, anterior.terapeuta2Id)
+    if (!res.ok) setSessaoAberta(anterior)
+    return res
+  }
+
+  async function mudarTerapeuta2(novoTerapeuta2Id: string) {
+    if (!sessaoAberta) return { ok: false as const, erro: "Sem sessão aberta" }
+    const anterior = sessaoAberta
+    const valor = novoTerapeuta2Id || null
+    setSessaoAberta({ ...anterior, terapeuta2Id: valor })
+    const res = await atualizarTerapeutaSessao(anterior.id, clienteId, anterior.terapeutaId ?? "", valor)
+    if (!res.ok) setSessaoAberta(anterior)
+    return res
   }
 
   if (sessoes.length === 0) {
@@ -664,7 +693,27 @@ export function SessoesTab({ sessoes, clienteId }: Props) {
                   borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)",
                   padding: "18px",
                 }}>
-                  <DetailItem label="Terapeuta" value={sessaoAberta.terapeuta ?? "Por atribuir"} />
+                  <InlineEditField
+                    label="Terapeuta"
+                    type="select"
+                    value={sessaoAberta.terapeutaId ?? ""}
+                    options={[
+                      ...(sessaoAberta.terapeutaId ? [] : [{ value: "", label: "Por atribuir" }]),
+                      ...terapeutas.map((t) => ({ value: t.id, label: t.nome })),
+                    ]}
+                    onSave={(v) => mudarTerapeuta(v as string)}
+                  />
+                  <InlineEditField
+                    label="2ª Terapeuta (massagem a dois)"
+                    type="select"
+                    value={sessaoAberta.terapeuta2Id ?? ""}
+                    readOnly={!sessaoAberta.terapeutaId}
+                    options={[
+                      { value: "", label: "Nenhuma (sessão individual)" },
+                      ...terapeutas.filter((t) => t.id !== sessaoAberta.terapeutaId).map((t) => ({ value: t.id, label: t.nome })),
+                    ]}
+                    onSave={(v) => mudarTerapeuta2(v as string)}
+                  />
                   <InlineEditField
                     label="Preço"
                     type="currency"

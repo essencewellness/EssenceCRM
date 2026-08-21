@@ -8,6 +8,8 @@ import { auditar } from "@/lib/audit"
 import { EstadoSessao, Prisma } from "@/lib/prisma-client"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { sessaoUpdateSchema } from "@/lib/validations"
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { webhooks } from "@/lib/webhooks"
 
 // Garante que a terapeuta autenticada é admin OU a dona do cliente
 // (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
@@ -205,6 +207,137 @@ export async function atualizarCampoSessao(
     // Nunca expor o erro interno (Prisma/JS) à Bea — pode incluir nomes de
     // colunas/detalhes de constraints. Log completo fica só no servidor.
     console.error("atualizarCampoSessao:", e)
+    return { ok: false, erro: "Erro ao guardar. Tenta novamente." }
+  }
+}
+
+// Corrigir a terapeuta de uma sessão já atribuída (o forms "quem vai
+// realizar a sessão?" é de uso único — não dá para reabrir para corrigir um
+// engano). Além de mudar terapeutaId/terapeuta2Id, propaga a correção para
+// onde o dinheiro já tenha sido reconhecido: o voucher ligado (se houver) e
+// o Google Sheets da Beatriz — mesmo mecanismo já usado para reatribuição
+// automática de vouchers (lib/sessoes.ts), replicado aqui para o caso manual.
+export async function atualizarTerapeutaSessao(
+  sessaoId: string,
+  clienteId: string,
+  terapeutaId: string,
+  terapeuta2Id: string | null
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  try {
+    const session = await auth()
+    if (!session?.user) throw new Error("Não autorizado")
+    await verificarDonoCliente(session, clienteId)
+
+    const terapeuta = await prisma.user.findFirst({
+      where: { id: terapeutaId, ativo: true, role: "terapeuta" },
+      select: { id: true, name: true },
+    })
+    if (!terapeuta) return { ok: false, erro: "Terapeuta inválida" }
+    if (terapeuta2Id === terapeutaId) {
+      return { ok: false, erro: "As duas terapeutas têm de ser diferentes" }
+    }
+    let terapeuta2: { id: string; name: string | null } | null = null
+    if (terapeuta2Id) {
+      terapeuta2 = await prisma.user.findFirst({
+        where: { id: terapeuta2Id, ativo: true, role: "terapeuta" },
+        select: { id: true, name: true },
+      })
+      if (!terapeuta2) return { ok: false, erro: "Segunda terapeuta inválida" }
+    }
+
+    const sessaoAntes = await prisma.sessao.findUnique({
+      where: { id: sessaoId },
+      select: {
+        clienteId: true, terapeutaId: true, terapeuta2Id: true, estado: true,
+        estadoPagamento: true, valorPago: true, metodoPagamento: true, servico: true, data: true,
+        cliente: { select: { nome: true } },
+      },
+    })
+    if (!sessaoAntes) return { ok: false, erro: "Sessão não encontrada" }
+    if (sessaoAntes.clienteId !== clienteId) return { ok: false, erro: "Sessão não pertence a este cliente" }
+
+    const naoMudouNada =
+      sessaoAntes.terapeutaId === terapeuta.id && (sessaoAntes.terapeuta2Id ?? null) === (terapeuta2?.id ?? null)
+    if (naoMudouNada) return { ok: true }
+
+    await prisma.sessao.update({
+      where: { id: sessaoId },
+      data: {
+        terapeutaId: terapeuta.id,
+        terapeuta: terapeuta.name ?? "terapeuta",
+        terapeuta2Id: terapeuta2?.id ?? null,
+      },
+    })
+
+    // Só há dinheiro para corrigir se a sessão já foi realizada — antes
+    // disso nada foi enviado a lado nenhum.
+    if (sessaoAntes.estado === "realizada") {
+      const idBea = await getTerapeutaPrincipalPadraoId()
+      const voucherLigado = await prisma.giftCard.findFirst({
+        where: { sessaoId },
+        select: { id: true, codigo: true, servicoNome: true, valorPago: true, terapeutaId: true, terapeuta2Id: true, compradorNome: true, dataCompra: true },
+      })
+
+      if (voucherLigado) {
+        await prisma.giftCard.update({
+          where: { id: voucherLigado.id },
+          data: { terapeutaId: terapeuta.id, terapeuta2Id: terapeuta2?.id ?? null },
+        })
+        // Só vouchers individuais reagem — os a dois já entram sempre a
+        // metade, independentemente de quem faz (ver criarVoucher()).
+        const eraIndividual = voucherLigado.terapeuta2Id === null && !terapeuta2
+        if (eraIndividual) {
+          const antesEraBea = voucherLigado.terapeutaId === null || voucherLigado.terapeutaId === idBea
+          const agoraEBea = terapeuta.id === idBea
+          if (antesEraBea !== agoraEBea) {
+            void webhooks.voucherReceitaReatribuida({
+              codigo: voucherLigado.codigo,
+              servicoNome: voucherLigado.servicoNome,
+              valor: Number(voucherLigado.valorPago),
+              compradorNome: voucherLigado.compradorNome,
+              dataCompra: voucherLigado.dataCompra.toISOString(),
+              direcao: antesEraBea ? "bea_perde" : "bea_ganha",
+            })
+          }
+        }
+      } else if (sessaoAntes.estadoPagamento === "pago" && sessaoAntes.valorPago) {
+        // Sessão paga diretamente (sem voucher) — pode já ter sido enviada
+        // ao sheet via sessaoReceitaBea. Mesmo critério de "individual": só
+        // corrige quando nenhum dos dois lados é a dois.
+        const eraIndividual = sessaoAntes.terapeuta2Id === null && !terapeuta2
+        if (eraIndividual) {
+          const antesEraBea = sessaoAntes.terapeutaId === null || sessaoAntes.terapeutaId === idBea
+          const agoraEBea = terapeuta.id === idBea
+          if (antesEraBea !== agoraEBea) {
+            void webhooks.sessaoReceitaReatribuida({
+              sessaoId,
+              clienteNome: sessaoAntes.cliente.nome,
+              servico: sessaoAntes.servico,
+              valor: Number(sessaoAntes.valorPago),
+              data: sessaoAntes.data.toISOString(),
+              metodoPagamento: sessaoAntes.metodoPagamento,
+              direcao: antesEraBea ? "bea_perde" : "bea_ganha",
+            })
+          }
+        }
+      }
+    }
+
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "sessao.terapeuta_corrigida",
+      entidade: "Sessao",
+      entidadeId: sessaoId,
+      detalhe: {
+        de: sessaoAntes.terapeutaId, de2: sessaoAntes.terapeuta2Id,
+        para: terapeuta.id, para2: terapeuta2?.id ?? null,
+      },
+    })
+
+    revalidatePath(`/clientes/${clienteId}`)
+    return { ok: true }
+  } catch (e) {
+    console.error("atualizarTerapeutaSessao:", e)
     return { ok: false, erro: "Erro ao guardar. Tenta novamente." }
   }
 }

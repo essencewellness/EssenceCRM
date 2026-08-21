@@ -199,4 +199,18 @@ export const webhooks = {
     dataCompra: string
     direcao: "bea_perde" | "bea_ganha"
   }) => dispararWebhook("voucher.receita_reatribuida", payload),
+
+  // Sessão paga diretamente (sem voucher) cuja terapeuta é corrigida no
+  // dashboard depois de já ter entrado no sheet da Beatriz (novo seletor de
+  // terapeuta em SessoesTab.tsx). Mesmo mecanismo do voucher acima, mas o
+  // N8N encontra a linha pela coluna "ID Sessão" em vez de "Código Voucher".
+  sessaoReceitaReatribuida: (payload: {
+    sessaoId: string
+    clienteNome: string
+    servico: string | null
+    valor: number
+    data: string
+    metodoPagamento: string | null
+    direcao: "bea_perde" | "bea_ganha"
+  }) => dispararWebhook("sessao.receita_reatribuida", payload),
 }
