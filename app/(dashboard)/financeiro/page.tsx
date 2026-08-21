@@ -67,7 +67,7 @@ export default async function FinanceiroPage({
   // pertencem a ela por omissão.
   const idBea = await getTerapeutaPrincipalPadraoId()
 
-  const [sessoesRaw, receitaAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, servicosRaw, repassesRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, servicosRaw, repassesRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -95,6 +95,17 @@ export default async function FinanceiroPage({
     prisma.sessao.aggregate({
       where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
       _sum: { valorPago: true },
+    }),
+    // Mesmo bug que existia na "Receita do mês" (ver dashboard principal,
+    // corrigido 2026-08-21): "Receita total" só somava sessões pagas
+    // diretamente, nunca vendas de voucher — ficava sempre menor do que a
+    // "Receita do mês", que já inclui vouchers. Todo o histórico, sem
+    // filtro de mês (é "sempre", não "este mês").
+    prisma.giftCard.findMany({
+      where: alvo
+        ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] }
+        : {},
+      select: { valorPago: true, terapeuta2Id: true },
     }),
     prisma.sessao.groupBy({
       by: ["clienteId"],
@@ -269,7 +280,8 @@ export default async function FinanceiroPage({
     porMetodo.voucher! += valor
   }
 
-  const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0)
+  const receitaVouchersSempre = vendasVoucherAllTime.reduce((soma, v) => soma + valorAtribuidoVoucher(v), 0)
+  const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0) + receitaVouchersSempre
   const pendentes = sessoes.filter(s => s.estadoPagamento === "pendente" && s.estado === "realizada")
 
   return (
