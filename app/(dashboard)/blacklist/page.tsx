@@ -62,7 +62,7 @@ export default async function BlacklistPage() {
           Adicionar registo
         </p>
         <form action={addToBlacklist}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: "10px", alignItems: "end" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_1fr_1fr_auto]" style={{ gap: "10px", alignItems: "end" }}>
             <div>
               <label htmlFor="bl-nome" style={labelStyle}>Nome *</label>
               <input id="bl-nome" name="nome" placeholder="Nome completo" style={inputStyle} />

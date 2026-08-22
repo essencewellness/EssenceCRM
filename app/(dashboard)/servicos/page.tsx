@@ -25,7 +25,8 @@ export default async function ServicosPage() {
         Gerir serviços, preços base e disponibilidade.
       </p>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "36px" }}>
+      <div style={{ overflowX: "auto", marginBottom: "36px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px" }}>
         <thead>
           <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
             {["Serviço", "Duração", "Preço Base", "Estado", ""].map(h => (
@@ -76,6 +77,7 @@ export default async function ServicosPage() {
           )}
         </tbody>
       </table>
+      </div>
 
       <ServicoForm />
     </div>

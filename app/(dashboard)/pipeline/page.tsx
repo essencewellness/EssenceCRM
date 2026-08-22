@@ -99,8 +99,8 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <FiltroTerapeutaSlot />
 
       {/* KPIs */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "28px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "12px", marginBottom: "28px" }}>
+        <div className="grid grid-cols-3" style={{ gap: "12px" }}>
           {[
             { label: "Total clientes", value: totalClientes,      icon: <Users       size={15} color="var(--nuit-sage)" /> },
             { label: "Sessões hoje",   value: sessoesHoje,        icon: <Calendar    size={15} color="var(--nuit-champagne-soft)" /> },
@@ -125,7 +125,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+        <div className="grid grid-cols-3" style={{ gap: "12px" }}>
           {[
             { label: "Ativas este mês", value: ativosMes,            icon: <TrendingUp    size={15} color="#7a9e7e" /> },
             { label: "Msg. pendentes",  value: mensagensPendentes,   icon: <MessageSquare size={15} color="var(--nuit-champagne-soft)" /> },

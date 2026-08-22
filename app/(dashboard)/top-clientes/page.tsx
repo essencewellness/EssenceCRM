@@ -166,7 +166,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
       <FiltroTerapeutaSlot />
 
       {/* Stat cards — scale in com stagger */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", marginBottom: "28px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: "12px", marginBottom: "28px" }}>
         {[
           { label: "Total Clientes", value: resumo._count.id, desc: "clientes registadas", icon: <Users size={16} color="var(--nuit-sage)" />, delay: "0.28s" },
           { label: "Média Gasto",    value: formatCurrency(mediaGasto), desc: "por cliente",        icon: <TrendingUp size={16} color="var(--nuit-champagne-soft)" />, delay: "0.38s" },
@@ -299,11 +299,11 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{cliente.totalSessoes} sess.</p>
                         </div>
-                        <div style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
+                        <div className="hidden sm:block" style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
-                        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
@@ -375,11 +375,11 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{cliente.totalSessoes} sess.</p>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
                         </div>
-                        <div style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
+                        <div className="hidden sm:block" style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
                           <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
-                        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
@@ -471,7 +471,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                             </>
                           )}
                         </div>
-                        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", display: "flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
