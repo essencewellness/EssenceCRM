@@ -20,6 +20,18 @@ export async function GET(
   })
   if (bloqueio) return bloqueio
 
+  // Limite global (todos os IPs juntos), não só por IP — os códigos são
+  // sequenciais (EWD2026-0001, 0002...), por isso um atacante distribuído
+  // por vários IPs conseguiria varrer o espaço todo mesmo respeitando o
+  // limite por IP acima. Isto torna essa varredura impraticável sem impedir
+  // o uso normal (cada cliente só visita o seu próprio link uma ou duas vezes).
+  const bloqueioGlobal = await verificarRateLimit(
+    request,
+    { recurso: "voucher-link-curto-global", limite: 300, janelaSeg: 3600 },
+    "global"
+  )
+  if (bloqueioGlobal) return bloqueioGlobal
+
   const { codigo } = await params
   // Tolerante a maiúsculas/minúsculas e espaços: o link é sempre gerado
   // certo pelo CRM, mas alguém pode copiar/colar ou escrever à mão.

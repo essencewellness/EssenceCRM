@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { auditar } from "@/lib/audit"
 
 export async function addToBlacklist(formData: FormData) {
   const session = await auth()
@@ -34,8 +35,15 @@ export async function addToBlacklist(formData: FormData) {
         notasPessoais: motivo ? `[BLACKLIST] ${motivo}` : existing.notasPessoais,
       },
     })
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "cliente.bloqueado",
+      entidade: "Cliente",
+      entidadeId: existing.id,
+      detalhe: { motivo },
+    })
   } else {
-    await prisma.cliente.create({
+    const criado = await prisma.cliente.create({
       data: {
         nome: nomeFinal,
         telefone,
@@ -44,6 +52,13 @@ export async function addToBlacklist(formData: FormData) {
         notasPessoais: motivo ? `[BLACKLIST] ${motivo}` : null,
         fonte: "blacklist",
       },
+    })
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "cliente.bloqueado",
+      entidade: "Cliente",
+      entidadeId: criado.id,
+      detalhe: { motivo, novoContacto: true },
     })
   }
 
@@ -59,6 +74,12 @@ export async function removeFromBlacklist(formData: FormData) {
   await prisma.cliente.update({
     where: { id },
     data: { estado: "perdida" },
+  })
+  auditar({
+    quem: session.user.email ?? "dashboard",
+    acao: "cliente.desbloqueado",
+    entidade: "Cliente",
+    entidadeId: id,
   })
   revalidatePath("/blacklist")
 }
