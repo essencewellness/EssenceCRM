@@ -5,8 +5,9 @@ import {
   LayoutDashboard, Users, UserPlus, Calendar, CheckSquare,
   MessageSquare, MessageSquareHeart, Megaphone, FileText,
   BarChart2, Star, Shield, Settings, ChevronRight, LogOut, Gift,
+  Sun, Moon,
 } from "lucide-react"
-import { ThemeToggle } from "@/components/theme/ThemeToggle"
+import { useTheme } from "@/components/theme/ThemeProvider"
 
 interface NavItem {
   href: string
@@ -65,6 +66,8 @@ interface SidebarProps {
 
 export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) {
   const pathname = usePathname()
+  const { theme, toggleTheme } = useTheme()
+  const claro = theme === "light"
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/"
@@ -127,7 +130,7 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
       </div>
 
       {/* Grupos de navegação */}
-      <nav style={{ flex: 1, padding: "16px 0", overflowY: "auto" }}>
+      <nav className="nuit-scrollbar" style={{ flex: 1, padding: "16px 0", overflowY: "auto" }}>
         {gruposComBadge.map((grupo) => (
           <div key={grupo.label} style={{ marginBottom: "24px" }}>
             <div style={{
@@ -200,45 +203,60 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
             })}
           </div>
         ))}
-      </nav>
 
-      {/* Rodapé */}
-      <div style={{
-        padding: "12px 16px",
-        borderTop: "1px solid rgba(212,184,134,0.10)",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <p style={{
-          fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9px", color: "var(--nuit-bone-soft)",
-          letterSpacing: "0.18em", textTransform: "uppercase",
-        }}>
-          Essence Wellness · v1
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-        <ThemeToggle compact />
-        <form action={logoutAction}>
+        {/* Tema + Sair — linhas com o mesmo visual das abas de navegação
+            (pedido do Nuno, 2026-08-22: a barra de rodapé separada ficava
+            "horrorosa" com o scroll próprio do nav; isto une tudo numa só
+            lista, sem uma faixa fixa à parte). */}
+        <div style={{ marginBottom: "8px" }}>
           <button
-            type="submit"
-            title="Terminar sessão"
-            aria-label="Terminar sessão"
+            type="button"
+            role="switch"
+            aria-checked={claro}
+            onClick={toggleTheme}
+            title={claro ? "Mudar para modo escuro" : "Mudar para modo claro"}
             style={{
-              display: "flex", alignItems: "center", gap: "6px",
-              background: "none", border: "none", cursor: "pointer",
-              color: "var(--nuit-bone-soft)",
-              fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px", letterSpacing: "0.04em",
-              padding: "4px 6px",
-              transition: "color 150ms",
+              display: "flex", alignItems: "center", gap: "10px", width: "100%",
+              margin: "0 8px 2px", padding: "8px 12px",
+              background: "none", border: "none", borderLeft: "2px solid transparent",
+              cursor: "pointer", textAlign: "left",
             }}
-            className="hover:!text-[var(--nuit-bone-soft)]"
+            className="hover:bg-[rgba(212,184,134,0.05)]"
           >
-            <LogOut size={12} strokeWidth={1.5} />
-            Sair
+            {claro
+              ? <Sun size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />
+              : <Moon size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />}
+            <span style={{
+              flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "12.5px",
+              fontWeight: 400, color: "var(--nuit-bone-soft)", letterSpacing: "0.01em",
+            }}>
+              {claro ? "Modo claro" : "Modo escuro"}
+            </span>
           </button>
-        </form>
+
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              title="Terminar sessão"
+              style={{
+                display: "flex", alignItems: "center", gap: "10px", width: "100%",
+                margin: "0 8px 2px", padding: "8px 12px",
+                background: "none", border: "none", borderLeft: "2px solid transparent",
+                cursor: "pointer", textAlign: "left",
+              }}
+              className="hover:bg-[rgba(212,184,134,0.05)]"
+            >
+              <LogOut size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />
+              <span style={{
+                flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "12.5px",
+                fontWeight: 400, color: "var(--nuit-bone-soft)", letterSpacing: "0.01em",
+              }}>
+                Sair
+              </span>
+            </button>
+          </form>
         </div>
-      </div>
+      </nav>
     </aside>
   )
 }
