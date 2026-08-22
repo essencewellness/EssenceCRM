@@ -17,7 +17,7 @@ import { useToast } from "@/components/ui/toast-nuit"
 // Massagens ainda não tem evento Calendly próprio criado; fica null até
 // existir (o botão fica desativado com uma nota em vez de partir).
 const CALENDLY_URL: Record<string, string | null> = {
-  "Drenagem Linfática":         "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-60min",
+  "Drenagem Linfática 60 min":  "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-60min",
   "Drenagem Linfática 90 min":  "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-premium-90min",
 }
 
@@ -89,7 +89,7 @@ const PRESETS = [
   },
   {
     label: "Pack 5 · Drenagem 60 min", totalSessoes: 5, valorTotal: 275, permite2x: false,
-    servicoNome: "Drenagem Linfática",
+    servicoNome: "Drenagem Linfática 60 min",
     descricao: "Drenagem linfática manual, sessão de 60 min.",
   },
   {
@@ -99,7 +99,7 @@ const PRESETS = [
   },
   {
     label: "Pack 10 · Drenagem 60 min", totalSessoes: 10, valorTotal: 500, permite2x: true,
-    servicoNome: "Drenagem Linfática",
+    servicoNome: "Drenagem Linfática 60 min",
     descricao: "Drenagem linfática manual, sessão de 60 min.",
   },
   {
