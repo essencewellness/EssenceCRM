@@ -14,7 +14,7 @@ export default async function ConfigNegocioPage() {
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "20px", fontWeight: 400, color: "var(--nuit-midnight)",
+          fontSize: "20px", fontWeight: 400, color: "var(--nuit-bone)",
           marginBottom: "6px",
         }}>
           Negócio & Automações

@@ -40,7 +40,7 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
             transition={{ duration: 0.42, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-              fontSize: "26px", fontWeight: 400, color: "var(--nuit-midnight)",
+              fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
               letterSpacing: "-0.005em", lineHeight: 1.1,
             }}
           >

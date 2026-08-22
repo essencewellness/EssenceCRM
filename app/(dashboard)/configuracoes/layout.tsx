@@ -12,7 +12,7 @@ export default async function ConfiguracoesLayout({ children }: { children: Reac
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
           fontSize: "22px",
-          color: "var(--nuit-midnight)",
+          color: "var(--nuit-bone)",
           fontWeight: 400,
           letterSpacing: "-0.01em",
           marginBottom: "4px",
