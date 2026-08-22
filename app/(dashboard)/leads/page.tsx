@@ -60,8 +60,8 @@ export default async function LeadsPage() {
             </p>
           </div>
         ) : (
-          <div style={{ border: "1px solid rgba(212,184,134,0.12)", overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ border: "1px solid rgba(212,184,134,0.12)", overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.12)" }}>
                   {["Nome", "Telefone", "Email", "Origem", "Desde"].map((h) => (

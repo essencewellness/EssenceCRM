@@ -235,6 +235,11 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   fontFamily: "var(--font-heading, Georgia, serif)",
                   fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
                 }}
+                // Nomes longos cortavam a meio sem aviso em ecrãs estreitos
+                // (whiteSpace:nowrap por omissão) — renderDisplay força o
+                // InlineEditField a usar o modo "sem truncar" (pre-wrap),
+                // que passa a quebrar linha em vez de cortar o nome.
+                renderDisplay={(texto) => texto}
                 onSave={atualizarCampoCliente.bind(null, cliente.id, "nome")}
               />
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
@@ -315,8 +320,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             content: (
               <>
                 {/* Stat cards — stagger scale in */}
-                <div style={{
-                  display: "grid", gridTemplateColumns: "repeat(4,1fr)",
+                <div className="grid grid-cols-2 sm:grid-cols-4" style={{
                   gap: "12px", marginBottom: "16px",
                 }}>
                   {statCards.map(({ label, value, Icon, color }, idx) => (
@@ -371,7 +375,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       Informações Gerais
                     </h2>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "20px" }}>
+                  <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: "20px" }}>
                     <InlineEditField
                       label="Data de Nascimento"
                       type="date"

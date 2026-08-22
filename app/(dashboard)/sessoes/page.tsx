@@ -178,7 +178,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       {/* Lista de sessões */}
       <div style={{
         backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
-        borderRadius: "2px", overflow: "hidden",
+        borderRadius: "2px", overflowX: "auto",
       }}>
         {sessoes.length === 0 ? (
           <div style={{
@@ -197,7 +197,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           <>
             {/* Cabeçalho da tabela */}
             <div style={{
-              display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px",
+              display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px", minWidth: "620px",
               padding: "10px 20px",
               borderBottom: "1px solid rgba(212,184,134,0.1)",
               backgroundColor: "var(--nuit-overlay)",
@@ -225,7 +225,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                   }}
                 >
                   <div style={{
-                    display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px",
+                    display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px", minWidth: "620px",
                     padding: "13px 20px", alignItems: "center",
                     borderBottom: i < sessoes.length - 1 ? "1px solid rgba(212,184,134,0.1)" : "none",
                     backgroundColor: isHoje
