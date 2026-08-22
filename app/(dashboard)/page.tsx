@@ -67,7 +67,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     totalClientesActivos, totalMensagensPendentes,
     ativosEsteMes, ativosMesAnterior, totalClientes, clientesEmRisco,
     inativas30a60, inativas61a90, inativasMais90,
-    alertasSatisfacao, tarefasHoje, tarefasVencidas, receitaMesSessoes, vendasVoucherMes,
+    alertasSatisfacao, tarefasHoje, tarefasVencidas, receitaMesSessoes, vendasVoucherMes, pagamentosPackMes,
   ] = await Promise.all([
     prisma.sessao.findMany({
       where: { data: { gte: hoje, lt: amanha }, ...filtroSessao },
@@ -159,6 +159,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       },
       select: { valorPago: true, terapeuta2Id: true },
     }),
+    // Pagamentos de pack — mesmo bug que os vouchers tinham (ver comentário
+    // acima): "Receita do Mês" nunca somava PackPagamento, só sessões e
+    // vouchers, ficando sempre atrás do que o /financeiro mostrava para o
+    // mesmo mês. Packs são individuais (nunca "a dois"), sem split por 2.
+    prisma.packPagamento.findMany({
+      where: {
+        criadoEm: { gte: inicioMes },
+        ...(alvo
+          ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
+          : {}),
+      },
+      select: { valor: true },
+    }),
   ])
 
   const pctEsteMes = totalClientes > 0 ? Math.round((ativosEsteMes / totalClientes) * 100) : 0
@@ -171,7 +184,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     (soma, v) => soma + (alvo && v.terapeuta2Id ? Number(v.valorPago) / 2 : Number(v.valorPago)),
     0
   )
-  const receitaMesTotal = Number(receitaMesSessoes._sum.valorPago ?? 0) + receitaVouchersMes
+  const receitaPacksMes = pagamentosPackMes.reduce((soma, pg) => soma + Number(pg.valor), 0)
+  const receitaMesTotal = Number(receitaMesSessoes._sum.valorPago ?? 0) + receitaVouchersMes + receitaPacksMes
   const saudacao = getSaudacao()
 
   const sessoesHojeRows = sessõesHoje.map(s => ({

@@ -84,7 +84,9 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
     <aside style={{
       flexDirection: "column",
       width: "216px",
-      minHeight: "100vh",
+      height: "100vh",
+      position: "sticky",
+      top: 0,
       backgroundColor: "var(--nuit-deep)",
       borderRight: "1px solid rgba(212,184,134,0.10)",
       flexShrink: 0,

@@ -497,3 +497,33 @@ export async function registarPagamentoPack(
     return { ok: false, erro: "Erro ao registar o pagamento. Tenta novamente." }
   }
 }
+
+// Apagamento DEFINITIVO de um pack (hard delete). A cascata do schema remove
+// os pagamentos (PackPagamento); sessões que já estavam ligadas a este pack
+// (Sessao.packId) ficam com o campo a null em vez de serem apagadas — a
+// sessão em si aconteceu de verdade, só deixa de estar contabilizada num pack.
+export async function eliminarPack(packId: string, clienteId: string) {
+  const session = await auth()
+  if (!session?.user) throw new Error("Não autorizado")
+  await verificarDonoCliente(session, clienteId)
+
+  const pack = await prisma.pack.findUnique({
+    where: { id: packId },
+    select: { clienteId: true },
+  })
+  if (!pack) throw new Error("Pack não encontrado")
+  if (pack.clienteId !== clienteId) throw new Error("Pack não pertence a este cliente")
+
+  await prisma.pack.delete({ where: { id: packId } })
+
+  auditar({
+    quem: session.user.email ?? "dashboard",
+    acao: "pack.apagado_definitivo",
+    entidade: "Pack",
+    entidadeId: packId,
+  })
+
+  revalidatePath(`/clientes/${clienteId}`)
+  revalidatePath("/financeiro")
+  return { ok: true as const }
+}

@@ -7,9 +7,9 @@
 // metade na 5.ª — regra do site).
 import { useEffect, useRef, useState, useTransition } from "react"
 import { createPortal } from "react-dom"
-import { Calendar, CreditCard, Plus, X } from "lucide-react"
+import { Calendar, CreditCard, Plus, Trash2, X } from "lucide-react"
 import { NomeServico } from "@/components/NomeServico"
-import { criarPack, registarPagamentoPack } from "./actions"
+import { criarPack, registarPagamentoPack, eliminarPack } from "./actions"
 import { formatDate } from "@/lib/utils"
 import { useToast } from "@/components/ui/toast-nuit"
 
@@ -429,6 +429,8 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
   pack: PackDoCliente; clienteId: string; clienteNome: string; clienteEmail: string | null; index: number
 }) {
   const [modalAberto, setModalAberto] = useState<{ valor: number; nota?: string } | null>(null)
+  const [confirmarApagar, setConfirmarApagar] = useState(false)
+  const [apagando, startApagar] = useTransition()
   const { toast } = useToast()
   const restantes = pack.totalSessoes - pack.sessoesUsadas
   const pct = Math.round((pack.sessoesUsadas / pack.totalSessoes) * 100)
@@ -440,6 +442,19 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
     if (!linkCalendly) return
     await navigator.clipboard.writeText(linkCalendly)
     toast("Link do Calendly copiado — já leva o pack ligado.", "success")
+  }
+
+  function apagarPack() {
+    if (!confirmarApagar) { setConfirmarApagar(true); return }
+    startApagar(async () => {
+      try {
+        await eliminarPack(pack.id, clienteId)
+        toast("Pack apagado.", "success")
+      } catch {
+        toast("Erro ao apagar o pack. Tenta novamente.", "error")
+        setConfirmarApagar(false)
+      }
+    })
   }
   // "2x" só faz sentido oferecer o atalho enquanto ainda não há nada pago
   // (1ª parcela) ou já foi paga só a 1ª metade (2ª parcela) — noutro caso
@@ -473,6 +488,24 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
           <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: GOLD }}>
             €{pack.valorTotal.toFixed(2)}
           </span>
+          <button
+            onClick={apagarPack}
+            onBlur={() => setConfirmarApagar(false)}
+            disabled={apagando}
+            title="Apagar pack"
+            aria-label={confirmarApagar ? "Confirmar apagar pack" : "Apagar pack"}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: "4px",
+              padding: confirmarApagar ? "4px 9px" : "5px",
+              borderRadius: "100px", border: "1px solid rgba(176,96,80,0.25)",
+              backgroundColor: confirmarApagar ? "rgba(176,96,80,0.12)" : "transparent",
+              color: "rgba(176,96,80,0.7)", cursor: apagando ? "wait" : "pointer",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "10.5px", fontWeight: 700,
+            }}
+          >
+            <Trash2 size={12} />
+            {confirmarApagar ? (apagando ? "A apagar…" : "Confirmar?") : null}
+          </button>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
