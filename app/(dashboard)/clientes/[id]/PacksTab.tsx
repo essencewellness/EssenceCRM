@@ -440,8 +440,15 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
 
   async function copiarLinkCalendly() {
     if (!linkCalendly) return
-    await navigator.clipboard.writeText(linkCalendly)
-    toast("Link do Calendly copiado — já leva o pack ligado.", "success")
+    try {
+      await navigator.clipboard.writeText(linkCalendly)
+      toast("Link do Calendly copiado — já leva o pack ligado.", "success")
+    } catch {
+      // Permissão de clipboard negada pelo browser (comum fora de HTTPS,
+      // sem gesto do utilizador, ou em iframes/contextos restritos) — sem
+      // isto, a exceção ficava por apanhar e chegava ao Sentry como erro.
+      toast("Não foi possível copiar automaticamente. Copia o link à mão: " + linkCalendly, "error")
+    }
   }
 
   function apagarPack() {
