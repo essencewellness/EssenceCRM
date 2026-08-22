@@ -234,12 +234,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 valueStyle={{
                   fontFamily: "var(--font-heading, Georgia, serif)",
                   fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
+                  // Nomes longos cortavam a meio sem aviso em ecrãs estreitos
+                  // (whiteSpace:nowrap+overflow:hidden por omissão no
+                  // InlineEditField) — isto sobrepõe-se a essas regras
+                  // (valueStyle é sempre o último a aplicar-se) para quebrar
+                  // linha em vez de cortar o nome.
+                  whiteSpace: "normal", overflow: "visible", lineHeight: 1.2,
                 }}
-                // Nomes longos cortavam a meio sem aviso em ecrãs estreitos
-                // (whiteSpace:nowrap por omissão) — renderDisplay força o
-                // InlineEditField a usar o modo "sem truncar" (pre-wrap),
-                // que passa a quebrar linha em vez de cortar o nome.
-                renderDisplay={(texto) => texto}
                 onSave={atualizarCampoCliente.bind(null, cliente.id, "nome")}
               />
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
