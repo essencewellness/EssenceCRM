@@ -92,6 +92,10 @@ export const clientesQuerySchema = z.object({
   etiquetas_modo: z.enum(["and", "or"]).default("or"),
   sem_automacoes: z.enum(["true"]).optional(),
   terapeuta: z.string().trim().max(64).optional(),
+  // Opt-in: gerar LinkToken por cliente é só necessário para quem vai montar
+  // links públicos (N8N) — o dashboard lista clientes sem precisar disto, e
+  // gerar em cada scroll/pesquisa poluía a tabela LinkToken sem uso real.
+  includeLinkToken: z.enum(["true"]).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   cursor: z.string().trim().max(64).optional(),
 })

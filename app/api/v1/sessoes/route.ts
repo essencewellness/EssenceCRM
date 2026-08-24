@@ -4,6 +4,7 @@ import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } f
 import { sessaoCreateSchema, sessoesQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { recalcularMetricasCliente } from "@/lib/metricas"
+import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import type { Prisma } from "@/lib/prisma-client"
@@ -194,6 +195,13 @@ export async function POST(request: NextRequest) {
 
       return sessao
     })
+
+    // Igual ao PATCH: uma sessão que já nasce "realizada" (ex: migração de
+    // histórico) não pode ficar à espera do cron das 7h para o cliente sair
+    // de "lead" — sem isto, o motor de estados só corrige até 24h depois.
+    if ((estado ?? "agendada") === "realizada") {
+      await recalcularEstadoCliente(cliente.id)
+    }
 
     auditar({
       quem: "api:n8n",

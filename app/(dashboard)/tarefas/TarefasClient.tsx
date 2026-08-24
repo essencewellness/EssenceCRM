@@ -45,9 +45,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
     if (filtroTerapeuta) params.set("terapeuta", filtroTerapeuta)
     params.set("limit", "300")
     try {
-      const res = await fetch(`/api/v1/tarefas?${params}`, {
-        headers: { "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "" },
-      })
+      const res = await fetch(`/api/v1/tarefas?${params}`)
       if (res.ok) {
         const json = await res.json()
         setTarefas(json.data ?? [])

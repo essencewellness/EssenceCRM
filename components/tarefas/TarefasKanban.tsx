@@ -101,7 +101,6 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": process.env.NEXT_PUBLIC_API_KEY ?? "",
       },
       body: JSON.stringify(dados),
     })

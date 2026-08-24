@@ -410,6 +410,7 @@ model ClienteEtiqueta {
   etiqueta   Etiqueta @relation(fields: [etiquetaId], references: [id], onDelete: Cascade)
 
   @@id([clienteId, etiquetaId])
+  @@index([etiquetaId])
 }
 
 model Observacao {
@@ -495,6 +496,7 @@ model PrecoPersonalizado {
 
   @@unique([clienteId, servicoId])
   @@index([clienteId])
+  @@index([servicoId])
 }
 
 model Pack {
@@ -535,6 +537,7 @@ model Pack {
   @@index([clienteId])
   @@index([ativo])
   @@index([terapeutaId])
+  @@index([servicoId])
 }
 
 // Um pack de 10 sessões pode ser pago em 2x (metade na 1.ª sessão, metade na

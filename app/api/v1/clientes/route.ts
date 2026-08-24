@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, limit, cursor } = q.data
+  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -150,12 +150,16 @@ export async function GET(request: NextRequest) {
     })
 
     // linkToken: código curto para o N8N construir links de onboarding/feedback
-    // sem sessão associada (ex.: reativação — GET ?inactivos_desde_dias=45)
-    const clientesComToken = await Promise.all(
-      clientesEnriquecidos.map(async (c) => ({ ...c, linkToken: await gerarLinkToken({ clienteId: c.id }) }))
-    )
+    // sem sessão associada (ex.: reativação — GET ?inactivos_desde_dias=45).
+    // Opt-in via ?includeLinkToken=true — o dashboard não precisa e gerar em
+    // cada listagem poluía a tabela LinkToken com tokens nunca usados.
+    const clientesFinal = includeLinkToken === "true"
+      ? await Promise.all(
+          clientesEnriquecidos.map(async (c) => ({ ...c, linkToken: await gerarLinkToken({ clienteId: c.id }) }))
+        )
+      : clientesEnriquecidos
 
-    return respostaSucesso(serializarDecimais(clientesComToken), {
+    return respostaSucesso(serializarDecimais(clientesFinal), {
       nextCursor: hasMore ? clientes[clientes.length - 1]?.id : null,
       total,
     })

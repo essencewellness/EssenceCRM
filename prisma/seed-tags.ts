@@ -22,7 +22,7 @@ const TAGS = [
   { nome: "Só aromaterapia",              cor: "#7a9e7e", tipo: "preferencia" as const, bloqueiaAutomacoes: false },
   { nome: "Prefere manhãs",               cor: "#a0a996", tipo: "preferencia" as const, bloqueiaAutomacoes: false },
   { nome: "Prefere tardes",               cor: "#a0a996", tipo: "preferencia" as const, bloqueiaAutomacoes: false },
-  { nome: "Não quer contacto automático", cor: "#b06050", tipo: "preferencia" as const, bloqueiaAutomacoes: false },
+  { nome: "Não quer contacto automático", cor: "#b06050", tipo: "preferencia" as const, bloqueiaAutomacoes: true  },
   // Automáticas (criadas pelo sistema para vouchers)
   { nome: "Voucher ativo",  cor: "#4d9ab0", tipo: "automatica" as const, bloqueiaAutomacoes: false },
   { nome: "Voucher usado",  cor: "#a0a996", tipo: "automatica" as const, bloqueiaAutomacoes: false },

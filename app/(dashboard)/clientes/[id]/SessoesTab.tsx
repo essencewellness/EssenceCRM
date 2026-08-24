@@ -359,6 +359,52 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
   )
 }
 
+// Agrega as sessões "realizada" por nome de serviço, para dar à Bea uma
+// leitura rápida de que serviços a cliente costuma escolher — sem isto,
+// só dava para perceber o padrão lendo a tabela linha a linha.
+function HistoricoServicos({ sessoes }: { sessoes: Sessao[] }) {
+  const contagens = new Map<string, number>()
+  for (const s of sessoes) {
+    if (s.estado !== "realizada") continue
+    const nome = s.servico?.trim() || "Sem serviço"
+    contagens.set(nome, (contagens.get(nome) ?? 0) + 1)
+  }
+  if (contagens.size === 0) return null
+
+  const ordenado = [...contagens.entries()].sort((a, b) => b[1] - a[1])
+
+  return (
+    <div style={{
+      display: "flex", flexWrap: "wrap", gap: "8px",
+      marginBottom: "16px",
+    }}>
+      {ordenado.map(([nome, contagem]) => (
+        <div
+          key={nome}
+          style={{
+            display: "flex", alignItems: "center", gap: "6px",
+            padding: "6px 12px", borderRadius: "100px",
+            backgroundColor: "rgba(212,184,134,0.08)",
+            border: "1px solid rgba(212,184,134,0.22)",
+          }}
+        >
+          <span style={{ fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-bone)" }}>
+            {nome}
+          </span>
+          <span style={{
+            fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700,
+            color: "var(--nuit-champagne-soft)",
+            backgroundColor: "rgba(212,184,134,0.16)",
+            borderRadius: "100px", padding: "1px 7px",
+          }}>
+            {contagem}×
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 const ESTADOS_SESSAO = [
   { value: "agendada",   label: "Agendada",   cor: "var(--nuit-champagne-soft)" },
   { value: "confirmada", label: "Confirmada", cor: "#8a9bb0" },
@@ -467,6 +513,8 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
 
   return (
     <>
+      <HistoricoServicos sessoes={sessoes} />
+
       <div style={{
         backgroundColor: "var(--nuit-overlay)", borderRadius: "10px",
         border: "1px solid rgba(212,184,134,0.16)", overflow: "hidden",
