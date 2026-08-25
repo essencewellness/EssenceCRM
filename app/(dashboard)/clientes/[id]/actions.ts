@@ -11,6 +11,7 @@ import { sessaoUpdateSchema } from "@/lib/validations"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
 import { calcularReatribuicaoBea } from "@/lib/reatribuicao-financeira"
+import { encontrarConflitoAgenda, ConflitoAgendaError } from "@/lib/conflito-agenda"
 
 // Garante que a terapeuta autenticada é admin OU a dona do cliente
 // (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
@@ -128,12 +129,27 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
 
   const sessaoAntes = await prisma.sessao.findUnique({
     where: { id: sessaoId },
-    select: { estado: true, clienteId: true },
+    select: { estado: true, clienteId: true, data: true, hora: true, duracao: true },
   })
   if (!sessaoAntes) throw new Error("Sessão não encontrada")
   if (sessaoAntes.clienteId !== clienteId) throw new Error("Sessão não pertence a este cliente")
 
   const { data: dataSessao, dataRecomendadaRegresso, ...resto } = dados
+
+  // Só uma sala: hora/data/duração mudam → verificar sobreposição com outra
+  // sessão activa antes de gravar (ver lib/conflito-agenda.ts).
+  if (dados.hora !== undefined || dados.data !== undefined || dados.duracao !== undefined) {
+    const horaEfetiva = dados.hora !== undefined ? dados.hora : sessaoAntes.hora
+    if (horaEfetiva) {
+      const conflito = await encontrarConflitoAgenda({
+        data: dataSessao ? new Date(dataSessao) : sessaoAntes.data,
+        hora: horaEfetiva,
+        duracao: dados.duracao !== undefined ? dados.duracao : sessaoAntes.duracao,
+        excluirSessaoId: sessaoId,
+      })
+      if (conflito) throw new ConflitoAgendaError(conflito)
+    }
+  }
 
   const eraRealizada = sessaoAntes.estado === "realizada"
   const ficaRealizada = (dados.estado ?? sessaoAntes.estado) === "realizada"
@@ -205,8 +221,12 @@ export async function atualizarCampoSessao(
     await aplicarAtualizacaoSessao(sessaoId, clienteId, parsed.data as DadosSessao)
     return { ok: true }
   } catch (e) {
-    // Nunca expor o erro interno (Prisma/JS) à Bea — pode incluir nomes de
-    // colunas/detalhes de constraints. Log completo fica só no servidor.
+    // ConflitoAgendaError: mensagem já pensada para a Bea ver — passa
+    // directa. Tudo o resto (Prisma/JS) fica só no log do servidor, nunca
+    // no ecrã (pode incluir nomes de colunas/detalhes de constraints).
+    if (e instanceof ConflitoAgendaError) {
+      return { ok: false, erro: e.message }
+    }
     console.error("atualizarCampoSessao:", e)
     return { ok: false, erro: "Erro ao guardar. Tenta novamente." }
   }

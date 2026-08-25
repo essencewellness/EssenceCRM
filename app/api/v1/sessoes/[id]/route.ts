@@ -9,6 +9,7 @@ import { recalcularMetricasCliente } from "@/lib/metricas"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
+import { encontrarConflitoAgenda, mensagemConflitoAgenda } from "@/lib/conflito-agenda"
 
 
 export async function GET(
@@ -63,10 +64,30 @@ export async function PATCH(
   try {
     const sessaoAntes = await prisma.sessao.findFirst({
       where: { id, apagadoEm: null },
-      select: { id: true, clienteId: true, estado: true, servico: true, terapeuta: true, terapeutaId: true, terapeuta2Id: true },
+      select: {
+        id: true, clienteId: true, estado: true, servico: true, terapeuta: true, terapeutaId: true, terapeuta2Id: true,
+        data: true, hora: true, duracao: true,
+      },
     })
 
     if (!sessaoAntes) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
+
+    // Só uma sala: hora/data/duração mudam → verificar sobreposição com
+    // outra sessão activa antes de gravar (ver lib/conflito-agenda.ts).
+    if (hora !== undefined || data !== undefined || duracao !== undefined) {
+      const horaEfetiva = hora !== undefined ? hora : sessaoAntes.hora
+      if (horaEfetiva) {
+        const conflito = await encontrarConflitoAgenda({
+          data: data !== undefined ? new Date(data) : sessaoAntes.data,
+          hora: horaEfetiva,
+          duracao: duracao !== undefined ? duracao : sessaoAntes.duracao,
+          excluirSessaoId: id,
+        })
+        if (conflito) {
+          return respostaErro(mensagemConflitoAgenda(conflito), "CONFLITO_AGENDA", 409)
+        }
+      }
+    }
 
     const eraRealizada = sessaoAntes.estado === "realizada"
     const ficaRealizada = (estado ?? sessaoAntes.estado) === "realizada"

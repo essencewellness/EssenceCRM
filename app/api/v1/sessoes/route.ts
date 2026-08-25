@@ -7,6 +7,7 @@ import { recalcularMetricasCliente } from "@/lib/metricas"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
+import { encontrarConflitoAgenda, mensagemConflitoAgenda } from "@/lib/conflito-agenda"
 import type { Prisma } from "@/lib/prisma-client"
 
 // Devolve o intervalo [início do dia, fim do dia] em UTC para o fuso de Lisboa
@@ -162,6 +163,16 @@ export async function POST(request: NextRequest) {
     }
 
     const dataSessao = new Date(data)
+
+    // Só uma sala: só verifica quando já se sabe a hora (a marcação vinda do
+    // Calendly nasce sem "hora" — só a ganha quando alguém a atribui/edita
+    // manualmente, altura em que este mesmo ficheiro já valida via PATCH).
+    if (hora) {
+      const conflito = await encontrarConflitoAgenda({ data: dataSessao, hora, duracao })
+      if (conflito) {
+        return respostaErro(mensagemConflitoAgenda(conflito), "CONFLITO_AGENDA", 409)
+      }
+    }
 
     // Criação da sessão + recálculo de métricas na mesma transação — evita a
     // janela de corrida em que duas escritas concorrentes no mesmo cliente
