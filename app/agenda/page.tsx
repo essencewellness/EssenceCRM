@@ -1,12 +1,14 @@
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { formatCurrency } from "@/lib/utils"
 import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
+import { GradeMensal } from "./GradeMensal"
 import type { Prisma } from "@/lib/prisma-client"
 
 type Vista = "dia" | "semana" | "mes"
+type Modo = "lista" | "calendario"
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
@@ -74,10 +76,11 @@ const ESTADO_LABEL: Record<string, string> = {
 export default async function AgendaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; data?: string }>
+  searchParams: Promise<{ vista?: string; modo?: string; data?: string }>
 }) {
-  const { vista: vistaParam, data: dataParam } = await searchParams
+  const { vista: vistaParam, modo: modoParam, data: dataParam } = await searchParams
   const vista: Vista = vistaParam === "dia" || vistaParam === "mes" ? vistaParam : "semana"
+  const modo: Modo = modoParam === "lista" ? "lista" : "calendario"
   const dataRef = dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam) ? new Date(dataParam + "T00:00:00") : inicioDoDia(new Date())
 
   const { inicio, fim, label } = calcularIntervalo(vista, dataRef)
@@ -120,7 +123,12 @@ export default async function AgendaPage({
     .filter(s => s.estado === "realizada")
     .reduce((soma, s) => soma + Number(s.preco ?? 0), 0)
 
-  const linkBase = (v: Vista, d: Date) => `/agenda?vista=${v}&data=${fmtDataParam(d)}`
+  const linkBase = (v: Vista, d: Date, m: Modo = modo) => `/agenda?vista=${v}&modo=${m}&data=${fmtDataParam(d)}`
+
+  const sessaoParaGrade = (s: (typeof sessoes)[number]): SessaoGrade => ({
+    id: s.id, clienteId: s.clienteId, clienteNome: s.cliente.nome,
+    servico: s.servico, hora: s.hora, duracao: s.duracao, estado: s.estado,
+  })
 
   // Dados para a grelha horária (vistas dia/semana) — um dia por coluna
   const diasGrelha = vista === "mes" ? [] : Array.from(
@@ -128,81 +136,134 @@ export default async function AgendaPage({
     (_, i) => {
       const dataCol = new Date(inicio); dataCol.setDate(dataCol.getDate() + i)
       const chave = dataCol.toISOString().slice(0, 10)
-      const sessoesDoDia: SessaoGrade[] = (porDia.get(chave) ?? []).map(s => ({
-        id: s.id, clienteId: s.clienteId, clienteNome: s.cliente.nome,
-        servico: s.servico, hora: s.hora, duracao: s.duracao, estado: s.estado,
-      }))
-      return { data: dataCol, sessoes: sessoesDoDia }
+      return { data: dataCol, sessoes: (porDia.get(chave) ?? []).map(sessaoParaGrade) }
     },
   )
+
+  // Grelha mensal — do dia 1 do mês, preenchida do início da semana até ao
+  // fim da última semana (6 semanas x 7 dias = grelha sempre completa), sem
+  // ir buscar sessões dos meses vizinhos (só os dias do mês atual têm dados).
+  let diasGrelhaMensal: { data: Date; sessoes: SessaoGrade[] }[] = []
+  if (vista === "mes") {
+    const inicioGrelha = inicioDaSemana(inicio)
+    const ultimoDiaMes = new Date(fim); ultimoDiaMes.setDate(ultimoDiaMes.getDate() - 1)
+    const fimGrelha = inicioDaSemana(ultimoDiaMes)
+    fimGrelha.setDate(fimGrelha.getDate() + 7)
+    const totalDias = Math.round((fimGrelha.getTime() - inicioGrelha.getTime()) / 86400000)
+    diasGrelhaMensal = Array.from({ length: totalDias }, (_, i) => {
+      const dataCol = new Date(inicioGrelha); dataCol.setDate(dataCol.getDate() + i)
+      const chave = dataCol.toISOString().slice(0, 10)
+      return { data: dataCol, sessoes: (porDia.get(chave) ?? []).map(sessaoParaGrade) }
+    })
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-      {/* Seletor de vista */}
-      <div style={{ display: "flex", gap: "6px" }}>
-        {(["dia", "semana", "mes"] as Vista[]).map(v => (
+      {/* Seletores: vista (dia/semana/mês) + modo (lista/calendário) */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+        <div style={{ display: "flex", gap: "6px" }}>
+          {(["dia", "semana", "mes"] as Vista[]).map(v => (
+            <Link
+              key={v}
+              href={linkBase(v, dataRef)}
+              style={{
+                padding: "7px 16px", borderRadius: "100px",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                letterSpacing: "0.04em", textTransform: "capitalize", textDecoration: "none",
+                backgroundColor: vista === v ? GOLD : "transparent",
+                color: vista === v ? "var(--nuit-midnight)" : SOFT,
+                border: `1px solid ${vista === v ? GOLD : "rgba(212,184,134,0.22)"}`,
+                transition: "background-color var(--dur-fast, 160ms) var(--ease-out, ease)",
+              }}
+            >
+              {v === "mes" ? "Mês" : v}
+            </Link>
+          ))}
+        </div>
+
+        {/* Alternador lista / calendário */}
+        <div style={{ display: "flex", borderRadius: "8px", border: "1px solid rgba(212,184,134,0.22)", overflow: "hidden" }}>
           <Link
-            key={v}
-            href={linkBase(v, dataRef)}
+            href={linkBase(vista, dataRef, "calendario")}
+            aria-label="Vista calendário"
+            title="Vista calendário"
             style={{
-              padding: "7px 16px", borderRadius: "100px",
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
-              letterSpacing: "0.04em", textTransform: "capitalize", textDecoration: "none",
-              backgroundColor: vista === v ? GOLD : "transparent",
-              color: vista === v ? "var(--nuit-midnight)" : SOFT,
-              border: `1px solid ${vista === v ? GOLD : "rgba(212,184,134,0.22)"}`,
+              display: "flex", alignItems: "center", gap: "6px", padding: "7px 12px",
+              backgroundColor: modo === "calendario" ? "rgba(212,184,134,0.14)" : "transparent",
+              color: modo === "calendario" ? GOLD : SOFT, textDecoration: "none",
+              fontFamily: "var(--font-sans)", fontSize: "10.5px", fontWeight: 600,
             }}
           >
-            {v}
+            <LayoutGrid size={13} /> Calendário
           </Link>
-        ))}
+          <Link
+            href={linkBase(vista, dataRef, "lista")}
+            aria-label="Vista em lista"
+            title="Vista em lista"
+            style={{
+              display: "flex", alignItems: "center", gap: "6px", padding: "7px 12px",
+              backgroundColor: modo === "lista" ? "rgba(212,184,134,0.14)" : "transparent",
+              color: modo === "lista" ? GOLD : SOFT, textDecoration: "none",
+              fontFamily: "var(--font-sans)", fontSize: "10.5px", fontWeight: 600,
+              borderLeft: "1px solid rgba(212,184,134,0.22)",
+            }}
+          >
+            <List size={13} /> Lista
+          </Link>
+        </div>
       </div>
 
       {/* Navegador de período */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href={linkBase(vista, anterior)} aria-label="Período anterior" style={{ color: SOFT, padding: "6px" }}>
+        <Link href={linkBase(vista, anterior)} aria-label="Período anterior" style={{ color: SOFT, padding: "6px", borderRadius: "6px" }} className="row-hover">
           <ChevronLeft size={20} />
         </Link>
-        <span style={{
+        <Link href={linkBase(vista, inicioDoDia(new Date()))} style={{
           fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "17px",
-          color: CREAM, textTransform: "capitalize", textAlign: "center",
+          color: CREAM, textTransform: "capitalize", textAlign: "center", textDecoration: "none",
         }}>
           {label}
-        </span>
-        <Link href={linkBase(vista, seguinte)} aria-label="Período seguinte" style={{ color: SOFT, padding: "6px" }}>
+        </Link>
+        <Link href={linkBase(vista, seguinte)} aria-label="Período seguinte" style={{ color: SOFT, padding: "6px", borderRadius: "6px" }} className="row-hover">
           <ChevronRight size={20} />
         </Link>
       </div>
 
       {/* Previsão de faturação */}
-      <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px",
-      }}>
-        <div style={{ backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "8px", padding: "14px 16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        <div style={{
+          backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px 18px",
+          borderLeft: `3px solid ${GOLD}`,
+        }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
             Previsto
           </p>
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px", color: GOLD }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: GOLD }}>
             {formatCurrency(previsto)}
           </p>
         </div>
-        <div style={{ backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "8px", padding: "14px 16px" }}>
+        <div style={{
+          backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px 18px",
+          borderLeft: "3px solid var(--nuit-sage)",
+        }}>
           <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
             Já realizado
           </p>
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px", color: "var(--nuit-sage)" }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: "var(--nuit-sage)" }}>
             {formatCurrency(realizado)}
           </p>
         </div>
       </div>
       <p style={{ fontFamily: "var(--font-sans)", fontSize: "10.5px", color: SOFT, opacity: 0.7, marginTop: "-10px" }}>
-        "Previsto" soma sessões agendadas/confirmadas ainda por acontecer neste período — não é dinheiro recebido, é o que está marcado.
+        &ldquo;Previsto&rdquo; soma sessões agendadas/confirmadas ainda por acontecer neste período — não é dinheiro recebido, é o que está marcado.
       </p>
 
-      {/* Grelha horária (dia/semana) ou lista por dia (mês) */}
-      {vista !== "mes" ? (
-        <GradeHoraria dias={diasGrelha} />
+      {/* Corpo: calendário ou lista, consoante o modo escolhido */}
+      {modo === "calendario" ? (
+        vista === "mes"
+          ? <GradeMensal mesRef={inicio} dias={diasGrelhaMensal} />
+          : <GradeHoraria dias={diasGrelha} />
       ) : dias.length === 0 ? (
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",

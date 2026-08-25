@@ -83,10 +83,17 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
         </div>
 
         {/* Colunas por dia */}
-        {dias.map(({ data, sessoes }) => (
+        {dias.map(({ data, sessoes }) => {
+          const hoje = new Date(); hoje.setHours(0, 0, 0, 0)
+          const ehHoje = data.getTime() === hoje.getTime()
+          const agora = new Date()
+          const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+          const mostrarLinhaAgora = ehHoje && minutosAgora >= HORA_INICIO * 60 && minutosAgora <= HORA_FIM * 60
+          return (
           <div key={data.toISOString()} style={{
             position: "relative", height: `${alturaTotal}px`,
             borderLeft: "1px solid var(--rule-soft)",
+            backgroundColor: ehHoje ? "rgba(212,184,134,0.045)" : "transparent",
           }}>
             {/* Linhas horizontais de hora */}
             {horas.map(h => (
@@ -95,6 +102,21 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
                 borderTop: "1px solid var(--rule-soft)",
               }} />
             ))}
+
+            {/* Linha da hora atual — só na coluna de hoje */}
+            {mostrarLinhaAgora && (
+              <div style={{
+                position: "absolute", left: 0, right: 0,
+                top: `${(minutosAgora - HORA_INICIO * 60) * (PX_HORA / 60)}px`,
+                borderTop: "1.5px solid var(--nuit-champagne)", zIndex: 2,
+              }}>
+                <span style={{
+                  position: "absolute", left: "-4px", top: "-3.5px",
+                  width: "7px", height: "7px", borderRadius: "50%",
+                  backgroundColor: "var(--nuit-champagne)",
+                }} />
+              </div>
+            )}
 
             {sessoes.map(s => {
               const minutos = s.hora ? minutosDesdeMeiaNoite(s.hora) : HORA_INICIO * 60
@@ -129,7 +151,8 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
               )
             })}
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
