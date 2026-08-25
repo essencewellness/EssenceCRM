@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-reac
 import { prisma } from "@/lib/prisma"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { formatCurrency } from "@/lib/utils"
+import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
 import type { Prisma } from "@/lib/prisma-client"
 
 type Vista = "dia" | "semana" | "mes"
@@ -121,6 +122,20 @@ export default async function AgendaPage({
 
   const linkBase = (v: Vista, d: Date) => `/agenda?vista=${v}&data=${fmtDataParam(d)}`
 
+  // Dados para a grelha horária (vistas dia/semana) — um dia por coluna
+  const diasGrelha = vista === "mes" ? [] : Array.from(
+    { length: vista === "dia" ? 1 : 7 },
+    (_, i) => {
+      const dataCol = new Date(inicio); dataCol.setDate(dataCol.getDate() + i)
+      const chave = dataCol.toISOString().slice(0, 10)
+      const sessoesDoDia: SessaoGrade[] = (porDia.get(chave) ?? []).map(s => ({
+        id: s.id, clienteId: s.clienteId, clienteNome: s.cliente.nome,
+        servico: s.servico, hora: s.hora, duracao: s.duracao, estado: s.estado,
+      }))
+      return { data: dataCol, sessoes: sessoesDoDia }
+    },
+  )
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
@@ -185,8 +200,10 @@ export default async function AgendaPage({
         "Previsto" soma sessões agendadas/confirmadas ainda por acontecer neste período — não é dinheiro recebido, é o que está marcado.
       </p>
 
-      {/* Lista por dia */}
-      {dias.length === 0 ? (
+      {/* Grelha horária (dia/semana) ou lista por dia (mês) */}
+      {vista !== "mes" ? (
+        <GradeHoraria dias={diasGrelha} />
+      ) : dias.length === 0 ? (
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
           padding: "48px 20px", color: SOFT, textAlign: "center", gap: "10px",
@@ -209,11 +226,24 @@ export default async function AgendaPage({
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {sessoesDia.map(s => (
-                  <div key={s.id} style={{
-                    display: "flex", alignItems: "center", gap: "12px",
-                    backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`,
-                    borderRadius: "8px", padding: "10px 14px",
-                  }}>
+                  // Abre o perfil do cliente no CRM completo numa aba/janela nova
+                  // — não há forma de uma página web "lançar" outra app instalada
+                  // no ecrã principal do iPad; isto é o mais próximo possível
+                  // (o sistema decide se reaproveita uma aba do CRM já aberta ou
+                  // abre Safari numa nova).
+                  <a
+                    key={s.id}
+                    href={`/clientes/${s.clienteId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="row-hover"
+                    style={{
+                      display: "flex", alignItems: "center", gap: "12px",
+                      backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`,
+                      borderRadius: "8px", padding: "10px 14px",
+                      textDecoration: "none", cursor: "pointer",
+                    }}
+                  >
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: CREAM, minWidth: "44px" }}>
                       {s.hora ?? "—"}
                     </span>
@@ -235,7 +265,7 @@ export default async function AgendaPage({
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "12.5px", fontWeight: 600, color: GOLD, flexShrink: 0, minWidth: "48px", textAlign: "right" }}>
                       {formatCurrency(Number(s.preco ?? 0))}
                     </span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
