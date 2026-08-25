@@ -109,7 +109,11 @@ export default async function AgendaPage({
       ...filtroTerapeuta,
     },
     include: { cliente: { select: { nome: true, telefone: true } } },
-    orderBy: { data: "asc" },
+    // "data" é só o dia (meia-noite) — a hora real vive em "hora" (string
+    // "HH:MM"), daí o segundo critério: sem ele, sessões do mesmo dia vindas
+    // de terapeutas diferentes ficam pela ordem de inserção, não por hora
+    // (bug real reportado 2026-08-25 na vista "Todos" da /agenda).
+    orderBy: [{ data: "asc" }, { hora: "asc" }],
   })
 
   // Agrupar por dia
