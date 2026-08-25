@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { DM_Serif_Display, Manrope } from "next/font/google";
 import { MotionConfig } from "motion/react";
@@ -34,6 +34,18 @@ export const metadata: Metadata = {
   title: "Essence Wellness CRM",
   description: "Gestão de clientes e sessões · Essence Wellness",
   robots: { index: false, follow: false },
+};
+
+// Impede o pinch-zoom e o duplo-toque-para-zoom em touch (iPad/telemóvel) —
+// evita desformatar o layout ao usar o CRM sem querer (ex: dois dedos no
+// ecrã ao arrastar uma tabela). Já não depende do zoom automático do Safari
+// em inputs pequenos (ver globals.css, font-size mínimo de 16px) — isto
+// cobre o resto dos gestos de zoom manual.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({
