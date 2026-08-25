@@ -3,6 +3,7 @@
 import { useTransition } from "react"
 import { marcarRepasseFeito } from "./actions"
 import { useToast } from "@/components/ui/toast-nuit"
+import { valorDevido, type RepasseRow } from "@/lib/repasses"
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
@@ -14,23 +15,7 @@ const METODO_LABEL: Record<string, string> = {
   mbway_beatriz: "MBWay Beatriz",
 }
 
-export type RepasseRow = {
-  id: string
-  data: string
-  servico: string | null
-  valorPago: string | null
-  // Quanto desta sessão é da Cristina. Null = o valorPago todo (sessão só
-  // dela); numa massagem a dois é metade, porque a outra metade é da Bea.
-  valorRepasse: string | null
-  metodoPagamento: string | null
-  cliente: { id: string; nome: string }
-}
-
-/** O que a Bea deve mesmo à Cristina por esta sessão. */
-export function valorDevido(r: RepasseRow): number {
-  if (r.valorRepasse !== null) return Number(r.valorRepasse)
-  return r.valorPago ? Number(r.valorPago) : 0
-}
+export type { RepasseRow }
 
 function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
   const [pending, startTransition] = useTransition()
