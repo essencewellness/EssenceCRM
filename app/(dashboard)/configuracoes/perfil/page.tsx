@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { PerfilForm } from "./PerfilForm";
+import { PreferenciaFonteForm } from "./PreferenciaFonteForm";
 
 interface PerfilPageProps {
   searchParams: Promise<{ obrigatorio?: string }>;
@@ -31,6 +32,12 @@ export default async function PerfilPage({ searchParams }: PerfilPageProps) {
         >
           Por segurança, é necessário definir uma nova password antes de continuar.
         </div>
+      )}
+
+      {!ehObrigatorio && (
+        <PreferenciaFonteForm
+          nivelInicial={(session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"}
+        />
       )}
 
       <PerfilForm

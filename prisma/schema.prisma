@@ -20,6 +20,10 @@ model User {
   role                 String    @default("terapeuta")
   precisaMudarPassword Boolean   @default(false)
   ativo                Boolean   @default(true)
+  // "baixo" | "medio" | "alto" — escala visual aplicada a todo o dashboard
+  // (zoom, não só font-size). "baixo" já é maior que o tamanho antigo por
+  // omissão — pedido directo da Bea a usar o CRM no iPad o dia todo.
+  preferenciaFonte     String    @default("baixo")
   accounts             Account[]
   sessions             Session[]
   sessoesRealizadas    Sessao[]  @relation("TerapeutaSessao")

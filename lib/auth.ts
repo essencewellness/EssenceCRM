@@ -77,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: user.role,
           username: user.username ?? identifier,
           precisaMudarPassword: user.precisaMudarPassword,
+          preferenciaFonte: user.preferenciaFonte,
         };
       },
     }),
@@ -88,6 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = (user as { role?: string }).role ?? "terapeuta";
         token.username = (user as { username?: string }).username ?? "";
         token.precisaMudarPassword = (user as { precisaMudarPassword?: boolean }).precisaMudarPassword ?? false;
+        token.preferenciaFonte = (user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo";
         token.ativo = true; // authorize() já filtra ativo:true — sempre verdadeiro num login novo
       } else if (token.id) {
         // Revalida a cada pedido (jwt() corre em todo o auth()/getToken(), não só no
@@ -97,12 +99,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // 1 lookup indexado por id, aceitável face ao risco de acesso pós-revogação.
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { ativo: true, role: true, precisaMudarPassword: true },
+          select: { ativo: true, role: true, precisaMudarPassword: true, preferenciaFonte: true },
         });
         token.ativo = dbUser?.ativo ?? false;
         if (dbUser) {
           token.role = dbUser.role;
           token.precisaMudarPassword = dbUser.precisaMudarPassword;
+          token.preferenciaFonte = dbUser.preferenciaFonte;
         }
       }
       return token;
@@ -114,6 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as { username?: string }).username = token.username as string;
         (session.user as { precisaMudarPassword?: boolean }).precisaMudarPassword = token.precisaMudarPassword as boolean;
         (session.user as { ativo?: boolean }).ativo = token.ativo as boolean;
+        (session.user as { preferenciaFonte?: string }).preferenciaFonte = (token.preferenciaFonte as string) ?? "baixo";
       }
       return session;
     },

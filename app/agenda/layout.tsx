@@ -22,8 +22,14 @@ export default async function AgendaLayout({ children }: { children: React.React
   const session = await auth()
   if (!session?.user) redirect("/login")
 
+  const preferenciaFonte = (session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--nuit-midnight)" }}>
+    <div
+      className="min-h-screen"
+      data-font-scale={preferenciaFonte}
+      style={{ backgroundColor: "var(--nuit-midnight)" }}
+    >
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 20px", borderBottom: "1px solid var(--rule-soft)",

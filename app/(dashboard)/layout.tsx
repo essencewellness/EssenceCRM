@@ -28,9 +28,15 @@ export default async function DashboardLayout({
     where: { estado: "pendente" },
   })
 
+  const preferenciaFonte = (session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"
+
   return (
     <ToastProvider>
-      <div className="min-h-screen flex" style={{ backgroundColor: "var(--nuit-midnight)" }}>
+      <div
+        className="min-h-screen flex"
+        data-font-scale={preferenciaFonte}
+        style={{ backgroundColor: "var(--nuit-midnight)" }}
+      >
         {/* Sidebar — visível em desktop */}
         <Sidebar mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
 

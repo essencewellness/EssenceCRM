@@ -353,6 +353,19 @@ input, select, textarea {
   font-size: max(16px, 1em) !important;
 }
 
+/* ── Escala de leitura (Configurações → Perfil → Tamanho do Texto) ── */
+/* zoom (não transform/font-size isolado) porque escala TUDO de uma vez —
+   texto, ícones, espaçamento, largura da sidebar — sem ter de reescrever
+   cada tamanho fixo em px espalhado pelos componentes. "Baixo" já é maior
+   que o tamanho por omissão de antes desta funcionalidade (pedido directo:
+   "o baixo é o tamanho base que vai ficar com o aumento que vais fazer").
+   Aplicado no wrapper de topo do dashboard e da mini-app /agenda — nunca no
+   ecrã de login. Suportado em Safari 16.4+ (iPadOS 16.4+) e Chromium; onde
+   não houver suporte (Firefox < 126), simplesmente não escala — sem quebra. */
+[data-font-scale="baixo"] { zoom: 1.08; }
+[data-font-scale="medio"] { zoom: 1.18; }
+[data-font-scale="alto"]  { zoom: 1.30; }
+
 /* ── Input focus premium ── */
 /* select: sempre incluído — vários formulários do dashboard tinham
    outline:none em <select> sem nenhum substituto, o que apagava por

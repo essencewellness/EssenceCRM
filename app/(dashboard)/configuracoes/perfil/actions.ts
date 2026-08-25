@@ -53,3 +53,23 @@ export async function alterarPassword(dados: { passwordAtual: string; passwordNo
 
   revalidatePath("/configuracoes/perfil");
 }
+
+const NIVEIS_FONTE = ["baixo", "medio", "alto"] as const;
+
+export async function atualizarPreferenciaFonte(nivel: string) {
+  const userId = await getUserId();
+
+  if (!NIVEIS_FONTE.includes(nivel as (typeof NIVEIS_FONTE)[number])) {
+    throw new Error("Nível de fonte inválido");
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { preferenciaFonte: nivel },
+  });
+
+  // A escala aplica-se a partir da sessão (JWT) — sem isto o dashboard só
+  // refletia a mudança no próximo login, tal como o precisaMudarPassword
+  // (mesma família de bug, ver nota acima em alterarPassword).
+  revalidatePath("/", "layout");
+}

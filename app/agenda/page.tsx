@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, List, LayoutGrid } from "lucide-react"
 import { prisma } from "@/lib/prisma"
-import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { listarTerapeutas } from "@/lib/contexto-utilizador"
+import { FiltroTerapeuta } from "@/components/filtro-terapeuta"
 import { formatCurrency } from "@/lib/utils"
 import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
 import { GradeMensal } from "./GradeMensal"
@@ -76,9 +77,9 @@ const ESTADO_LABEL: Record<string, string> = {
 export default async function AgendaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; modo?: string; data?: string }>
+  searchParams: Promise<{ vista?: string; modo?: string; data?: string; terapeuta?: string }>
 }) {
-  const { vista: vistaParam, modo: modoParam, data: dataParam } = await searchParams
+  const { vista: vistaParam, modo: modoParam, data: dataParam, terapeuta: terapeutaParam } = await searchParams
   const vista: Vista = vistaParam === "dia" || vistaParam === "mes" ? vistaParam : "semana"
   const modo: Modo = modoParam === "lista" ? "lista" : "calendario"
   const dataRef = dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam) ? new Date(dataParam + "T00:00:00") : inicioDoDia(new Date())
@@ -87,10 +88,17 @@ export default async function AgendaPage({
   const anterior = deslocarData(vista, dataRef, -1)
   const seguinte = deslocarData(vista, dataRef, 1)
 
+  // A /agenda é a mini-app partilhada do ecrã principal do iPad — ao contrário
+  // das outras abas, o toggle Beatriz/Cristina fica sempre visível aqui,
+  // independentemente de quem tem sessão iniciada (pedido directo do Nuno,
+  // 2026-08-25): é a rotina de recepção, não a vista privada de uma terapeuta.
+  // Por isso não passa por getFiltrosTerapeuta() (que força alvo=próprio
+  // utilizador para não-admin) — o filtro vem sempre de ?terapeuta=.
+  const terapeutas = await listarTerapeutas()
+  const alvo = terapeutaParam || null
   // Mesma regra do Financeiro: a receita/agenda pertence a quem REALMENTE
   // faz a sessão (Sessao.terapeutaId/terapeuta2Id), não à terapeuta
   // "habitual" do cliente (cliente.terapeutaPrincipalId) — ver A9-Financeiro.
-  const { alvo } = await getFiltrosTerapeuta()
   const filtroTerapeuta: Prisma.SessaoWhereInput = alvo ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }] } : {}
 
   const sessoes = await prisma.sessao.findMany({
@@ -123,7 +131,8 @@ export default async function AgendaPage({
     .filter(s => s.estado === "realizada")
     .reduce((soma, s) => soma + Number(s.preco ?? 0), 0)
 
-  const linkBase = (v: Vista, d: Date, m: Modo = modo) => `/agenda?vista=${v}&modo=${m}&data=${fmtDataParam(d)}`
+  const linkBase = (v: Vista, d: Date, m: Modo = modo) =>
+    `/agenda?vista=${v}&modo=${m}&data=${fmtDataParam(d)}${alvo ? `&terapeuta=${alvo}` : ""}`
 
   const sessaoParaGrade = (s: (typeof sessoes)[number]): SessaoGrade => ({
     id: s.id, clienteId: s.clienteId, clienteNome: s.cliente.nome,
@@ -159,6 +168,10 @@ export default async function AgendaPage({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+      {/* Beatriz / Cristina — sempre visível, ver nota acima sobre a
+          /agenda ser a rotina partilhada de recepção */}
+      <FiltroTerapeuta terapeutas={terapeutas.map((t) => ({ id: t.id, name: t.name }))} />
 
       {/* Seletores: vista (dia/semana/mês) + modo (lista/calendário) */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
