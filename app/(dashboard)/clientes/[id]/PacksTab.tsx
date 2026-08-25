@@ -206,19 +206,19 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
           <div>
             <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Valor (€)</label>
             <input ref={primeiroCampoRef} type="number" step="0.01" min="0.01" value={valor} onChange={e => setValor(e.target.value)}
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "14px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
           </div>
           <div>
             <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Método</label>
             <select value={metodo} onChange={e => setMetodo(e.target.value)}
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }}>
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }}>
               {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
           <div>
             <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Nota (opcional)</label>
             <input type="text" value={notas} onChange={e => setNotas(e.target.value)} placeholder="ex: 1ª parcela"
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
           </div>
 
           {erro && <p style={{ color: "var(--destructive)", fontSize: "12px" }}>{erro}</p>}
@@ -366,7 +366,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
             <label style={labelStyle}>Terapeuta</label>
             <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={{
               width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-              borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px",
+              borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px",
               fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
             }}>
               <option value="">Escolhe a terapeuta</option>
@@ -398,7 +398,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
               <label style={labelStyle}>Método de pagamento{pagamento === "2x" ? " (1ª parcela)" : ""}</label>
               <select value={metodo} onChange={e => setMetodo(e.target.value)} style={{
                 width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "13px",
+                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px",
                 fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
               }}>
                 {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -641,26 +641,28 @@ export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, precos, 
             Sem preços personalizados — usa os preços base dos serviços.
           </p>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
-                {["Serviço", "Preço Base", "Preço Personalizado", "Motivo", "Validade"].map(h => (
-                  <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {precos.map((p, i) => (
-                <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)", animation: "fadeUp var(--dur-fast) var(--ease-out) both", animationDelay: `${Math.min(i, 10) * 26}ms` }}>
-                  <td style={{ padding: "9px 10px", fontSize: "13px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
-                  <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{p.servico.precoBase.toFixed(2)}</td>
-                  <td style={{ padding: "9px 10px", fontSize: "13px", fontWeight: 600, color: GOLD }}>€{p.valor.toFixed(2)}</td>
-                  <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
-                  <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "560px" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
+                  {["Serviço", "Preço Base", "Preço Personalizado", "Motivo", "Validade"].map(h => (
+                    <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {precos.map((p, i) => (
+                  <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)", animation: "fadeUp var(--dur-fast) var(--ease-out) both", animationDelay: `${Math.min(i, 10) * 26}ms` }}>
+                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
+                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{p.servico.precoBase.toFixed(2)}</td>
+                    <td style={{ padding: "9px 10px", fontSize: "12px", fontWeight: 600, color: GOLD }}>€{p.valor.toFixed(2)}</td>
+                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
+                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

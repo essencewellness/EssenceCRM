@@ -50,7 +50,7 @@ const rotuloStyle: React.CSSProperties = {
 }
 
 const inputBaseStyle: React.CSSProperties = {
-  fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
+  fontFamily: "var(--font-body, sans-serif)", fontSize: "16px",
   color: "var(--nuit-bone)", backgroundColor: "var(--nuit-deep, #0E1119)",
   border: "1px solid var(--nuit-champagne-soft)", borderRadius: "5px",
   padding: "5px 8px", outline: "none", width: "100%",

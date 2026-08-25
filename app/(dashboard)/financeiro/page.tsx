@@ -337,7 +337,7 @@ export default async function FinanceiroPage({
   const pendentes = sessoes.filter(s => s.estadoPagamento === "pendente" && s.estado === "realizada")
 
   return (
-    <div style={{ padding: "32px", maxWidth: "1060px", margin: "0 auto" }} className="space-y-8">
+    <div style={{ maxWidth: "1060px", margin: "0 auto" }} className="space-y-8">
 
       {/* Cabeçalho + navegador de mês */}
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>

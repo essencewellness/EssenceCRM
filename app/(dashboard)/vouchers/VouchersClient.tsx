@@ -138,7 +138,7 @@ const inputStyle: React.CSSProperties = {
   width: "100%", padding: "11px 13px",
   borderRadius: "8px", border: "1px solid rgba(212,184,134,0.22)",
   backgroundColor: "var(--nuit-deep)", color: "var(--nuit-bone)",
-  fontFamily: "var(--font-body, sans-serif)", fontSize: "14.5px",
+  fontFamily: "var(--font-body, sans-serif)", fontSize: "16px",
   outline: "none", transition: "border-color var(--dur-fast) var(--ease-out)",
 }
 

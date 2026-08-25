@@ -315,7 +315,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                     value={nomeCampanha}
                     onChange={e => setNomeCampanha(e.target.value)}
                     placeholder="Ex.: Campanha Junho — Massagem de Casal"
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
 
@@ -326,7 +326,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   <select
                     value={templateId}
                     onChange={e => setTemplateId(e.target.value)}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", outline: "none", backgroundColor: "var(--nuit-midnight)" }}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", outline: "none", backgroundColor: "var(--nuit-midnight)" }}
                   >
                     <option value="">Seleccionar template…</option>
                     {templates.map(t => (

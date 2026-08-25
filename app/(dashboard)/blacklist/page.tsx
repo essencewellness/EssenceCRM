@@ -101,7 +101,7 @@ export default async function BlacklistPage() {
         backgroundColor: "var(--nuit-overlay)",
         border: "1px solid rgba(212,184,134,0.16)",
         borderRadius: "8px",
-        overflow: "hidden",
+        overflowX: "auto",
       }}>
         {bloqueados.length === 0 ? (
           <div style={{
@@ -117,7 +117,7 @@ export default async function BlacklistPage() {
             </p>
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "640px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.14)" }}>
                 {[

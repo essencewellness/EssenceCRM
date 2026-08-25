@@ -43,10 +43,10 @@ export default async function ConfigServicosPage() {
           backgroundColor: "#faf8f6",
           border: "1px solid #e0d8cc",
           borderRadius: "4px",
-          overflow: "hidden",
+          overflowX: "auto",
           marginBottom: "24px",
         }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #e8e2d9" }}>
                 {["Serviço", "Duração", "Preço", "Estado", ""].map(h => (

@@ -26,7 +26,7 @@ export default async function TemplatesPage() {
   )
 
   return (
-    <div style={{ padding: "32px", maxWidth: "960px", margin: "0 auto" }} className="space-y-8">
+    <div style={{ maxWidth: "960px", margin: "0 auto" }} className="space-y-8">
       {/* Cabeçalho */}
       <div>
         <h1 style={{

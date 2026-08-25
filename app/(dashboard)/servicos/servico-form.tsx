@@ -30,7 +30,7 @@ export default function ServicoForm() {
     border: "1px solid rgba(212,184,134,0.22)",
     backgroundColor: "var(--nuit-midnight)",
     color: "var(--nuit-bone)",
-    fontSize: "14px", width: "100%", boxSizing: "border-box",
+    fontSize: "16px", width: "100%", boxSizing: "border-box",
     outline: "none",
   }
 

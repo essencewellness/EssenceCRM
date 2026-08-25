@@ -623,8 +623,8 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       disabled={isPending}
                       aria-label="Estado da sessão"
                       style={{
-                        fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
-                        fontWeight: 600, letterSpacing: "0.08em",
+                        fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)",
+                        fontWeight: 600, letterSpacing: "0.02em",
                         padding: "3px 8px", borderRadius: "6px",
                         backgroundColor: "rgba(212,184,134,0.08)",
                         border: "1px solid rgba(212,184,134,0.22)",

@@ -340,6 +340,19 @@
   letter-spacing: 0.02em;
 }
 
+/* ── Piso de tamanho de letra em campos de formulário ── */
+/* Safari em iOS/iPadOS faz zoom automático ao focar um campo com
+   font-size < 16px — muito perturbador num iPad usado o dia todo para
+   editar clientes/sessões. Casos com fontSize pequeno em `style={{}}`
+   (que bate sempre a especificidade de um seletor de elemento) foram
+   corrigidos diretamente nos componentes. Mas várias inputs usam
+   classes Tailwind (`text-sm`, `text-xs`) que, sendo seletores de
+   classe, ganham a um simples `input {}` por especificidade — daí o
+   !important aqui: é mesmo suposto isto nunca perder, em nenhum caso. */
+input, select, textarea {
+  font-size: max(16px, 1em) !important;
+}
+
 /* ── Input focus premium ── */
 /* select: sempre incluído — vários formulários do dashboard tinham
    outline:none em <select> sem nenhum substituto, o que apagava por
