@@ -237,6 +237,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
           </div>
         ) : (
           <ClientesInfiniteList
+            key={`${q ?? ""}|${estadosFiltro.join(",")}|${etiquetasFiltro.join(",")}|${inativo ?? ""}|${terapeuta ?? ""}`}
             initialClientes={clientesRows}
             initialCursor={initialCursor}
             todasEtiquetas={etiquetasSerializadas}
