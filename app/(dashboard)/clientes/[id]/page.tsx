@@ -87,7 +87,6 @@ export default async function ClientePage({ params }: ClientePageProps) {
         sessoes: { orderBy: { data: "desc" } },
         mensagens: { orderBy: { geradaEm: "desc" } },
         observacoes: { orderBy: { criadoEm: "desc" } },
-        precos: { include: { servico: { select: { nome: true, precoBase: true } } }, orderBy: { criadoEm: "desc" } },
         packs: {
           include: {
             servico: { select: { nome: true } },
@@ -735,7 +734,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
           },
           {
             value: "packs",
-            label: "Packs & Preços",
+            label: "Packs",
             content: (
               <PacksTab
                 clienteId={cliente.id}
@@ -759,13 +758,6 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     notas: pg.notas,
                     criadoEm: pg.criadoEm.toISOString(),
                   })),
-                }))}
-                precos={cliente.precos.map(p => ({
-                  id: p.id,
-                  motivo: p.motivo,
-                  validade: p.validade ? p.validade.toISOString() : null,
-                  valor: Number(p.valor),
-                  servico: { nome: p.servico.nome, precoBase: Number(p.servico.precoBase) },
                 }))}
                 servicos={servicosCatalogo}
                 terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name ?? t.username ?? "—" }))}

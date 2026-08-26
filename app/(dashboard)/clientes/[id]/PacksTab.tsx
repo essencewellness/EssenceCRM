@@ -63,14 +63,6 @@ export interface PackDoCliente {
   terapeuta: { name: string | null } | null
   pagamentos: PagamentoPack[]
 }
-export interface PrecoPersonalizado {
-  id: string
-  motivo: string | null
-  validade: string | null
-  valor: number
-  servico: { nome: string; precoBase: number }
-}
-
 // Catálogo fixo — preços tirados diretamente de
 // site/packs-massagens/index.html e site/packs-drenagem/index.html (o
 // último tem toggle 60/90 min em JS, ver data-per60/data-per90/data-total60/
@@ -586,12 +578,11 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
 }
 
 // ── Aba completa ─────────────────────────────────────────────────────
-export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, precos, servicos, terapeutas }: {
+export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos, terapeutas }: {
   clienteId: string
   clienteNome: string
   clienteEmail: string | null
   packs: PackDoCliente[]
-  precos: PrecoPersonalizado[]
   servicos: ServicoOpcao[]
   terapeutas: TerapeutaOpcao[]
 }) {
@@ -625,43 +616,6 @@ export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, precos, 
             {packs.map((p, i) => (
               <PackCard key={p.id} pack={p} clienteId={clienteId} clienteNome={clienteNome} clienteEmail={clienteEmail} index={i} />
             ))}
-          </div>
-        )}
-      </div>
-
-      <div style={{ backgroundColor: CARD_BG, borderRadius: "10px", border: "1px solid rgba(212,184,134,0.16)", padding: "24px", boxShadow: "0 1px 3px rgba(22,26,38,0.04)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-          <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-          <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>
-            Preços Personalizados
-          </h2>
-        </div>
-        {precos.length === 0 ? (
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-            Sem preços personalizados — usa os preços base dos serviços.
-          </p>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "560px" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
-                  {["Serviço", "Preço Base", "Preço Personalizado", "Motivo", "Validade"].map(h => (
-                    <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {precos.map((p, i) => (
-                  <tr key={p.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.1)", animation: "fadeUp var(--dur-fast) var(--ease-out) both", animationDelay: `${Math.min(i, 10) * 26}ms` }}>
-                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone)" }}><NomeServico nome={p.servico.nome} /></td>
-                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>€{p.servico.precoBase.toFixed(2)}</td>
-                    <td style={{ padding: "9px 10px", fontSize: "12px", fontWeight: 600, color: GOLD }}>€{p.valor.toFixed(2)}</td>
-                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.motivo ?? "—"}</td>
-                    <td style={{ padding: "9px 10px", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>{p.validade ? formatDate(p.validade) : "Sem limite"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         )}
       </div>
