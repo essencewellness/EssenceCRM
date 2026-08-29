@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  const [terapeutas, servicoCatalogo, sessoesAnteriores, notas] = await Promise.all([
+  const [terapeutas, servicoCatalogo, sessoesAnteriores, notas, historico] = await Promise.all([
     prisma.user.findMany({
       where: { ativo: true, role: "terapeuta" },
       select: { id: true, name: true },
@@ -73,6 +73,15 @@ export async function GET(request: NextRequest) {
       where: { clienteId: sessao.clienteId },
       select: { texto: true, autor: true, criadoEm: true },
       orderBy: { criadoEm: "desc" },
+      take: 5,
+    }),
+    // Últimas sessões da cliente — quem atribui vê logo o "caminho" dela
+    // (que serviços costuma pedir, com quem costuma ficar) antes de decidir
+    // a terapeuta desta marcação, em vez de decidir às cegas.
+    prisma.sessao.findMany({
+      where: { clienteId: sessao.clienteId, apagadoEm: null, id: { not: sessao.id }, estado: { not: "cancelada" } },
+      select: { data: true, servico: true, terapeuta: true, estado: true },
+      orderBy: { data: "desc" },
       take: 5,
     }),
   ])
@@ -92,6 +101,7 @@ export async function GET(request: NextRequest) {
     precoBase: servicoCatalogo?.precoBase ?? sessao.preco ?? null,
     terapeutas,
     notas,
+    historico,
   })
 }
 

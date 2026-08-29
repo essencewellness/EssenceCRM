@@ -53,6 +53,14 @@
     .nota-item { font-size: 13px; line-height: 1.5; padding: 8px 0; border-top: 1px solid var(--border); }
     .nota-item:first-child { border-top: none; padding-top: 0; }
     .nota-autor { color: var(--smoke); font-size: 11px; margin-top: 3px; }
+    .historico-item {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      font-size: 13px; padding: 7px 0; border-top: 1px solid var(--border);
+    }
+    .historico-item:first-child { border-top: none; padding-top: 0; }
+    .historico-data { color: var(--smoke); font-size: 11px; white-space: nowrap; }
+    .historico-meio { color: var(--bone); flex: 1; text-align: left; padding: 0 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .historico-terapeuta { color: var(--champagne-soft); font-size: 11.5px; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -78,6 +86,11 @@
     <form id="form-atribuir" style="display:none;">
       <div id="visita-badge"></div>
       <div class="booking-card" id="booking-card"></div>
+      <div class="notas-box" id="historico-box" style="display:none;">
+        <div class="notas-titulo">Histórico recente</div>
+        <div id="historico-lista"></div>
+      </div>
+
       <div class="notas-box" id="notas-box" style="display:none;">
         <div class="notas-titulo">Notas sobre esta cliente</div>
         <div id="notas-lista"></div>
@@ -225,6 +238,30 @@
         row.append(l, v);
         bookingCard.appendChild(row);
       });
+
+      const historicoBox = document.getElementById("historico-box");
+      const historicoLista = document.getElementById("historico-lista");
+      historicoLista.replaceChildren();
+      if (data.historico && data.historico.length) {
+        data.historico.forEach((s) => {
+          const item = document.createElement("div");
+          item.className = "historico-item";
+          const dataEl = document.createElement("span");
+          dataEl.className = "historico-data";
+          dataEl.textContent = s.data ? formatarData(s.data) : "—";
+          const meioEl = document.createElement("span");
+          meioEl.className = "historico-meio";
+          meioEl.textContent = s.servico || "—";
+          const terapeutaEl = document.createElement("span");
+          terapeutaEl.className = "historico-terapeuta";
+          terapeutaEl.textContent = s.terapeuta || "Por atribuir";
+          item.append(dataEl, meioEl, terapeutaEl);
+          historicoLista.appendChild(item);
+        });
+        historicoBox.style.display = "block";
+      } else {
+        historicoBox.style.display = "none";
+      }
 
       const notasBox = document.getElementById("notas-box");
       const notasLista = document.getElementById("notas-lista");
