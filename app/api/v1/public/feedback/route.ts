@@ -8,6 +8,7 @@ import { feedbackPublicSchema, feedbackQuerySchema, validarBody, validarQuery, m
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { validarLinkToken } from "@/lib/link-token"
 import { auditar } from "@/lib/audit"
+import { Prisma } from "@/lib/prisma-client"
 
 // Uso único: só faz sentido pré-checar quando há sessaoId — sem ele (feedback
 // solto, não ligado a uma sessão específica) não há um registo único para
@@ -111,28 +112,46 @@ export async function POST(request: NextRequest) {
     // isso, em vez do limiar antigo (rating >= 4, que incluía passivas).
     const encaminhadoGoogle = npsScore >= 9
 
-    const feedback = await prisma.feedback.create({
-      data: {
-        clienteId,
-        sessaoId: sessaoId ?? null,
-        rating,
-        npsScore,
-        pontosPositivos: pontosPositivos ?? null,
-        pontosMelhorar: pontosMelhorar ?? null,
-        comentario: comentario ?? null,
-        encaminhadoGoogle,
-        // Só perguntado no ecrã de rating positivo (feedback.html) — em
-        // feedback negativo estes campos vêm sempre null, de propósito.
-        quandoVoltar: quandoVoltar ?? null,
-        interesseServico: interesseServico ?? null,
-        momentoPico: momentoPico ?? null,
-        motivoRegresso: motivoRegresso ?? null,
-        faltaParaDez: faltaParaDez ?? null,
-        pedidoContactoMarcacao: pedidoContactoMarcacao ?? false,
-        diaPreferido: diaPreferido ?? null,
-        horaPreferida: horaPreferida ?? null,
-      },
-    })
+    let feedback
+    try {
+      feedback = await prisma.feedback.create({
+        data: {
+          clienteId,
+          sessaoId: sessaoId ?? null,
+          rating,
+          npsScore,
+          pontosPositivos: pontosPositivos ?? null,
+          pontosMelhorar: pontosMelhorar ?? null,
+          comentario: comentario ?? null,
+          encaminhadoGoogle,
+          // Só perguntado no ecrã de rating positivo (feedback.html) — em
+          // feedback negativo estes campos vêm sempre null, de propósito.
+          quandoVoltar: quandoVoltar ?? null,
+          interesseServico: interesseServico ?? null,
+          momentoPico: momentoPico ?? null,
+          motivoRegresso: motivoRegresso ?? null,
+          faltaParaDez: faltaParaDez ?? null,
+          pedidoContactoMarcacao: pedidoContactoMarcacao ?? false,
+          diaPreferido: diaPreferido ?? null,
+          horaPreferida: horaPreferida ?? null,
+        },
+      })
+    } catch (erroCriacao) {
+      // Corrida rara: o findFirst de deduplicação lá em cima só evita a
+      // maioria dos casos — duas submissões quase simultâneas do mesmo link
+      // (duplo toque, ou reenvio automático de rede) passam as duas por ele
+      // antes de qualquer uma gravar. A constraint única (sessaoId+clienteId)
+      // apanha a segunda aqui — sem isto, a Bea recebia notificação de
+      // feedback duplicada em vez do "já enviaste" silencioso que este
+      // endpoint dá em todos os outros casos de reenvio.
+      if (erroCriacao instanceof Prisma.PrismaClientKnownRequestError && erroCriacao.code === "P2002" && sessaoId) {
+        const existente = await prisma.feedback.findFirst({ where: { sessaoId, clienteId } })
+        if (existente) {
+          return NextResponse.json({ ok: true, feedbackId: existente.id, encaminharGoogle: existente.encaminhadoGoogle })
+        }
+      }
+      throw erroCriacao
+    }
 
     // Um único webhook por submissão — o N8N decide o que fazer com o texto
     // da mensagem (simples / alerta de detratora / pedido de contacto)

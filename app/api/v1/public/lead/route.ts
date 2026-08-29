@@ -8,6 +8,7 @@ import { leadPublicSchema, validarBody } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { Prisma } from "@/lib/prisma-client"
 
 export async function POST(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -32,19 +33,34 @@ export async function POST(request: NextRequest) {
 
     if (!cliente) {
       const aceita = consentimento_marketing ?? true
-      cliente = await prisma.cliente.create({
-        data: {
-          nome,
-          email,
-          telefone: telefone ?? null,
-          fonte: "formulario",
-          comoNosConheceu: como_nos_conheceu ?? null,
-          estado: "lead",
-          aceitaMarketing: aceita,
-          ...(aceita ? { consentimentoMarketingEm: new Date() } : {}),
-          terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
-        },
-      })
+      try {
+        cliente = await prisma.cliente.create({
+          data: {
+            nome,
+            email,
+            telefone: telefone ?? null,
+            fonte: "formulario",
+            comoNosConheceu: como_nos_conheceu ?? null,
+            estado: "lead",
+            aceitaMarketing: aceita,
+            ...(aceita ? { consentimentoMarketingEm: new Date() } : {}),
+            terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
+          },
+        })
+      } catch (erroCriacao) {
+        // Mesma corrida rara do onboarding (ver esse ficheiro): duas
+        // submissões do mesmo lead novo passam as duas pelo "!cliente"
+        // antes de qualquer uma gravar — email é @unique, a segunda
+        // create() rebenta aqui. Reaproveita a cliente que a outra
+        // submissão acabou de criar em vez de devolver 500.
+        if (erroCriacao instanceof Prisma.PrismaClientKnownRequestError && erroCriacao.code === "P2002") {
+          const existente = await prisma.cliente.findFirst({ where: { email, apagadoEm: null } })
+          if (existente) {
+            return NextResponse.json({ ok: true })
+          }
+        }
+        throw erroCriacao
+      }
 
       auditar({
         quem: "publico",

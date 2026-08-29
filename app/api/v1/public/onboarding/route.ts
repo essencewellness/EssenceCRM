@@ -13,6 +13,7 @@ import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { Prisma } from "@/lib/prisma-client"
 
 // Versão do texto de consentimento mostrado no formulário (essence-forms.js,
 // injetarAvisoRGPD). Incrementar sempre que o texto mudar — fica no audit log
@@ -116,21 +117,39 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-      cliente = await prisma.cliente.create({
-        data: {
-          nome,
-          email,
-          telefone: telefone ?? null,
-          dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
-          fonte: "formulario",
-          comoNosConheceu: comoNosConheceu ?? null,
-          estado: "novo",
-          aceitaMarketing: aceitaMarketing ?? true,
-          ...(aceitaMarketing === false ? {} : { consentimentoMarketingEm: new Date() }),
-          terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
-        },
-      })
-      created = true
+      try {
+        cliente = await prisma.cliente.create({
+          data: {
+            nome,
+            email,
+            telefone: telefone ?? null,
+            dataNascimento: dataNascimento ? new Date(dataNascimento) : null,
+            fonte: "formulario",
+            comoNosConheceu: comoNosConheceu ?? null,
+            estado: "novo",
+            aceitaMarketing: aceitaMarketing ?? true,
+            ...(aceitaMarketing === false ? {} : { consentimentoMarketingEm: new Date() }),
+            terapeutaPrincipalId: await getTerapeutaPrincipalPadraoId(),
+          },
+        })
+        created = true
+      } catch (erroCriacao) {
+        // Corrida rara: duas submissões da mesma cliente nova (duplo toque,
+        // ou o mesmo link aberto em duas abas) passam as duas pelo "!cliente"
+        // acima antes de qualquer uma gravar — email/telefone são @unique,
+        // por isso a segunda create() rebenta aqui. Sem apanhar isto
+        // especificamente, a pessoa via um erro 500 em vez do "ok" silencioso
+        // que todo o resto deste endpoint dá de propósito (anti-enumeração).
+        // A saída certa é a mesma dos outros casos de corrida no ficheiro:
+        // ir buscar a cliente que a outra submissão acabou de criar e seguir
+        // o fluxo normal com ela, em vez de falhar.
+        if (erroCriacao instanceof Prisma.PrismaClientKnownRequestError && erroCriacao.code === "P2002") {
+          cliente = email ? await prisma.cliente.findFirst({ where: { email, apagadoEm: null } }) : null
+          if (!cliente) throw erroCriacao
+        } else {
+          throw erroCriacao
+        }
+      }
     }
 
     // Atualizar dados de identidade + consentimento de dados de saúde (RGPD Art. 9)

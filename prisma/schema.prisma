@@ -770,6 +770,13 @@ model Feedback {
 
   @@index([clienteId])
   @@index([sessaoId])
+  // Um feedback por sessão — a proteção antiga era só um findFirst antes de
+  // gravar (janela de corrida real: duas submissões quase simultâneas do
+  // mesmo link de feedback passavam as duas o check antes de qualquer uma
+  // escrever). Postgres nunca considera NULL igual a NULL numa constraint
+  // única, por isso feedbacks sem sessaoId (sessaoId: null) continuam
+  // ilimitados — só duplica quando é mesmo a mesma sessão+cliente.
+  @@unique([sessaoId, clienteId], name: "feedback_sessao_cliente_unico")
 }
 
 // ── Tarefas / Follow-ups ──────────────────────────────────────
