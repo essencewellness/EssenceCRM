@@ -52,6 +52,16 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const { alvo, filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
   const filtroSessao = filtroSessaoBase as Prisma.SessaoWhereInput
   const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput
+  // "Receita do Mês" tem de bater sempre com /financeiro — esse usa quem
+  // REALMENTE fez a sessão (Sessao.terapeutaId/terapeuta2Id), não a
+  // terapeuta "habitual" do cliente (filtroSessao acima, cliente.
+  // terapeutaPrincipalId — serve bem para "Sessões Hoje"/"Sessões da
+  // Semana", mas nunca para dinheiro). Bug real encontrado 2026-08-26: os
+  // dois ecrãs mostravam totais por terapeuta diferentes (a soma batia,
+  // a repartição não) — mesma família do bug corrigido no /financeiro.
+  const filtroReceitaSessao: Prisma.SessaoWhereInput = alvo
+    ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }] }
+    : {}
   const idBea = await getTerapeutaPrincipalPadraoId()
 
   const { hoje, amanha, semanaFim } = buildDateRange()
@@ -140,9 +150,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     // o que nunca incluía vendas de voucher (a sessão paga por voucher fica
     // "isento", não "pago" — nunca entrava aqui) — bug real encontrado
     // 2026-08-21: Bea via o dashboard "sem os valores dos vouchers".
-    prisma.sessao.aggregate({
-      where: { data: { gte: inicioMes }, estadoPagamento: "pago", ...filtroSessao },
-      _sum: { valorPago: true },
+    // filtroReceitaSessao (não filtroSessao) + findMany em vez de aggregate:
+    // precisa de terapeuta2Id linha a linha para dividir sessões "a dois"
+    // pagas directamente — ver comentário grande acima e o mesmo fix em
+    // app/(dashboard)/financeiro/page.tsx.
+    prisma.sessao.findMany({
+      where: { data: { gte: inicioMes }, estadoPagamento: "pago", ...filtroReceitaSessao },
+      select: { valorPago: true, terapeuta2Id: true },
     }),
     prisma.giftCard.findMany({
       where: {
@@ -185,7 +199,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     0
   )
   const receitaPacksMes = pagamentosPackMes.reduce((soma, pg) => soma + Number(pg.valor), 0)
-  const receitaMesTotal = Number(receitaMesSessoes._sum.valorPago ?? 0) + receitaVouchersMes + receitaPacksMes
+  // Mesma regra "a dois" das vendas de voucher acima, aplicada às sessões
+  // pagas directamente — sem isto entrava o valor cheio duas vezes (uma em
+  // cada terapeuta filtrada) para uma sessão feita pelas duas ao mesmo tempo.
+  const receitaSessoesMes = receitaMesSessoes.reduce(
+    (soma, s) => soma + (s.valorPago === null ? 0 : (alvo && s.terapeuta2Id ? Number(s.valorPago) / 2 : Number(s.valorPago))),
+    0
+  )
+  const receitaMesTotal = receitaSessoesMes + receitaVouchersMes + receitaPacksMes
   const saudacao = getSaudacao()
 
   const sessoesHojeRows = sessõesHoje.map(s => ({
