@@ -32,7 +32,12 @@ export async function construirEventosTimeline(
   const [sessoes, mensagens, tarefas, auditLogs] = await Promise.all([
     prisma.sessao.findMany({
       where: { clienteId, apagadoEm: null },
-      select: { id: true, data: true, hora: true, estado: true, servico: true, terapeuta: true, criadoEm: true },
+      select: {
+        id: true, data: true, hora: true, estado: true, servico: true, criadoEm: true,
+        // Nome oficial via terapeutaId, não o texto livre "terapeuta"
+        // (valores antigos inconsistentes: "beatriz" vs "Beatriz Leão").
+        user: { select: { name: true } },
+      },
       orderBy: { data: "desc" },
       take: limite,
     }),
@@ -69,7 +74,7 @@ export async function construirEventosTimeline(
       descricao: s.estado === "realizada"
         ? `Sessão realizada: ${s.servico ?? "Massagem"}`
         : `Sessão agendada: ${s.servico ?? "Massagem"}`,
-      detalhe: { hora: s.hora, terapeuta: s.terapeuta, estado: s.estado },
+      detalhe: { hora: s.hora, terapeuta: s.user?.name ?? "-", estado: s.estado },
       criadoEm: (s.data ?? s.criadoEm).toISOString(),
     })
   }

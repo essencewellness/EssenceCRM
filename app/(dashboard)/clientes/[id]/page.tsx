@@ -84,7 +84,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
       where: { id },
       include: {
         etiquetas: { include: { etiqueta: true } },
-        sessoes: { orderBy: { data: "desc" } },
+        sessoes: { orderBy: { data: "desc" }, include: { user: { select: { name: true } } } },
         mensagens: { orderBy: { geradaEm: "desc" } },
         observacoes: { orderBy: { criadoEm: "desc" } },
         packs: {
@@ -575,7 +575,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
             content: (
               <SessoesTab
                 clienteId={cliente.id}
-                sessoes={cliente.sessoes.map((s) => ({ ...s, preco: s.preco === null ? null : Number(s.preco) }))}
+                sessoes={cliente.sessoes.map((s) => ({
+                  ...s,
+                  preco: s.preco === null ? null : Number(s.preco),
+                  // Nome oficial via terapeutaId, nunca o texto livre
+                  // "terapeuta" (valores antigos inconsistentes).
+                  terapeuta: s.user?.name ?? null,
+                }))}
                 terapeutas={terapeutas.map((t) => ({ id: t.id, nome: t.name ?? t.username ?? "—" }))}
               />
             ),

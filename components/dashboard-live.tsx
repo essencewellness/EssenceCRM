@@ -299,7 +299,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           backgroundColor: "rgba(160,169,150,0.08)",
           border: "1px solid rgba(160,169,150,0.20)", color: "var(--nuit-sage)",
         }}>
-          {sessao.terapeuta ?? "Por atribuir"}
+          {sessao.terapeuta}
         </span>
 
         <BadgeEstado estado={sessao.estado} />
@@ -641,7 +641,7 @@ export function ProximosDiasCard({
                           fontFamily: "var(--font-sans, sans-serif)",
                           fontSize: "11px", color: "var(--nuit-bone-soft)",
                         }}>
-                          {s.terapeuta ?? "Por atribuir"}
+                          {s.terapeuta}
                         </span>
                         <BadgeEstado estado={s.estado} />
                       </motion.div>

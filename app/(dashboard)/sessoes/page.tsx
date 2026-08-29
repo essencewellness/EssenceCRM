@@ -51,6 +51,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       where: whereBase,
       include: {
         cliente: { select: { id: true, nome: true, telefone: true } },
+        user: { select: { name: true } },
       },
       orderBy: { data: "desc" },
       take: 100,
@@ -274,7 +275,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
                       color: "var(--nuit-bone-soft)", textTransform: "capitalize",
                     }}>
-                      {sessao.terapeuta ?? "—"}
+                      {sessao.user?.name ?? "-"}
                     </span>
 
                     <span style={{

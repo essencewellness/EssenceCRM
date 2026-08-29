@@ -21,7 +21,7 @@ export async function GET(
         hora: true,
         duracao: true,
         servico: true,
-        terapeuta: true,
+        user: { select: { name: true } },
         aromaSessao: true,
         resumoSessao: true,
         notasPosSessao: true,
@@ -46,7 +46,10 @@ export async function GET(
       )
     }
 
-    const pdfBytes = await gerarPdfSessao(sessao, sessao.cliente)
+    const pdfBytes = await gerarPdfSessao(
+      { ...sessao, nomeTerapeuta: sessao.user?.name ?? null },
+      sessao.cliente
+    )
 
     return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,

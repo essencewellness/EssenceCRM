@@ -81,12 +81,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ] = await Promise.all([
     prisma.sessao.findMany({
       where: { data: { gte: hoje, lt: amanha }, ...filtroSessao },
-      include: { cliente: true },
+      include: { cliente: true, user: { select: { name: true } } },
       orderBy: { hora: "asc" },
     }),
     prisma.sessao.findMany({
       where: { data: { gte: amanha, lt: semanaFim }, ...filtroSessao },
-      include: { cliente: true },
+      include: { cliente: true, user: { select: { name: true } } },
       orderBy: [{ data: "asc" }, { hora: "asc" }],
     }),
     prisma.mensagemIA.findMany({
@@ -212,7 +212,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const sessoesHojeRows = sessõesHoje.map(s => ({
     id: s.id, hora: s.hora, clienteId: s.clienteId,
     clienteNome: s.cliente.nome, clienteIniciais: getIniciais(s.cliente.nome),
-    servico: s.servico, terapeuta: s.terapeuta, estado: s.estado,
+    // Nome oficial via terapeutaId (user.name), nunca o texto livre
+    // "terapeuta" — esse tem valores antigos inconsistentes ("beatriz"
+    // minúsculas vs "Beatriz Leão"). "-" enquanto não há ninguém atribuída.
+    servico: s.servico, terapeuta: s.user?.name ?? "-", estado: s.estado,
   }))
 
   const mensagensRows = mensagensParaEnviar.map(m => ({
@@ -246,7 +249,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         sessoes: sessoesDia.map(s => ({
           id: s.id, hora: s.hora, clienteId: s.clienteId,
           clienteNome: s.cliente.nome, clienteIniciais: getIniciais(s.cliente.nome),
-          servico: s.servico, terapeuta: s.terapeuta, estado: s.estado,
+          servico: s.servico, terapeuta: s.user?.name ?? "-", estado: s.estado,
         })),
       }
     })

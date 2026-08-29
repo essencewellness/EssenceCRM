@@ -3,10 +3,15 @@ import type { Sessao, Cliente } from "@/lib/prisma-client"
 
 type DadosSessao = Pick<
   Sessao,
-  | "data" | "hora" | "duracao" | "servico" | "terapeuta"
+  | "data" | "hora" | "duracao" | "servico"
   | "aromaSessao" | "resumoSessao" | "notasPosSessao"
   | "estadoEmocional" | "dataRecomendadaRegresso"
->
+> & {
+  // Nome oficial via terapeutaId (User.name), resolvido pelo chamador —
+  // nunca o texto livre Sessao.terapeuta, que tem valores antigos
+  // inconsistentes ("beatriz" minúsculas vs "Beatriz Leão").
+  nomeTerapeuta: string | null
+}
 
 type DadosCliente = Pick<Cliente, "nome" | "dataNascimento">
 
@@ -67,7 +72,7 @@ export async function gerarPdfSessao(
     ["Hora", sessao.hora ?? "—"],
     ["Duração", sessao.duracao ? `${sessao.duracao} minutos` : "—"],
     ["Serviço", sessao.servico ?? "—"],
-    ["Terapeuta", sessao.terapeuta === "bea" ? "Beatriz Leão" : (sessao.terapeuta ?? "Por atribuir")],
+    ["Terapeuta", sessao.nomeTerapeuta ?? "-"],
     ["Aroma utilizado", sessao.aromaSessao ?? "—"],
     ["Estado emocional", sessao.estadoEmocional ?? "—"],
   ]

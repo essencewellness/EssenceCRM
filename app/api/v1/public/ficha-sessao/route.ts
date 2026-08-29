@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     where: { id: sessaoId, apagadoEm: null },
     select: {
       id: true, servico: true, data: true, hora: true, duracao: true,
-      terapeuta: true, terapeutaId: true, briefingJson: true,
+      terapeutaId: true, briefingJson: true,
       cliente: { select: { nome: true } },
     },
   })
@@ -41,20 +41,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Ficha ainda não disponível para esta sessão" }, { status: 404 })
   }
 
-  // O campo de texto "terapeuta" agora fica vazio até alguém ser atribuída
-  // (ver Sessao.terapeuta no schema). Este endpoint alimenta o N8N (fluxo 03
-  // — mensagem WhatsApp com a ficha da terapeuta), que precisa sempre de um
-  // nome real, nunca de null — por isso resolve-se aqui pelo terapeutaId
-  // (a mesma verdade usada no financeiro), não pelo texto por preencher.
-  let nomeTerapeuta = sessao.terapeuta
-  if (!nomeTerapeuta) {
-    const idBea = await getTerapeutaPrincipalPadraoId()
-    const idResolvido = sessao.terapeutaId ?? idBea
-    const terapeutaResolvida = idResolvido
-      ? await prisma.user.findFirst({ where: { id: idResolvido }, select: { name: true } })
-      : null
-    nomeTerapeuta = terapeutaResolvida?.name ?? "Beatriz Leão"
-  }
+  // Resolve sempre pelo terapeutaId (a mesma verdade usada no financeiro),
+  // nunca pelo texto livre "terapeuta" — esse tem valores antigos
+  // inconsistentes ("beatriz" minúsculas vs "Beatriz Leão"). Este endpoint
+  // alimenta o N8N (fluxo 03 — mensagem WhatsApp com a ficha da terapeuta),
+  // que precisa sempre de um nome real, nunca de null — por isso, sem
+  // terapeuta atribuída, cai para a Bea por omissão (mesma convenção do
+  // financeiro: terapeutaId null = dela).
+  const idBea = await getTerapeutaPrincipalPadraoId()
+  const idResolvido = sessao.terapeutaId ?? idBea
+  const terapeutaResolvida = idResolvido
+    ? await prisma.user.findFirst({ where: { id: idResolvido }, select: { name: true } })
+    : null
+  const nomeTerapeuta = terapeutaResolvida?.name ?? "Beatriz Leão"
 
   return NextResponse.json({
     cliente: { nome: sessao.cliente.nome },

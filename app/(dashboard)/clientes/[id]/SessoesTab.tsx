@@ -559,8 +559,8 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                 <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)" }}>
                   {sessao.servico ?? "—"}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)", textTransform: "capitalize" }}>
-                  {sessao.terapeuta ?? "Por atribuir"}
+                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>
+                  {sessao.terapeuta ?? "-"}
                 </TableCell>
                 <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)", textAlign: "right" }}>
                   {formatCurrency(sessao.preco ?? 0)}
