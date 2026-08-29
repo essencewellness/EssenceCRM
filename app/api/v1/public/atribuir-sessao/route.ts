@@ -80,7 +80,17 @@ export async function GET(request: NextRequest) {
     // a terapeuta desta marcação, em vez de decidir às cegas.
     prisma.sessao.findMany({
       where: { clienteId: sessao.clienteId, apagadoEm: null, id: { not: sessao.id }, estado: { not: "cancelada" } },
-      select: { data: true, servico: true, terapeuta: true, estado: true },
+      select: {
+        data: true, servico: true, estado: true,
+        // O nome oficial da terapeuta (via FK) em vez do texto livre
+        // "terapeuta" — esse campo tem valores antigos inconsistentes
+        // ("beatriz" minúsculas vs "Beatriz Leão"), consoante por onde a
+        // sessão passou ao longo do tempo. O relacionamento está sempre
+        // certo e atualizado; o texto livre só serve de fallback para
+        // sessões sem terapeutaId nenhum.
+        terapeuta: true,
+        user: { select: { name: true } },
+      },
       orderBy: { data: "desc" },
       take: 5,
     }),
@@ -101,7 +111,12 @@ export async function GET(request: NextRequest) {
     precoBase: servicoCatalogo?.precoBase ?? sessao.preco ?? null,
     terapeutas,
     notas,
-    historico,
+    historico: historico.map((s) => ({
+      data: s.data,
+      servico: s.servico,
+      estado: s.estado,
+      terapeuta: s.user?.name ?? s.terapeuta,
+    })),
   })
 }
 
