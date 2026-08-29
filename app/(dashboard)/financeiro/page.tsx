@@ -95,14 +95,21 @@ export default async function FinanceiroPage({
       select: {
         id: true, estadoPagamento: true, valorPago: true, metodoPagamento: true,
         preco: true, data: true, servico: true, estado: true,
-        repasseNecessario: true, repasseFeito: true,
+        repasseNecessario: true, repasseFeito: true, terapeuta2Id: true,
         cliente: { select: { id: true, nome: true } },
       },
       orderBy: { data: "desc" },
     }),
-    prisma.sessao.aggregate({
+    // Era um .aggregate() com _sum — não dava para dividir ao meio as
+    // sessões "a dois" na vista de uma terapeuta (SQL não sabe fazer isso
+    // por linha), o que inflacionava "Receita total" ao dobro do real
+    // sempre que havia sessões a dois pagas directamente (bug real
+    // encontrado 2026-08-26 — vouchers já dividiam certo, sessões não).
+    // Troca para buscar as linhas e somar em JS, como já se fazia com
+    // vendasVoucherAllTime logo a seguir.
+    prisma.sessao.findMany({
       where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
-      _sum: { valorPago: true },
+      select: { valorPago: true, terapeuta2Id: true },
     }),
     // Mesmo bug que existia na "Receita do mês" (ver dashboard principal,
     // corrigido 2026-08-21): "Receita total" só somava sessões pagas
@@ -121,12 +128,14 @@ export default async function FinanceiroPage({
       where: filtroPack,
       select: { valor: true },
     }),
-    prisma.sessao.groupBy({
-      by: ["clienteId"],
+    // Era um groupBy com _sum — mesmo problema do receitaAllTime acima:
+    // uma sessão "a dois" paga entrava com o valor cheio no total do
+    // cliente em vez de metade, na vista de uma terapeuta específica.
+    // Sem take/orderBy aqui — o top 8 e a soma por cliente passam a ser
+    // calculados em JS depois de dividir cada linha correctamente.
+    prisma.sessao.findMany({
       where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
-      _sum: { valorPago: true },
-      orderBy: { _sum: { valorPago: "desc" } },
-      take: 8,
+      select: { clienteId: true, valorPago: true, terapeuta2Id: true },
     }),
     prisma.giftCard.findMany({
       orderBy: { dataCompra: "desc" },
@@ -200,12 +209,15 @@ export default async function FinanceiroPage({
     cliente: s.cliente,
   }))
 
-  // Voucher a dois, visto na vista de UMA terapeuta específica: o valor
-  // atribuído a ela é metade — a outra metade é da colega. Na vista "todos"
-  // (alvo null) mostra-se o valor cheio, porque aí representa a venda toda,
-  // não a fatia de ninguém.
-  const valorAtribuidoVoucher = (v: { valorPago: Prisma.Decimal; terapeuta2Id: string | null }) =>
-    alvo && v.terapeuta2Id ? Number(v.valorPago) / 2 : Number(v.valorPago)
+  // Voucher ou sessão paga a dois, visto na vista de UMA terapeuta
+  // específica: o valor atribuído a ela é metade — a outra metade é da
+  // colega. Na vista "todos" (alvo null) mostra-se o valor cheio, porque
+  // aí representa a venda/sessão toda, não a fatia de ninguém. Mesma regra
+  // para os dois — só o nome muda por clareza nos pontos de uso.
+  const valorAtribuidoADois = (v: { valorPago: Prisma.Decimal | null; terapeuta2Id: string | null }) =>
+    v.valorPago === null ? 0 : (alvo && v.terapeuta2Id ? Number(v.valorPago) / 2 : Number(v.valorPago))
+  const valorAtribuidoVoucher = valorAtribuidoADois
+  const valorAtribuidoSessao = valorAtribuidoADois
 
   // Cada venda de voucher vira uma linha da tabela do mês. O "cliente" é o
   // comprador — é quem pagou —, e o id leva prefixo para nunca colidir com
@@ -282,16 +294,26 @@ export default async function FinanceiroPage({
     precoBase: String(s.precoBase),
   }))
 
-  // Nomes dos clientes do top
-  const topIds = topReceitaRaw.map(t => t.clienteId)
+  // Top clientes por receita — soma por cliente já com a divisão "a dois"
+  // aplicada linha a linha (groupBy do SQL não sabe fazer isto), depois
+  // ordenado e cortado ao top 8 aqui em JS.
+  const totalPorCliente = new Map<string, number>()
+  for (const t of topReceitaRaw) {
+    totalPorCliente.set(t.clienteId, (totalPorCliente.get(t.clienteId) ?? 0) + valorAtribuidoSessao(t))
+  }
+  const topOrdenado = [...totalPorCliente.entries()]
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 8)
+
+  const topIds = topOrdenado.map(([clienteId]) => clienteId)
   const nomesTop = topIds.length
     ? await prisma.cliente.findMany({ where: { id: { in: topIds } }, select: { id: true, nome: true } })
     : []
   const nomePorId = new Map(nomesTop.map(c => [c.id, c.nome]))
-  const topReceita = topReceitaRaw.map(t => ({
-    clienteId: t.clienteId,
-    nome: nomePorId.get(t.clienteId) ?? "—",
-    receita: Number(t._sum.valorPago ?? 0),
+  const topReceita = topOrdenado.map(([clienteId, receita]) => ({
+    clienteId,
+    nome: nomePorId.get(clienteId) ?? "—",
+    receita,
   }))
 
   // KPIs do mês
@@ -301,11 +323,16 @@ export default async function FinanceiroPage({
   }
   const porEstado: Record<string, number> = { pendente: 0, pago: 0, parcial: 0, isento: 0 }
 
-  for (const s of sessoes) {
+  // Itera sessoesRaw (não a versão serializada "sessoes") porque precisa de
+  // terapeuta2Id para dividir a dois — bug real encontrado 2026-08-26: uma
+  // sessão "a dois" paga directamente entrava com o valor CHEIO na vista de
+  // cada terapeuta filtrada (Bea via 90€, Cristina via os mesmos 90€, sendo
+  // a venda real de 90€ no total) — só os vouchers já dividiam certo.
+  for (const s of sessoesRaw) {
     const ep = s.estadoPagamento as string
     porEstado[ep] = (porEstado[ep] ?? 0) + 1
     if (s.estadoPagamento === "pago" && s.valorPago) {
-      const v = Number(s.valorPago)
+      const v = valorAtribuidoSessao(s)
       receitaTotal += v
       // "mbway" (legado, antes de separar por conta) conta para a Beatriz
       const m = s.metodoPagamento === "mbway" ? "mbway_beatriz" : (s.metodoPagamento as string | null)
@@ -334,7 +361,8 @@ export default async function FinanceiroPage({
 
   const receitaVouchersSempre = vendasVoucherAllTime.reduce((soma, v) => soma + valorAtribuidoVoucher(v), 0)
   const receitaPacksSempre = pagamentosPackAllTime.reduce((soma, pg) => soma + Number(pg.valor), 0)
-  const receitaSempre = Number(receitaAllTime._sum.valorPago ?? 0) + receitaVouchersSempre + receitaPacksSempre
+  const receitaSessoesSempre = receitaAllTime.reduce((soma, s) => soma + valorAtribuidoSessao(s), 0)
+  const receitaSempre = receitaSessoesSempre + receitaVouchersSempre + receitaPacksSempre
   const pendentes = sessoes.filter(s => s.estadoPagamento === "pendente" && s.estado === "realizada")
 
   return (
