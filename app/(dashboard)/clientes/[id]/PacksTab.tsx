@@ -14,18 +14,24 @@ import { formatDate } from "@/lib/utils"
 import { useToast } from "@/components/ui/toast-nuit"
 
 // Link real do Calendly por duração de Drenagem — dados do Nuno, 2026-08-22.
-// Massagens ainda não tem evento Calendly próprio criado; fica null até
-// existir (o botão fica desativado com uma nota em vez de partir).
 const CALENDLY_URL: Record<string, string | null> = {
   "Drenagem Linfática 60 min":  "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-60min",
   "Drenagem Linfática 90 min":  "https://calendly.com/geral-essencewellnesspt/drenagem-corpo-inteiro-premium-90min",
 }
 
+// Packs de "Massagens" (Essência Plena/Puro Aroma/Cera Quente — a cliente
+// escolhe em cada sessão) não têm um Servico ligado (pack.servico fica
+// null de propósito, ver nomePack() abaixo) — por isso não cabem no mapa
+// CALENDLY_URL acima, que é indexado por nome de serviço. Evento próprio
+// criado 2026-08-29 (clone do evento normal de massagens, sem pagamento,
+// com a mesma pergunta de "qual tratamento" que o WF01 lê).
+const CALENDLY_URL_PACK_MASSAGEM = "https://calendly.com/geral-essencewellnesspt/sessao-pack-massagem"
+
 // utm_content carrega o packId até ao webhook do Calendly (ver
 // app/api/v1/webhooks/calendly/route.ts) — assim a sessão que vier desta
 // marcação já entra ligada ao pack certo, sem adivinhar por nome.
 function linkCalendlyDoPack(pack: { id: string; servico: { nome: string } | null }, clienteNome: string, clienteEmail: string | null): string | null {
-  const base = pack.servico ? CALENDLY_URL[pack.servico.nome] : null
+  const base = pack.servico ? CALENDLY_URL[pack.servico.nome] : CALENDLY_URL_PACK_MASSAGEM
   if (!base) return null
   const params = new URLSearchParams({ utm_content: pack.id, name: clienteNome })
   if (clienteEmail) params.set("email", clienteEmail)
