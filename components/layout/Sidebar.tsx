@@ -152,16 +152,20 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
                   style={{
                     display: "flex", alignItems: "center", gap: "10px",
                     margin: "0 8px 2px",
+                    // Padding fixo em ambos os estados — a marcação de activo usa
+                    // box-shadow (não consome espaço de layout, ao contrário de
+                    // border-left), por isso o texto nunca muda de posição ao
+                    // selecionar. Antes o borderLeft 0→2px exigia compensar com
+                    // paddingLeft 12px→10px, e essa troca instantânea (sem
+                    // transição suave) é que fazia o texto "saltar" — reportado
+                    // pelo Nuno 2026-08-29.
                     padding: "8px 12px",
                     textDecoration: "none",
-                    transition: "background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast)",
-                    ...(active ? {
-                      backgroundColor: "rgba(212,184,134,0.08)",
-                      borderLeft: "2px solid var(--nuit-champagne)",
-                      paddingLeft: "10px",
-                    } : {
-                      borderLeft: "2px solid transparent",
-                    }),
+                    transition: "background-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out)",
+                    boxShadow: active
+                      ? "inset 2px 0 0 0 var(--nuit-champagne)"
+                      : "inset 2px 0 0 0 transparent",
+                    ...(active ? { backgroundColor: "rgba(212,184,134,0.08)" } : {}),
                   }}
                   className={!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}
                 >
@@ -171,16 +175,24 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
                       color: active ? "var(--nuit-champagne)" : "var(--nuit-smoke)",
                       flexShrink: 0,
                       strokeWidth: 1.5,
+                      transition: "color var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out)",
+                      transform: active ? "scale(1.08)" : "scale(1)",
                     }}
                   />
                   <span style={{
                     flex: 1,
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "12.5px",
-                    fontWeight: active ? 500 : 400,
+                    // Peso fixo (não varia com o estado activo) — antes o
+                    // font-weight saltava 400→500 instantaneamente ao mudar
+                    // de página, o que não anima de forma fiável entre
+                    // browsers e é a causa real do texto parecer "desalinhado"
+                    // durante a troca. A distinção activo/inactivo já fica
+                    // clara só pela cor, que essa sim transita suavemente.
+                    fontWeight: 460,
                     color: active ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                     letterSpacing: "0.01em",
-                    transition: "color var(--dur-fast)",
+                    transition: "color var(--dur-med) var(--ease-out)",
                   }}>
                     {item.label}
                   </span>
