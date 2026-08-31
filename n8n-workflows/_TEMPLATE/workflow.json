@@ -1,0 +1,9 @@
+{
+  "name": "TEMPLATE — substituir",
+  "nodes": [],
+  "connections": {},
+  "settings": {},
+  "meta": {
+    "descricao": "Placeholder. Exporta o teu workflow do N8N (Download) e substitui este ficheiro pelo JSON real, mantendo o nome <nome-curto>.json."
+  }
+}

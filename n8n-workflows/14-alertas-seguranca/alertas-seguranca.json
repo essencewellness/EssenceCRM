@@ -1,0 +1,85 @@
+{
+  "name": "14 | Alertas de Segurança (SIEM lite)",
+  "active": false,
+  "nodes": [
+    { "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "*/15 * * * *" }] } }, "id": "sched-alertas-seguranca", "name": "Trigger a Cada 15 Min", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [-800, 0] },
+    { "parameters": {}, "id": "manual-alertas-seguranca", "name": "Executar Manualmente", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [-800, 192] },
+    {
+      "id": "http-buscar-alertas",
+      "name": "Buscar Alertas de Segurança",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [-576, 96],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/seguranca/alertas",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-API-Key", "value": "{{API_KEY_N8N}}" }] },
+        "options": {}
+      }
+    },
+    {
+      "id": "if-deve-alertar",
+      "name": "Deve Alertar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-352, 96],
+      "parameters": {
+        "conditions": {
+          "options": { "version": 2, "leftValue": "", "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [{ "id": "cond-alertar", "leftValue": "={{ $json.data.alertar }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "code-montar-destinatarios",
+      "name": "Montar Destinatários",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-128, 0],
+      "parameters": {
+        "jsCode": "// Só o Nuno por agora — é quem trata de segurança/RGPD.\nconst DESTINATARIOS = ['351911150025'];\nconst texto = $json.data.mensagem;\nreturn DESTINATARIOS.map(numero => ({ json: { numero, texto } }));"
+      }
+    },
+    {
+      "id": "http-whatsapp-alerta",
+      "name": "WhatsApp — Alertar Nuno",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [96, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/message/sendText/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $json.numero, options: { delay: 800, presence: 'composing' }, textMessage: { text: $json.texto } } }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Trigger a Cada 15 Min": { "main": [[{ "node": "Buscar Alertas de Segurança", "type": "main", "index": 0 }]] },
+    "Executar Manualmente": { "main": [[{ "node": "Buscar Alertas de Segurança", "type": "main", "index": 0 }]] },
+    "Buscar Alertas de Segurança": { "main": [[{ "node": "Deve Alertar?", "type": "main", "index": 0 }]] },
+    "Deve Alertar?": { "main": [[{ "node": "Montar Destinatários", "type": "main", "index": 0 }]] },
+    "Montar Destinatários": { "main": [[{ "node": "WhatsApp — Alertar Nuno", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

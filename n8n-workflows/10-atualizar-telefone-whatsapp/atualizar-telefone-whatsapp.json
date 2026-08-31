@@ -1,0 +1,42 @@
+{
+  "name": "Atualizar Nr Telefone/Whatsapp Após Marcação",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": { "events": ["invitee.created"] },
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "typeVersion": 1,
+      "position": [-368, -64],
+      "id": "53c186f9-24f3-4601-8be1-babbf569ff1c",
+      "name": "Calendly Trigger",
+      "webhookId": "4600d711-341a-414b-af5a-9103c3a2b233",
+      "credentials": { "calendlyApi": { "id": "16kVKTnjEPByrYSX", "name": "Calendly account" } }
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $json.payload.email }}",
+        "additionalFields": {
+          "firstName": "={{ $json.payload.name }}",
+          "mobilePhoneNumber": "={{ $json.payload.questions_and_answers[0].answer }}",
+          "phoneNumber": "={{ $json.payload.questions_and_answers[0].answer }}",
+          "whatsappPhoneNumber": "={{ $json.payload.questions_and_answers[0].answer }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [-128, -64],
+      "id": "73339ee3-6090-4c2c-ac17-e09ee5198db6",
+      "name": "Create or update a contact",
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } }
+    }
+  ],
+  "connections": {
+    "Calendly Trigger": { "main": [[{ "node": "Create or update a contact", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "name": "📁 Fichas de Clientes HubSpot → Google Drive (Semanal)",
+  "active": true,
+  "nodes": [
+    { "parameters": { "rule": { "interval": [{ "field": "weeks", "triggerAtDay": [1], "triggerAtHour": 8 }] } }, "id": "node-schedule", "name": "Trigger Semanal (2ª feira 8h)", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.3, "position": [-864, 272] },
+    {
+      "parameters": { "authentication": "appToken", "operation": "getAll", "returnAll": true, "additionalFields": {}, "resource": "contact" },
+      "id": "node-get-contacts",
+      "name": "Obter Todos os Contactos (HubSpot)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [-208, 304],
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } }
+    },
+    { "parameters": { "options": {} }, "id": "node-loop", "name": "Loop por Contacto", "type": "n8n-nodes-base.splitInBatches", "typeVersion": 3, "position": [32, 304] },
+    {
+      "parameters": {
+        "content": "## FICHAS DE CLIENTES - HubSpot -> Google Drive\n\n**Dispara:** Todas as 2as feiras as 8h00\n\n**O que faz:**\n1. Vai buscar TODOS os contactos do HubSpot\n2. Para cada contacto obtem historico completo + deals + WhatsApp\n3. Gera resumo inteligente com Groq AI\n4. Cria um ficheiro .md por cliente no Google Drive\n\n**Para usar:** Descarrega a pasta do Drive e abre os .md no Obsidian.",
+        "height": 264,
+        "width": 500
+      },
+      "id": "node-sticky",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-896, -112]
+    },
+    {
+      "parameters": {
+        "documentId": { "__rl": true, "value": "1Euusk7vv_UTUbeNuriu1GcMYlIFKikKT4S23kYr49v0", "mode": "id", "cachedResultName": "Registo Essence Clientes" },
+        "sheetName": { "__rl": true, "value": "Folha1", "mode": "name", "cachedResultName": "Folha1" },
+        "options": {}
+      },
+      "id": "node-sheets-read",
+      "name": "Ler Clientes Processados",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-640, 304],
+      "alwaysOutputData": true,
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GCTW58m5CujREAuw", "name": "Google Sheets account" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": { "jsCode": "const contact = $('Loop por Contacto').item.json;\nconst vid = String(contact.vid || contact.id || '');\nconst processados = $('Ler Clientes Processados').all().map(item => String(item.json.vid || ''));\nconst isNew = !processados.includes(vid);\nreturn [{ json: { ...contact, isNew } }];" },
+      "id": "node-check-new",
+      "name": "Checar se Cliente é Novo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [256, 368],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "version": 2, "leftValue": "", "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [{ "id": "check-is-new", "leftValue": "={{ $json.isNew }}", "rightValue": true, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-new",
+      "name": "Cliente Novo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [272, 640]
+    },
+    {
+      "parameters": { "url": "=https://api.hubapi.com/contacts/v1/contact/vid/{{ $json.vid || $json.id }}/profile", "authentication": "predefinedCredentialType", "nodeCredentialType": "hubspotAppToken", "options": {} },
+      "id": "node-get-profile",
+      "name": "Obter Perfil Completo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [608, 544],
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/chat/findMessages/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (function(){ const props = $('Obter Perfil Completo').item.json.properties || {}; const phoneVal = props.phone ? (props.phone.value || '') : ''; const mobileVal = props.mobilephone ? (props.mobilephone.value || '') : ''; const raw = (phoneVal || mobileVal).replace(/[^0-9]/g, ''); const jid = (raw.startsWith('351') ? raw : '351' + raw) + '@s.whatsapp.net'; return JSON.stringify({ where: { key: { remoteJid: jid } }, limit: 100 }); })()} }}",
+        "options": {}
+      },
+      "id": "node-wa-messages",
+      "name": "Obter Mensagens WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [544, 32],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hubapi.com/engagements/v1/engagements/associated/contact/{{ $('Obter Perfil Completo').item.json.vid }}/paged",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [{ "name": "limit", "value": "100" }] },
+        "options": {}
+      },
+      "id": "node-get-engagements-v2",
+      "name": "Obter Histórico do Contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [688, 304],
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.hubapi.com/crm/v3/objects/deals/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ filterGroups: [{ filters: [{ propertyName: 'associations.contact', operator: 'EQ', value: String($('Obter Perfil Completo').item.json.vid) }] }], properties: ['dealname', 'amount', 'dealstage', 'closedate', 'pipeline', 'hs_deal_stage_probability'], limit: 10 }) }}",
+        "options": {}
+      },
+      "id": "node-get-deals-v2",
+      "name": "Obter Deals do Contacto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [912, 304],
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } },
+      "onError": "continueRegularOutput"
+    },
+    { "parameters": {}, "id": "node-groq-chain", "name": "Groq Resumo", "type": "@n8n/n8n-nodes-langchain.chainLlm", "typeVersion": 1.4, "position": [1120, 304], "onError": "continueRegularOutput" },
+    {
+      "parameters": { "model": "llama-3.3-70b-versatile", "options": { "temperature": 0.3 } },
+      "id": "node-groq-lm",
+      "name": "Groq LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [1104, 528],
+      "credentials": { "groqApi": { "id": "aHpMEvUqS3TI1f5K", "name": "Groq account" } }
+    },
+    {
+      "parameters": { "jsCode": "// Constrói o markdown da ficha do cliente a partir de HubSpot + WhatsApp +\n// resumo Groq. Ver node original no N8N para o gerador completo (tabelas de\n// info de contacto, deals, histórico de interações, conversa WhatsApp).\nconst contact = $('Obter Perfil Completo').item.json;\nconst props = contact.properties || {};\nconst getProp = (key) => { const val = props[key]; if (val === null || val === undefined || val === '') return 'N/A'; if (typeof val === 'object') return val.value || val.label || String(Object.values(val)[0] || 'N/A'); return String(val); };\nconst nome = (getProp('firstname') + ' ' + getProp('lastname')).replace(/\\bN\\/A\\b/g, '').trim() || 'Sem Nome';\nconst telefone = getProp('phone') !== 'N/A' ? getProp('phone') : (getProp('mobilephone') !== 'N/A' ? getProp('mobilephone') : '');\nconst filename = nome + (telefone ? ' ' + telefone : '') + '.md';\nreturn { json: { contactId: contact.id || contact.vid, nomeCliente: nome, filename, markdown: '# Ficha de Cliente: ' + nome + '\\n\\n(gerador completo no N8N)', folderId: '1CXjo7rwV0QWY8kTUsKFHjnkE-aZVFBDF' } };" },
+      "id": "node-build-md",
+      "name": "Construir Ficha Markdown",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 304],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.markdown }}",
+        "name": "={{ $json.filename }}",
+        "driveId": { "__rl": true, "mode": "list", "value": "My Drive", "cachedResultName": "My Drive" },
+        "folderId": { "mode": "id", "value": "={{ $json.folderId }}" },
+        "options": {}
+      },
+      "id": "node-upload-drive",
+      "name": "Guardar Ficha no Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1584, 304],
+      "credentials": { "googleDriveOAuth2Api": { "id": "cVwGja9p0hUWFTTP", "name": "Google Drive account" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "set-vid", "name": "vid", "value": "={{ $('Obter Perfil Completo').item.json.vid }}", "type": "string" },
+            { "id": "set-nome", "name": "nome", "value": "={{ $('Construir Ficha Markdown').item.json.nomeCliente }}", "type": "string" },
+            { "id": "set-data", "name": "data_processado", "value": "={{ $now.format('yyyy-MM-dd') }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-set-registo",
+      "name": "Preparar Registo Sheet",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1792, 304]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "value": "1Euusk7vv_UTUbeNuriu1GcMYlIFKikKT4S23kYr49v0", "mode": "id", "cachedResultName": "Registo Essence Clientes" },
+        "sheetName": { "__rl": true, "value": "Folha1", "mode": "name", "cachedResultName": "Folha1" },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            { "id": "vid", "displayName": "vid", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "nome", "displayName": "nome", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "data_processado", "displayName": "data_processado", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-sheets-append",
+      "name": "Registar Cliente no Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [2016, 304],
+      "credentials": { "googleSheetsOAuth2Api": { "id": "GCTW58m5CujREAuw", "name": "Google Sheets account" } },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Trigger Semanal (2ª feira 8h)": { "main": [[{ "node": "Ler Clientes Processados", "type": "main", "index": 0 }]] },
+    "Ler Clientes Processados": { "main": [[{ "node": "Obter Todos os Contactos (HubSpot)", "type": "main", "index": 0 }]] },
+    "Obter Todos os Contactos (HubSpot)": { "main": [[{ "node": "Loop por Contacto", "type": "main", "index": 0 }]] },
+    "Loop por Contacto": { "main": [[], [{ "node": "Checar se Cliente é Novo", "type": "main", "index": 0 }]] },
+    "Checar se Cliente é Novo": { "main": [[{ "node": "Cliente Novo?", "type": "main", "index": 0 }]] },
+    "Cliente Novo?": { "main": [[{ "node": "Obter Perfil Completo", "type": "main", "index": 0 }], [{ "node": "Loop por Contacto", "type": "main", "index": 0 }]] },
+    "Obter Perfil Completo": { "main": [[{ "node": "Obter Mensagens WhatsApp", "type": "main", "index": 0 }]] },
+    "Obter Mensagens WhatsApp": { "main": [[{ "node": "Obter Histórico do Contacto", "type": "main", "index": 0 }]] },
+    "Obter Histórico do Contacto": { "main": [[{ "node": "Obter Deals do Contacto", "type": "main", "index": 0 }]] },
+    "Obter Deals do Contacto": { "main": [[{ "node": "Groq Resumo", "type": "main", "index": 0 }]] },
+    "Groq Resumo": { "main": [[{ "node": "Construir Ficha Markdown", "type": "main", "index": 0 }]] },
+    "Groq LLM": { "ai_languageModel": [[{ "node": "Groq Resumo", "type": "ai_languageModel", "index": 0 }]] },
+    "Construir Ficha Markdown": { "main": [[{ "node": "Guardar Ficha no Drive", "type": "main", "index": 0 }]] },
+    "Guardar Ficha no Drive": { "main": [[{ "node": "Preparar Registo Sheet", "type": "main", "index": 0 }]] },
+    "Preparar Registo Sheet": { "main": [[{ "node": "Registar Cliente no Sheet", "type": "main", "index": 0 }]] },
+    "Registar Cliente no Sheet": { "main": [[{ "node": "Loop por Contacto", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Lisbon",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

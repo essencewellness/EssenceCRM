@@ -1,0 +1,177 @@
+{
+  "name": "06 | Nutrição Pré-Sessão (Groq)",
+  "active": true,
+  "nodes": [
+    { "parameters": { "rule": { "interval": [{ "triggerAtHour": 11 }] } }, "id": "sched-11h-nut", "name": "Trigger Diário 11h", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [-1568, 0] },
+    { "parameters": {}, "id": "manual-06", "name": "Executar Manualmente", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [-1568, 192] },
+    {
+      "parameters": {
+        "url": "=https://crm.essencewellnesspt.com/api/v1/sessoes?de={{ new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' }) }}&limit=200",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-API-Key", "value": "{{API_KEY_N8N}}" }] },
+        "options": {}
+      },
+      "id": "http-futuras",
+      "name": "Buscar Sessões Futuras",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [-1344, 96],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": { "jsCode": "// Cadência aprovada:\n//  boas-vindas (email)  — 2 dias depois de marcar, só se lead total >= 10 dias\n//  meio (whatsapp)      — a meio do intervalo, só se lead total >= 14 dias\n//  reta final (email)   — 7 dias antes da sessão, só se lead total >= 7 dias\n//  lead < 7 dias        — sem nutrição (a confirmação 24h já cobre)\n// Máx. 1 toque por sessão por dia (prioridade: reta final > meio > boas-vindas).\n// Os flags nutricao* na Sessao evitam repetições entre dias.\nconst DIA = 24 * 60 * 60 * 1000;\nconst agora = Date.now();\n\n// Sem envios ao domingo (regra de timing da marca)\nconst diaSemana = new Date().toLocaleDateString('en-US', { timeZone: 'Europe/Lisbon', weekday: 'short' });\nif (diaSemana === 'Sun') return [];\n\nconst sessoes = ($json.data || []).filter(s => s.estado === 'agendada' || s.estado === 'confirmada');\nconst out = [];\n\nfor (const s of sessoes) {\n  const criadoEm = new Date(s.criadoEm).getTime();\n  const dataSessao = new Date(s.data).getTime();\n  if (dataSessao <= agora) continue;\n\n  const leadDias = (dataSessao - criadoEm) / DIA;\n  const diasAte = Math.ceil((dataSessao - agora) / DIA);\n  const diasDesde = Math.floor((agora - criadoEm) / DIA);\n  const meioDoCaminho = criadoEm + (dataSessao - criadoEm) / 2;\n\n  let toque = null;\n  if (!s.nutricao7dEnviado && leadDias >= 7 && diasAte <= 7 && diasAte >= 2) {\n    toque = { tipo: 'retafinal', canal: 'email', flagField: 'nutricao7dEnviado' };\n  } else if (!s.nutricao14dEnviado && leadDias >= 14 && diasAte > 8 && agora >= meioDoCaminho) {\n    toque = { tipo: 'meio', canal: 'whatsapp', flagField: 'nutricao14dEnviado' };\n  } else if (!s.nutricaoBoasVindasEnviado && leadDias >= 10 && diasDesde >= 2 && diasAte > 8) {\n    toque = { tipo: 'boasvindas', canal: 'email', flagField: 'nutricaoBoasVindasEnviado' };\n  }\n  if (!toque) continue;\n\n  const telefone = (((s.cliente && s.cliente.telefone) || '')).replace(/\\D/g, '');\n  const telefoneCompleto = telefone.length === 9 ? '351' + telefone : telefone;\n  const emailCliente = (s.cliente && s.cliente.email) || null;\n  const temWhatsapp = ((s.cliente && s.cliente.temWhatsapp) !== false) && telefoneCompleto.length > 0;\n\n  // Sem WhatsApp: o toque 'meio' cai para email; sem WhatsApp nem email, ignora o toque\n  let canalFinal = toque.canal;\n  if (canalFinal === 'whatsapp' && !temWhatsapp) {\n    if (!emailCliente) continue;\n    canalFinal = 'email';\n  }\n  if (canalFinal === 'email' && !emailCliente) continue;\n\n  out.push({ json: {\n    sessaoId: s.id,\n    clienteId: s.clienteId,\n    nome: (s.cliente && s.cliente.nome) || '',\n    primeiroNome: (((s.cliente && s.cliente.nome) || '').split(' ')[0]) || '',\n    telefone: telefoneCompleto,\n    servico: s.servico || 'a tua sessão',\n    dataSessaoISO: s.data,\n    hora: s.hora || '',\n    diasAteSessao: diasAte,\n    tipoToque: toque.tipo,\n    canal: canalFinal,\n    flagField: toque.flagField,\n  } });\n}\n\nreturn out;" },
+      "id": "code-classifica",
+      "name": "Classificar Toques",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1120, 96]
+    },
+    {
+      "parameters": {
+        "url": "=https://crm.essencewellnesspt.com/api/v1/clientes/{{ $json.clienteId }}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-API-Key", "value": "{{API_KEY_N8N}}" }] },
+        "options": {}
+      },
+      "id": "http-perfil",
+      "name": "Buscar Perfil Cliente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [-896, 96],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": { "jsCode": "const c = $('Classificar Toques').item.json;\nconst perfil = $json.data || $json;\nconst primeiraVez = (perfil.totalSessoes ?? 0) === 0;\nconst email = perfil.email || null;\n\nconst dataFmt = new Date(c.dataSessaoISO).toLocaleDateString('pt-PT', { timeZone: 'Europe/Lisbon', weekday: 'long', day: '2-digit', month: 'long' });\n\nconst REGRAS_COMUNS = [\n  'REGRAS ABSOLUTAS',\n  '- Português europeu sempre. Trata SEMPRE a cliente por tu: a tua sessão, quando chegares, o que precisas. É PROIBIDO usar sua/seu, si, consigo, Prezada, Cara, Estimada ou qualquer forma de cortesia formal',\n  '- Começa com uma saudação simples: Olá [nome],',\n  '- A cliente é mulher: usa sempre formas femininas (bem-vinda, preparada, descansada)',\n  '- Nunca mencionar que esta mensagem foi gerada automaticamente, por um sistema ou por inteligência artificial',\n  '- Nunca mencionar preços, promoções, descontos ou urgência artificial',\n  '- Nunca usar linguagem comercial (aproveita, não percas, marca já, garante o teu lugar)',\n  '- Nunca usar clichês de wellness/coach (a tua jornada, ouve o teu corpo, equilíbrio holístico)',\n  '- Nunca usar superlativos vazios (incrível, fantástico, revolucionário, transformador)',\n  '- Máximo 1 emoji subtil (ex.: um símbolo de folha), nunca mais',\n  '- Nunca colar gerúndios no fim das frases (proporcionando, permitindo, promovendo, garantindo, contribuindo para)',\n  '- Nunca usar a construção não é X é Y, nem mais do que X é Y',\n  '- Nunca personificar o corpo (o teu corpo pede, o teu corpo agradece, ouve o que o corpo te diz)',\n  '- Nunca citar fontes vagas (estudos demonstram, especialistas afirmam); afirma de forma simples ou omite',\n  '- Nunca abrir com frases genéricas (No mundo de hoje, Cada vez mais, Nos dias que correm)',\n  '- Nunca fechar com Em suma, Lembra-te, votos motivacionais ou frases que sirvam para qualquer texto',\n  '- Evita travessões; usa vírgula, dois pontos ou ponto final',\n  '- Evita listas de três (três adjetivos ou três exemplos seguidos); um ou dois chegam',\n  '- Sem gerúndio contínuo à brasileira: estou a preparar, nunca estou preparando',\n  '- Varia o comprimento das frases; frases curtas são bem-vindas',\n  '- Sê concreta: quantidades, momentos do dia e gestos reais em vez de conselhos abstratos',\n  '- Imperativo sempre na 2ª pessoa do singular (tu): reserva, tenta, experimenta, aproveita, respira, bebe. PROIBIDO o imperativo de \"você\": reserve, tente, experimente, aproveite, respire, beba',\n].join('\\n');\n\nconst FORMATO_EMAIL = 'FORMATO DE SAÍDA\\nDevolve APENAS um objeto JSON válido, sem markdown e sem blocos de código, com exatamente esta estrutura:\\n{\"assunto\": \"...\", \"corpo\": \"...\"}';\nconst FORMATO_WA = 'FORMATO DE SAÍDA\\nDevolve APENAS um objeto JSON válido, sem markdown e sem blocos de código:\\n{\"corpo\": \"...\"}';\n\nconst SYSTEMS = {\n  boasvindas: 'És a voz da Essence Wellness, um centro de massagens de relaxamento íntimo em Vila Nova de Gaia. Escreves um email de boas-vindas para uma cliente que acabou de marcar uma sessão, mas a sessão só acontece daqui a várias semanas.\\n\\nO teu objetivo é fazer a cliente sentir-se bem-vinda e confirmada na decisão que tomou. Nunca vendes, nunca pressionas, nunca soas a lembrete administrativo.\\n\\n' + REGRAS_COMUNS + '\\n- Assina sempre como Essence Wellness (nunca Flora nos emails)\\n- Escolhe UM único ângulo: boas-vindas e validação da escolha; o que esperar ao chegar ao espaço; desconstruir o nervosismo de estreia (só se for primeira vez); a personalização da sessão; o ritual sensorial (aromas, silêncio, ambiente); reservar mentalmente este tempo; o que torna especial o serviço marcado\\n- Se for a primeira vez da cliente, podes abordar a ansiedade de estreia com delicadeza; se não for, trata-a como alguém que já conhece o espaço\\n- Corpo do email: 80-150 palavras, tom conversacional, sem listas nem bullet points\\n- Um único convite suave no fim (ex.: deixar a porta aberta para dúvidas antes da sessão) - nunca clica aqui nem marca já\\n\\n' + FORMATO_EMAIL,\n  meio: 'És Flora, a voz humana e próxima da Essence Wellness - um centro de massagens íntimo em Vila Nova de Gaia. Escreves uma mensagem de WhatsApp para uma cliente que já marcou sessão, a meio do intervalo de espera até à data marcada.\\n\\nEsta mensagem NÃO é sobre a marcação em si - é um toque de presença leve durante a espera. Não perguntes se vai confirmar, não menciones logística, não pareças um lembrete administrativo.\\n\\n' + REGRAS_COMUNS + '\\n- Máximo 3 frases no corpo da mensagem (excluindo saudação e assinatura)\\n- Assinatura obrigatória no fim: Flora ✦ | Essence Wellness\\n- Escolhe UM ângulo: check-in casual sobre o ritmo atual; dica pequena de autocuidado para os dias que faltam (hidratação, alongar, respirar, dormir); curiosidade genuína com pergunta aberta; referência sazonal ligada a bem-estar; se primeira vez, desmistificar (não há nada que precise de preparar); se não, nota breve de antecipação genuína\\n- Evita repetir o tema de validação de escolha (já usado no email de boas-vindas)\\n- Termina sempre com uma pergunta aberta ou nota calorosa - nunca com um pedido de ação\\n\\n' + FORMATO_WA,\n  retafinal: 'És a voz da Essence Wellness, um centro de massagens de relaxamento íntimo em Vila Nova de Gaia. Escreves o email de preparação enviado 7 dias antes da sessão marcada.\\n\\nO teu objetivo é ajudar a cliente a chegar preparada e tranquila, resolver dúvidas logísticas e gerar antecipação genuína - sem repetir os ângulos de validação de escolha nem de check-in casual já usados em contactos anteriores.\\n\\n' + REGRAS_COMUNS + '\\n- Assina sempre como Essence Wellness\\n- Inclui pelo menos UMA informação prática real: morada Av. da República nº 2208, Piso 2, Vila Nova de Gaia; chegar com alguns minutos de antecedência; roupa confortável; hidratação antes e depois; ou não encher a agenda logo a seguir à sessão\\n- Escolhe UM ângulo: o que trazer/vestir e como preparar o corpo; como chegar; o que esperar passo a passo; as perguntas que a terapeuta vai fazer (zona de tensão, aroma); não encher a agenda a seguir; se primeira vez, reforço tranquilizador (não há maneira certa, só relaxar); se não, convite a pensar no que gostaria diferente desta vez\\n- Corpo do email: 100-180 palavras, sem listas nem bullet points, tom de carta pessoal\\n- Um único convite suave no fim - nunca clica aqui nem marca já\\n\\n' + FORMATO_EMAIL,\n};\n\nconst userPrompt = [\n  'Escreve a mensagem para esta cliente da Essence Wellness:',\n  '',\n  'Nome: ' + c.primeiroNome,\n  'Serviço marcado: ' + c.servico,\n  'Data da sessão: ' + dataFmt + (c.hora ? ' às ' + c.hora : ''),\n  'Dias até à sessão: ' + c.diasAteSessao,\n  'Primeira vez na Essence: ' + (primeiraVez ? 'sim' : 'não'),\n  '',\n  'Personaliza com o nome e o serviço sem forçar. Devolve apenas o JSON pedido.',\n].join('\\n');\n\n// Sem email válido não há como enviar toques de email — saltar\nif (c.canal === 'email' && !email) return [];\n\nreturn [{ json: {\n  systemPrompt: SYSTEMS[c.tipoToque],\n  userPrompt,\n  canal: c.canal,\n  tipoToque: c.tipoToque,\n  flagField: c.flagField,\n  sessaoId: c.sessaoId,\n  clienteId: c.clienteId,\n  primeiroNome: c.primeiroNome,\n  telefone: c.telefone,\n  email,\n} }];" },
+      "id": "code-prompt",
+      "name": "Preparar Prompt Nutrição",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-688, 96]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "groqApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {model: 'llama-3.3-70b-versatile', messages: [{role: 'system', content: $json.systemPrompt}, {role: 'user', content: $json.userPrompt}], max_tokens: 700, temperature: 0.7} }}",
+        "options": {}
+      },
+      "id": "http-groq-nut",
+      "name": "Groq — Gerar Mensagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [-464, 96],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": { "groqApi": { "id": "aHpMEvUqS3TI1f5K", "name": "Groq account" } }
+    },
+    {
+      "parameters": { "jsCode": "const prep = $('Preparar Prompt Nutrição').item.json;\nconst raw = ($json.choices && $json.choices[0] && $json.choices[0].message && $json.choices[0].message.content) || '{}';\n\nlet d;\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  d = JSON.parse(clean);\n} catch (e) {\n  throw new Error('Erro ao parsear JSON do Groq (' + prep.tipoToque + '): ' + e.message);\n}\n\nconst corpo = (d.corpo || '').trim();\nif (!corpo) throw new Error('Groq devolveu corpo vazio para ' + prep.tipoToque);\n\n// Email: embrulhar o corpo no template da marca (mesmo estilo do email de onboarding)\nlet emailHtml = null;\nif (prep.canal === 'email') {\n  const paragrafos = corpo.split(/\\n\\n+/).map(p => '<p>' + p.replace(/\\n/g, '<br>') + '</p>').join('');\n  emailHtml = 'Template HTML da marca envolvendo: ' + paragrafos;\n}\n\nreturn [{ json: {\n  canal: prep.canal,\n  tipoToque: prep.tipoToque,\n  flagField: prep.flagField,\n  sessaoId: prep.sessaoId,\n  telefone: prep.telefone,\n  email: prep.email,\n  assunto: d.assunto || 'Uma nota da Essence Wellness',\n  corpo,\n  emailHtml,\n} }];" },
+      "id": "code-parse-nut",
+      "name": "Parsear Mensagem Groq",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 96]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "version": 3, "leftValue": "", "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [{ "id": "chk-canal", "leftValue": "={{ $json.canal }}", "rightValue": "email", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "if-email",
+      "name": "É Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [-16, 96]
+    },
+    {
+      "parameters": { "sendTo": "={{ $json.email }}", "subject": "={{ $json.assunto }}", "message": "={{ $json.emailHtml }}", "options": { "appendAttribution": false } },
+      "id": "gmail-nut",
+      "name": "Enviar Email Nutrição",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [208, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "webhookId": "69b0bbf9-e04a-4055-88b2-6b10268bd276",
+      "credentials": { "gmailOAuth2": { "id": "dG6PuQ0LhRtAJ5Ls", "name": "Gmail account" } },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/message/sendText/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $json.telefone, options: { delay: 1500, presence: 'composing' }, textMessage: { text: $json.corpo } } }}",
+        "options": {}
+      },
+      "id": "http-wa-nut",
+      "name": "Enviar WhatsApp Nutrição",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [208, 208],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://crm.essencewellnesspt.com/api/v1/sessoes/{{ $('Parsear Mensagem Groq').item.json.sessaoId }}",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "X-API-Key", "value": "{{API_KEY_N8N}}" }, { "name": "Content-Type", "value": "application/json" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { [$('Parsear Mensagem Groq').item.json.flagField]: true } }}",
+        "options": {}
+      },
+      "id": "http-marca-toque",
+      "name": "Marcar Toque Enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [448, 96],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    }
+  ],
+  "connections": {
+    "Trigger Diário 11h": { "main": [[{ "node": "Buscar Sessões Futuras", "type": "main", "index": 0 }]] },
+    "Executar Manualmente": { "main": [[{ "node": "Buscar Sessões Futuras", "type": "main", "index": 0 }]] },
+    "Buscar Sessões Futuras": { "main": [[{ "node": "Classificar Toques", "type": "main", "index": 0 }]] },
+    "Classificar Toques": { "main": [[{ "node": "Buscar Perfil Cliente", "type": "main", "index": 0 }]] },
+    "Buscar Perfil Cliente": { "main": [[{ "node": "Preparar Prompt Nutrição", "type": "main", "index": 0 }]] },
+    "Preparar Prompt Nutrição": { "main": [[{ "node": "Groq — Gerar Mensagem", "type": "main", "index": 0 }]] },
+    "Groq — Gerar Mensagem": { "main": [[{ "node": "Parsear Mensagem Groq", "type": "main", "index": 0 }]] },
+    "Parsear Mensagem Groq": { "main": [[{ "node": "É Email?", "type": "main", "index": 0 }]] },
+    "É Email?": { "main": [[{ "node": "Enviar Email Nutrição", "type": "main", "index": 0 }], [{ "node": "Enviar WhatsApp Nutrição", "type": "main", "index": 0 }]] },
+    "Enviar Email Nutrição": { "main": [[{ "node": "Marcar Toque Enviado", "type": "main", "index": 0 }]] },
+    "Enviar WhatsApp Nutrição": { "main": [[{ "node": "Marcar Toque Enviado", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

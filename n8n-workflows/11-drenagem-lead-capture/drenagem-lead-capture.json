@@ -1,0 +1,113 @@
+{
+  "name": "🎯 Drenagem — Lead Capture (Formulário)",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "🎯 DRENAGEM LINFÁTICA — Lead Capture\n\nFluxo: Formulário do site → 3 ações paralelas\n1. Email de notificação para geral@essencewellnesspt.com\n2. WhatsApp para Beatriz\n3. Contacto HubSpot (via HTTP Request)\n\nWebhook URL:\nhttps://n8n.essencewellnesspt.com/webhook/drenagem-lead",
+        "height": 280,
+        "width": 460
+      },
+      "id": "abed5ca0-a606-40f5-94a8-39ed1640f554",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-288, -224]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "drenagem-lead", "options": {} },
+      "id": "302dc26d-af08-42a3-9780-ad9412334656",
+      "name": "Webhook — Lead Drenagem",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [176, 192],
+      "webhookId": "69fafffe-796c-443e-a6a5-3ea3a5db31df"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Mapear valores do formulário para labels legíveis\nconst d = $input.first().json.body;\n\nconst objetivoMap = {\n  'bemestar':       'Pernas pesadas e inchaço diário',\n  'retencao':       'Retenção que nada resolve',\n  'estetica':       'Celulite e medidas',\n  'localizada':     'Zona específica — sessão localizada',\n  'pos-parto':      'Pós-parto — voltar ao normal',\n  'pos-operatorio': 'Pós-operatório — recuperar mais rápido',\n  'gravidez':       'Gravidez — inchaço e desconforto',\n  'duvida':         'Ainda não sei bem — a explorar'\n};\n\nconst zonaMap = {\n  'corpo-inteiro':   'Corpo inteiro',\n  'abdomen':         'Abdómen',\n  'abdomen-pernas':  'Abdómen + Pernas',\n  'rosto':           'Rosto',\n  'avaliacao':       'Prefiro que me avaliem'\n};\n\nconst urgenciaMap = {\n  'esta-semana':  'Esta semana',\n  'duas-semanas': 'Próximas 2 semanas',\n  'este-mes':     'Este mês',\n  'explorar':     'Ainda a explorar'\n};\n\nconst experienciaMap = {\n  'primeira-vez':   'Primeira vez',\n  'sem-resultado':  'Já fez mas sem resultado',\n  'positiva':       'Já fez e adorou'\n};\n\nfunction normalizeTel(tel) {\n  const digits = (tel || '').replace(/\\D/g, '');\n  if (digits.startsWith('351') && digits.length === 12) return digits;\n  if (digits.startsWith('9') && digits.length === 9) return '351' + digits;\n  if (digits.startsWith('351')) return digits;\n  return digits;\n}\n\nconst dataRaw = d.data || new Date().toISOString();\nconst dataPt = new Date(dataRaw).toLocaleString('pt-PT', {\n  weekday: 'long', day: 'numeric', month: 'long',\n  year: 'numeric', hour: '2-digit', minute: '2-digit',\n  timeZone: 'Europe/Lisbon'\n});\n\nreturn {\n  nome:               d.nome || '',\n  email:              d.email || '',\n  telefone:           d.telefone || '',\n  telefone_norm:      normalizeTel(d.telefone),\n  objetivo:           d.objetivo || '',\n  objetivo_label:     objetivoMap[d.objetivo]     || d.objetivo     || 'Não especificado',\n  zona:               d.zona || '',\n  zona_label:         zonaMap[d.zona]             || d.zona         || 'Não especificado',\n  urgencia:           d.urgencia || '',\n  urgencia_label:     urgenciaMap[d.urgencia]     || d.urgencia     || 'Não especificado',\n  experiencia:        d.experiencia || '',\n  experiencia_label:  experienciaMap[d.experiencia] || d.experiencia || 'Não especificado',\n  pagina:             d.pagina || 'drenagem-linfatica',\n  data_iso:           dataRaw,\n  data_pt:            dataPt,\n  utm_source:         d.utm_source   || '',\n  utm_medium:         d.utm_medium   || '',\n  utm_campaign:       d.utm_campaign || ''\n};"
+      },
+      "id": "26000f1c-6811-4850-b890-162399d94cdc",
+      "name": "Mapear Dados",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [416, 192]
+    },
+    {
+      "parameters": {
+        "sendTo": "geral@essencewellnesspt.com",
+        "subject": "=✦ Nova lead drenagem: {{ $json.nome }} · {{ $json.urgencia_label }}",
+        "message": "=Email HTML com identidade visual da marca (ver template completo no N8N) — nome, telefone (link wa.me), problema, zona, urgência, experiência, UTM.",
+        "options": {}
+      },
+      "id": "c24b8cab-bb60-4a8f-a85c-98e96f09a82a",
+      "name": "Email — Notificação Beatriz",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [688, 0],
+      "webhookId": "f762222f-0764-40ef-a273-f1c6d6116f0e",
+      "credentials": { "gmailOAuth2": { "id": "dG6PuQ0LhRtAJ5Ls", "name": "Gmail account" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/message/sendText/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"351910011068\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Flora ✦ | Essence Wellness_\"\n  }\n}",
+        "options": {}
+      },
+      "id": "997591e9-1933-4a7b-a5b1-9a1abcce7711",
+      "name": "WhatsApp — Alerta Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [704, 192],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/message/sendText/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"351911150025\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Flora ✦ | Essence Wellness_\"\n  }\n}",
+        "options": {}
+      },
+      "id": "58f19aba-e603-4f8b-a4d3-93084004a176",
+      "name": "WhatsApp — Alerta Lead - Aviso Nuno",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [704, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "email": "={{ $json.email }}",
+        "additionalFields": { "firstName": "={{ $json.nome }}", "lastName": "", "leadStatus": "Lead_Forms", "phoneNumber": "={{ $json.telefone }}", "whatsappPhoneNumber": "={{ $json.telefone }}" },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [720, 640],
+      "id": "f16f8bf7-31f4-443a-ab9c-9531d2dfbfa6",
+      "name": "Create or update a contact",
+      "credentials": { "hubspotAppToken": { "id": "P94G7HXCLh5tzFRO", "name": "HubSpot App Token account" } }
+    }
+  ],
+  "connections": {
+    "Webhook — Lead Drenagem": { "main": [[{ "node": "Mapear Dados", "type": "main", "index": 0 }]] },
+    "Mapear Dados": { "main": [[{ "node": "Email — Notificação Beatriz", "type": "main", "index": 0 }, { "node": "WhatsApp — Alerta Lead", "type": "main", "index": 0 }, { "node": "WhatsApp — Alerta Lead - Aviso Nuno", "type": "main", "index": 0 }, { "node": "Create or update a contact", "type": "main", "index": 0 }]] },
+    "WhatsApp — Alerta Lead": { "main": [[]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

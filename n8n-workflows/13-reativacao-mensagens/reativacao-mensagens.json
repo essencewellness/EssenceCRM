@@ -1,0 +1,513 @@
+{
+  "name": "11 | Reativação — Geração de Mensagens (Claude Haiku 4.5)",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "sched-gerar",
+      "name": "Trigger Diário 9h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1600,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual-gerar",
+      "name": "Executar Manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/clientes?estado=reativacao&semMensagemDias=14&limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-reativacao",
+      "name": "Buscar Clientes em Reativação",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1376,
+        -96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/clientes?estado=vip_em_risco&semMensagemDias=14&limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-vip-risco",
+      "name": "Buscar Clientes VIP em Risco",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1376,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/mensagens?estado=pendente&limit=200",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-pendentes",
+      "name": "Buscar Mensagens Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1376,
+        288
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-candidatos",
+      "name": "Merge Candidatos",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1152,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-pendentes",
+      "name": "Merge Pendentes",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -928,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Junta reativacao + vip_em_risco, remove duplicados, remove quem já tem\n// mensagem pendente por aprovar, e limita o volume diário (protege a Bea\n// de uma avalancha de aprovações e a quota do Groq).\nconst LIMITE_DIARIO = 15;\n\nconst reativacao = ($('Buscar Clientes em Reativação').first()?.json?.data) || [];\nconst vipRisco = ($('Buscar Clientes VIP em Risco').first()?.json?.data) || [];\nconst pendentes = ($('Buscar Mensagens Pendentes').first()?.json?.data) || [];\n\nconst idsComPendente = new Set(pendentes.map(m => m.clienteId));\n\nconst vistos = new Set();\nconst candidatos = [];\nfor (const c of [...reativacao, ...vipRisco]) {\n  if (vistos.has(c.id)) continue;\n  if (idsComPendente.has(c.id)) continue;\n  vistos.add(c.id);\n  candidatos.push({ json: c });\n}\n\nreturn candidatos.slice(0, LIMITE_DIARIO);"
+      },
+      "id": "code-selecionar",
+      "name": "Selecionar Candidatos do Dia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://crm.essencewellnesspt.com/api/v1/clientes/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-perfil-completo",
+      "name": "Buscar Perfil Completo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -480,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const p = $json.data;\nconst agora = Date.now();\n\nconst diasSemSessao = p.ultimaSessao\n  ? Math.floor((agora - new Date(p.ultimaSessao).getTime()) / 86400000)\n  : null;\n\nconst contagem = {};\nfor (const s of (p.sessoes || [])) {\n  if (s.estado !== 'realizada' || !s.servico) continue;\n  contagem[s.servico] = (contagem[s.servico] || 0) + 1;\n}\nconst servicoFrequente = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0]?.[0] || null;\n\nconst primeiroNome = (p.nome || '').split(' ')[0] || 'lá';\nconst cortar = (txt, n) => !txt ? null : (txt.length > n ? txt.slice(0, n) + '...' : txt);\n\nconst EXEMPLOS_REAIS_BEA = [\n  '\"Estou beem tambem querida 😊 Temos de combinar alguma coisa. Ja não nos vemos desde o inicio do ano\"',\n  '\"Bom dia 😊 pretende agendar ?\"',\n  '\"Amanhã, sem problema algum 😉\"',\n  '\"Que ótima ideia! Nada a agradecer, vocês são muito amáveis. Acreditamos mesmo que pequenos detalhes fazem toda a diferença numa experiência. Um beijinho MUITO grande e até breve! 🤍\"',\n  '\"Olá Patrícia\\nComo estão? Espero que esteja tudo bem consigo e com o seu marido 😊\\nLembramo-nos de vocês por estes dias, daquele momento que tiraram para vocês aqui connosco 🤍\\nSe fizer sentido para si, diga-me e tento ajudar.\\nUm beijinho\" (este é mais longo por ser campanha — NORMALMENTE escreve mais curto, como os de cima)',\n].join('\\n\\n');\n\nconst FECHOS_POSSIVEIS = [\n  'Diga-me como tem estado',\n  'Conte-me novidades',\n  'Como tem passado?',\n  'Um beijinho, até breve',\n  'Fico a pensar em si',\n  'Um grande beijinho, até já',\n];\nconst fechoAtribuido = FECHOS_POSSIVEIS[$itemIndex % FECHOS_POSSIVEIS.length];\n\nconst ABERTURAS_POSSIVEIS = [\n  'Começa com uma saudação direta e simples, tipo \"Olá ' + primeiroNome + ' 😊\" seguida LOGO do facto em si, sem anunciar que é uma memória — vai direta ao assunto como quem continua uma conversa',\n  'Começa por uma pergunta genuína e calorosa sobre o BEM-ESTAR dela relacionada com o facto (nunca sobre marcações, nunca oferecendo ajuda prática ou logística) — ex: \"Como tem estado com...?\" ou \"Isso ainda a tem ocupado?\"',\n  'Começa pelo nome dela e uma observação direta sobre o facto, sem usar a palavra \"lembro\" nem \"lembrei\" em lado nenhum da frase — ex: \"' + primeiroNome + ', esse tempo todo de...\"',\n  'Podes usar \"lembro-me\"/\"lembrei-me\" mas NUNCA como as primeiras palavras da mensagem — insere a meio da frase, depois de uma saudação ou de outra ideia',\n  'Usa uma expressão de memória DIFERENTE de \"lembro-me\"/\"lembrei-me\": por exemplo \"não consegui deixar de pensar em\", \"ainda hoje me veio à cabeça\", \"tenho pensado em si por causa de\", \"não parei de pensar em\"',\n  'Começa diretamente pelo facto descrito como continuação natural, sem qualquer verbo de memória (nem \"lembro\", nem \"pensei\", nem similares) — só descreve o facto como algo presente, tipo \"Essas noites intensas de trabalho...\"',\n].join('|||');\nconst listaAberturas = ABERTURAS_POSSIVEIS.split('|||');\nconst aberturaAtribuida = listaAberturas[($itemIndex + 2) % listaAberturas.length];\n\nconst REGRAS = [\n  'REGRAS ABSOLUTAS — baseadas em como a Bea escreve DE VERDADE no WhatsApp (exemplos reais acima), não num manual de marca abstrato',\n  '- CURTA. 1 a 2 frases curtas no corpo (sem contar saudação e fecho)',\n  '- Português europeu, tratamento por VOCÊ — NUNCA tratar por tu',\n  '- SEMPRE 2ª pessoa ao falar da cliente (\"a sua\", \"consigo\", \"lembro-me de si\") — NUNCA 3ª pessoa (\"dela\", \"ela mencionou\")',\n  '- IMPORTANTE: usa o nome exatamente como fornecido — NUNCA inventes outro nome',\n  '- A REGRA MAIS IMPORTANTE DE TODAS, NUNCA QUEBRAR: esta mensagem é PURAMENTE emocional, nunca prática. Não perguntes, sugiras, proponhas, ofereças ajuda, nem insinues marcar/agendar/combinar/confirmar/resolver NADA — nem de forma direta nem disfarçada de simpatia. Não tentes resolver questões práticas que a cliente tenha levantado no passado — só reconhece o lado emocional/humano do facto, nunca a parte logística. A mensagem tem de conseguir ser lida em voz alta sem soar a atendimento ao cliente — soa a uma amiga a pensar em ti, ponto final, sem propor nada, sem oferecer nada, sem perguntar sobre planos',\n  '- NUNCA mencionar packs, sessões restantes, preços ou descontos — mesmo que existam nos dados, são só contexto interno',\n  '- Se houver mensagens anteriores já enviadas listadas abaixo, NUNCA repitas o mesmo ângulo/facto que já foi usado nelas — escolhe algo novo',\n  '- PROIBIDO mencionar o número de dias/semanas/meses desde a última visita',\n  '- PROIBIDO tom de relatório clínico',\n  '- PROIBIDO começar SEMPRE por \"Lembro-me\"/\"Lembrei-me\" — já se tornou repetitivo e não é como a Bea escreve de verdade',\n  `- ESTILO DE ABERTURA OBRIGATÓRIO PARA ESTA MENSAGEM: ${aberturaAtribuida}`,\n  '- ESCOLHA DO SINAL: prioriza (1) mudança de comportamento/situação emocionalmente forte > (2) facto de vida específico e pessoal > (3) feedback/comentário real que a cliente deixou > (4) preferência de serviço neutra',\n  '- O OBJETIVO É A CLIENTE SENTIR-SE Única — sé tão específica que a mensagem só podia ser sobre ela',\n  `- FECHO OBRIGATÓRIO: a mensagem tem de terminar exatamente com esta frase: \"${fechoAtribuido}\" — nada depois disso`,\n  '- Emojis à vontade no estilo dela (🌿😊😉🤍🧭), no máximo 1-2',\n  '- A cliente é mulher: formas femininas',\n  '- Nunca mencionar IA/sistema automático, urgência artificial, clichés de wellness',\n].join('\\n');\n\nconst systemPrompt = `És a pessoa responsável por escrever mensagens de WhatsApp da Essence Wellness, um centro de massagens de relaxamento em Vila Nova de Gaia. Escreves para reabrir contacto com uma cliente que não vem há algum tempo, IMITANDO O ESTILO REAL da Bea (dona do espaço) nestes exemplos genuínos dela:\\n\\n${EXEMPLOS_REAIS_BEA}\\n\\n${REGRAS}\\n\\nFORMATO DE SAÍDA\\nDevolve APENAS um objeto JSON válido, sem markdown e sem blocos de código:\\n{\"mensagem\": \"...\", \"motivo\": \"resumo curto do ângulo escolhido, para a Bea perceber porque a IA escreveu isto\"}`;\n\n// Resumo compacto do perfil — só os 2-3 sinais mais fortes de cada fonte,\n// truncados, para não disparar tokens de entrada com dados irrelevantes\nconst observacoesLinhas = (p.observacoes || [])\n  .slice(0, 3)\n  .map(o => o.texto)\n  .filter(Boolean)\n  .map(t => `- ${cortar(t, 200)}`);\n\nconst etiquetasNomes = (p.etiquetas || []).map(e => e.etiqueta?.nome).filter(Boolean);\nconst etiquetasLinha = etiquetasNomes.length ? `- Etiquetas: ${etiquetasNomes.slice(0, 5).join(', ')}` : null;\n\nconst tarefasAbertas = (p.tarefas || [])\n  .filter(t => t.estado !== 'concluida' && t.estado !== 'cancelada')\n  .slice(0, 2)\n  .map(t => `- Follow-up em aberto: ${cortar(t.titulo, 100)}`);\n\nconst mensagensAnteriores = (p.mensagens || [])\n  .filter(m => m.estado === 'enviada')\n  .slice(0, 2)\n  .map(m => `- Já recebeu esta mensagem antes (NÃO REPETIR O ÂNGULO): \"${cortar(m.mensagemFinal || m.mensagemGerada, 150)}\"`);\n\nconst feedbacksLinhas = (p.feedbacks || [])\n  .slice(0, 2)\n  .map(f => {\n    const partes = [\n      f.npsScore != null ? `NPS ${f.npsScore}/10` : null,\n      f.motivoRegresso ? `motivo p/ voltar: \"${cortar(f.motivoRegresso, 120)}\"` : null,\n      f.momentoPico ? `momento alto: ${f.momentoPico}` : null,\n      f.comentario ? `comentário: \"${cortar(f.comentario, 150)}\"` : null,\n    ].filter(Boolean).join(' | ');\n    return partes ? `- Feedback real de sessão: ${partes}` : null;\n  })\n  .filter(Boolean);\n\nconst packsLinha = (p.packs && p.packs.length)\n  ? `- (uso interno, NUNCA mencionar) Tem pack ativo: ${p.packs[0].servico?.nome || ''}`\n  : null;\n\nconst sinaisLinhas = [\n  p.fichaClinica ? `- Ficha clínica/contexto pessoal: ${cortar(p.fichaClinica, 300)}` : null,\n  ...observacoesLinhas,\n  etiquetasLinha,\n  ...feedbacksLinhas,\n  ...tarefasAbertas,\n  ...mensagensAnteriores,\n  servicoFrequente ? `- (preferência neutra, só usar se nada acima servir) Serviço que mais costuma marcar: ${servicoFrequente}` : null,\n  packsLinha,\n].filter(Boolean).join('\\n');\n\nconst userPrompt = [\n  `Nome da cliente (usa exatamente este nome): ${primeiroNome}`,\n  '',\n  'SINAIS REAIS SOBRE ESTA CLIENTE:',\n  sinaisLinhas || '- (sem sinais específicos disponíveis — usa um tom genérico mas caloroso)',\n  '',\n  `Estilo de abertura obrigatório: ${aberturaAtribuida}`,\n  `Fecho obrigatório desta mensagem: \"${fechoAtribuido}\"`,\n  '',\n  'Escreve uma mensagem CURTA (1-2 frases), tão específica que só podia ser para esta pessoa. Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn { json: { clienteId: p.id, nome: p.nome, systemPrompt, userPrompt, diasSemSessao, servicoFrequente, fechoAtribuido, aberturaAtribuida } };"
+      },
+      "id": "code-preparar-prompt",
+      "name": "Preparar Prompt Reativação",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {model: 'claude-haiku-4-5', max_tokens: 500, system: $json.systemPrompt, messages: [{role: 'user', content: $json.userPrompt}]} }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1500
+            }
+          }
+        }
+      },
+      "id": "http-groq-reativacao",
+      "name": "Claude Haiku — Gerar Mensagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -32,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "FWjIgyoGZXTkUQ3n",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const prep = $('Preparar Prompt Reativação').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\n\nlet mensagem = '';\nlet motivo = 'Reativação — cliente inativa';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) {\n  // conteúdo vazio ou JSON inválido\n}\n\n// Rede de segurança determinística — já vimos o modelo repetir sugestões de\n// marcação mesmo depois de instruído a não o fazer. Não confiar só no prompt\n// para esta regra — varrer o texto final também. Sem exigir \"?\" a seguir\n// (a 1a versão só apanhava perguntas e deixou passar \"a gente combina um\n// tempo\" que termina em ponto final).\nconst PADROES_PROIBIDOS = [\n  /combin(a|amos|ar|ados?|ámos)\\b/i,\n  /acalmar/i,\n  /vamos marcar/i,\n  /a gente (quer|pode|vai) receb/i,\n  /deixe-me confirmar/i,\n  /queria perceber se conseguimos ajudar/i,\n  /podemos ajudar (com|nisso)/i,\n  /assim que puder,? (apareça|venha|volte)/i,\n  /\\bdela\\b/i,\n  /\\bela mencionou\\b/i,\n];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\n\nreturn { json: {\n  clienteId: prep.clienteId,\n  mensagemGerada: mensagem,\n  motivoGeracao: motivo,\n  falhou: !mensagem || violacao,\n} };"
+      },
+      "id": "code-parsear-reativacao",
+      "name": "Parsear Mensagem Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://crm.essencewellnesspt.com/api/v1/mensagens",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "clienteId",
+              "value": "={{ $json.clienteId }}"
+            },
+            {
+              "name": "mensagemGerada",
+              "value": "={{ $json.mensagemGerada }}"
+            },
+            {
+              "name": "canal",
+              "value": "whatsapp"
+            },
+            {
+              "name": "motivoGeracao",
+              "value": "={{ $json.motivoGeracao }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-criar-mensagem",
+      "name": "Criar Mensagem Pendente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        544,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.falhou }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-msgs-validas",
+      "name": "Filtrar Mensagens Válidas",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        352,
+        96
+      ]
+    }
+  ],
+  "connections": {
+    "Trigger Diário 9h": {
+      "main": [
+        [
+          {
+            "node": "Buscar Clientes em Reativação",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Clientes VIP em Risco",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Mensagens Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Executar Manualmente": {
+      "main": [
+        [
+          {
+            "node": "Buscar Clientes em Reativação",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Clientes VIP em Risco",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Mensagens Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Clientes em Reativação": {
+      "main": [
+        [
+          {
+            "node": "Merge Candidatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Clientes VIP em Risco": {
+      "main": [
+        [
+          {
+            "node": "Merge Candidatos",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Candidatos": {
+      "main": [
+        [
+          {
+            "node": "Merge Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Mensagens Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Merge Pendentes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Selecionar Candidatos do Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selecionar Candidatos do Dia": {
+      "main": [
+        [
+          {
+            "node": "Buscar Perfil Completo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Perfil Completo": {
+      "main": [
+        [
+          {
+            "node": "Preparar Prompt Reativação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Prompt Reativação": {
+      "main": [
+        [
+          {
+            "node": "Claude Haiku — Gerar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Haiku — Gerar Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Parsear Mensagem Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Mensagem Claude": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Mensagens Válidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Mensagens Válidas": {
+      "main": [
+        [
+          {
+            "node": "Criar Mensagem Pendente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  }
+}

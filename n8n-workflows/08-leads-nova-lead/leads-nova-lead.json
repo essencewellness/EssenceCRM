@@ -1,0 +1,58 @@
+{
+  "name": "08 | Leads — Nova Lead",
+  "active": true,
+  "nodes": [
+    {
+      "id": "webhook-lead-criado",
+      "name": "Webhook — Lead Criado (CRM)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "parameters": { "httpMethod": "POST", "path": "lead-criado", "options": {} },
+      "webhookId": "238dc737-8c85-48d6-8f7d-2e0f055fc174"
+    },
+    {
+      "id": "code-montar-mensagem-lead",
+      "name": "Montar Mensagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-192, 0],
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst p = body.payload || {};\n\n// Um número por agora (Nuno) — acrescentar o da Beatriz aqui quando confirmado, sem tocar no resto do workflow.\nconst DESTINATARIOS = ['351911150025'];\n\nconst linhas = [`✨ Nova lead: *${p.nomeCliente || 'sem nome'}*`];\nif (p.telefone) linhas.push('Telefone: ' + p.telefone);\nif (p.email) linhas.push('Email: ' + p.email);\nif (p.comoNosConheceu) linhas.push('Origem: ' + p.comoNosConheceu);\nif (p.servicoInteresse) linhas.push('Interesse: ' + p.servicoInteresse);\n\nconst texto = linhas.join('\\n');\nreturn DESTINATARIOS.map(numero => ({ json: { numero, texto } }));"
+      }
+    },
+    {
+      "id": "http-notificar-lead",
+      "name": "WhatsApp — Notificar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [16, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://evolution.essencewellnesspt.com/message/sendText/essence_whatsapp",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { number: $json.numero, options: { delay: 800, presence: 'composing' }, textMessage: { text: $json.texto } } }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Webhook — Lead Criado (CRM)": { "main": [[{ "node": "Montar Mensagem", "type": "main", "index": 0 }]] },
+    "Montar Mensagem": { "main": [[{ "node": "WhatsApp — Notificar", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}
