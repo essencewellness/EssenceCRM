@@ -41,7 +41,9 @@ Ordem de prioridade no `calcularEstado`: perdida → reativacao → VIP → ativ
 
 ### Fila de envio WhatsApp
 
-`lib/fila-envio.ts` gere o espaçamento anti-ban: ao aprovar mensagens em bulk, cada uma recebe um `enviarApos` espaçado 30–90s da anterior. O N8N consulta `GET /api/v1/mensagens/fila` e só recebe mensagens com `enviarApos <= agora` (estado `em_fila`). Há **dois caminhos concorrentes** para o envio: push via webhook `mensagem.aprovada` (frágil, fire-and-forget) e pull via fila (resiliente). Preferir o modelo pull.
+`lib/fila-envio.ts` gere o espaçamento anti-ban: ao aprovar mensagens em bulk, cada uma recebe um `enviarApos` espaçado 30–90s da anterior (ou a partir de `agendarPara`, se a Bea escolher uma hora no dashboard — construído 2026-08-31). O N8N consulta `GET /api/v1/mensagens/fila` e só recebe mensagens com `enviarApos <= agora` (estado `em_fila`) — corre 8h-20h/20min (workflow "10 | Motor de Envio"), com espaçamento real garantido dentro do lote (nó Wait, 30-90s) mesmo que se acumulem várias mensagens entre verificações.
+
+**Dois caminhos, já ligados os dois (2026-08-31):** pull via fila (rede de segurança, resiliente) e push via webhook `mensagem.aprovada` (`WEBHOOK_N8N_MENSAGEM_APROVADA`) — este último dispara **só para a 1ª mensagem de um lote sem `agendarPara`** (a Bea quis dizer "envia já"), dando envio quase instantâneo sem esperar pela próxima verificação periódica. Antes o push nunca era chamado na prática (o dashboard só usava `aprovarEAgendar`, nunca o `PATCH estado=aprovada` que o disparava) — corrigido e testado ao vivo.
 
 ### Webhooks de saída (CRM → N8N)
 
@@ -62,6 +64,20 @@ Não existe um único `onboarding.html` — cada serviço tem o seu próprio fic
 ### Catálogo de Serviços
 
 Modelos `Servico`, `PrecoPersonalizado` e `Pack` adicionados ao schema. Endpoints em `app/api/v1/servicos/`, `/clientes/[id]/precos/` e `/clientes/[id]/packs/`. Dashboard em `app/(dashboard)/servicos/page.tsx`. Tab "Packs & Preços" no perfil do cliente. Calendly webhook tem idempotência via `calendlyEventId @unique`. Blacklist guard em Calendly, WhatsApp e onboarding (retorna 200 silenciosamente).
+
+### Backup e restauro da base de dados (2026-08-31)
+
+`GET /api/v1/admin/backup` (`API_KEY_ADMIN`) — export lógico completo das 23 tabelas em JSON (`app/api/v1/admin/backup/route.ts`, `maxDuration = 60`). Chamado diariamente pelo workflow N8N "17 | Backup Diário da Base de Dados" (4h, guarda no Google Drive, apaga backups >30 dias — ver `01_CODIGO/n8n-workflows/17-backup-diario-bd/`).
+
+`prisma/restaurar-backup.ts` — lê um ficheiro de backup e recria os dados respeitando a ordem de dependências de FK do schema (`User` → `Cliente` → ... → `Feedback`/`Tarefa` por último). Testado numa branch de teste isolada da Neon (nunca em produção): 23/23 tabelas, integridade relacional confirmada com queries reais.
+
+```powershell
+DATABASE_URL="<destino>" npx tsx prisma/restaurar-backup.ts backup.json
+```
+
+### Backups dos workflows N8N
+
+Vivem em `n8n-workflows/` (movido de `04_CRM/03_WORKFLOWS_N8N/` em 2026-08-31 — esse repositório não tinha remoto do GitHub configurado). Um workflow por pasta, chaves reais substituídas por placeholders (`{{API_KEY_N8N}}`, `{{EVOLUTION_API_KEY}}`, `{{API_KEY_ADMIN}}`) antes de commitar — nunca commitar uma chave real aqui. Ver `n8n-workflows/README.md` para o índice completo (19 workflows) e notas sobre colisões de numeração entre o nome interno do N8N e a numeração deste repositório.
 
 ## Regras de código
 
@@ -105,10 +121,22 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
 | ~~🟠 ALTO~~ | ~~Password da Neon exposta anteriormente~~ | ✅ Resolvido 2026-08-05 — password rotada na Neon, `DATABASE_URL` atualizada no Vercel |
 | ~~🟠 ALTO~~ | ~~Estado CRM só recalcula no cron — desfasado até 24h após sessão~~ | ✅ Resolvido 2026-08-05 — `recalcularEstadoCliente()` chamado inline quando uma sessão passa a "realizada" (`lib/crm-estados.ts`); cron das 7h mantido como rede de segurança |
-| ~~🟡 MÉDIO~~ | ~~Workflows N8N sem backup exportado no repositório~~ | ✅ Resolvido 2026-08-05 — os 12 workflows reais exportados para `03_WORKFLOWS_N8N/01-...12-.../` (API keys substituídas por placeholders, ver README do diretório). Enforcement de link tokens continua desligado por decisão separada, não por falta de visibilidade. |
+| ~~🟡 MÉDIO~~ | ~~Workflows N8N sem backup exportado no repositório~~ | ✅ Resolvido 2026-08-05, actualizado 2026-08-31 — todos os workflows (19) exportados para `n8n-workflows/01-.../` (API keys substituídas por placeholders, ver README do diretório). Enforcement de link tokens continua desligado por decisão separada, não por falta de visibilidade. |
+| ~~🟠 ALTO~~ | ~~Quota gratuita da Neon (100 CU-hours/mês) esgotada a meio do mês~~ | ✅ Resolvido 2026-08-31 — causas identificadas e corrigidas: WF05 e WF10 faziam polling contínuo (15min/1min, 24h/dia), `AutoRefresh` do dashboard corria a cada 20s sem pausar. Ver `../CLAUDE.md` secção "Sistema de resiliência" para o detalhe completo. |
 | ~~🟡 MÉDIO~~ | ~~`confirmacao-envio` não bloqueia double-delivery~~ | ✅ Resolvido 2026-08-01 — `updateMany` com `estado: "em_fila"` no WHERE torna a transição atómica (antes: read-then-write com janela de corrida entre pedidos concorrentes do N8N) |
 | ~~🟡 MÉDIO~~ | ~~Sem paginação na lista de clientes do dashboard~~ | ✅ Nota desatualizada — já implementada (cursor-based, 50/página + scroll infinito via `ClientesInfiniteList.tsx`), confirmado 2026-08-05 |
 | ~~🟡 MÉDIO~~ | ~~`criadoPor: admin?.id ?? "sistema"` em `crm-estados.ts` — "sistema" não é um User.id válido (FK obrigatória), falhava silenciosamente sem admin ativo~~ | ✅ Resolvido 2026-08-05 — sem terapeuta/admin disponível, a tarefa de reativação não é criada (em vez de tentar gravar um valor inválido) e fica um aviso explícito nos logs |
+
+## Resolvido nesta fase (sessão de trabalho 2026-08-31, pré-lançamento 200 clientes)
+
+| ✅ | Problema resolvido | Como |
+|---|---|---|
+| ✅ | `/financeiro` e dashboard duplicavam receita de sessões "a dois" pagas diretamente | `receitaAllTime`/`receitaMesSessoes` passaram de `.aggregate()` SQL para `.findMany()` + redução em JS, com metade do valor atribuída a cada terapeuta |
+| ✅ | Janelas de corrida de idempotência (P2002) em `onboarding`, `lead`, `feedback` públicos | try/catch + re-`findFirst` em vez de deixar rebentar 500 quando dois pedidos concorrentes criam o mesmo cliente/feedback |
+| ✅ | Nome da terapeuta inconsistente em todo o CRM ("beatriz" vs "Beatriz Leão") | Resolução sempre via `Sessao.terapeutaId` (nunca o texto livre `terapeuta`), `"-"` como fallback quando não atribuída — aplicado em 9 ficheiros |
+| ✅ | Link Calendly dos packs de Massagens desactivado (`pack.servico` fica `null` de propósito) | Novo evento Calendly dedicado (`sessao-pack-massagem`), mapeado em `PacksTab.tsx` |
+| ✅ | Salto visual no texto da sidebar ao selecionar item | `border-left` trocado por `box-shadow` (não desloca padding), `font-weight` fixo |
+| ✅ | Ver secção "Sistema de resiliência, backup e alertas" em `../CLAUDE.md` | Backup diário + restauro testado, alerta central de falhas, vigilância WhatsApp, fallback por email, agendamento de envio, optimização de CU-hours na Neon |
 
 ## Resolvido nesta fase (spec-002)
 
