@@ -228,6 +228,10 @@ export const aprovarBulkSchema = z.object({
   // espaçamento entre envios em segundos (anti-ban WhatsApp)
   espacamentoMinSeg: z.coerce.number().int().min(10).max(600).default(30),
   espacamentoMaxSeg: z.coerce.number().int().min(10).max(900).default(90),
+  // Data/hora escolhida pela Bea para o primeiro envio do lote (opcional —
+  // sem isto, cai para "agora", como já acontecia). As seguintes cascatam
+  // o espaçamento a partir daqui, tal como já fazem a partir de "agora".
+  agendarPara: dataISO.optional(),
 }).strict()
 
 // ── Webhooks de entrada ───────────────────────────────────────

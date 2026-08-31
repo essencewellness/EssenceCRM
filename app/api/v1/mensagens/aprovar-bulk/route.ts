@@ -22,14 +22,19 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, aprovarBulkSchema)
   if (!v.ok) return v.resposta
-  const { mensagens, espacamentoMinSeg, espacamentoMaxSeg } = v.data
+  const { mensagens, espacamentoMinSeg, espacamentoMaxSeg, agendarPara } = v.data
 
   if (espacamentoMinSeg > espacamentoMaxSeg) {
     return respostaErro("espacamentoMinSeg não pode exceder espacamentoMaxSeg", "ESPACAMENTO_INVALIDO", 400)
   }
 
   try {
-    const resultado = await aprovarEAgendar(mensagens, espacamentoMinSeg, espacamentoMaxSeg)
+    const resultado = await aprovarEAgendar(
+      mensagens,
+      espacamentoMinSeg,
+      espacamentoMaxSeg,
+      agendarPara ? new Date(agendarPara) : undefined
+    )
 
     auditar({
       quem,

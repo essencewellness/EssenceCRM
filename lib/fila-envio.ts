@@ -25,7 +25,11 @@ export interface ResultadoFila {
 export async function aprovarEAgendar(
   itens: ItemAprovacao[],
   espacamentoMinSeg = 30,
-  espacamentoMaxSeg = 90
+  espacamentoMaxSeg = 90,
+  // Hora escolhida pela Bea para o primeiro envio do lote — sem isto,
+  // mantém o comportamento antigo (cascata a partir de "agora"). Nunca
+  // aceita uma hora no passado (ia disparar tudo de imediato sem querer).
+  agendarPara?: Date
 ): Promise<ResultadoFila> {
   const ids = itens.map((i) => i.id)
   const existentes = await prisma.mensagemIA.findMany({
@@ -35,8 +39,8 @@ export async function aprovarEAgendar(
   const validas = new Set(existentes.map((m) => m.id))
 
   const resultado: ResultadoFila = { agendadas: [], ignoradas: [] }
-  let cursor = Date.now()
   const agora = new Date()
+  let cursor = agendarPara && agendarPara.getTime() > agora.getTime() ? agendarPara.getTime() : Date.now()
 
   for (const item of itens) {
     if (!validas.has(item.id)) {
