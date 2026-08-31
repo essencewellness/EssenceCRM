@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { KpiCardPremium } from "@/components/kpi-card"
 import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
-import { AutoRefresh } from "@/components/auto-refresh"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -268,8 +267,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <AutoRefresh />
-
       {/* Saudação */}
       <DashboardHeader saudacao={saudacao} totalHoje={sessõesHoje.length} />
 
