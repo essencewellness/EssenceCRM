@@ -1,8 +1,12 @@
 // Fila de envio com espaçamento aleatório — proteção anti-ban do WhatsApp.
 // Ao aprovar N mensagens, cada uma recebe um horário `enviarApos` espaçado
 // 30–90s da anterior. O N8N consulta GET /api/v1/mensagens/fila e só recebe
-// as que já estão "maduras" (enviarApos <= agora).
+// as que já estão "maduras" (enviarApos <= agora) — verificação periódica,
+// rede de segurança. Para a PRIMEIRA mensagem de um lote sem hora escolhida
+// (a Bea quis dizer "envia já"), dispara-se também o webhook mensagem.aprovada
+// para um envio quase instantâneo, sem esperar pela próxima verificação.
 import { prisma } from "@/lib/prisma"
+import { webhooks } from "@/lib/webhooks"
 
 function aleatorioEntre(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -54,6 +58,8 @@ export async function aprovarEAgendar(
     }
     const enviarApos = new Date(cursor)
 
+    const eraPrimeira = resultado.agendadas.length === 0
+
     const m = await prisma.mensagemIA.update({
       where: { id: item.id },
       data: {
@@ -62,7 +68,14 @@ export async function aprovarEAgendar(
         enviarApos,
         ...(item.mensagemFinal ? { mensagemFinal: item.mensagemFinal } : {}),
       },
-      select: { id: true, clienteId: true },
+      select: {
+        id: true,
+        clienteId: true,
+        canal: true,
+        mensagemFinal: true,
+        mensagemGerada: true,
+        cliente: { select: { telefone: true } },
+      },
     })
 
     resultado.agendadas.push({
@@ -70,6 +83,19 @@ export async function aprovarEAgendar(
       clienteId: m.clienteId,
       enviarApos: enviarApos.toISOString(),
     })
+
+    // Só a primeira mensagem de um lote SEM hora escolhida é "quero já" —
+    // as seguintes de um lote já têm o espaçamento anti-ban intencional,
+    // e uma agendada para o futuro não deve disparar nada agora.
+    if (eraPrimeira && !agendarPara) {
+      void webhooks.mensagemAprovada({
+        mensagemId: m.id,
+        clienteId: m.clienteId,
+        telefone: m.cliente.telefone,
+        mensagemFinal: m.mensagemFinal ?? m.mensagemGerada,
+        canal: m.canal,
+      })
+    }
   }
 
   return resultado
