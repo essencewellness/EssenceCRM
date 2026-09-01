@@ -344,6 +344,14 @@ export function TabelaSessoesPagamento({
   const [marcandoId, setMarcandoId] = useState<string | null>(null)
   const [pendingRapido, startRapido] = useTransition()
 
+  // Lista comprida (um mês inteiro) fica pesada de ler de uma vez — mostra
+  // só os 5 mais recentes por omissão (já vêm ordenados por data desc.) e
+  // deixa expandir para o mês todo com um texto discreto.
+  const LIMITE_INICIAL = 5
+  const [mostrarTodos, setMostrarTodos] = useState(false)
+  const visiveis = mostrarTodos ? sessoes : sessoes.slice(0, LIMITE_INICIAL)
+  const restantes = sessoes.length - LIMITE_INICIAL
+
   // Atalho para o caso mais comum: marcar como pago no valor cheio, sem
   // abrir o modal — cobre a maioria das sessões pendentes num só clique.
   // O modal continua disponível para valores parciais ou método diferente.
@@ -400,8 +408,8 @@ export function TabelaSessoesPagamento({
           </tr>
         </thead>
         <tbody>
-          {sessoes.map((s, i) => (
-            <tr key={s.id} style={{ borderBottom: i < sessoes.length - 1 ? `1px solid ${BORDER}` : "none" }}>
+          {visiveis.map((s, i) => (
+            <tr key={s.id} style={{ borderBottom: i < visiveis.length - 1 ? `1px solid ${BORDER}` : "none" }}>
               <td style={{ padding: "12px 16px", color: CREAM, fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
                 {s.cliente.nome}
               </td>
@@ -506,6 +514,22 @@ export function TabelaSessoesPagamento({
           ))}
         </tbody>
       </table>
+
+      {restantes > 0 && (
+        <div style={{ textAlign: "center", padding: "12px 16px", borderTop: `1px solid ${BORDER}` }}>
+          <button
+            onClick={() => setMostrarTodos(v => !v)}
+            style={{
+              background: "transparent", border: "none", cursor: "pointer",
+              color: "rgba(212,184,134,0.75)", fontSize: "12px", fontWeight: 600,
+              fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+              textDecoration: "underline", textUnderlineOffset: "3px",
+            }}
+          >
+            {mostrarTodos ? "Mostrar só os últimos 5" : `Ver todos os ${sessoes.length} movimentos`}
+          </button>
+        </div>
+      )}
 
       {editando && (
         <PagamentoModal sessao={editando} onFechar={() => setEditId(null)} />
