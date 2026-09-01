@@ -691,7 +691,7 @@
         </div>
         <div class="field-group" style="margin-top:12px;">
           <label class="field-label" for="aroma-custom">Detalhe <span class="opt">(opcional)</span></label>
-          <input type="text" id="aroma-custom" placeholder="Ex: aplicado só na zona lombar, mais concentrado…" autocomplete="off">
+          <input type="text" id="aroma-custom" placeholder="Ex: proporção 2:1, ou mais concentrado na lombar…" autocomplete="off">
         </div>
       </div>
 
@@ -868,15 +868,12 @@
     });
   });
 
-  // ── Aromas ───────────────────────────────────────
+  // ── Aromas (múltipla escolha — dá para combinar, ex: Lavanda + Deep Blue™) ──
   document.querySelectorAll('.aroma-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.aroma-btn').forEach(b => {
-        b.classList.remove('selected');
-        b.setAttribute('aria-pressed', 'false');
-      });
-      btn.classList.add('selected');
-      btn.setAttribute('aria-pressed', 'true');
+      const jaSel = btn.classList.contains('selected');
+      btn.classList.toggle('selected', !jaSel);
+      btn.setAttribute('aria-pressed', jaSel ? 'false' : 'true');
     });
   });
 
@@ -1146,9 +1143,10 @@
     if (obsPessoais) partesNotas.push(`Pessoal: ${obsPessoais}`);
     const notasPosSessao = partesNotas.length ? partesNotas.join('\n\n') : null;
 
-    const aromaBtn    = document.querySelector('.aroma-btn.selected');
-    const aromaSessao = aromaBtn
-      ? (aromaCustom ? `${aromaBtn.dataset.value} — ${aromaCustom}` : aromaBtn.dataset.value)
+    const aromasSelecionados = [...document.querySelectorAll('.aroma-btn.selected')].map(b => b.dataset.value);
+    const aromaBase   = aromasSelecionados.length ? aromasSelecionados.join(' + ') : null;
+    const aromaSessao = aromaBase
+      ? (aromaCustom ? `${aromaBase} — ${aromaCustom}` : aromaBase)
       : (aromaCustom || null);
 
     const emocionalBtn   = document.querySelector('.emocional-btn.selected');
