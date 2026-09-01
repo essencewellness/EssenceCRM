@@ -6,6 +6,7 @@ export type ContextoUtilizador = {
   role: "admin" | "terapeuta";
   userId: string;
   username: string;
+  nome: string;
   isAdmin: boolean;
   // Filtro Prisma pronto para queries de clientes
   filtroCliente: Record<string, unknown>;
@@ -21,6 +22,7 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
     id?: string;
     role?: string;
     username?: string;
+    name?: string;
   };
 
   const role = (u.role ?? "terapeuta") as "admin" | "terapeuta";
@@ -31,6 +33,10 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
     role,
     userId,
     username: u.username ?? "",
+    // Primeiro nome, para saudações ("Boa tarde, Cristina.") — nunca hard-code
+    // "Bea", cada terapeuta/admin vê o seu próprio nome (bug real encontrado
+    // 2026-09-01: a saudação do dashboard estava fixa em "Bea" para todos).
+    nome: (u.name ?? u.username ?? "").trim().split(" ")[0] || "",
     isAdmin,
     // O cliente "pertence" a uma terapeuta via terapeutaPrincipalId.
     // Terapeuta só vê os seus; admin vê tudo (filtro aplicado via getFiltrosTerapeuta).

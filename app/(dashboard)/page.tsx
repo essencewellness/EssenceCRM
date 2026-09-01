@@ -48,7 +48,7 @@ interface DashboardPageProps {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const { terapeuta: terapeutaFiltroId } = await searchParams
-  const { alvo, filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
+  const { ctx, alvo, filtroSessao: filtroSessaoBase, filtroCliente: filtroClienteBase } = await getFiltrosTerapeuta(terapeutaFiltroId)
   const filtroSessao = filtroSessaoBase as Prisma.SessaoWhereInput
   const filtroCliente = filtroClienteBase as Prisma.ClienteWhereInput
   // "Receita do Mês" tem de bater sempre com /financeiro — esse usa quem
@@ -268,7 +268,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Saudação */}
-      <DashboardHeader saudacao={saudacao} totalHoje={sessõesHoje.length} />
+      <DashboardHeader saudacao={saudacao} nome={ctx.nome || "Bea"} totalHoje={sessõesHoje.length} />
 
       <FiltroTerapeutaSlot />
 

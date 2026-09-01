@@ -75,9 +75,11 @@ const cardHeaderStyle = {
 
 export function DashboardHeader({
   saudacao,
+  nome,
   totalHoje,
 }: {
   saudacao: string
+  nome: string
   totalHoje: number
 }) {
   return (
@@ -112,7 +114,7 @@ export function DashboardHeader({
               lineHeight: 1.15, fontStyle: "italic",
             }}
           >
-            {saudacao}, Bea. Aqui está o teu dia.
+            {saudacao}, {nome}. Aqui está o teu dia.
           </motion.h1>
         </div>
 
