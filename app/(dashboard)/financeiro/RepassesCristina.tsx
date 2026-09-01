@@ -83,7 +83,7 @@ export function RepassesCristina({ repasses, total }: { repasses: RepasseRow[]; 
         fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "12px",
         color: "var(--muted-foreground)", marginBottom: "12px", lineHeight: 1.6,
       }}>
-        Estas sessões foram pagas por MBWay — que cai sempre na conta da Bea. Marca &ldquo;Repassado&rdquo; só depois de entregares o dinheiro à Cristina em mão.
+Estas sessões e vouchers foram pagos por MBWay — que cai sempre na conta da Bea. Marca &ldquo;Repassado&rdquo; só depois de entregares o dinheiro à Cristina em mão.
       </p>
       <div style={{ backgroundColor: CARD_BG, border: "1px solid rgba(212,140,50,0.25)", borderRadius: "10px", overflow: "hidden" }}>
         {repasses.map(r => <LinhaRepasse key={r.id} repasse={r} />)}

@@ -33,6 +33,11 @@ export type ServicoOpcao = {
   precoBase: string
 }
 
+export type TerapeutaOpcao = {
+  id: string
+  nome: string
+}
+
 // ── Badges ────────────────────────────────────────────────────
 
 const ESTADO_V: Record<string, { bg: string; color: string; label: string }> = {
@@ -113,10 +118,12 @@ function Grupo({ label, children }: { label: string; children: React.ReactNode }
 
 function CriarVoucherModal({
   servicos,
+  terapeutas,
   onFechar,
   onCriado,
 }: {
   servicos: ServicoOpcao[]
+  terapeutas: TerapeutaOpcao[]
   onFechar: () => void
   onCriado: (codigo: string) => void
 }) {
@@ -134,6 +141,8 @@ function CriarVoucherModal({
   const [dataCompra, setDataCompra] = useState(hoje())
   const [validade, setValidade] = useState(daqui1Ano())
   const [notas, setNotas] = useState("")
+  const [terapeutaId, setTerapeutaId] = useState("")
+  const [metodoPagamento, setMetodoPagamento] = useState("")
   const [erro, setErro] = useState("")
 
   const servicoFinal = servicoNome === "__outro__" ? servicoCustom : servicoNome
@@ -188,6 +197,8 @@ function CriarVoucherModal({
           dataCompra,
           validade: validade || undefined,
           notas: notas.trim() || undefined,
+          terapeutaId: terapeutaId || undefined,
+          metodoPagamento: metodoPagamento || undefined,
         })
         onCriado(codigo)
       } catch {
@@ -317,6 +328,22 @@ function CriarVoucherModal({
               )}
               <Grupo label="Valor pago (€) *">
                 <input value={valorPago} onChange={e => setValorPago(e.target.value)} style={inputStyle} type="number" step="0.01" min="0" placeholder="0.00" />
+              </Grupo>
+              <Grupo label="Método de pagamento">
+                <select value={metodoPagamento} onChange={e => setMetodoPagamento(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
+                  <option value="">— Selecionar —</option>
+                  <option value="mbway_essence">MBWay Essence</option>
+                  <option value="mbway_beatriz">MBWay Beatriz</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="transferencia">Transferência</option>
+                  <option value="stripe">Stripe</option>
+                </select>
+              </Grupo>
+              <Grupo label="Terapeuta">
+                <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
+                  <option value="">Beatriz (por omissão)</option>
+                  {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+                </select>
               </Grupo>
             </div>
           </div>
@@ -474,9 +501,11 @@ type Filtro = (typeof FILTROS)[number]
 export function VouchersSection({
   vouchers: inicial,
   servicos,
+  terapeutas,
 }: {
   vouchers: VoucherRow[]
   servicos: ServicoOpcao[]
+  terapeutas: TerapeutaOpcao[]
 }) {
   const [vouchers, setVouchers] = useState(inicial)
   const [mostrarCriar, setMostrarCriar] = useState(false)
@@ -678,6 +707,7 @@ export function VouchersSection({
       {mostrarCriar && (
         <CriarVoucherModal
           servicos={servicos}
+          terapeutas={terapeutas}
           onFechar={() => setMostrarCriar(false)}
           onCriado={onCriado}
         />

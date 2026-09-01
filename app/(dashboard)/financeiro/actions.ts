@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
+import { calcularRepasse } from "@/lib/repasses"
 
 async function verificarSessao() {
   const session = await auth()
@@ -137,13 +138,23 @@ export async function atualizarPagamento(
 }
 
 // ── Repasse à Cristina (MBWay cai sempre na conta da Bea) ─────
-export async function marcarRepasseFeito(sessaoId: string) {
+// id vem prefixado "voucher-" quando é um repasse de venda de voucher (ver
+// linhasVoucher/repassesVoucher em page.tsx) — mesmo padrão já usado nas
+// linhas de movimentos do mês, para nunca colidir com um id de Sessao.
+export async function marcarRepasseFeito(id: string) {
   await verificarSessao()
 
-  await prisma.sessao.update({
-    where: { id: sessaoId },
-    data: { repasseFeito: true, repasseFeitoEm: new Date() },
-  })
+  if (id.startsWith("voucher-")) {
+    await prisma.giftCard.update({
+      where: { id: id.slice("voucher-".length) },
+      data: { repasseFeito: true, repasseFeitoEm: new Date() },
+    })
+  } else {
+    await prisma.sessao.update({
+      where: { id },
+      data: { repasseFeito: true, repasseFeitoEm: new Date() },
+    })
+  }
 
   revalidatePath("/financeiro")
 }
@@ -163,6 +174,8 @@ export async function criarVoucher(dados: {
   dataCompra: string
   validade?: string
   notas?: string
+  terapeutaId?: string
+  metodoPagamento?: string
 }): Promise<{ codigo: string }> {
   await verificarSessao()
 
@@ -183,6 +196,28 @@ export async function criarVoucher(dados: {
   const jaExiste = await prisma.giftCard.findUnique({ where: { codigo } })
   if (jaExiste) throw new Error(`O código "${codigo}" já está em uso.`)
 
+  // Serviço "a dois": sabe-se logo à compra que são as duas terapeutas —
+  // mesma lógica do outro formulário de criar voucher (app/vouchers/actions.ts).
+  let terapeuta2Id: string | null = null
+  if (/a dois|a duas|casal/i.test(dados.servicoNome)) {
+    const [idBea, terapeutasAtivas] = await Promise.all([
+      getTerapeutaPrincipalPadraoId(),
+      prisma.user.findMany({ where: { role: "terapeuta", ativo: true }, select: { id: true } }),
+    ])
+    if (terapeutasAtivas.length === 2) {
+      terapeuta2Id = terapeutasAtivas.find(t => t.id !== idBea)?.id ?? null
+    }
+  }
+
+  const terapeutaId = dados.terapeutaId || null
+  const metodoPagamento = dados.metodoPagamento || null
+  const { repasseNecessario, valorRepasse } = calcularRepasse({
+    terapeutaId,
+    terapeuta2Id,
+    metodoPagamento,
+    valorPago: dados.valorPago,
+  })
+
   await prisma.giftCard.create({
     data: {
       codigo,
@@ -197,6 +232,11 @@ export async function criarVoucher(dados: {
       dataCompra: new Date(dados.dataCompra),
       validade: dados.validade ? new Date(dados.validade) : null,
       notas: dados.notas || null,
+      terapeutaId,
+      terapeuta2Id,
+      metodoPagamento,
+      repasseNecessario,
+      valorRepasse,
     },
   })
 

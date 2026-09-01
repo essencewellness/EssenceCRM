@@ -652,6 +652,19 @@ model GiftCard {
 
   notas                String?
 
+  // Como a compradora pagou o voucher — mesmas opções da Sessao. Só há um
+  // MBWay físico (é da Bea), por isso quando o voucher acaba por ser da
+  // Cristina (terapeutaId/terapeuta2Id) e foi pago por lá, esse dinheiro
+  // fica na conta da Bea até ela entregar a parte da Cristina em mão —
+  // mesma regra e mesmos campos usados em Sessao (ver pos-sessao.html).
+  metodoPagamento      String?
+  repasseNecessario    Boolean       @default(false)
+  repasseFeito         Boolean       @default(false)
+  repasseFeitoEm       DateTime?
+  // Quanto desta venda é da Cristina. Null = o valorPago todo; a dois é
+  // sempre metade, porque a outra metade é trabalho da Bea.
+  valorRepasse         Decimal?      @db.Decimal(10, 2)
+
   // ── Campos que só existem para o voucher que a pessoa recebe ──
   // Quem oferece, tal como aparece impresso no voucher. Pode ser diferente
   // do compradorNome: às vezes é um grupo de amigas a oferecer, e o voucher

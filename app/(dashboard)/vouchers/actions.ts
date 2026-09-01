@@ -8,6 +8,7 @@ import { adicionarMeses, origemDoVoucher, linkCurtoDoVoucher } from "@/lib/utils
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
 import { Prisma } from "@/lib/prisma-client"
+import { calcularRepasse } from "@/lib/repasses"
 
 async function verificarSessao() {
   const session = await auth()
@@ -24,6 +25,7 @@ const CAMPOS_EDITAVEIS = [
   // De quem é a receita desta venda. Null = da Bea (o normal); passa-se
   // para a Cristina quando é ela que vai fazer a sessão.
   "terapeutaId",
+  "metodoPagamento",
 ] as const
 type CampoEditavel = (typeof CAMPOS_EDITAVEIS)[number]
 
@@ -98,6 +100,26 @@ export async function atualizarVoucher(
     if (duplicado) return { ok: false, erro: "Já existe um voucher com este código." }
   }
 
+  // Recalcula o repasse sempre que terapeuta ou método de pagamento mudam —
+  // busca o estado atual para combinar com o que está a ser editado agora.
+  const precisaRecalcular = "terapeutaId" in campos || "metodoPagamento" in campos || "valorPago" in campos
+  let repasseCampos: { repasseNecessario: boolean; valorRepasse: Prisma.Decimal | null } | null = null
+  if (precisaRecalcular) {
+    const atual = await prisma.giftCard.findUnique({
+      where: { id },
+      select: { terapeutaId: true, terapeuta2Id: true, metodoPagamento: true, valorPago: true },
+    })
+    if (atual) {
+      const { repasseNecessario, valorRepasse } = calcularRepasse({
+        terapeutaId: "terapeutaId" in campos ? (campos.terapeutaId as string | null) : atual.terapeutaId,
+        terapeuta2Id: atual.terapeuta2Id,
+        metodoPagamento: "metodoPagamento" in campos ? (campos.metodoPagamento as string | null) : atual.metodoPagamento,
+        valorPago: "valorPago" in campos ? (campos.valorPago as number) : Number(atual.valorPago),
+      })
+      repasseCampos = { repasseNecessario, valorRepasse: valorRepasse !== null ? new Prisma.Decimal(valorRepasse) : null }
+    }
+  }
+
   try {
     await prisma.giftCard.update({
       where: { id },
@@ -106,9 +128,11 @@ export async function atualizarVoucher(
         ...(campos.valorPago !== undefined ? { valorPago: new Prisma.Decimal(campos.valorPago as number) } : {}),
         ...(campos.validade !== undefined ? { validade: campos.validade ? new Date(campos.validade as string) : null } : {}),
         ...(campos.dataUso !== undefined ? { dataUso: campos.dataUso ? new Date(campos.dataUso as string) : null } : {}),
+        ...(repasseCampos ?? {}),
       },
     })
     revalidatePath("/vouchers")
+    revalidatePath("/financeiro")
     return { ok: true }
   } catch {
     return { ok: false, erro: "Erro ao guardar" }
@@ -127,6 +151,8 @@ export async function criarVoucher(dados: {
   notas?: string
   nomesNoVoucher?: string
   mensagemVoucher?: string
+  terapeutaId?: string
+  metodoPagamento?: string
 }): Promise<{ ok: true; link: string } | { ok: false; erro: string }> {
   const session = await verificarSessao()
 
@@ -161,6 +187,13 @@ export async function criarVoucher(dados: {
     }
   }
 
+  const { repasseNecessario, valorRepasse } = calcularRepasse({
+    terapeutaId: parsed.data.terapeutaId ?? null,
+    terapeuta2Id,
+    metodoPagamento: parsed.data.metodoPagamento ?? null,
+    valorPago: parsed.data.valorPago,
+  })
+
   try {
     const voucher = await prisma.giftCard.create({
       data: {
@@ -176,7 +209,11 @@ export async function criarVoucher(dados: {
         notas: parsed.data.notas ?? null,
         nomesNoVoucher: parsed.data.nomesNoVoucher ?? null,
         mensagemVoucher: parsed.data.mensagemVoucher ?? null,
+        terapeutaId: parsed.data.terapeutaId ?? null,
         terapeuta2Id,
+        metodoPagamento: parsed.data.metodoPagamento ?? null,
+        repasseNecessario,
+        valorRepasse: valorRepasse !== null ? new Prisma.Decimal(valorRepasse) : null,
       },
     })
 

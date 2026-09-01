@@ -421,6 +421,7 @@ export const voucherCreateSchema = z.object({
   // Null = receita da Bea (o normal). Preenchido quando a sessão vai ser
   // feita pela Cristina e o dinheiro tem de entrar nas contas dela.
   terapeutaId: z.string().trim().max(64).optional().nullable(),
+  metodoPagamento: z.enum(METODOS_PAGAMENTO).optional().nullable(),
 }).strict()
 
 export const voucherUpdateSchema = z.object({
@@ -444,6 +445,7 @@ export const voucherUpdateSchema = z.object({
   nomesNoVoucher: z.string().trim().max(200).optional().nullable(),
   mensagemVoucher: z.string().trim().max(500).optional().nullable(),
   terapeutaId: z.string().trim().max(64).optional().nullable(),
+  metodoPagamento: z.enum(METODOS_PAGAMENTO).optional().nullable(),
 }).strict()
 
 export const voucherQuerySchema = z.object({

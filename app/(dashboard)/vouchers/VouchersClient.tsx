@@ -38,6 +38,10 @@ export interface Voucher {
   // Null = receita da Bea (o normal). Preenchido quando a sessão vai ser
   // feita pela Cristina e o dinheiro tem de entrar nas contas dela.
   terapeutaId: string | null
+  metodoPagamento: string | null
+  repasseNecessario: boolean
+  repasseFeito: boolean
+  valorRepasse: number | null
 }
 
 export interface TerapeutaOpcao {
@@ -878,6 +882,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
     nomesNoVoucher: v.nomesNoVoucher ?? "",
     mensagemVoucher: v.mensagemVoucher ?? "",
     terapeutaId: v.terapeutaId ?? "",
+    metodoPagamento: v.metodoPagamento ?? "",
   })
   const [isPending, start] = useTransition()
   const { toast } = useToast()
@@ -1036,6 +1041,22 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
           </p>
         </CampoForm>
 
+        <CampoForm label="Método de pagamento" hint="Para saber se há repasse a fazer">
+          <select value={f.metodoPagamento} onChange={set("metodoPagamento")} style={{ ...inputStyle, cursor: "pointer" }}>
+            <option value="">— Selecionar —</option>
+            <option value="mbway_essence">MBWay Essence</option>
+            <option value="mbway_beatriz">MBWay Beatriz</option>
+            <option value="dinheiro">Dinheiro</option>
+            <option value="transferencia">Transferência</option>
+            <option value="stripe">Stripe</option>
+          </select>
+          {v.repasseNecessario && (
+            <p style={{ fontSize: "11px", color: v.repasseFeito ? "var(--muted-foreground)" : "#d48c45", margin: "6px 0 0", lineHeight: 1.5 }}>
+              {v.repasseFeito ? "Repasse já feito." : `Repasse pendente à Cristina${v.valorRepasse ? ` (€${v.valorRepasse.toFixed(2)})` : ""}.`}
+            </p>
+          )}
+        </CampoForm>
+
         <CampoForm label="Notas">
           <textarea value={f.notas} onChange={set("notas")} rows={3} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }} />
         </CampoForm>
@@ -1137,10 +1158,11 @@ function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) 
 
 // ── Formulário de criação ────────────────────────────────────────────
 
-function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
+function FormCriar({ tipoInicial, sugestaoCodigo, servicos, terapeutas, onFechar }: {
   tipoInicial: string
   sugestaoCodigo: string
   servicos: ServicoCatalogo[]
+  terapeutas: TerapeutaOpcao[]
   onFechar: () => void
 }) {
   // O valor preenche-se sozinho a partir do catálogo quando o serviço bate
@@ -1159,6 +1181,8 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
     notas: "",
     nomesNoVoucher: "",
     mensagemVoucher: "",
+    terapeutaId: "",
+    metodoPagamento: "",
   })
   // Depois de criar, o painel passa a mostrar o link em vez do formulário —
   // é o passo que antes obrigava a ir ao gerador do site à parte.
@@ -1206,6 +1230,8 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
         notas: f.notas.trim() || undefined,
         nomesNoVoucher: f.nomesNoVoucher.trim() || undefined,
         mensagemVoucher: f.mensagemVoucher.trim() || undefined,
+        terapeutaId: f.terapeutaId || undefined,
+        metodoPagamento: f.metodoPagamento || undefined,
       })
       if (res.ok) { toast("Voucher criado.", "success"); setLinkCriado(res.link) }
       else toast(res.erro, "error")
@@ -1261,6 +1287,25 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, onFechar }: {
             }}
           />
         </CampoForm>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+          <CampoForm label="Método de pagamento" hint="Para saber se há repasse a fazer">
+            <select value={f.metodoPagamento} onChange={set("metodoPagamento")} style={{ ...inputStyle, cursor: "pointer" }}>
+              <option value="">— Selecionar —</option>
+              <option value="mbway_essence">MBWay Essence</option>
+              <option value="mbway_beatriz">MBWay Beatriz</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="transferencia">Transferência</option>
+              <option value="stripe">Stripe</option>
+            </select>
+          </CampoForm>
+          <CampoForm label="Terapeuta" hint="Quem fica com a receita — vazio = Bea">
+            <select value={f.terapeutaId} onChange={set("terapeutaId")} style={{ ...inputStyle, cursor: "pointer" }}>
+              <option value="">Beatriz (por omissão)</option>
+              {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+            </select>
+          </CampoForm>
+        </div>
 
         <hr className="nuit-hairline-soft" style={{ margin: "2px 0" }} />
 
@@ -1587,6 +1632,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
           tipoInicial={tipo}
           sugestaoCodigo={sugestaoCodigo}
           servicos={servicos}
+          terapeutas={terapeutas}
           onFechar={() => setACriar(false)}
         />
       )}

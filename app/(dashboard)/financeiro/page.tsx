@@ -75,7 +75,7 @@ export default async function FinanceiroPage({
     ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
     : {}
 
-  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, servicosRaw, repassesRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, servicosRaw, repassesRaw, repassesVoucherRaw, terapeutasRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -192,6 +192,21 @@ export default async function FinanceiroPage({
       },
       orderBy: { data: "asc" },
     }),
+    // O mesmo, mas para vendas de voucher (ver lib/repasses.ts — mesma regra
+    // do MBWay único, agora também aplicada a vouchers).
+    prisma.giftCard.findMany({
+      where: { repasseNecessario: true, repasseFeito: false },
+      select: {
+        id: true, dataCompra: true, servicoNome: true, valorPago: true, valorRepasse: true, metodoPagamento: true,
+        compradorNome: true,
+      },
+      orderBy: { dataCompra: "asc" },
+    }),
+    prisma.user.findMany({
+      where: { ativo: true, role: "terapeuta" },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true, email: true },
+    }),
   ])
 
   // Serializar Decimals e Dates para os client components
@@ -259,7 +274,7 @@ export default async function FinanceiroPage({
   const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher, ...linhasPack]
     .sort((a, b) => b.data.localeCompare(a.data))
 
-  const repasses: RepasseRow[] = repassesRaw.map(r => ({
+  const repassesSessoes: RepasseRow[] = repassesRaw.map(r => ({
     id: r.id,
     data: r.data.toISOString(),
     servico: r.servico,
@@ -268,7 +283,23 @@ export default async function FinanceiroPage({
     metodoPagamento: r.metodoPagamento,
     cliente: r.cliente,
   }))
+  // Prefixo "voucher-" para nunca colidir com um id de Sessao — o mesmo
+  // padrão já usado nas linhas de movimentos do mês (linhasVoucher acima).
+  // marcarRepasseFeito (actions.ts) sabe distinguir pelo prefixo.
+  const repassesVoucher: RepasseRow[] = repassesVoucherRaw.map(r => ({
+    id: `voucher-${r.id}`,
+    data: r.dataCompra.toISOString(),
+    servico: `Voucher — ${r.servicoNome}`,
+    valorPago: String(r.valorPago),
+    valorRepasse: r.valorRepasse !== null ? String(r.valorRepasse) : null,
+    metodoPagamento: r.metodoPagamento,
+    cliente: { id: `voucher-${r.id}`, nome: r.compradorNome },
+  }))
+  const repasses: RepasseRow[] = [...repassesSessoes, ...repassesVoucher]
+    .sort((a, b) => a.data.localeCompare(b.data))
   const totalRepasses = repasses.reduce((soma, r) => soma + valorDevido(r), 0)
+
+  const terapeutas = terapeutasRaw.map(t => ({ id: t.id, nome: t.name || t.email }))
 
   const vouchers: VoucherRow[] = (serializarDecimais(vouchersRaw) as typeof vouchersRaw).map(v => ({
     id: v.id,
@@ -467,7 +498,7 @@ export default async function FinanceiroPage({
 
       {/* Vouchers / Gift Cards */}
       <section>
-        <VouchersSection vouchers={vouchers} servicos={servicos} />
+        <VouchersSection vouchers={vouchers} servicos={servicos} terapeutas={terapeutas} />
       </section>
 
     </div>

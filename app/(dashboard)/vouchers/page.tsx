@@ -36,6 +36,10 @@ export default async function VouchersPage() {
     nomesNoVoucher: v.nomesNoVoucher,
     mensagemVoucher: v.mensagemVoucher,
     terapeutaId: v.terapeutaId,
+    metodoPagamento: v.metodoPagamento,
+    repasseNecessario: v.repasseNecessario,
+    repasseFeito: v.repasseFeito,
+    valorRepasse: v.valorRepasse ? Number(v.valorRepasse) : null,
   }))
 
   return (
