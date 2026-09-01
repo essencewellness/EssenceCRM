@@ -281,22 +281,37 @@
       alergias ? "Alergias: " + alergias : "",
     ].filter(Boolean).join("\n") || null;
 
-    // 2.ª pessoa (opcional) — anexada às notas, sem criar cliente
+    // 2.ª pessoa (opcional) — sem criar cliente próprio, mas a informação
+    // clínica dela (zonas de tensão, alergias) vai para os MESMOS campos
+    // estruturados da cliente principal (não para o foco/objetivo da
+    // sessão), para aparecer no sítio certo no CRM — "Zonas de tensão" e
+    // "Condições / alergias" — em vez de ficar escondida dentro do texto
+    // livre do "Foco / objetivo da sessão". Nome/telemóvel dela, por não
+    // serem dado clínico, continuam só como referência no foco.
     let notas = foco;
+    let zonasFinal = zonas;
+    let condAlergFinal = condAlerg;
     const inclui2 = document.getElementById("bloco-2pessoa")?.classList.contains("show");
     if (inclui2) {
       const nome2     = EF.val("nome2");
       const telefone2 = EF.val("telefone2");
       const tensao2   = EF.chips("chips-tensao2");
       const alergias2 = EF.val("alergias2");
-      const bloco = [
-        "Preferências da 2.ª pessoa:",
+
+      const contactoBloco = [
         nome2 ? "Nome: " + nome2 : "",
         telefone2 ? "Telemóvel: " + telefone2 : "",
-        tensao2.length ? "Zonas de tensão: " + tensao2.join(", ") : "",
-        alergias2 ? "Alergias: " + alergias2 : "",
       ].filter(Boolean).join("\n");
-      if (bloco.replace("Preferências da 2.ª pessoa:", "").trim()) notas = foco + "\n\n" + bloco;
+      if (contactoBloco) notas = foco + "\n\n— 2.ª pessoa —\n" + contactoBloco;
+
+      if (tensao2.length) {
+        const zonas2 = "Zonas (2.ª pessoa): " + tensao2.join(", ");
+        zonasFinal = zonasFinal ? zonasFinal + "\n" + zonas2 : zonas2;
+      }
+      if (alergias2) {
+        const alerg2 = "Alergias (2.ª pessoa): " + alergias2;
+        condAlergFinal = condAlergFinal ? condAlergFinal + "\n" + alerg2 : alerg2;
+      }
     }
 
     return {
@@ -305,8 +320,8 @@
       telefone: !EF.PERSONAL ? (EF.val("telefone") || null) : null,
       dataNascimento: EF.val("dataNascimento") || null,
       historicoEstadoEmocional: estado,
-      historicoZonasTensao: zonas,
-      historicoCondicoesAlergias: condAlerg,
+      historicoZonasTensao: zonasFinal,
+      historicoCondicoesAlergias: condAlergFinal,
       notasPessoais: notas,
     };
   };
