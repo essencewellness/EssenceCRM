@@ -83,9 +83,6 @@
     .nps-scale-labels { display: flex; justify-content: space-between; font-family: 'Manrope', sans-serif; font-size: 9px; letter-spacing: 0.06em; color: var(--smoke); margin-bottom: 28px; padding: 0 2px; }
 
     /* mini-dica de reciprocidade */
-    .tip-box { background: rgba(122,158,126,0.08); border: 1px solid rgba(122,158,126,0.25); border-radius: 2px; padding: 18px 20px; margin-bottom: 28px; }
-    .tip-label { font-family: 'Manrope', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage); margin-bottom: 8px; }
-    .tip-text { font-family: 'Manrope', sans-serif; font-size: 13px; line-height: 1.7; color: var(--bone-soft); }
 
     /* ecrã de indicações — opcional, fica bem claro */
     .optional-banner { background: rgba(212,184,134,0.08); border: 1px dashed var(--border-input); border-radius: 2px; padding: 10px 14px; text-align: center; font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--champagne-soft); margin-bottom: 24px; }
@@ -311,12 +308,7 @@
     </header>
 
     <div class="body">
-      <div class="tip-box">
-        <div class="tip-label">Dica da Beatriz</div>
-        <div class="tip-text" id="tip-texto">Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.</div>
-      </div>
-
-      <p class="lead-text" style="font-size:18px;margin-top:24px;">Numa frase — porque vale a pena <em>voltares</em>?</p>
+      <p class="lead-text" style="font-size:18px;">Numa frase — porque vale a pena <em>voltares</em>?</p>
       <p class="sub-text" style="margin-bottom:18px;">Escreve com as tuas palavras. (opcional)</p>
 
       <textarea id="texto-motivo" maxlength="200" placeholder="Ex: porque saio sempre mais leve e durmo melhor essa noite."></textarea>
@@ -598,15 +590,6 @@
     9: 'Que bom ouvir isso! 🌿', 10: 'Que bom ouvir isso! 🌿',
   };
 
-  // dica de reciprocidade, ligada à escolha do "momento de pico"
-  const dicasPico = {
-    Maos_ombros: 'Continua a alongar os ombros ao final do dia — 30 segundos já ajudam a manter a sensação.',
-    Calor: 'Um duche morno antes de dormir prolonga esse efeito de leveza.',
-    Aroma: 'Um difusor com o mesmo óleo em casa ajuda a recriar essa calma antes de dormir.',
-    Silencio: 'Reserva 5 minutos de silêncio esta semana — o corpo lembra-se bem disso.',
-    Tempo_para_mim: 'Marca já na agenda o teu próximo momento só para ti, mesmo que seja daqui a semanas.',
-  };
-  const dicaGenerica = 'Bebe bastante água hoje — ajuda o corpo a continuar a soltar a tensão que trabalhámos.';
 
   const npsButtons = document.querySelectorAll('.nps-btn');
   const labelEl = document.getElementById('rating-label');
@@ -705,8 +688,6 @@
   }
 
   function avancarDePositivo() {
-    const picoEscolhido = document.querySelector('#chips-pico .chip.selected')?.dataset.value;
-    document.getElementById('tip-texto').textContent = picoEscolhido ? dicasPico[picoEscolhido] : dicaGenerica;
     mostrarScreen('motivo');
   }
 
