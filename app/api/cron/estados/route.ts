@@ -10,6 +10,23 @@ import { executarMotorEstados } from "@/lib/crm-estados"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 
+// Fim real da sessão (data + hora + duração), calculado em UTC a partir da
+// hora local de Lisboa guardada nos campos `hora`/`duracao` — mesma lógica
+// do sub-workflow N8N 05b (Filtrar Por Registar). Sem isto, comparar só o
+// campo `data` (meia-noite) com "agora" marcaria sessões de hoje como
+// "realizada" horas antes de sequer começarem.
+function fimSessaoUTC(data: Date, hora: string | null, duracaoMin: number | null): Date {
+  const dataYMD = data.toISOString().slice(0, 10)
+  const horaHHmm = hora || "23:59" // sem hora definida: conservador, só no fim do dia
+  const duracao = duracaoMin ?? 60
+  const comoSeFosseUTC = new Date(`${dataYMD}T${horaHHmm}:00Z`)
+  const lisboaStr = comoSeFosseUTC.toLocaleString("en-US", { timeZone: "Europe/Lisbon" })
+  const utcStr = comoSeFosseUTC.toLocaleString("en-US", { timeZone: "UTC" })
+  const offsetMs = new Date(lisboaStr).getTime() - new Date(utcStr).getTime()
+  const inicioUTC = new Date(comoSeFosseUTC.getTime() - offsetMs)
+  return new Date(inicioUTC.getTime() + duracao * 60000)
+}
+
 function validarCronSecret(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET
   if (!secret) return false
@@ -30,12 +47,20 @@ export async function GET(request: NextRequest) {
   try {
     const inicio = Date.now()
 
-    // Auto-concluir sessões agendadas cuja data já passou
+    // Auto-concluir sessões "agendada" ou "confirmada" cujo fim real (data +
+    // hora + duração) já passou há mais de 1h — margem para a Bea ainda
+    // preencher o pos-sessao.html a tempo com os dados reais (aroma, preço,
+    // notas), sem a sessão ficar presa para sempre em "confirmada" só porque
+    // ninguém a fechou manualmente.
+    const MARGEM_MIN = 60
     const agora = new Date()
-    const sessoesPassadas = await prisma.sessao.findMany({
-      where: { estado: "agendada", data: { lt: agora }, apagadoEm: null },
-      select: { id: true, clienteId: true },
+    const candidatas = await prisma.sessao.findMany({
+      where: { estado: { in: ["agendada", "confirmada"] }, data: { lt: agora }, apagadoEm: null },
+      select: { id: true, clienteId: true, data: true, hora: true, duracao: true },
     })
+    const sessoesPassadas = candidatas.filter(
+      s => fimSessaoUTC(s.data, s.hora, s.duracao).getTime() + MARGEM_MIN * 60000 < agora.getTime()
+    )
     if (sessoesPassadas.length > 0) {
       await prisma.sessao.updateMany({
         where: { id: { in: sessoesPassadas.map(s => s.id) } },
