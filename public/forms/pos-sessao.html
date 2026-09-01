@@ -262,7 +262,7 @@
 
     input.err, select.err { border-color: var(--terra); }
 
-    textarea { resize: vertical; line-height: 1.65; min-height: 90px; }
+    textarea { resize: none; overflow: hidden; line-height: 1.65; }
 
     select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7e8a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -701,12 +701,12 @@
 
         <div class="field-group">
           <label class="field-label" for="observacoes-clinicas">Observações clínicas <span class="opt">(opcional)</span></label>
-          <textarea id="observacoes-clinicas" rows="4" placeholder="Ex: foco na zona lombar e ombros, muita tensão no trapézio esquerdo, reagiu bem à pressão média. Pele sensível na lombar, mencionou insónias recorrentes — para a próxima, evitar pressão cervical direita."></textarea>
+          <textarea id="observacoes-clinicas" rows="1" placeholder="Ex: foco na zona lombar e ombros, muita tensão no trapézio esquerdo, reagiu bem à pressão média. Pele sensível na lombar, mencionou insónias recorrentes — para a próxima, evitar pressão cervical direita."></textarea>
         </div>
 
         <div class="field-group">
           <label class="field-label" for="observacoes-pessoais">Observações pessoais <span class="opt">(opcional)</span></label>
-          <textarea id="observacoes-pessoais" rows="3" placeholder="Ex: está a passar por uma fase difícil no trabalho. Prefere sessões mais silenciosas."></textarea>
+          <textarea id="observacoes-pessoais" rows="1" placeholder="Ex: está a passar por uma fase difícil no trabalho. Prefere sessões mais silenciosas."></textarea>
         </div>
       </div>
 
@@ -763,6 +763,17 @@
   const authHeaders = {
     'Content-Type': 'application/json',
   };
+
+  // Textareas com altura automática — começam coladas ao texto, só
+  // crescem quando se carrega Enter ou o texto dá a volta.
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  document.querySelectorAll('textarea').forEach((el) => {
+    autoGrow(el);
+    el.addEventListener('input', () => autoGrow(el));
+  });
 
   // Preencher data/hora com "agora"
   const agora = new Date();

@@ -213,7 +213,7 @@ body {
 .fl input::placeholder,
 .fl textarea::placeholder { color: transparent; }
 
-.fl textarea { resize: none; min-height: 80px; }
+.fl textarea { resize: none; overflow: hidden; }
 
 .fl::after {
   content: '';

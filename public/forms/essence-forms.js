@@ -347,6 +347,18 @@
     ligarCalendario(visivel, oculto);
   });
 
+  // ── Textareas com altura automática ─────────────────────────────
+  // Começam coladas ao texto (uma linha) e só crescem quando a cliente
+  // carrega Enter ou o texto dá a volta — nunca um vazio grande à espera.
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  document.querySelectorAll(".fl textarea").forEach((el) => {
+    autoGrow(el);
+    el.addEventListener("input", () => autoGrow(el));
+  });
+
   // ── Floating labels ───────────────────────────────────────────
   document.querySelectorAll(".fl input, .fl textarea").forEach((el) => {
     const w = () => el.closest(".fl");

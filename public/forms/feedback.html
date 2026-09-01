@@ -138,7 +138,7 @@
 
     .field-label { display: block; font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--smoke); margin-bottom: 10px; }
 
-    textarea { width: 100%; padding: 14px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Manrope', sans-serif; font-size: 1rem; color: var(--bone); resize: vertical; min-height: 90px; line-height: 1.65; outline: none; margin-bottom: 24px; transition: border-color 0.2s; }
+    textarea { width: 100%; padding: 14px; border: 1px solid var(--border-input); border-radius: 2px; background: var(--field-bg); font-family: 'Manrope', sans-serif; font-size: 1rem; color: var(--bone); resize: none; overflow: hidden; line-height: 1.65; outline: none; margin-bottom: 24px; transition: border-color 0.2s; }
     textarea:focus { border-color: var(--champagne); }
     textarea::placeholder { color: var(--smoke); }
 
@@ -591,6 +591,17 @@
     9: 'Que bom ouvir isso! 🌿', 10: 'Que bom ouvir isso! 🌿',
   };
 
+
+  // Textareas com altura automática — começam coladas ao texto e só
+  // crescem quando se carrega Enter ou o texto dá a volta.
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+  document.querySelectorAll('textarea').forEach((el) => {
+    autoGrow(el);
+    el.addEventListener('input', () => autoGrow(el));
+  });
 
   const npsButtons = document.querySelectorAll('.nps-btn');
   const labelEl = document.getElementById('rating-label');

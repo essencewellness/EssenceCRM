@@ -18,7 +18,7 @@
       border-radius: 4px; color: var(--bone); font-family: 'Manrope', sans-serif;
       font-size: 15px; padding: 12px 14px; outline: none;
     }
-    .plain-textarea { resize: vertical; min-height: 90px; }
+    .plain-textarea { resize: none; overflow: hidden; }
     .plain-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
     .plain-input:focus, .plain-select:focus, .plain-textarea:focus { border-color: var(--champagne); }
     .booking-card {
@@ -149,6 +149,17 @@
   const elErro = document.getElementById("erro-carregar");
   const elForm = document.getElementById("form-atribuir");
   const elSuccess = document.getElementById("success");
+
+  // Textarea com altura automática — começa colada ao texto, só cresce
+  // quando se carrega Enter ou o texto dá a volta.
+  function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+  document.querySelectorAll(".plain-textarea").forEach((el) => {
+    autoGrow(el);
+    el.addEventListener("input", () => autoGrow(el));
+  });
   const elGerr = document.getElementById("gerr");
 
   function formatarData(iso) {
