@@ -497,15 +497,6 @@ export function VouchersSection({
     setCodigoCriado(codigo)
   }
 
-  function marcarUsado(v: VoucherRow) {
-    setAcaoId(v.id)
-    startTransition(async () => {
-      await atualizarEstadoVoucher(v.id, "usado")
-      setVouchers(prev => prev.map(x => x.id === v.id ? { ...x, estado: "usado" as const, dataUso: new Date().toISOString() } : x))
-      setAcaoId(null)
-    })
-  }
-
   function cancelarVoucher(v: VoucherRow) {
     setAcaoId(v.id)
     startTransition(async () => {
@@ -665,14 +656,6 @@ export function VouchersSection({
                   <td style={{ padding: "12px 14px" }}>
                     {v.estado === "ativo" && (
                       <div style={{ display: "flex", gap: "6px" }}>
-                        <button
-                          onClick={() => marcarUsado(v)}
-                          disabled={pending}
-                          style={btnAcaoStyle("#6fcf97")}
-                          title="Marcar como usado"
-                        >
-                          Usado
-                        </button>
                         <button
                           onClick={() => cancelarVoucher(v)}
                           disabled={pending}
