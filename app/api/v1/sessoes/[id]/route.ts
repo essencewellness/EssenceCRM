@@ -5,7 +5,7 @@ import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
-import { reverterFichaClinicaSeSessaoCancelada } from "@/lib/ficha-clinica"
+import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
@@ -177,11 +177,12 @@ export async function PATCH(
     }
 
     // Sessão cancelada: se o onboarding desta sessão foi a última coisa a
-    // mexer na ficha clínica do cliente, reverte para a versão de antes —
-    // sem isto a ficha ficava com dados "desta sessão" para uma sessão que
-    // afinal nunca aconteceu (ver lib/ficha-clinica.ts).
+    // mexer na ficha clínica do cliente, assinala isso com um aviso no topo
+    // — sem isto a ficha ficava com dados "desta sessão" para uma sessão
+    // que afinal nunca aconteceu, sem nenhuma pista para a terapeuta (ver
+    // lib/ficha-clinica.ts).
     if (estado === "cancelada" && sessaoAntes.estado !== "cancelada") {
-      await reverterFichaClinicaSeSessaoCancelada(id, sessaoAntes.clienteId)
+      await assinalarSessaoCanceladaNaFichaClinica(id, sessaoAntes.clienteId)
     }
 
     auditar({

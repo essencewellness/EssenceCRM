@@ -127,12 +127,13 @@ export async function PATCH(
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Snapshot da ficha clínica anterior — para poder reverter se a sessão
-    // que despoletou este onboarding (origemSessaoId) vier a ser cancelada
-    // antes de acontecer (ver lib/ficha-clinica.ts). Escrito de propósito
-    // (não via auditar(), que é fire-and-forget) — sem isto persistido
-    // antes da resposta, uma função serverless cortada a meio perdia o
-    // snapshot e o revert deixava de ser possível.
+    // Regista qual sessão (origemSessaoId) despoletou esta escrita da ficha
+    // clínica — se essa sessão vier a ser cancelada antes de acontecer, é
+    // isto que permite assinalar o aviso no sítio certo (ver
+    // lib/ficha-clinica.ts). fichaClinicaAnterior fica só como registo
+    // histórico (já não é usado para reverter). Escrito de propósito (não
+    // via auditar(), que é fire-and-forget) — sem isto persistido antes da
+    // resposta, uma função serverless cortada a meio perdia a ligação.
     if (campos.fichaClinica !== undefined && campos.fichaClinica !== clienteAntes.fichaClinica) {
       await prisma.auditLog.create({
         data: {

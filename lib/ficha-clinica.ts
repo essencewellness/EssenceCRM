@@ -1,4 +1,4 @@
-// Reverter a ficha clínica quando a sessão que a gerou é cancelada antes
+// Assinalar na ficha clínica quando a sessão que a gerou é cancelada antes
 // de acontecer.
 //
 // Contexto: `Cliente.fichaClinica` é reescrita de fio a pavio pelo N8N
@@ -6,21 +6,24 @@
 // o formulário de onboarding — normalmente ANTES da sessão acontecer. Se
 // essa sessão for cancelada depois, a ficha fica com dados "desta sessão"
 // que na verdade nunca chegou a acontecer, e a PRÓXIMA sessão real vai
-// buscar contexto a essa ficha contaminada — risco real de engano para a
-// terapeuta.
+// buscar contexto a essa ficha sem saber disso — risco real de engano
+// para a terapeuta.
 //
-// Solução escolhida (2026-09-02, decisão do Nuno): snapshot + revert
-// determinístico, sem IA nenhuma envolvida. Cada escrita de fichaClinica
-// via PATCH /api/v1/clientes/[id] grava a versão ANTERIOR num AuditLog,
-// ligada ao id da sessão que despoletou o onboarding (origemSessaoId). Ao
-// cancelar essa sessão, se ela ainda for a última coisa a ter mexido na
-// ficha, volta-se à versão de antes — sem chamar o Groq outra vez (evita
-// o risco de a IA apagar histórico legítimo mais antigo, e não consome
-// quota partilhada do Groq a cada cancelamento).
+// Solução (2026-09-02, decisão do Nuno): em vez de apagar o que a cliente
+// reportou (esses dados continuam reais e podem ainda ser úteis — ex: uma
+// alergia não deixa de existir só porque a sessão foi cancelada), a ficha
+// mantém-se tal como estava, mas ganha um aviso claro no topo a dizer que a
+// sessão associada foi cancelada. Sem IA nenhuma envolvida — não consome
+// quota partilhada do Groq a cada cancelamento, e não há risco de a IA
+// reescrever/apagar algo por engano.
 import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 
-export async function reverterFichaClinicaSeSessaoCancelada(
+function formatarDataPT(data: Date): string {
+  return data.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
+}
+
+export async function assinalarSessaoCanceladaNaFichaClinica(
   sessaoId: string,
   clienteId: string
 ): Promise<void> {
@@ -28,27 +31,36 @@ export async function reverterFichaClinicaSeSessaoCancelada(
   // existir nenhuma, ou se não tiver sido esta sessão a gerá-la, não há
   // nada a fazer: ou a cliente nunca preencheu onboarding para esta sessão,
   // ou uma sessão mais recente (legítima) já escreveu por cima entretanto,
-  // e reverter agora apagaria esse histórico válido.
-  const ultimaAtualizacao = await prisma.auditLog.findFirst({
-    where: { entidade: "Cliente", entidadeId: clienteId, acao: "cliente.ficha_clinica_atualizada" },
-    orderBy: { criadoEm: "desc" },
-    select: { detalhe: true },
-  })
-  if (!ultimaAtualizacao) return
+  // e mexer agora tocava em texto que já não tem a ver com esta sessão.
+  const [ultimaAtualizacao, cliente, sessao] = await Promise.all([
+    prisma.auditLog.findFirst({
+      where: { entidade: "Cliente", entidadeId: clienteId, acao: "cliente.ficha_clinica_atualizada" },
+      orderBy: { criadoEm: "desc" },
+      select: { detalhe: true },
+    }),
+    prisma.cliente.findUnique({ where: { id: clienteId }, select: { fichaClinica: true } }),
+    prisma.sessao.findUnique({ where: { id: sessaoId }, select: { data: true } }),
+  ])
+  if (!ultimaAtualizacao || !cliente?.fichaClinica) return
 
-  const detalhe = ultimaAtualizacao.detalhe as { fichaClinicaAnterior?: string | null; sessaoId?: string | null } | null
+  const detalhe = ultimaAtualizacao.detalhe as { sessaoId?: string | null } | null
   if (!detalhe || detalhe.sessaoId !== sessaoId) return
+
+  // Idempotente: se já tem o aviso (ex: PATCH de cancelamento reprocessado
+  // pelo N8N), não duplica.
+  const aviso = `⚠️ A sessão de ${sessao ? formatarDataPT(sessao.data) : "referência"} associada a esta informação foi cancelada — os dados abaixo continuam reais, mas não houve sessão para os confirmar.`
+  if (cliente.fichaClinica.startsWith("⚠️")) return
 
   await prisma.cliente.update({
     where: { id: clienteId },
-    data: { fichaClinica: detalhe.fichaClinicaAnterior ?? null },
+    data: { fichaClinica: `${aviso}\n\n${cliente.fichaClinica}` },
   })
 
   auditar({
     quem: "sistema",
-    acao: "cliente.ficha_clinica_revertida",
+    acao: "cliente.ficha_clinica_assinalada_cancelada",
     entidade: "Cliente",
     entidadeId: clienteId,
-    detalhe: { sessaoCanceladaId: sessaoId, fichaClinicaRestaurada: detalhe.fichaClinicaAnterior ?? null },
+    detalhe: { sessaoCanceladaId: sessaoId },
   })
 }
