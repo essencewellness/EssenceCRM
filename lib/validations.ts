@@ -75,6 +75,12 @@ export const clienteUpdateSchema = z.object({
   totalGasto: precoSchema.optional(),
   consentimentoMarketingEm: dataISO.optional().nullable(),
   consentimentoSaudeEm: dataISO.optional().nullable(),
+  // Não é campo do Cliente — metadado só lido quando "fichaClinica" vem
+  // junto (o N8N manda a sessão que gerou a atualização via onboarding).
+  // Serve para reverter a ficha se essa sessão vier a ser cancelada antes
+  // de acontecer (ver lib/ficha-clinica.ts). Retirado do payload antes do
+  // update ao Cliente — nunca chega ao Prisma.
+  origemSessaoId: z.string().trim().min(1).max(60).optional(),
 }).strict()
 
 export const clientesQuerySchema = z.object({

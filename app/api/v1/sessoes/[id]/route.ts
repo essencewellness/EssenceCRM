@@ -5,6 +5,7 @@ import { validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-
 import { sessaoUpdateSchema, validarBody } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
+import { reverterFichaClinicaSeSessaoCancelada } from "@/lib/ficha-clinica"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { auditar } from "@/lib/audit"
@@ -173,6 +174,14 @@ export async function PATCH(
       // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
       // desfasado à espera do cron das 7h (lib/crm-estados).
       await recalcularEstadoCliente(sessaoAntes.clienteId)
+    }
+
+    // Sessão cancelada: se o onboarding desta sessão foi a última coisa a
+    // mexer na ficha clínica do cliente, reverte para a versão de antes —
+    // sem isto a ficha ficava com dados "desta sessão" para uma sessão que
+    // afinal nunca aconteceu (ver lib/ficha-clinica.ts).
+    if (estado === "cancelada" && sessaoAntes.estado !== "cancelada") {
+      await reverterFichaClinicaSeSessaoCancelada(id, sessaoAntes.clienteId)
     }
 
     auditar({

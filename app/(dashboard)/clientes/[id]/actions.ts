@@ -12,6 +12,7 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
 import { calcularReatribuicaoBea } from "@/lib/reatribuicao-financeira"
 import { encontrarConflitoAgenda, ConflitoAgendaError } from "@/lib/conflito-agenda"
+import { reverterFichaClinicaSeSessaoCancelada } from "@/lib/ficha-clinica"
 
 // Garante que a terapeuta autenticada é admin OU a dona do cliente
 // (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
@@ -176,6 +177,13 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
       await recalcularMetricasCliente(tx, clienteId)
     }
   })
+
+  // Sessão cancelada pela Bea no dashboard: mesmo revert automático da
+  // ficha clínica que já acontece via API (ver lib/ficha-clinica.ts) —
+  // as duas vias nunca podem divergir aqui.
+  if (dados.estado === "cancelada" && sessaoAntes.estado !== "cancelada") {
+    await reverterFichaClinicaSeSessaoCancelada(sessaoId, clienteId)
+  }
 
   auditar({
     quem: session.user.email ?? "dashboard",

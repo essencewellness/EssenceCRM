@@ -93,15 +93,20 @@ export async function PATCH(
   try {
     const clienteAntes = await prisma.cliente.findFirst({
       where: { id, apagadoEm: null },
-      select: { id: true, nome: true, estado: true },
+      select: { id: true, nome: true, estado: true, fichaClinica: true },
     })
 
     if (!clienteAntes) return respostaErro("Cliente não encontrado", "CLIENTE_NAO_ENCONTRADO", 404)
 
+    // "origemSessaoId" não é campo do Cliente — é só metadado para o
+    // snapshot da ficha clínica abaixo (ver lib/ficha-clinica.ts). Nunca
+    // pode chegar ao Prisma.
+    const { origemSessaoId, ...camposParaGravar } = campos
+
     const cliente = await prisma.cliente.update({
       where: { id },
       data: {
-        ...campos,
+        ...camposParaGravar,
         ...(campos.dataNascimento ? { dataNascimento: new Date(campos.dataNascimento) } : {}),
         ...(campos.ultimaSessao ? { ultimaSessao: new Date(campos.ultimaSessao) } : {}),
         ...(campos.consentimentoMarketingEm
@@ -121,6 +126,25 @@ export async function PATCH(
       detalhe: { campos: Object.keys(campos) },
       ip: request.headers.get("x-forwarded-for"),
     })
+
+    // Snapshot da ficha clínica anterior — para poder reverter se a sessão
+    // que despoletou este onboarding (origemSessaoId) vier a ser cancelada
+    // antes de acontecer (ver lib/ficha-clinica.ts). Escrito de propósito
+    // (não via auditar(), que é fire-and-forget) — sem isto persistido
+    // antes da resposta, uma função serverless cortada a meio perdia o
+    // snapshot e o revert deixava de ser possível.
+    if (campos.fichaClinica !== undefined && campos.fichaClinica !== clienteAntes.fichaClinica) {
+      await prisma.auditLog.create({
+        data: {
+          quem: "api:n8n",
+          acao: "cliente.ficha_clinica_atualizada",
+          entidade: "Cliente",
+          entidadeId: id,
+          detalhe: { fichaClinicaAnterior: clienteAntes.fichaClinica, sessaoId: origemSessaoId ?? null },
+          ip: request.headers.get("x-forwarded-for"),
+        },
+      })
+    }
 
     // Webhook quando estado muda
     if (campos.estado && campos.estado !== clienteAntes.estado) {
