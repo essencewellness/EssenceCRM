@@ -1,11 +1,9 @@
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/prisma"
-import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
 import { RepassesCristina, type RepasseRow } from "./RepassesCristina"
 import { valorDevido } from "@/lib/repasses"
-import { VouchersSection, type VoucherRow } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -23,7 +21,6 @@ const METODO_LABEL_PT: Record<string, string> = {
   mbway_beatriz: "MBWay Beatriz",
   transferencia: "Transferência",
   stripe: "Stripe",
-  voucher: "Voucher",
 }
 
 function fmtMes(d: Date): string {
@@ -75,7 +72,7 @@ export default async function FinanceiroPage({
     ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
     : {}
 
-  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, repassesRaw, repassesVoucherRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, vendasVoucherRaw, pagamentosPackMesRaw, repassesRaw, repassesVoucherRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -108,37 +105,31 @@ export default async function FinanceiroPage({
     // Troca para buscar as linhas e somar em JS, como já se fazia com
     // vendasVoucherAllTime logo a seguir.
     prisma.sessao.findMany({
+      // clienteId incluído: esta mesma lista também alimenta "Top clientes
+      // por receita" (era uma query duplicada antes, só diferente no select).
       where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
-      select: { valorPago: true, terapeuta2Id: true },
+      select: { clienteId: true, valorPago: true, terapeuta2Id: true },
     }),
     // Mesmo bug que existia na "Receita do mês" (ver dashboard principal,
     // corrigido 2026-08-21): "Receita total" só somava sessões pagas
     // diretamente, nunca vendas de voucher — ficava sempre menor do que a
     // "Receita do mês", que já inclui vouchers. Todo o histórico, sem
     // filtro de mês (é "sempre", não "este mês").
+    // compradorClienteId incluído: alimenta também "Top clientes por
+    // receita" — sem isto o top só contava sessões pagas directamente e
+    // ignorava por completo quem só comprou vouchers (bug real 2026-09-02).
     prisma.giftCard.findMany({
       where: alvo
         ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] }
         : {},
-      select: { valorPago: true, terapeuta2Id: true },
+      select: { valorPago: true, terapeuta2Id: true, compradorClienteId: true },
     }),
     // Mesma lógica para pagamentos de pack — "Receita total" tinha o mesmo
-    // problema que os vouchers tinham antes de 2026-08-21.
+    // problema que os vouchers tinham antes de 2026-08-21. clienteId do
+    // pack incluído pela mesma razão que os dois de cima.
     prisma.packPagamento.findMany({
       where: filtroPack,
-      select: { valor: true },
-    }),
-    // Era um groupBy com _sum — mesmo problema do receitaAllTime acima:
-    // uma sessão "a dois" paga entrava com o valor cheio no total do
-    // cliente em vez de metade, na vista de uma terapeuta específica.
-    // Sem take/orderBy aqui — o top 8 e a soma por cliente passam a ser
-    // calculados em JS depois de dividir cada linha correctamente.
-    prisma.sessao.findMany({
-      where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
-      select: { clienteId: true, valorPago: true, terapeuta2Id: true },
-    }),
-    prisma.giftCard.findMany({
-      orderBy: { dataCompra: "desc" },
+      select: { valor: true, pack: { select: { clienteId: true } } },
     }),
     // Vendas de voucher do mês — o dinheiro entrou na compra, por isso a
     // receita pertence a este mês, não ao mês em que a massagem acontecer.
@@ -161,7 +152,7 @@ export default async function FinanceiroPage({
       },
       select: {
         id: true, codigo: true, servicoNome: true, valorPago: true,
-        dataCompra: true, compradorNome: true, terapeuta2Id: true,
+        dataCompra: true, compradorNome: true, terapeuta2Id: true, metodoPagamento: true,
       },
       orderBy: { dataCompra: "desc" },
     }),
@@ -237,7 +228,10 @@ export default async function FinanceiroPage({
       estado: "realizada",
       estadoPagamento: "pago",
       valorPago: String(valor),
-      metodoPagamento: "voucher",
+      // Método real usado para pagar o voucher (mbway_essence, dinheiro…) —
+      // "Voucher" não é um método de pagamento, é o tipo de movimento (já
+      // sinalizado à parte pelo badge "Voucher vendido", ver voucherCodigo).
+      metodoPagamento: v.metodoPagamento,
       repasseNecessario: false,
       repasseFeito: false,
       cliente: { id: `voucher-${v.id}`, nome: v.compradorNome },
@@ -289,30 +283,24 @@ export default async function FinanceiroPage({
     .sort((a, b) => a.data.localeCompare(b.data))
   const totalRepasses = repasses.reduce((soma, r) => soma + valorDevido(r), 0)
 
-  const vouchers: VoucherRow[] = (serializarDecimais(vouchersRaw) as typeof vouchersRaw).map(v => ({
-    id: v.id,
-    codigo: v.codigo,
-    tipo: v.tipo as "digital" | "fisico",
-    estado: v.estado as "ativo" | "usado" | "expirado" | "cancelado",
-    compradorNome: v.compradorNome,
-    compradorTelefone: v.compradorTelefone,
-    compradorEmail: v.compradorEmail,
-    servicoNome: v.servicoNome,
-    valorPago: String(v.valorPago),
-    beneficiarioNome: v.beneficiarioNome,
-    beneficiarioTelefone: v.beneficiarioTelefone,
-    dataCompra: v.dataCompra instanceof Date ? v.dataCompra.toISOString() : String(v.dataCompra),
-    validade: v.validade ? (v.validade instanceof Date ? v.validade.toISOString() : String(v.validade)) : null,
-    dataUso: v.dataUso ? (v.dataUso instanceof Date ? v.dataUso.toISOString() : String(v.dataUso)) : null,
-    notas: v.notas,
-  }))
-
   // Top clientes por receita — soma por cliente já com a divisão "a dois"
   // aplicada linha a linha (groupBy do SQL não sabe fazer isto), depois
-  // ordenado e cortado ao top 8 aqui em JS.
+  // ordenado e cortado ao top 8 aqui em JS. Junta as 3 origens de receita
+  // (sessões pagas directamente, vendas de voucher, pagamentos de pack) —
+  // antes só contava sessões, o que deixava de fora quem só comprou
+  // vouchers (bug real 2026-09-02: cliente com €140 em vouchers aparecia
+  // só com os €45 da sessão paga à parte).
   const totalPorCliente = new Map<string, number>()
-  for (const t of topReceitaRaw) {
+  for (const t of receitaAllTime) {
     totalPorCliente.set(t.clienteId, (totalPorCliente.get(t.clienteId) ?? 0) + valorAtribuidoSessao(t))
+  }
+  for (const v of vendasVoucherAllTime) {
+    if (!v.compradorClienteId) continue // voucher sem comprador ligado a um cliente — nada a atribuir
+    totalPorCliente.set(v.compradorClienteId, (totalPorCliente.get(v.compradorClienteId) ?? 0) + valorAtribuidoVoucher(v))
+  }
+  for (const pg of pagamentosPackAllTime) {
+    if (!pg.pack.clienteId) continue
+    totalPorCliente.set(pg.pack.clienteId, (totalPorCliente.get(pg.pack.clienteId) ?? 0) + Number(pg.valor))
   }
   const topOrdenado = [...totalPorCliente.entries()]
     .sort(([, a], [, b]) => b - a)
@@ -332,7 +320,7 @@ export default async function FinanceiroPage({
   // KPIs do mês
   let receitaTotal = 0
   const porMetodo: Record<string, number> = {
-    dinheiro: 0, mbway_essence: 0, mbway_beatriz: 0, transferencia: 0, stripe: 0, voucher: 0,
+    dinheiro: 0, mbway_essence: 0, mbway_beatriz: 0, transferencia: 0, stripe: 0,
   }
   const porEstado: Record<string, number> = { pendente: 0, pago: 0, parcial: 0, isento: 0 }
 
@@ -355,11 +343,17 @@ export default async function FinanceiroPage({
 
   // Vendas de voucher: dinheiro que entrou este mês e que, até agora, não
   // aparecia em receita nenhuma — a sessão que o voucher paga fica "isento"
-  // (para não duplicar), e a venda não era contada em lado nenhum.
+  // (para não duplicar), e a venda não era contada em lado nenhum. Conta
+  // para o método REAL com que a compradora pagou o voucher (mbway_essence,
+  // dinheiro…) — "voucher" não é um método de pagamento, é só como a venda
+  // aparece identificada nos Movimentos (bug real 2026-09-02: toda a
+  // receita de vouchers caía num balde "Voucher" que não corresponde a
+  // nenhuma forma real de a Bea ter recebido o dinheiro).
   for (const v of vendasVoucherRaw) {
     const valor = valorAtribuidoVoucher(v)
     receitaTotal += valor
-    porMetodo.voucher! += valor
+    const m = v.metodoPagamento === "mbway" ? "mbway_beatriz" : v.metodoPagamento
+    if (m && m in porMetodo) porMetodo[m]! += valor
   }
 
   // Pagamentos de pack: valor inteiro (packs nunca são "a dois", ao
@@ -476,11 +470,6 @@ export default async function FinanceiroPage({
       <section>
         <SectionTitle>Movimentos de {label} ({linhasMes.length})</SectionTitle>
         <TabelaSessoesPagamento sessoes={linhasMes} mesLabel={label} />
-      </section>
-
-      {/* Vouchers / Gift Cards */}
-      <section>
-        <VouchersSection vouchers={vouchers} />
       </section>
 
     </div>

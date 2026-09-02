@@ -12,40 +12,6 @@ async function verificarSessao() {
   return session
 }
 
-// Adiciona/troca a tag de voucher no cliente correspondente (fire-and-forget)
-async function sincronizarTagVoucher(
-  telefone: string | null | undefined,
-  tagNomeRemover: string | null,
-  tagNomeAdicionar: string
-) {
-  if (!telefone) return
-
-  const cliente = await prisma.cliente.findFirst({
-    where: { telefone, apagadoEm: null },
-    select: { id: true },
-  })
-  if (!cliente) return
-
-  const [tagRemover, tagAdicionar] = await Promise.all([
-    tagNomeRemover ? prisma.etiqueta.findFirst({ where: { nome: tagNomeRemover } }) : null,
-    prisma.etiqueta.findFirst({ where: { nome: tagNomeAdicionar } }),
-  ])
-
-  if (tagRemover) {
-    await prisma.clienteEtiqueta.deleteMany({
-      where: { clienteId: cliente.id, etiquetaId: tagRemover.id },
-    })
-  }
-
-  if (tagAdicionar) {
-    await prisma.clienteEtiqueta.upsert({
-      where: { clienteId_etiquetaId: { clienteId: cliente.id, etiquetaId: tagAdicionar.id } },
-      create: { clienteId: cliente.id, etiquetaId: tagAdicionar.id },
-      update: {},
-    })
-  }
-}
-
 // ── Pagamento de sessão ───────────────────────────────────────
 
 export async function atualizarPagamento(
@@ -158,36 +124,8 @@ export async function marcarRepasseFeito(id: string) {
   revalidatePath("/financeiro")
 }
 
-// ── Gift Cards / Vouchers ─────────────────────────────────────
-// A criação de vouchers vive só em app/(dashboard)/vouchers/actions.ts —
-// esta secção só lista/cancela (ver VouchersSection.tsx). Removido o
-// segundo formulário de criação que existia aqui, duplicado com o de
-// /vouchers, a pedido do Nuno (2026-09-02): "so vou tirar mesmo na aba
-// vouchers".
-
-export async function atualizarEstadoVoucher(
-  voucherId: string,
-  estado: "ativo" | "usado" | "expirado" | "cancelado"
-) {
-  await verificarSessao()
-
-  const voucher = await prisma.giftCard.findUnique({
-    where: { id: voucherId },
-    select: { beneficiarioTelefone: true },
-  })
-
-  await prisma.giftCard.update({
-    where: { id: voucherId },
-    data: {
-      estado,
-      dataUso: estado === "usado" ? new Date() : undefined,
-    },
-  })
-
-  // Auto-tag: swap "Voucher ativo" → "Voucher usado" ao marcar como usado
-  if (estado === "usado") {
-    void sincronizarTagVoucher(voucher?.beneficiarioTelefone, "Voucher ativo", "Voucher usado")
-  }
-
-  revalidatePath("/financeiro")
-}
+// Gift Cards / Vouchers: gerir vouchers (criar, editar, cancelar, apagar)
+// deixou de viver no Financeiro — vive só em /vouchers (app/(dashboard)/
+// vouchers/actions.ts). Financeiro só mostra as vendas como receita nos
+// Movimentos (linhasVoucher acima), a pedido do Nuno (2026-09-02):
+// "vouchers não é financeiro. financeiro é €".
