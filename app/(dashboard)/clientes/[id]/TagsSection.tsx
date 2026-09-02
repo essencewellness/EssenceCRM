@@ -121,7 +121,11 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         initial={{ opacity: 0, x: -8 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.35 }}
-        title="Há quantos dias foi a última sessão — não é o estado CRM"
+        title={
+          tagActivity.dias !== null
+            ? "Há quantos dias foi a última sessão — não é o estado CRM"
+            : "Ainda não teve nenhuma sessão realizada"
+        }
         style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", cursor: "help" }}
       >
         <Zap size={11} color={tagActivity.cor} />
@@ -131,12 +135,16 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         }}>
           {tagActivity.label}
         </span>
-        <span style={{
-          fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
-          color: "var(--nuit-bone-soft)", opacity: 0.5,
-        }}>
-          · última sessão
-        </span>
+        {/* "· última sessão" só faz sentido quando há uma data — para "Sem
+            sessões" seria redundante ("Sem sessões · última sessão"). */}
+        {tagActivity.dias !== null && (
+          <span style={{
+            fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
+            color: "var(--nuit-bone-soft)", opacity: 0.5,
+          }}>
+            · última sessão
+          </span>
+        )}
       </motion.div>
 
       {/* Tags agrupadas por tipo */}
