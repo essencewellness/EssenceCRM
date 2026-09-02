@@ -5,7 +5,7 @@ import { serializarDecimais } from "@/lib/serialize"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
 import { RepassesCristina, type RepasseRow } from "./RepassesCristina"
 import { valorDevido } from "@/lib/repasses"
-import { VouchersSection, type VoucherRow, type ServicoOpcao } from "./VouchersSection"
+import { VouchersSection, type VoucherRow } from "./VouchersSection"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -75,7 +75,7 @@ export default async function FinanceiroPage({
     ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
     : {}
 
-  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, servicosRaw, repassesRaw, repassesVoucherRaw, terapeutasRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, topReceitaRaw, vouchersRaw, vendasVoucherRaw, pagamentosPackMesRaw, repassesRaw, repassesVoucherRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -177,11 +177,6 @@ export default async function FinanceiroPage({
       },
       orderBy: { criadoEm: "desc" },
     }),
-    prisma.servico.findMany({
-      where: { ativo: true },
-      select: { id: true, nome: true, precoBase: true },
-      orderBy: { nome: "asc" },
-    }),
     // Repasses à Cristina — não filtrados por mês nem por terapeuta: é
     // dinheiro em aberto independentemente de quando a sessão foi
     prisma.sessao.findMany({
@@ -201,11 +196,6 @@ export default async function FinanceiroPage({
         compradorNome: true,
       },
       orderBy: { dataCompra: "asc" },
-    }),
-    prisma.user.findMany({
-      where: { ativo: true, role: "terapeuta" },
-      orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, email: true },
     }),
   ])
 
@@ -299,8 +289,6 @@ export default async function FinanceiroPage({
     .sort((a, b) => a.data.localeCompare(b.data))
   const totalRepasses = repasses.reduce((soma, r) => soma + valorDevido(r), 0)
 
-  const terapeutas = terapeutasRaw.map(t => ({ id: t.id, nome: t.name || t.email }))
-
   const vouchers: VoucherRow[] = (serializarDecimais(vouchersRaw) as typeof vouchersRaw).map(v => ({
     id: v.id,
     codigo: v.codigo,
@@ -317,12 +305,6 @@ export default async function FinanceiroPage({
     validade: v.validade ? (v.validade instanceof Date ? v.validade.toISOString() : String(v.validade)) : null,
     dataUso: v.dataUso ? (v.dataUso instanceof Date ? v.dataUso.toISOString() : String(v.dataUso)) : null,
     notas: v.notas,
-  }))
-
-  const servicos: ServicoOpcao[] = (serializarDecimais(servicosRaw) as typeof servicosRaw).map(s => ({
-    id: s.id,
-    nome: s.nome,
-    precoBase: String(s.precoBase),
   }))
 
   // Top clientes por receita — soma por cliente já com a divisão "a dois"
@@ -498,7 +480,7 @@ export default async function FinanceiroPage({
 
       {/* Vouchers / Gift Cards */}
       <section>
-        <VouchersSection vouchers={vouchers} servicos={servicos} terapeutas={terapeutas} />
+        <VouchersSection vouchers={vouchers} />
       </section>
 
     </div>

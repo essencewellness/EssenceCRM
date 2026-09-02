@@ -3,12 +3,12 @@
 import { useState, useTransition, useEffect, useMemo, useId, useRef } from "react"
 import {
   Search, Plus, Pencil, X, Gift, CreditCard, AlertTriangle,
-  CalendarCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight,
+  CalendarCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Trash2,
 } from "lucide-react"
 import { useToast } from "@/components/ui/toast-nuit"
 import { NomeServico } from "@/components/NomeServico"
 import { adicionarMeses, linkCurtoDoVoucher } from "@/lib/utils"
-import { criarVoucher, atualizarVoucher } from "./actions"
+import { criarVoucher, atualizarVoucher, apagarVoucher } from "./actions"
 
 export interface ServicoCatalogo {
   nome: string
@@ -887,6 +887,25 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
   const [isPending, start] = useTransition()
   const { toast } = useToast()
 
+  // Apagar a sério — separado do "cancelado" (que fica na lista). Só liga
+  // o botão quando o texto escrito bate certo com o código ou o comprador,
+  // para não haver nenhum apagar sem querer com um clique só.
+  const [aApagar, setAApagar] = useState(false)
+  const [textoConfirmacao, setTextoConfirmacao] = useState("")
+  const [apagando, startApagar] = useTransition()
+  const confirmaCorreto =
+    textoConfirmacao.trim().toLowerCase() === v.codigo.toLowerCase() ||
+    textoConfirmacao.trim().toLowerCase() === v.compradorNome.trim().toLowerCase()
+
+  function apagar() {
+    if (!confirmaCorreto) return
+    startApagar(async () => {
+      const res = await apagarVoucher(v.id, textoConfirmacao)
+      if (res.ok) { toast("Voucher apagado.", "success"); onFechar() }
+      else toast(res.erro, "error")
+    })
+  }
+
   function guardar() {
     start(async () => {
       const res = await atualizarVoucher(v.id, {
@@ -1066,6 +1085,79 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             {isPending ? "A guardar…" : "Guardar alterações"}
           </Botao>
           <Botao variante="fantasma" onClick={onFechar}>Cancelar</Botao>
+        </div>
+
+        <hr className="nuit-hairline-soft" style={{ margin: "4px 0" }} />
+
+        {/* Zona de perigo — apagar a sério, não é o "cancelado" */}
+        <div style={{
+          border: "1px solid rgba(201,117,106,0.30)", borderRadius: "10px",
+          padding: "14px 16px", display: "flex", flexDirection: "column", gap: "10px",
+        }}>
+          <p style={{
+            ...rotulo, color: "#c9756a", opacity: 1, letterSpacing: "0.14em",
+          }}>
+            Zona de perigo
+          </p>
+          {!aApagar ? (
+            <button
+              onClick={() => setAApagar(true)}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "8px",
+                alignSelf: "flex-start",
+                padding: "9px 16px", borderRadius: "8px",
+                border: "1px solid rgba(201,117,106,0.35)",
+                backgroundColor: "transparent", color: "#c9756a",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              <Trash2 size={14} /> Apagar voucher
+            </button>
+          ) : (
+            <>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.5 }}>
+                Isto apaga o voucher <strong style={{ color: "var(--nuit-bone)" }}>{v.codigo}</strong> por
+                completo e não há como desfazer. Para confirmar, escreve o código ou o nome do comprador
+                (<strong style={{ color: "var(--nuit-bone)" }}>{v.compradorNome}</strong>) abaixo.
+              </p>
+              <input
+                autoFocus
+                value={textoConfirmacao}
+                onChange={e => setTextoConfirmacao(e.target.value)}
+                placeholder={v.codigo}
+                style={{ ...inputStyle, borderColor: "rgba(201,117,106,0.35)" }}
+              />
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  onClick={apagar}
+                  disabled={!confirmaCorreto || apagando}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "8px",
+                    padding: "9px 16px", borderRadius: "8px", border: "none",
+                    backgroundColor: "#c9756a", color: "var(--nuit-midnight)",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 700,
+                    cursor: confirmaCorreto && !apagando ? "pointer" : "default",
+                    opacity: confirmaCorreto && !apagando ? 1 : 0.5,
+                  }}
+                >
+                  <Trash2 size={14} /> {apagando ? "A apagar…" : "Apagar definitivamente"}
+                </button>
+                <button
+                  onClick={() => { setAApagar(false); setTextoConfirmacao("") }}
+                  style={{
+                    padding: "9px 16px", borderRadius: "8px",
+                    border: "1px solid rgba(212,184,134,0.22)", background: "transparent",
+                    color: "var(--nuit-bone-soft)",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </Painel>

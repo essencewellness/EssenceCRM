@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
-import { calcularRepasse } from "@/lib/repasses"
 
 async function verificarSessao() {
   const session = await auth()
@@ -160,92 +159,11 @@ export async function marcarRepasseFeito(id: string) {
 }
 
 // ── Gift Cards / Vouchers ─────────────────────────────────────
-
-export async function criarVoucher(dados: {
-  tipo: "digital" | "fisico"
-  codigo?: string
-  compradorNome: string
-  compradorTelefone?: string
-  compradorEmail?: string
-  servicoNome: string
-  valorPago: number
-  beneficiarioNome?: string
-  beneficiarioTelefone?: string
-  dataCompra: string
-  validade?: string
-  notas?: string
-  terapeutaId?: string
-  metodoPagamento?: string
-}): Promise<{ codigo: string }> {
-  await verificarSessao()
-
-  let codigo = dados.codigo?.trim() || ""
-
-  if (!codigo) {
-    const ano = new Date(dados.dataCompra).getFullYear()
-    // Digital: EWD2026-XXXX | Físico: EW2026-XXXX
-    const prefixo = dados.tipo === "digital" ? `EWD${ano}` : `EW${ano}`
-    const existentes = await prisma.giftCard.count({
-      where: { codigo: { startsWith: prefixo } },
-    })
-    const seq = String(existentes + 1).padStart(4, "0")
-    codigo = `${prefixo}-${seq}`
-  }
-
-  // Verificar se o código já existe
-  const jaExiste = await prisma.giftCard.findUnique({ where: { codigo } })
-  if (jaExiste) throw new Error(`O código "${codigo}" já está em uso.`)
-
-  // Serviço "a dois": sabe-se logo à compra que são as duas terapeutas —
-  // mesma lógica do outro formulário de criar voucher (app/vouchers/actions.ts).
-  let terapeuta2Id: string | null = null
-  if (/a dois|a duas|casal/i.test(dados.servicoNome)) {
-    const [idBea, terapeutasAtivas] = await Promise.all([
-      getTerapeutaPrincipalPadraoId(),
-      prisma.user.findMany({ where: { role: "terapeuta", ativo: true }, select: { id: true } }),
-    ])
-    if (terapeutasAtivas.length === 2) {
-      terapeuta2Id = terapeutasAtivas.find(t => t.id !== idBea)?.id ?? null
-    }
-  }
-
-  const terapeutaId = dados.terapeutaId || null
-  const metodoPagamento = dados.metodoPagamento || null
-  const { repasseNecessario, valorRepasse } = calcularRepasse({
-    terapeutaId,
-    terapeuta2Id,
-    metodoPagamento,
-    valorPago: dados.valorPago,
-  })
-
-  await prisma.giftCard.create({
-    data: {
-      codigo,
-      tipo: dados.tipo,
-      compradorNome: dados.compradorNome,
-      compradorTelefone: dados.compradorTelefone || null,
-      compradorEmail: dados.compradorEmail || null,
-      servicoNome: dados.servicoNome,
-      valorPago: dados.valorPago,
-      beneficiarioNome: dados.beneficiarioNome || null,
-      beneficiarioTelefone: dados.beneficiarioTelefone || null,
-      dataCompra: new Date(dados.dataCompra),
-      validade: dados.validade ? new Date(dados.validade) : null,
-      notas: dados.notas || null,
-      terapeutaId,
-      terapeuta2Id,
-      metodoPagamento,
-      repasseNecessario,
-      valorRepasse,
-    },
-  })
-
-  // Auto-tag: se houver beneficiário, marcar como "Voucher ativo"
-  void sincronizarTagVoucher(dados.beneficiarioTelefone, null, "Voucher ativo")
-
-  revalidatePath("/financeiro")
-  return { codigo }
-}
+// A criação de vouchers vive só em app/(dashboard)/vouchers/actions.ts —
+// esta secção só lista/cancela (ver VouchersSection.tsx). Removido o
+// segundo formulário de criação que existia aqui, duplicado com o de
+// /vouchers, a pedido do Nuno (2026-09-02): "so vou tirar mesmo na aba
+// vouchers".
 
 export async function atualizarEstadoVoucher(
   voucherId: string,

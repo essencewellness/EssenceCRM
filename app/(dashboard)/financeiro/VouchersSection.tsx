@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useRef, useState, useTransition } from "react"
-import { criarVoucher, atualizarEstadoVoucher } from "./actions"
+import { useState, useTransition } from "react"
+import { atualizarEstadoVoucher } from "./actions"
 
 const GOLD = "var(--nuit-champagne)"
 const CREAM = "var(--nuit-bone)"
 const CARD_BG = "var(--nuit-overlay)"
 const BORDER = "var(--rule-soft)"
-const BG = "var(--nuit-deep)"
 
 export type VoucherRow = {
   id: string
@@ -31,11 +30,6 @@ export type ServicoOpcao = {
   id: string
   nome: string
   precoBase: string
-}
-
-export type TerapeutaOpcao = {
-  id: string
-  nome: string
 }
 
 // ── Badges ────────────────────────────────────────────────────
@@ -76,423 +70,6 @@ function TipoBadge({ tipo }: { tipo: "digital" | "fisico" }) {
   )
 }
 
-// ── Form de criação de voucher ────────────────────────────────
-
-const hoje = () => new Date().toISOString().slice(0, 10)
-const daqui1Ano = () => {
-  const d = new Date()
-  d.setFullYear(d.getFullYear() + 1)
-  return d.toISOString().slice(0, 10)
-}
-
-const inputStyle = {
-  backgroundColor: BG,
-  border: `1px solid rgba(212,184,134,0.18)`,
-  borderRadius: "7px",
-  color: CREAM,
-  padding: "8px 10px",
-  fontSize: "13px",
-  fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-  outline: "none",
-  width: "100%",
-} as const
-
-const labelStyle = {
-  fontSize: "11px",
-  color: "rgba(212,184,134,0.5)",
-  fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-  letterSpacing: "0.1em",
-  textTransform: "uppercase" as const,
-  display: "block",
-  marginBottom: "5px",
-}
-
-function Grupo({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label style={labelStyle}>{label}</label>
-      {children}
-    </div>
-  )
-}
-
-function CriarVoucherModal({
-  servicos,
-  terapeutas,
-  onFechar,
-  onCriado,
-}: {
-  servicos: ServicoOpcao[]
-  terapeutas: TerapeutaOpcao[]
-  onFechar: () => void
-  onCriado: (codigo: string) => void
-}) {
-  const [pending, startTransition] = useTransition()
-  const [tipo, setTipo] = useState<"digital" | "fisico">("digital")
-  const [codigoManual, setCodigoManual] = useState("")
-  const [compradorNome, setCompradorNome] = useState("")
-  const [compradorTelefone, setCompradorTelefone] = useState("")
-  const [compradorEmail, setCompradorEmail] = useState("")
-  const [servicoNome, setServicoNome] = useState(servicos[0]?.nome ?? "")
-  const [servicoCustom, setServicoCustom] = useState("")
-  const [valorPago, setValorPago] = useState("")
-  const [beneficiarioNome, setBeneficiarioNome] = useState("")
-  const [beneficiarioTelefone, setBeneficiarioTelefone] = useState("")
-  const [dataCompra, setDataCompra] = useState(hoje())
-  const [validade, setValidade] = useState(daqui1Ano())
-  const [notas, setNotas] = useState("")
-  const [terapeutaId, setTerapeutaId] = useState("")
-  const [metodoPagamento, setMetodoPagamento] = useState("")
-  const [erro, setErro] = useState("")
-
-  const servicoFinal = servicoNome === "__outro__" ? servicoCustom : servicoNome
-  const focoAnteriorRef = useRef<HTMLElement | null>(null)
-  const primeiroCampoRef = useRef<HTMLInputElement>(null)
-
-  // Escape fecha, foco entra no primeiro campo e volta para quem abriu o
-  // modal ao fechar — mesmo padrão do modal de pagamento (auditoria a11y,
-  // skill frontend-a11y, 2026-08-21).
-  useEffect(() => {
-    focoAnteriorRef.current = document.activeElement as HTMLElement
-    primeiroCampoRef.current?.focus()
-    function aoTeclado(e: KeyboardEvent) {
-      if (e.key === "Escape") onFechar()
-    }
-    window.addEventListener("keydown", aoTeclado)
-    document.body.style.overflow = "hidden"
-    return () => {
-      window.removeEventListener("keydown", aoTeclado)
-      document.body.style.overflow = ""
-      focoAnteriorRef.current?.focus()
-    }
-  }, [onFechar])
-
-  // Pré-preenche o valor quando se seleciona um serviço do catálogo
-  function onServicoChange(nome: string) {
-    setServicoNome(nome)
-    if (nome !== "__outro__") {
-      const serv = servicos.find(s => s.nome === nome)
-      if (serv) setValorPago(Number(serv.precoBase).toFixed(2))
-    }
-  }
-
-  function submeter() {
-    setErro("")
-    if (!compradorNome.trim()) { setErro("O nome do comprador é obrigatório."); return }
-    if (!servicoFinal.trim()) { setErro("Indica o serviço."); return }
-    if (!valorPago || Number(valorPago) <= 0) { setErro("Indica o valor pago."); return }
-
-    startTransition(async () => {
-      try {
-        const { codigo } = await criarVoucher({
-          tipo,
-          codigo: codigoManual.trim() || undefined,
-          compradorNome: compradorNome.trim(),
-          compradorTelefone: compradorTelefone.trim() || undefined,
-          compradorEmail: compradorEmail.trim() || undefined,
-          servicoNome: servicoFinal.trim(),
-          valorPago: Number(valorPago),
-          beneficiarioNome: beneficiarioNome.trim() || undefined,
-          beneficiarioTelefone: beneficiarioTelefone.trim() || undefined,
-          dataCompra,
-          validade: validade || undefined,
-          notas: notas.trim() || undefined,
-          terapeutaId: terapeutaId || undefined,
-          metodoPagamento: metodoPagamento || undefined,
-        })
-        onCriado(codigo)
-      } catch {
-        setErro("Erro ao criar o voucher. Tenta novamente.")
-      }
-    })
-  }
-
-  const toggleStyle = (ativo: boolean) => ({
-    flex: 1,
-    padding: "8px 0",
-    borderRadius: "7px",
-    border: ativo ? `1px solid rgba(212,184,134,0.4)` : `1px solid rgba(212,184,134,0.1)`,
-    backgroundColor: ativo ? "rgba(212,184,134,0.12)" : "transparent",
-    color: ativo ? GOLD : "var(--muted-foreground)",
-    fontSize: "12px", fontWeight: 700, cursor: "pointer",
-    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-    transition: "all 0.15s",
-  } as const)
-
-  return (
-    <>
-      {/* backdrop */}
-      <div
-        style={{ position: "fixed", inset: 0, zIndex: 99, backgroundColor: "rgba(5,8,16,0.8)", backdropFilter: "blur(4px)" }}
-        onClick={onFechar}
-      />
-      {/* modal */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Novo Voucher"
-        style={{
-        position: "fixed", zIndex: 100,
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "min(540px, calc(100vw - 32px))",
-        maxHeight: "calc(100vh - 64px)",
-        overflowY: "auto",
-        backgroundColor: "var(--nuit-deep)",
-        border: `1px solid rgba(212,184,134,0.2)`,
-        borderRadius: "14px",
-        padding: "28px",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
-          <div>
-            <h2 style={{
-              fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-              color: CREAM, fontSize: "20px", fontWeight: 400,
-            }}>
-              Novo Voucher
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(212,184,134,0.4)", fontSize: "12px", marginTop: "3px" }}>
-              O código é gerado automaticamente
-            </p>
-          </div>
-          <button
-            onClick={onFechar}
-            aria-label="Fechar"
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              color: "var(--muted-foreground)", fontSize: "20px", lineHeight: 1,
-              padding: "2px 6px",
-            }}
-          >
-            ×
-          </button>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-
-          {/* Tipo toggle */}
-          <Grupo label="Tipo de voucher">
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button onClick={() => setTipo("digital")} style={toggleStyle(tipo === "digital")}>
-                Digital (EWD{new Date(dataCompra).getFullYear()}-XXXX)
-              </button>
-              <button onClick={() => setTipo("fisico")} style={toggleStyle(tipo === "fisico")}>
-                Físico (EW{new Date(dataCompra).getFullYear()}-XXXX)
-              </button>
-            </div>
-          </Grupo>
-
-          {/* Comprador */}
-          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
-            <p style={{ ...labelStyle, color: "rgba(212,184,134,0.6)", marginBottom: "12px" }}>Comprador</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <Grupo label="Nome *">
-                  <input ref={primeiroCampoRef} value={compradorNome} onChange={e => setCompradorNome(e.target.value)} style={inputStyle} placeholder="Nome completo" />
-                </Grupo>
-              </div>
-              <Grupo label="Telefone">
-                <input value={compradorTelefone} onChange={e => setCompradorTelefone(e.target.value)} style={inputStyle} placeholder="+351 9XX XXX XXX" />
-              </Grupo>
-              <Grupo label="Email">
-                <input value={compradorEmail} onChange={e => setCompradorEmail(e.target.value)} style={inputStyle} placeholder="email@exemplo.com" type="email" />
-              </Grupo>
-            </div>
-          </div>
-
-          {/* Serviço e valor */}
-          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
-            <p style={{ ...labelStyle, color: "rgba(212,184,134,0.6)", marginBottom: "12px" }}>Serviço & Valor</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <Grupo label="Serviço *">
-                  <select
-                    value={servicoNome}
-                    onChange={e => onServicoChange(e.target.value)}
-                    style={{ ...inputStyle, cursor: "pointer" }}
-                  >
-                    {servicos.map(s => (
-                      <option key={s.id} value={s.nome}>{s.nome} — €{Number(s.precoBase).toFixed(0)}</option>
-                    ))}
-                    <option value="__outro__">Outro (escrever manualmente)</option>
-                  </select>
-                </Grupo>
-              </div>
-              {servicoNome === "__outro__" && (
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <Grupo label="Nome do serviço">
-                    <input value={servicoCustom} onChange={e => setServicoCustom(e.target.value)} style={inputStyle} placeholder="Ex: Pack 3 sessões" />
-                  </Grupo>
-                </div>
-              )}
-              <Grupo label="Valor pago (€) *">
-                <input value={valorPago} onChange={e => setValorPago(e.target.value)} style={inputStyle} type="number" step="0.01" min="0" placeholder="0.00" />
-              </Grupo>
-              <Grupo label="Método de pagamento">
-                <select value={metodoPagamento} onChange={e => setMetodoPagamento(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
-                  <option value="">— Selecionar —</option>
-                  <option value="mbway_essence">MBWay Essence</option>
-                  <option value="mbway_beatriz">MBWay Beatriz</option>
-                  <option value="dinheiro">Dinheiro</option>
-                  <option value="transferencia">Transferência</option>
-                  <option value="stripe">Stripe</option>
-                </select>
-              </Grupo>
-              <Grupo label="Terapeuta">
-                <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
-                  <option value="">Beatriz (por omissão)</option>
-                  {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
-                </select>
-              </Grupo>
-            </div>
-          </div>
-
-          {/* Para (beneficiário) */}
-          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
-            <p style={{ ...labelStyle, color: "rgba(212,184,134,0.6)", marginBottom: "12px" }}>Para (beneficiário)</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <Grupo label="Nome">
-                <input value={beneficiarioNome} onChange={e => setBeneficiarioNome(e.target.value)} style={inputStyle} placeholder="Deixa em branco se for para o próprio comprador" />
-              </Grupo>
-              <Grupo label="Telefone">
-                <input value={beneficiarioTelefone} onChange={e => setBeneficiarioTelefone(e.target.value)} style={inputStyle} placeholder="+351 9XX XXX XXX" />
-              </Grupo>
-            </div>
-          </div>
-
-          {/* Datas + Nº voucher */}
-          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "14px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-              <Grupo label="Data de compra *">
-                <input value={dataCompra} onChange={e => setDataCompra(e.target.value)} style={inputStyle} type="date" />
-              </Grupo>
-              <Grupo label="Validade">
-                <input value={validade} onChange={e => setValidade(e.target.value)} style={inputStyle} type="date" />
-              </Grupo>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <Grupo label="Nº do Voucher">
-                  <input
-                    value={codigoManual}
-                    onChange={e => setCodigoManual(e.target.value.toUpperCase())}
-                    style={{ ...inputStyle, fontFamily: "monospace", letterSpacing: "0.08em" }}
-                    placeholder={tipo === "digital"
-                      ? `EWD${new Date(dataCompra).getFullYear()}-XXXX (auto-gerado se deixares vazio)`
-                      : `EW${new Date(dataCompra).getFullYear()}-XXXX (auto-gerado se deixares vazio)`}
-                  />
-                </Grupo>
-              </div>
-            </div>
-          </div>
-
-          {/* Notas */}
-          <Grupo label="Notas">
-            <textarea
-              value={notas}
-              onChange={e => setNotas(e.target.value)}
-              style={{ ...inputStyle, resize: "vertical", minHeight: "60px" }}
-              placeholder="Observações opcionais…"
-            />
-          </Grupo>
-
-          {/* Erro */}
-          {erro && (
-            <p style={{ color: "#d48c45", fontSize: "12px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)" }}>
-              {erro}
-            </p>
-          )}
-
-          {/* Botões */}
-          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", borderTop: `1px solid ${BORDER}`, paddingTop: "16px" }}>
-            <button
-              onClick={onFechar}
-              style={{
-                padding: "9px 18px", borderRadius: "8px", fontSize: "13px",
-                border: `1px solid ${BORDER}`, background: "transparent",
-                color: "var(--muted-foreground)", cursor: "pointer",
-                fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={submeter}
-              disabled={pending}
-              className={pending ? undefined : "btn-lift"}
-              style={{
-                padding: "9px 22px", borderRadius: "8px", fontSize: "13px",
-                border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
-                cursor: pending ? "wait" : "pointer", fontWeight: 700,
-                fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                opacity: pending ? 0.7 : 1,
-              }}
-            >
-              {pending ? "A criar…" : "Criar Voucher"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
-
-// ── Confirmação após criação ──────────────────────────────────
-
-function SuccessModal({ codigo, onFechar }: { codigo: string; onFechar: () => void }) {
-  return (
-    <>
-      <div style={{ position: "fixed", inset: 0, zIndex: 99, backgroundColor: "rgba(5,8,16,0.8)" }} onClick={onFechar} />
-      <div style={{
-        position: "fixed", zIndex: 100,
-        top: "50%", left: "50%",
-        transform: "translate(-50%, -50%)",
-        backgroundColor: "var(--nuit-deep)",
-        border: `1px solid rgba(80,200,120,0.25)`,
-        borderRadius: "14px",
-        padding: "32px",
-        textAlign: "center",
-        boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
-        minWidth: "280px",
-      }}>
-        <div style={{ fontSize: "32px", marginBottom: "12px" }}>✓</div>
-        <h3 style={{
-          fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-          color: CREAM, fontSize: "18px", fontWeight: 400, marginBottom: "8px",
-        }}>
-          Voucher criado!
-        </h3>
-        <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px", marginBottom: "16px" }}>
-          Código gerado:
-        </p>
-        <div style={{
-          backgroundColor: BG, borderRadius: "8px",
-          padding: "12px 20px", marginBottom: "20px",
-          border: `1px solid rgba(212,184,134,0.2)`,
-        }}>
-          <span style={{
-            fontFamily: "monospace", fontSize: "20px",
-            color: GOLD, letterSpacing: "0.12em", fontWeight: 700,
-          }}>
-            {codigo}
-          </span>
-        </div>
-        <button
-          onClick={onFechar}
-          className="btn-lift"
-          style={{
-            padding: "9px 24px", borderRadius: "8px", fontSize: "13px",
-            border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
-            cursor: "pointer", fontWeight: 700,
-            fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-          }}
-        >
-          Fechar
-        </button>
-      </div>
-    </>
-  )
-}
-
 // ── Secção principal ──────────────────────────────────────────
 
 const FILTROS = ["todos", "ativo", "usado", "expirado", "cancelado"] as const
@@ -500,16 +77,10 @@ type Filtro = (typeof FILTROS)[number]
 
 export function VouchersSection({
   vouchers: inicial,
-  servicos,
-  terapeutas,
 }: {
   vouchers: VoucherRow[]
-  servicos: ServicoOpcao[]
-  terapeutas: TerapeutaOpcao[]
 }) {
   const [vouchers, setVouchers] = useState(inicial)
-  const [mostrarCriar, setMostrarCriar] = useState(false)
-  const [codigoCriado, setCodigoCriado] = useState<string | null>(null)
   const [filtro, setFiltro] = useState<Filtro>("todos")
   const [pending, startTransition] = useTransition()
   const [acaoId, setAcaoId] = useState<string | null>(null)
@@ -520,11 +91,6 @@ export function VouchersSection({
   const totalAtivos = vouchers.filter(v => v.estado === "ativo").length
   const totalUsados = vouchers.filter(v => v.estado === "usado").length
   const valorTotal = vouchers.reduce((s, v) => s + Number(v.valorPago), 0)
-
-  function onCriado(codigo: string) {
-    setMostrarCriar(false)
-    setCodigoCriado(codigo)
-  }
 
   function cancelarVoucher(v: VoucherRow) {
     setAcaoId(v.id)
@@ -543,7 +109,7 @@ export function VouchersSection({
 
   return (
     <div>
-      {/* Cabeçalho + botão criar */}
+      {/* Cabeçalho */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <h2 style={{
           fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
@@ -552,18 +118,15 @@ export function VouchersSection({
         }}>
           Gift Cards / Vouchers
         </h2>
-        <button
-          onClick={() => setMostrarCriar(true)}
+        <a
+          href="/vouchers"
           style={{
-            padding: "7px 16px", borderRadius: "8px", fontSize: "12px",
-            border: `1px solid rgba(212,184,134,0.3)`,
-            backgroundColor: "rgba(212,184,134,0.08)",
-            color: GOLD, cursor: "pointer", fontWeight: 600,
+            fontSize: "12px", color: GOLD, textDecoration: "none",
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
           }}
         >
-          + Criar Voucher
-        </button>
+          Criar / gerir na aba Vouchers →
+        </a>
       </div>
 
       {/* Mini KPIs */}
@@ -609,7 +172,7 @@ export function VouchersSection({
       {visiveis.length === 0 ? (
         <div style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "32px", textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px" }}>
-            {vouchers.length === 0 ? "Ainda não há vouchers. Clica em «+ Criar Voucher» para adicionar." : "Nenhum voucher nesta categoria."}
+            {vouchers.length === 0 ? "Ainda não há vouchers. Cria um na aba Vouchers." : "Nenhum voucher nesta categoria."}
           </p>
         </div>
       ) : (
@@ -701,19 +264,6 @@ export function VouchersSection({
             </tbody>
           </table>
         </div>
-      )}
-
-      {/* Modais */}
-      {mostrarCriar && (
-        <CriarVoucherModal
-          servicos={servicos}
-          terapeutas={terapeutas}
-          onFechar={() => setMostrarCriar(false)}
-          onCriado={onCriado}
-        />
-      )}
-      {codigoCriado && (
-        <SuccessModal codigo={codigoCriado} onFechar={() => setCodigoCriado(null)} />
       )}
     </div>
   )

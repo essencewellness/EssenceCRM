@@ -139,6 +139,42 @@ export async function atualizarVoucher(
   }
 }
 
+// Apaga o voucher a sério (não é o "cancelado" — esse fica na lista). Só
+// avança se quem pede escrever exatamente o código ou o nome do comprador,
+// para não ser possível apagar sem querer com um clique. Não há nada mais
+// no schema com FK a apontar para GiftCard.id (ver prisma/schema.prisma),
+// por isso um delete simples já limpa tudo — não há registos órfãos a
+// deixar para trás.
+export async function apagarVoucher(
+  id: string,
+  confirmacao: string
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  await verificarSessao()
+
+  const voucher = await prisma.giftCard.findUnique({
+    where: { id },
+    select: { codigo: true, compradorNome: true },
+  })
+  if (!voucher) return { ok: false, erro: "Voucher não encontrado." }
+
+  const escrito = confirmacao.trim().toLowerCase()
+  const confere =
+    escrito.length > 0 &&
+    (escrito === voucher.codigo.toLowerCase() || escrito === voucher.compradorNome.trim().toLowerCase())
+  if (!confere) {
+    return { ok: false, erro: "O texto não corresponde ao código nem ao nome do comprador." }
+  }
+
+  try {
+    await prisma.giftCard.delete({ where: { id } })
+    revalidatePath("/vouchers")
+    revalidatePath("/financeiro")
+    return { ok: true }
+  } catch {
+    return { ok: false, erro: "Erro ao apagar o voucher." }
+  }
+}
+
 export async function criarVoucher(dados: {
   codigo: string
   tipo: string
