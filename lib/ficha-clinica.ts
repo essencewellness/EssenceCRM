@@ -43,13 +43,23 @@ export async function assinalarSessaoCanceladaNaFichaClinica(
   ])
   if (!ultimaAtualizacao || !cliente?.fichaClinica) return
 
-  const detalhe = ultimaAtualizacao.detalhe as { sessaoId?: string | null } | null
+  const detalhe = ultimaAtualizacao.detalhe as { sessaoId?: string | null; fichaClinicaAnterior?: string | null } | null
   if (!detalhe || detalhe.sessaoId !== sessaoId) return
 
   // Idempotente: se já tem o aviso (ex: PATCH de cancelamento reprocessado
   // pelo N8N), não duplica.
-  const aviso = `⚠️ A sessão de ${sessao ? formatarDataPT(sessao.data) : "referência"} associada a esta informação foi cancelada — os dados abaixo continuam reais, mas não houve sessão para os confirmar.`
   if (cliente.fichaClinica.startsWith("⚠️")) return
+
+  const dataFmt = sessao ? formatarDataPT(sessao.data) : "referência"
+  // Cliente já tinha ficha antes desta escrita (não é a 1ª sessão) — o
+  // Groq reescreve o texto todo combinando "FICHA ANTERIOR" + o que foi
+  // reportado agora, por isso já não dá para separar visualmente o que é
+  // histórico confirmado (sessões reais anteriores) do que só veio desta
+  // sessão cancelada. O aviso tem de refletir isso — dizer que "tudo" está
+  // por confirmar seria enganador quando a maior parte já é histórico real.
+  const aviso = detalhe.fichaClinicaAnterior
+    ? `⚠️ A sessão de ${dataFmt} foi cancelada. Esta ficha foi reescrita nessa altura e pode incluir informação nova reportada então (ex: uma lesão) que ainda não foi confirmada numa sessão real — o histórico de sessões anteriores a essa data mantém-se válido.`
+    : `⚠️ A sessão de ${dataFmt} associada a esta informação foi cancelada — os dados abaixo continuam reais, mas não houve sessão para os confirmar.`
 
   await prisma.cliente.update({
     where: { id: clienteId },
