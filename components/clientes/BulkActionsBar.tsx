@@ -136,7 +136,7 @@ function EtiquetasDropdown({
   return (
     <>
       <div className="fixed inset-0 z-10" onClick={onClose} />
-      <div style={{ backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", boxShadow: "0 8px 28px rgba(14,17,25,0.45)" }} className="absolute bottom-full mb-2 left-0 z-20 rounded-xl py-1 min-w-44">
+      <div style={{ backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.30)", boxShadow: "0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.30)" }} className="absolute bottom-full mb-2 left-0 z-20 rounded-xl py-1 min-w-44">
         {etiquetas.length === 0 && (
           <p style={{ color: "var(--nuit-bone-soft)" }} className="text-xs px-3 py-2">Nenhuma etiqueta</p>
         )}

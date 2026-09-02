@@ -283,8 +283,10 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
           style={{
             position: "fixed", zIndex: 150, top: pos.top, left: pos.left,
             width: "298px", padding: "14px",
-            backgroundColor: "var(--nuit-deep)",
-            border: "1px solid rgba(212,184,134,0.28)",
+            // nuit-overlay (superfície elevada) e não nuit-deep — este é quase
+            // igual ao fundo da página e o popover lia-se como "meio transparente".
+            backgroundColor: "var(--nuit-overlay)",
+            border: "1px solid rgba(212,184,134,0.30)",
             borderRadius: "12px", boxShadow: "var(--shadow-3)",
           }}
         >
@@ -528,8 +530,10 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
           style={{
             position: "fixed", zIndex: 150, top: pos.top, left: pos.left, width: pos.width,
             maxHeight: "290px", overflowY: "auto",
-            backgroundColor: "var(--nuit-deep)",
-            border: "1px solid rgba(212,184,134,0.28)",
+            // nuit-overlay (superfície elevada) e não nuit-deep — este é quase
+            // igual ao fundo da página e o popover lia-se como "meio transparente".
+            backgroundColor: "var(--nuit-overlay)",
+            border: "1px solid rgba(212,184,134,0.30)",
             borderRadius: "10px", boxShadow: "var(--shadow-3)",
             padding: "6px", listStyle: "none",
           }}

@@ -87,8 +87,12 @@ export function TerapeutaEditor({ clienteId, terapeutaAtualId, terapeutas, podeE
       {aberto && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0,
-          backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-          borderRadius: "4px", boxShadow: "0 8px 24px rgba(14,17,25,0.40)",
+          // nuit-deep é quase igual ao fundo da página (nuit-midnight) —
+          // o painel flutuante lia-se como "meio transparente". nuit-overlay
+          // é a superfície elevada da NUIT (cards), com borda e sombra mais
+          // fortes para separar do fundo (mesmo fix do EstadoEditor).
+          backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.30)",
+          borderRadius: "4px", boxShadow: "0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.30)",
           zIndex: 50, minWidth: "180px", overflow: "hidden",
         }}>
           {terapeutas.map((t) => (
