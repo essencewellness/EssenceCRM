@@ -96,8 +96,15 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: Tarefa
   const efetivo = onUpdate ?? handleUpdateFallback
 
   const total = tarefas.filter((t) => t.estado === "pendente" || t.estado === "em_progresso").length
+  // agrupar() só junta pendente/em_progresso — sem isto, tarefas concluídas
+  // ou canceladas ficavam invisíveis por completo (o separador "Tarefas" no
+  // perfil do cliente mostrava o badge "1" mas a lista vinha vazia, sem
+  // nenhuma pista de que a única tarefa já tinha sido concluída — reportado
+  // pelo Nuno 2026-09-02).
+  const concluidas = tarefas.filter((t) => t.estado === "concluida")
+  const canceladas = tarefas.filter((t) => t.estado === "cancelada")
 
-  if (total === 0 && tarefas.length === 0) {
+  if (tarefas.length === 0) {
     return (
       <div className="space-y-4">
         <TarefaForm clienteId={clienteId} onCreated={onRefresh} />
@@ -113,6 +120,11 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: Tarefa
   return (
     <div className="space-y-6">
       <TarefaForm clienteId={clienteId} onCreated={onRefresh} />
+      {total === 0 && (
+        <p style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
+          Sem tarefas pendentes — {concluidas.length + canceladas.length === 1 ? "há uma tarefa" : `há ${concluidas.length + canceladas.length} tarefas`} já fechada{concluidas.length + canceladas.length === 1 ? "" : "s"} abaixo.
+        </p>
+      )}
       {Object.entries(grupos).map(([key, itens]) => {
         if (itens.length === 0) return null
         const meta = GRUPO_META[key as keyof typeof GRUPO_META]
@@ -120,6 +132,24 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: Tarefa
           <div key={key}>
             <h3 style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: meta.cor, fontFamily: "var(--font-sans, sans-serif)" }}>
               {meta.label} ({itens.length})
+            </h3>
+            <div className="space-y-2">
+              {itens.map((t) => (
+                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} />
+              ))}
+            </div>
+          </div>
+        )
+      })}
+      {[
+        { label: "Concluídas", itens: concluidas, cor: "#7a9e7e" },
+        { label: "Canceladas", itens: canceladas, cor: "var(--nuit-smoke-deep)" },
+      ].map(({ label, itens, cor }) => {
+        if (itens.length === 0) return null
+        return (
+          <div key={label} style={{ opacity: 0.7 }}>
+            <h3 style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: cor, fontFamily: "var(--font-sans, sans-serif)" }}>
+              {label} ({itens.length})
             </h3>
             <div className="space-y-2">
               {itens.map((t) => (

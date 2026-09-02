@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { AnimatePresence, motion } from "motion/react"
 import { ChevronDown } from "lucide-react"
 import { ESTADO_CRM_CONFIG } from "@/lib/etiquetas"
@@ -17,9 +18,11 @@ interface Props {
 
 export function EstadoEditor({ clienteId, estadoAtual }: Props) {
   const [aberto, setAberto] = useState(false)
+  const [posicao, setPosicao] = useState({ top: 0, left: 0 })
   const [estadoLocal, setEstadoLocal] = useState(estadoAtual)
   const [isPending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
+  const painelRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const primeiroItemRef = useRef<HTMLButtonElement>(null)
   const { toast } = useToast()
@@ -27,7 +30,13 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
   useEffect(() => {
     if (!aberto) return
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setAberto(false)
+      const alvo = e.target as Node
+      // O painel vive num portal em document.body (ver comentário no style
+      // abaixo) — fora da árvore de `ref`, por isso tem de ser verificado
+      // à parte, senão qualquer clique dentro dele fechava o dropdown.
+      if (ref.current?.contains(alvo)) return
+      if (painelRef.current?.contains(alvo)) return
+      setAberto(false)
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
@@ -64,7 +73,13 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
     <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
       <motion.button
         ref={triggerRef}
-        onClick={() => setAberto(o => !o)}
+        onClick={() => {
+          if (!aberto && triggerRef.current) {
+            const r = triggerRef.current.getBoundingClientRect()
+            setPosicao({ top: r.bottom + 6, left: r.left })
+          }
+          setAberto(o => !o)
+        }}
         disabled={isPending}
         aria-haspopup="listbox"
         aria-expanded={aberto}
@@ -109,9 +124,11 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
         </AnimatePresence>
       </motion.button>
 
+      {typeof document !== "undefined" && createPortal(
       <AnimatePresence>
         {aberto && (
           <motion.div
+            ref={painelRef}
             role="listbox"
             aria-label="Estados possíveis"
             onKeyDown={(e) => {
@@ -125,14 +142,19 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
             exit={{ opacity: 0, scale: 0.94, y: -4, transition: { duration: 0.14 } }}
             transition={{ type: "spring", stiffness: 420, damping: 26 }}
             style={{
-              position: "absolute", top: "calc(100% + 6px)", left: 0,
-              // nuit-deep é quase igual ao fundo da página (nuit-midnight) —
-              // lia-se como "a ver através" mesmo sendo opaco. nuit-overlay
-              // é a superfície elevada da NUIT (usada em cards), com borda e
-              // sombra mais fortes para separar claramente do fundo.
+              // "fixed" + coordenadas calculadas ao abrir (não "absolute"):
+              // num portal em document.body, fora da árvore com os cartões
+              // animados (motion/framer, que criam stacking contexts via
+              // transform) — um z-index normal não ganha a um irmão nessas
+              // condições, só sair da árvore resolve (mesmo bug e mesmo fix
+              // de TagsSection.tsx, 2026-08-22 — reapareceu aqui porque este
+              // dropdown ainda estava com position:absolute + zIndex local,
+              // reportado pelo Nuno 2026-09-02 com o texto de "Timeline" e o
+              // "2" dos Vouchers a aparecer por cima da lista).
+              position: "fixed", top: `${posicao.top}px`, left: `${posicao.left}px`,
               backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.30)",
               borderRadius: "6px", boxShadow: "0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.30)",
-              zIndex: 50, minWidth: "160px", overflow: "hidden",
+              zIndex: 200, minWidth: "160px", overflow: "hidden",
               transformOrigin: "top left",
             }}
           >
@@ -174,7 +196,9 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
             ))}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   )
 }
