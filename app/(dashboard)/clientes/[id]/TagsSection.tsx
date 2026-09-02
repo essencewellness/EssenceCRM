@@ -114,12 +114,15 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
 
   return (
     <div style={{ marginTop: "20px" }}>
-      {/* Badge de actividade */}
+      {/* Badge de actividade — frescura da última sessão, diferente do
+          estado CRM (o pill grande no topo, que também pesa gasto/frequência).
+          title dá o porquê a quem passar o rato, sem ocupar espaço extra. */}
       <motion.div
         initial={{ opacity: 0, x: -8 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.35 }}
-        style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}
+        title="Há quantos dias foi a última sessão — não é o estado CRM"
+        style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", cursor: "help" }}
       >
         <Zap size={11} color={tagActivity.cor} />
         <span style={{
@@ -127,6 +130,12 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
           fontWeight: 600, color: tagActivity.cor, letterSpacing: "0.04em",
         }}>
           {tagActivity.label}
+        </span>
+        <span style={{
+          fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
+          color: "var(--nuit-bone-soft)", opacity: 0.5,
+        }}>
+          · última sessão
         </span>
       </motion.div>
 
@@ -250,8 +259,11 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                 // 2026-08-22: o painel aparecia por baixo dos separadores
                 // e dos cartões de estatística).
                 position: "fixed", top: `${posicao.top}px`, left: `${posicao.left}px`,
-                backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-                borderRadius: "6px", boxShadow: "0 8px 28px rgba(14,17,25,0.45)",
+                // nuit-overlay (superfície elevada, não nuit-deep que é quase
+                // igual ao fundo) + borda/sombra mais fortes — mesmo fix do
+                // EstadoEditor para o painel não se ler como "meio transparente".
+                backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.30)",
+                borderRadius: "6px", boxShadow: "0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.30)",
                 zIndex: 200, width: "260px", overflow: "hidden",
                 transformOrigin: "top left",
               }}
