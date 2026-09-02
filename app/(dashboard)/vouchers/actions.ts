@@ -9,6 +9,7 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
 import { Prisma } from "@/lib/prisma-client"
 import { calcularRepasse } from "@/lib/repasses"
+import { recalcularMetricasCliente } from "@/lib/metricas"
 
 async function verificarSessao() {
   const session = await auth()
@@ -285,6 +286,11 @@ export async function criarVoucher(dados: {
           where: { id: voucher.id },
           data: { compradorClienteId: cliente.id },
         })
+        // "Total Gasto" no perfil inclui vouchers comprados (mesmo para
+        // oferecer) — sem recalcular aqui, só actualizava na próxima vez
+        // que uma sessão DESTE cliente mudasse, o que podia nunca acontecer
+        // para quem só compra vouchers para outras pessoas.
+        await recalcularMetricasCliente(prisma, cliente.id)
       }
     }
 
