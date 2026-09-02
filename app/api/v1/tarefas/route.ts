@@ -44,22 +44,27 @@ export async function GET(request: NextRequest) {
     }
   } catch { /* sem sessão (N8N) — sem scope */ }
 
-  const tarefas = await prisma.tarefa.findMany({
-    where,
-    include: {
-      cliente: { select: { id: true, nome: true, telefone: true } },
-      atribuida: { select: { id: true, name: true, email: true } },
-    },
-    orderBy: [{ estado: "asc" }, { dataLimite: "asc" }, { criadoEm: "desc" }],
-    take: q.limit + 1,
-    ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
-  })
+  // findMany + count em paralelo — eram dois round-trips sequenciais à
+  // Neon (cada um com a latência própria da ligação serverless) para o
+  // mesmo pedido; independentes entre si, não há razão para esperar um
+  // para começar o outro.
+  const [tarefas, total] = await Promise.all([
+    prisma.tarefa.findMany({
+      where,
+      include: {
+        cliente: { select: { id: true, nome: true, telefone: true } },
+        atribuida: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: [{ estado: "asc" }, { dataLimite: "asc" }, { criadoEm: "desc" }],
+      take: q.limit + 1,
+      ...(q.cursor ? { cursor: { id: q.cursor }, skip: 1 } : {}),
+    }),
+    prisma.tarefa.count({ where }),
+  ])
 
   const hasMore = tarefas.length > q.limit
   const data = hasMore ? tarefas.slice(0, q.limit) : tarefas
   const nextCursor = hasMore ? data[data.length - 1]?.id : undefined
-
-  const total = await prisma.tarefa.count({ where })
 
   return NextResponse.json({
     data,

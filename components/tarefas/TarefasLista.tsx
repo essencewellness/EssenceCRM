@@ -22,6 +22,7 @@ interface TarefasListaProps {
   tarefas: Tarefa[]
   showClienteLink?: boolean
   onRefresh?: () => void
+  onUpdate?: (id: string, dados: object) => Promise<void>
   clienteId?: string
 }
 
@@ -62,15 +63,16 @@ const GRUPO_META = {
   semprazo: { label: "Sem prazo", cor: "var(--nuit-bone-soft)" },
 }
 
-export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProps) {
+export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: TarefasListaProps) {
   const grupos = agrupar(tarefas)
   const { toast } = useToast()
 
-  // Sem isto, um PATCH que falhasse (rede lenta, sessão expirada, transição
-  // inválida) ficava completamente silencioso: o botão "Concluir" parecia
-  // ter funcionado, mas ao voltar à página a tarefa continuava pendente,
-  // sem nenhum aviso do porquê (reportado pelo Nuno 2026-09-02).
-  const handleUpdate = useCallback(
+  // Fallback para quando o pai não gere estado optimista (ex: separador de
+  // Tarefas no perfil do cliente) — faz o PATCH aqui mesmo, com o mesmo
+  // aviso de erro que a via optimista já tem. A página de Tarefas passa o
+  // seu próprio onUpdate (mais rápido: aplica já a alteração, sem esperar
+  // pelo round-trip) e nunca usa este caminho.
+  const handleUpdateFallback = useCallback(
     async (id: string, dados: object) => {
       try {
         const res = await fetch(`/api/v1/tarefas/${id}`, {
@@ -91,6 +93,7 @@ export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProp
     },
     [onRefresh, toast]
   )
+  const efetivo = onUpdate ?? handleUpdateFallback
 
   const total = tarefas.filter((t) => t.estado === "pendente" || t.estado === "em_progresso").length
 
@@ -120,7 +123,7 @@ export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProp
             </h3>
             <div className="space-y-2">
               {itens.map((t) => (
-                <TarefaCard key={t.id} tarefa={t} onUpdate={handleUpdate} />
+                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} />
               ))}
             </div>
           </div>

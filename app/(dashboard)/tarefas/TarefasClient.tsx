@@ -4,6 +4,7 @@ import { List, Kanban, Filter, CheckSquare, UserRound } from "lucide-react"
 import { TarefasLista } from "@/components/tarefas/TarefasLista"
 import { TarefasKanban } from "@/components/tarefas/TarefasKanban"
 import { EmptyState } from "@/components/ui/EmptyState"
+import { useToast } from "@/components/ui/toast-nuit"
 
 type Tarefa = {
   id: string
@@ -35,6 +36,7 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
   const [filtroTipo, setFiltroTipo] = useState("")
   const [filtroTerapeuta, setFiltroTerapeuta] = useState("")
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
+  const { toast } = useToast()
 
   const carregar = useCallback(async () => {
     setLoading(true)
@@ -57,6 +59,38 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { carregar() }, [carregar])
+
+  // Optimista: aplica a alteração na UI já, sem esperar pelo PATCH — a
+  // sensação de "demorou muito, parece que bugou" (reportada pelo Nuno)
+  // vinha de esperar por um round-trip completo (PATCH + depois um GET
+  // novo de até 300 tarefas) só para o clique reagir. Se o PATCH falhar,
+  // reverte só essa tarefa e avisa porquê.
+  const atualizarTarefa = useCallback(
+    async (id: string, dados: object) => {
+      let anterior: Tarefa | undefined
+      setTarefas(prev => prev.map(t => {
+        if (t.id !== id) return t
+        anterior = t
+        return { ...t, ...dados }
+      }))
+      try {
+        const res = await fetch(`/api/v1/tarefas/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        })
+        if (!res.ok) {
+          const erro = await res.json().catch(() => null)
+          if (anterior) setTarefas(prev => prev.map(t => (t.id === id ? anterior! : t)))
+          toast(erro?.error ?? "Não foi possível guardar a alteração. Tenta novamente.", "error")
+        }
+      } catch {
+        if (anterior) setTarefas(prev => prev.map(t => (t.id === id ? anterior! : t)))
+        toast("Sem ligação — não foi possível guardar. Tenta novamente.", "error")
+      }
+    },
+    [toast]
+  )
 
   const tarefasAtivas = tarefas.filter(
     (t) => t.estado === "pendente" || t.estado === "em_progresso"
@@ -206,9 +240,9 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           action={filtroEstado || filtroPrioridade || filtroTipo ? { label: "Limpar filtros", onClick: () => { setFiltroEstado(""); setFiltroPrioridade(""); setFiltroTipo("") } } : undefined}
         />
       ) : vista === "lista" ? (
-        <TarefasLista tarefas={tarefas} onRefresh={carregar} />
+        <TarefasLista tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} />
       ) : (
-        <TarefasKanban tarefas={tarefas} onRefresh={carregar} />
+        <TarefasKanban tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} />
       )}
     </div>
   )

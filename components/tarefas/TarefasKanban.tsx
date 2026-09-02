@@ -34,7 +34,7 @@ const COLUNAS = [
   { id: "concluida",    label: "Concluída" },
 ]
 
-function SortableTarefa({ tarefa, onUpdate }: { tarefa: Tarefa; onUpdate: (id: string, d: object) => Promise<void> }) {
+function SortableTarefa({ tarefa, onUpdate }: { tarefa: Tarefa; onUpdate?: (id: string, d: object) => Promise<void> }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tarefa.id })
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
   return (
@@ -48,7 +48,7 @@ function KanbanColuna({
   id, label, tarefas, onUpdate, clienteId, onRefresh,
 }: {
   id: string; label: string; tarefas: Tarefa[]
-  onUpdate: (id: string, d: object) => Promise<void>
+  onUpdate?: (id: string, d: object) => Promise<void>
   clienteId?: string
   onRefresh?: () => void
 }) {
@@ -81,9 +81,10 @@ interface TarefasKanbanProps {
   tarefas: Tarefa[]
   clienteId?: string
   onRefresh?: () => void
+  onUpdate?: (id: string, dados: object) => Promise<void>
 }
 
-export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanProps) {
+export function TarefasKanban({ tarefas, clienteId, onRefresh, onUpdate }: TarefasKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const { toast } = useToast()
@@ -98,17 +99,13 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
 
   const activeTarefa = activeId ? tarefas.find((t) => t.id === activeId) : null
 
-  // Sem isto, um PATCH que falhasse (rede lenta, sessão expirada, transição
-  // inválida) ficava completamente silencioso: arrastar um cartão parecia
-  // ter funcionado, mas ao voltar à página continuava na coluna antiga, sem
-  // nenhum aviso do porquê (reportado pelo Nuno 2026-09-02).
-  async function handleUpdate(id: string, dados: object) {
+  // Fallback para quando o pai não gere estado optimista — mesmo padrão de
+  // TarefasLista.tsx.
+  async function handleUpdateFallback(id: string, dados: object) {
     try {
       const res = await fetch(`/api/v1/tarefas/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),
       })
       if (!res.ok) {
@@ -122,6 +119,7 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
     }
     onRefresh?.()
   }
+  const efetivo = onUpdate ?? handleUpdateFallback
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id))
@@ -135,7 +133,7 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
     if (!novoEstado) return
     const tarefaAtiva = tarefas.find((t) => t.id === active.id)
     if (!tarefaAtiva || tarefaAtiva.estado === novoEstado) return
-    await handleUpdate(String(active.id), { estado: novoEstado })
+    await efetivo(String(active.id), { estado: novoEstado })
   }
 
   return (
@@ -147,7 +145,7 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
             id={col.id}
             label={col.label}
             tarefas={tarefasPorEstado[col.id] ?? []}
-            onUpdate={handleUpdate}
+            onUpdate={efetivo}
             clienteId={clienteId}
             onRefresh={onRefresh}
           />
