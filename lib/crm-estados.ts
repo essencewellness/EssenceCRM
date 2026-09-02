@@ -7,7 +7,8 @@
 //   novo              → 1 sessão realizada, há menos de 30 dias
 //   ativa_recente     → sessão nos últimos 30 dias
 //   ativa_frequente   → 4+ sessões e última há menos de diasReativacao dias
-//   vip_embaixadora   → VIP (8+ sessões ou €300+ gastos) ativa (≤30 dias)
+//   vip_embaixadora   → VIP (8+ sessões, €300+ gastos, ou €200+ nos últimos
+//                       30 dias) ativa (≤30 dias)
 //   vip_em_risco      → VIP sem sessão há 30–diasReativacao dias
 //   reativacao        → sem sessão há mais de diasReativacao dias
 //   perdida           → sem sessão há mais de 180 dias
@@ -20,12 +21,25 @@ import type { EstadoCliente } from "@/lib/prisma-client"
 
 const VIP_MIN_SESSOES = 8
 const VIP_MIN_GASTO = 300
+// "Gasto rápido" — decisão do Nuno 2026-09-02: uma cliente pode nunca
+// chegar aos €300 vitalícios mas gastar muito concentrado num curto
+// período (várias sessões/vouchers numa semana) — isso também é sinal de
+// VIP, não só o total acumulado desde sempre.
+const VIP_GASTO_RAPIDO = 200
+const VIP_GASTO_RAPIDO_DIAS = 30
 
 export interface DadosClienteEstado {
   estado: EstadoCliente
   ultimaSessao: Date | null
   totalSessoes: number
   totalGasto: number
+  // Sessões (preço) + vouchers comprados nos últimos VIP_GASTO_RAPIDO_DIAS
+  // dias — ver calcularGastoRecentePorCliente(). Não tem a guarda contra
+  // duplicação de voucher-comprado-e-usado-por-si-própria que totalGasto
+  // tem (lib/metricas.ts): aqui é só um sinal de intensidade de gasto, não
+  // uma cifra financeira exacta, uma pequena sobrecontagem nesse caso raro
+  // não é grave.
+  gastoUltimos30Dias: number
 }
 
 export function calcularEstado(
@@ -40,7 +54,9 @@ export function calcularEstado(
   if (c.totalSessoes === 0 || !c.ultimaSessao) return "lead"
 
   const dias = Math.floor((hoje.getTime() - c.ultimaSessao.getTime()) / 86_400_000)
-  const ehVip = c.totalSessoes >= VIP_MIN_SESSOES || c.totalGasto >= VIP_MIN_GASTO
+  const ehVip = c.totalSessoes >= VIP_MIN_SESSOES
+    || c.totalGasto >= VIP_MIN_GASTO
+    || c.gastoUltimos30Dias >= VIP_GASTO_RAPIDO
 
   if (dias > 180) return "perdida"
   if (dias > diasReativacao) return "reativacao"
@@ -68,6 +84,47 @@ interface ClienteParaTransicao {
   ultimaSessao: Date | null
   totalSessoes: number
   totalGasto: number
+  gastoUltimos30Dias: number
+}
+
+/**
+ * Soma, por cliente, quanto gastou (sessões realizadas + vouchers comprados)
+ * nos últimos VIP_GASTO_RAPIDO_DIAS dias — usada só como sinal de "gasto
+ * rápido" para VIP (ver calcularEstado). Uma query em lote para todos os
+ * clientes de uma vez (não uma por cliente) — corre no cron diário sobre a
+ * base inteira de clientes.
+ */
+async function calcularGastoRecentePorCliente(
+  clienteIds: string[],
+  hoje: Date
+): Promise<Map<string, number>> {
+  const mapa = new Map<string, number>()
+  if (clienteIds.length === 0) return mapa
+
+  const desde = new Date(hoje)
+  desde.setDate(desde.getDate() - VIP_GASTO_RAPIDO_DIAS)
+
+  const [sessoes, vouchers] = await Promise.all([
+    prisma.sessao.groupBy({
+      by: ["clienteId"],
+      where: { clienteId: { in: clienteIds }, estado: "realizada", apagadoEm: null, data: { gte: desde } },
+      _sum: { preco: true },
+    }),
+    prisma.giftCard.groupBy({
+      by: ["compradorClienteId"],
+      where: { compradorClienteId: { in: clienteIds }, dataCompra: { gte: desde } },
+      _sum: { valorPago: true },
+    }),
+  ])
+
+  for (const s of sessoes) {
+    mapa.set(s.clienteId, (mapa.get(s.clienteId) ?? 0) + Number(s._sum.preco ?? 0))
+  }
+  for (const v of vouchers) {
+    if (!v.compradorClienteId) continue
+    mapa.set(v.compradorClienteId, (mapa.get(v.compradorClienteId) ?? 0) + Number(v._sum.valorPago ?? 0))
+  }
+  return mapa
 }
 
 /**
@@ -176,9 +233,12 @@ export async function recalcularEstadoCliente(clienteId: string): Promise<void> 
     })
     if (!c || c.apagadoEm || c.anonimizadoEm || c.estado === "blacklist") return
 
+    const hoje = new Date()
+    const gastoRecente = await calcularGastoRecentePorCliente([c.id], hoje)
+
     await aplicarTransicaoEstado(
-      { ...c, totalGasto: Number(c.totalGasto) },
-      new Date(),
+      { ...c, totalGasto: Number(c.totalGasto), gastoUltimos30Dias: gastoRecente.get(c.id) ?? 0 },
+      hoje,
       config.diasReativacao
     )
   } catch (e) {
@@ -207,12 +267,14 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
 
   const resultado: ResultadoMotor = { analisados: clientes.length, alterados: 0, falhas: 0, transicoes: [] }
   const hoje = new Date()
+  const gastoRecentePorCliente = await calcularGastoRecentePorCliente(clientes.map(c => c.id), hoje)
 
   for (const c of clientes) {
     // Isolamento por cliente: uma falha (constraint, blip de ligação) não pode
     // abortar o lote inteiro e deixar os clientes seguintes sem recálculo.
     try {
-      const r = await aplicarTransicaoEstado({ ...c, totalGasto: Number(c.totalGasto) }, hoje, diasReativacao)
+      const dados = { ...c, totalGasto: Number(c.totalGasto), gastoUltimos30Dias: gastoRecentePorCliente.get(c.id) ?? 0 }
+      const r = await aplicarTransicaoEstado(dados, hoje, diasReativacao)
       if (r.alterado) {
         resultado.alterados++
         resultado.transicoes.push({ clienteId: c.id, nome: c.nome, de: r.de!, para: r.para! })
