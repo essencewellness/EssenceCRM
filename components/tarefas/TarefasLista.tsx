@@ -4,6 +4,7 @@ import { CheckSquare } from "lucide-react"
 import { TarefaCard } from "./TarefaCard"
 import { TarefaForm } from "./TarefaForm"
 import { EmptyState } from "@/components/ui/EmptyState"
+import { useToast } from "@/components/ui/toast-nuit"
 
 type Tarefa = {
   id: string
@@ -63,17 +64,32 @@ const GRUPO_META = {
 
 export function TarefasLista({ tarefas, onRefresh, clienteId }: TarefasListaProps) {
   const grupos = agrupar(tarefas)
+  const { toast } = useToast()
 
+  // Sem isto, um PATCH que falhasse (rede lenta, sessão expirada, transição
+  // inválida) ficava completamente silencioso: o botão "Concluir" parecia
+  // ter funcionado, mas ao voltar à página a tarefa continuava pendente,
+  // sem nenhum aviso do porquê (reportado pelo Nuno 2026-09-02).
   const handleUpdate = useCallback(
     async (id: string, dados: object) => {
-      await fetch(`/api/v1/tarefas/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados),
-      })
+      try {
+        const res = await fetch(`/api/v1/tarefas/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        })
+        if (!res.ok) {
+          const erro = await res.json().catch(() => null)
+          toast(erro?.error ?? "Não foi possível guardar a alteração. Tenta novamente.", "error")
+          return
+        }
+      } catch {
+        toast("Sem ligação — não foi possível guardar. Tenta novamente.", "error")
+        return
+      }
       onRefresh?.()
     },
-    [onRefresh]
+    [onRefresh, toast]
   )
 
   const total = tarefas.filter((t) => t.estado === "pendente" || t.estado === "em_progresso").length

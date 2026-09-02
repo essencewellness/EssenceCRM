@@ -86,7 +86,7 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
           <button
             onClick={(e) => { e.stopPropagation(); marcarConcluida() }}
             disabled={loading}
-            className="text-[var(--nuit-smoke-deep)] hover:text-[#7a9e7e] transition-colors cursor-pointer shrink-0"
+            className={`text-[var(--nuit-smoke-deep)] hover:text-[#7a9e7e] transition-colors shrink-0 ${loading ? "opacity-40 cursor-wait animate-pulse" : "cursor-pointer"}`}
             title="Marcar como concluída"
           >
             <CheckSquare className="w-5 h-5" />
@@ -108,14 +108,14 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
               <button
                 onClick={marcarConcluida}
                 disabled={loading}
-                className="flex items-center gap-1 text-xs font-medium text-[#7a9e7e] hover:text-[#9ab89e] cursor-pointer"
+                className={`flex items-center gap-1 text-xs font-medium text-[#7a9e7e] hover:text-[#9ab89e] ${loading ? "opacity-40 cursor-wait" : "cursor-pointer"}`}
               >
-                <CheckSquare className="w-3.5 h-3.5" /> Concluir
+                <CheckSquare className="w-3.5 h-3.5" /> {loading ? "A guardar…" : "Concluir"}
               </button>
               <button
                 onClick={cancelar}
                 disabled={loading}
-                className="flex items-center gap-1 text-xs font-medium text-[var(--nuit-bone-soft)] hover:text-red-400 cursor-pointer"
+                className={`flex items-center gap-1 text-xs font-medium text-[var(--nuit-bone-soft)] hover:text-red-400 ${loading ? "opacity-40 cursor-wait" : "cursor-pointer"}`}
               >
                 <X className="w-3.5 h-3.5" /> Cancelar
               </button>

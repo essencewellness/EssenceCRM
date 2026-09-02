@@ -14,6 +14,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities"
 import { TarefaCard } from "./TarefaCard"
 import { TarefaForm } from "./TarefaForm"
+import { useToast } from "@/components/ui/toast-nuit"
 
 type Tarefa = {
   id: string
@@ -85,6 +86,7 @@ interface TarefasKanbanProps {
 export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const { toast } = useToast()
 
   const tarefasPorEstado = COLUNAS.reduce(
     (acc, col) => {
@@ -96,14 +98,28 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh }: TarefasKanbanPr
 
   const activeTarefa = activeId ? tarefas.find((t) => t.id === activeId) : null
 
+  // Sem isto, um PATCH que falhasse (rede lenta, sessão expirada, transição
+  // inválida) ficava completamente silencioso: arrastar um cartão parecia
+  // ter funcionado, mas ao voltar à página continuava na coluna antiga, sem
+  // nenhum aviso do porquê (reportado pelo Nuno 2026-09-02).
   async function handleUpdate(id: string, dados: object) {
-    await fetch(`/api/v1/tarefas/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dados),
-    })
+    try {
+      const res = await fetch(`/api/v1/tarefas/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dados),
+      })
+      if (!res.ok) {
+        const erro = await res.json().catch(() => null)
+        toast(erro?.error ?? "Não foi possível guardar a alteração. Tenta novamente.", "error")
+        return
+      }
+    } catch {
+      toast("Sem ligação — não foi possível guardar. Tenta novamente.", "error")
+      return
+    }
     onRefresh?.()
   }
 
