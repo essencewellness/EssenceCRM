@@ -13,6 +13,8 @@ import { webhooks } from "@/lib/webhooks"
 import { calcularReatribuicaoBea } from "@/lib/reatribuicao-financeira"
 import { encontrarConflitoAgenda, ConflitoAgendaError } from "@/lib/conflito-agenda"
 import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
+import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
+import { recalcularEstadoCliente } from "@/lib/crm-estados"
 
 // Garante que a terapeuta autenticada é admin OU a dona do cliente
 // (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
@@ -130,7 +132,10 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
 
   const sessaoAntes = await prisma.sessao.findUnique({
     where: { id: sessaoId },
-    select: { estado: true, clienteId: true, data: true, hora: true, duracao: true },
+    select: {
+      id: true, estado: true, clienteId: true, data: true, hora: true, duracao: true,
+      servico: true, terapeuta: true, terapeutaId: true, terapeuta2Id: true,
+    },
   })
   if (!sessaoAntes) throw new Error("Sessão não encontrada")
   if (sessaoAntes.clienteId !== clienteId) throw new Error("Sessão não pertence a este cliente")
@@ -161,8 +166,8 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
   // mesma transação: sem isto, duas edições concorrentes de sessões diferentes
   // do mesmo cliente podiam intercalar leitura+escrita das métricas e deixar
   // o cliente com valores desatualizados até à próxima edição ou ao cron das 07h.
-  await prisma.$transaction(async (tx) => {
-    await tx.sessao.update({
+  const sessaoDepois = await prisma.$transaction(async (tx) => {
+    const atualizada = await tx.sessao.update({
       where: { id: sessaoId },
       data: {
         ...resto,
@@ -171,18 +176,39 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
           ? { dataRecomendadaRegresso: dataRecomendadaRegresso ? new Date(dataRecomendadaRegresso) : null }
           : {}),
       } as Prisma.SessaoUpdateInput,
+      select: { preco: true, terapeutaId: true, terapeuta2Id: true },
     })
 
     if (afetaMetricas) {
       await recalcularMetricasCliente(tx, clienteId)
     }
+
+    return atualizada
   })
 
-  // Sessão cancelada pela Bea no dashboard: mesmo aviso automático na
-  // ficha clínica que já acontece via API (ver lib/ficha-clinica.ts) —
-  // as duas vias nunca podem divergir aqui.
-  if (dados.estado === "cancelada" && sessaoAntes.estado !== "cancelada") {
-    await assinalarSessaoCanceladaNaFichaClinica(sessaoId, clienteId)
+  // Sessão cancelada OU falta pela Bea no dashboard: mesmo aviso automático
+  // na ficha clínica que já acontece via API (ver lib/ficha-clinica.ts) —
+  // as vias nunca podem divergir aqui.
+  if (
+    (dados.estado === "cancelada" || dados.estado === "falta") &&
+    sessaoAntes.estado !== "cancelada" && sessaoAntes.estado !== "falta"
+  ) {
+    await assinalarSessaoCanceladaNaFichaClinica(sessaoId, clienteId, dados.estado)
+  }
+
+  // Sessão passa a "realizada" a partir do dashboard: os MESMOS efeitos que
+  // já disparam via API (PATCH /api/v1/sessoes/[id]) — webhook de receita
+  // para a folha da Bea, fecho do voucher associado, mensagem de avaliação
+  // agendada, e o recálculo do estado CRM na hora (sem isto, o cliente
+  // ficava preso em "lead" até ao cron das 7h — bug real encontrado pelo
+  // Nuno 2026-09-03: marcou uma sessão como realizada no dashboard e o
+  // estado nunca mudou). As duas vias nunca podem divergir aqui.
+  if (ficaRealizada && !eraRealizada) {
+    await dispararEfeitosSessaoRealizada(
+      { ...sessaoAntes, terapeutaId: sessaoDepois.terapeutaId, terapeuta2Id: sessaoDepois.terapeuta2Id },
+      sessaoDepois.preco
+    )
+    await recalcularEstadoCliente(clienteId)
   }
 
   auditar({
