@@ -407,59 +407,69 @@ async function main() {
   console.log(`  ✓ ${mensagensData.length} mensagens IA criadas`);
 
   // ── Templates de mensagem ─────────────────────────────────────────────────
+  // Corrigido 2026-09-03: a versão anterior usava "tu" (a regra do projeto
+  // é sempre "você" na comunicação com clientes, ver CLAUDE.md da raiz) e
+  // "campanha_miminho" inventava um desconto de 10% que não é o programa
+  // real — "O Miminho" (08_REATIVACAO_CLIENTES/12-programa-referral-e-
+  // -indicacoes.md) recompensa quem indica com um mini ritual de pés
+  // grátis na próxima visita, não com desconto monetário. Descoberto ao
+  // investigar por que a mensagem de avaliação pós-sessão nunca aparecia
+  // em Mensagens: os 9 templates nunca tinham sido gravados em produção
+  // (só existiam aqui, no seed de dev) — gravados manualmente a par desta
+  // correção.
   const templatesData = [
+    {
+      nome: "avaliacao_pos_sessao",
+      tipo: "avaliacao",
+      texto: "Olá {{nome}} 🌿 Obrigada pela sua visita hoje. Como se sentiu depois da sessão — de 1 a 5, que nota daria?\n\nFlora ✦ | Essence Wellness",
+      variaveis: ["nome"],
+    },
     {
       nome: "reengagement_45dias",
       tipo: "reengagement",
-      texto: "Olá {{nome}} 🌿\n\nTem sido algum tempo! Aqui é a Bea da Essence Wellness.\n\nSinto a tua falta e seria um prazer receber-te novamente. Como estás?\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🌿 Já lá vai algum tempo desde a sua última sessão. Está tudo bem?\n\nQuando lhe apetecer voltar, temos todo o gosto em recebê-la.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "reengagement_90dias",
       tipo: "reengagement",
-      texto: "Olá {{nome}} 💚\n\nJá passou algum tempo desde a tua última visita à Essence Wellness.\n\nQueria saber como estás e se posso fazer algo por ti.\n\nFlora ✦ | Essence Wellness",
-      variaveis: ["nome"],
-    },
-    {
-      nome: "avaliacao_pos_sessao",
-      tipo: "avaliacao",
-      texto: "Olá {{nome}}! Obrigada pela tua visita hoje 🌿\n\nGostaria de saber como te sentiste. De 1 a 5, como avalias a sessão?\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🤍 Há uns meses que não a vemos por cá e temos sentido a sua falta.\n\nSe lhe apetecer uma pausa, estamos aqui para si.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "aniversario",
       tipo: "aniversario",
-      texto: "Olá {{nome}} 🎂\n\nFeliz aniversário! Que este dia seja tão especial como mereces.\n\nComo prenda, tens 10% de desconto na próxima sessão este mês 💚\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🎂 Feliz aniversário! Esperamos que seja um dia muito especial.\n\nSe lhe apetecer celebrar com uma sessão, temos todo o gosto em recebê-la.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "boas_vindas_novo_cliente",
       tipo: "boas_vindas",
-      texto: "Olá {{nome}} 🌿\n\nBem-vinda à Essence Wellness! É um prazer ter-te connosco.\n\nEstamos aqui para cuidar de ti. Qualquer dúvida, é só falar 💚\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🌿 Seja bem-vinda à Essence Wellness — foi um prazer tê-la connosco.\n\nQualquer dúvida, estamos aqui.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "campanha_drenagem_linfatica",
       tipo: "campanha",
-      texto: "Olá {{nome}} 🌊\n\nTemos novidade: a Drenagem Linfática chegou à Essence Wellness!\n\nUm tratamento que reduz retenção de líquidos, alivia sensação de pernas pesadas e melhora a circulação. A partir de 40€.\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🌊 Já conhece a nossa Drenagem Linfática? Ajuda a aliviar pernas pesadas e a melhorar a circulação.\n\nSe quiser experimentar, é só marcar.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "campanha_miminho",
       tipo: "campanha",
-      texto: "Olá {{nome}} 💚\n\nSabes que a melhor recomendação vem de quem conhece?\n\nSe indicares uma amiga e ela vier à Essence Wellness, as duas recebem 10% de desconto na próxima sessão 🌿\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 💚 Sabe que pode indicar uma amiga à Essence Wellness?\n\nSe ela vier marcar, na sua próxima visita tem um mimo especial à sua espera.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome"],
     },
     {
       nome: "lembrete_agendamento",
       tipo: "lembrete",
-      texto: "Olá {{nome}} 🌿\n\nLembrete da tua sessão marcada para {{data}} às {{hora}}.\n\nAté já! 💚\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🌿 Só a lembrar da sua sessão marcada para {{data}} às {{hora}}.\n\nAté já!\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome", "data", "hora"],
     },
     {
       nome: "confirmacao_reagendamento",
       tipo: "lembrete",
-      texto: "Olá {{nome}}!\n\nA tua sessão foi reagendada para {{data}} às {{hora}} 🗓️\n\nSe precisares de ajustar, é só dizer 🌿\n\nFlora ✦ | Essence Wellness",
+      texto: "Olá {{nome}} 🗓️ A sua sessão foi reagendada para {{data}} às {{hora}}.\n\nSe precisar de ajustar, é só dizer.\n\nFlora ✦ | Essence Wellness",
       variaveis: ["nome", "data", "hora"],
     },
   ]
