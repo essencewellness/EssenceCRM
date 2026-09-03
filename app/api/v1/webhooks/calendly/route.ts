@@ -11,6 +11,7 @@ import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { webhooks } from "@/lib/webhooks"
+import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 
 // Formato Calendly: "t=1234567890,v1=abcdef..." — HMAC-SHA256 de `${t}.${rawBody}`
 function verificarAssinaturaCalendly(rawBody: string, header: string | null): boolean {
@@ -109,6 +110,14 @@ export async function POST(request: NextRequest) {
         where: { id: sessaoCancelada.id },
         data: { estado: "cancelada" },
       })
+
+      // Mesmo aviso na ficha clínica que já acontece via PATCH /sessoes/[id]
+      // (dashboard) — este é o caminho mais comum de cancelamento na vida
+      // real (a cliente cancela directamente no Calendly), e escrevia na BD
+      // por fora dos outros dois pontos que já tratam disto — sem esta
+      // chamada, a esmagadora maioria dos cancelamentos reais nunca
+      // avisava a ficha clínica (ver lib/ficha-clinica.ts).
+      await assinalarSessaoCanceladaNaFichaClinica(sessaoCancelada.id, sessaoCancelada.clienteId)
 
       auditar({
         quem: "calendly",

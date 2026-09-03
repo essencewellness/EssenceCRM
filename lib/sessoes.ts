@@ -199,18 +199,20 @@ export async function dispararEfeitosSessaoRealizada(
       /\{\{nome\}\}/g,
       clienteParaAvaliacao.nome ?? ""
     )
-    // Agendada para 4 horas após a sessão
-    const enviarApos = new Date(Date.now() + 4 * 60 * 60 * 1000)
+    // "pendente", nunca aprovada automaticamente — nenhuma mensagem sai
+    // para uma cliente sem a Bea a ver primeiro. Fica visível em
+    // Mensagens → Pendentes; enviarApos só fica definido quando ela
+    // aprovar (ver lib/fila-envio.ts aprovarEAgendar). Bug real
+    // 2026-09-03: isto criava a mensagem já "em_fila" com aprovadaEm
+    // preenchido, pulando a aprovação por completo.
     void prisma.mensagemIA.create({
       data: {
         clienteId: sessaoAntes.clienteId,
         canal: "whatsapp",
         tipo: "avaliacao",
-        estado: "em_fila",
+        estado: "pendente",
         mensagemGerada: textoAvaliacao,
         mensagemFinal: textoAvaliacao,
-        aprovadaEm: new Date(),
-        enviarApos,
       },
     })
   }

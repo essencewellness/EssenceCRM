@@ -176,13 +176,16 @@ export async function PATCH(
       await recalcularEstadoCliente(sessaoAntes.clienteId)
     }
 
-    // Sessão cancelada: se o onboarding desta sessão foi a última coisa a
-    // mexer na ficha clínica do cliente, assinala isso com um aviso no topo
-    // — sem isto a ficha ficava com dados "desta sessão" para uma sessão
-    // que afinal nunca aconteceu, sem nenhuma pista para a terapeuta (ver
-    // lib/ficha-clinica.ts).
-    if (estado === "cancelada" && sessaoAntes.estado !== "cancelada") {
-      await assinalarSessaoCanceladaNaFichaClinica(id, sessaoAntes.clienteId)
+    // Sessão cancelada OU falta (não-comparência — mesma implicação
+    // clínica: a sessão não aconteceu): se o onboarding desta sessão foi a
+    // última coisa a mexer na ficha clínica do cliente, assinala isso com
+    // um aviso no topo — sem isto a ficha ficava com dados "desta sessão"
+    // sem nenhuma pista para a terapeuta (ver lib/ficha-clinica.ts).
+    if (
+      (estado === "cancelada" || estado === "falta") &&
+      sessaoAntes.estado !== "cancelada" && sessaoAntes.estado !== "falta"
+    ) {
+      await assinalarSessaoCanceladaNaFichaClinica(id, sessaoAntes.clienteId, estado)
     }
 
     auditar({
