@@ -21,7 +21,7 @@
 | Etiquetas personalizadas com cor | ✅ |
 | 59 clientes de teste cobrindo todos os estados e casos de uso | ✅ |
 | Autenticação NextAuth (dashboard protegido) | ✅ |
-| Bot "Flora ✦" para mensagens IA | ✅ |
+| Geração de mensagens por IA ("Essence Wellness ✦") | ✅ |
 
 ---
 

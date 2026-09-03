@@ -67,7 +67,7 @@ Como te estás a sentir?
 Adorávamos saber a tua opinião — demora menos de 1 minuto:
 {{linkFeedback}}
 
-Flora ✦ | Essence Wellness
+Essence Wellness ✦
 ```
 
 **Regras:**

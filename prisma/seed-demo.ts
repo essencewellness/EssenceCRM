@@ -264,19 +264,19 @@ const CLIENTES: ClienteDef[] = [
 // ── Templates (iguais ao seed principal — para a página /templates) ──────────
 const TEMPLATES = [
   { nome: "reengagement_45dias", tipo: "reengagement", variaveis: ["nome"],
-    texto: "Olá {{nome}} 🌿\n\nTem sido algum tempo! Aqui é a Bea da Essence Wellness.\n\nSinto a tua falta e seria um prazer receber-te novamente. Como estás?\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 🌿\n\nTem sido algum tempo! Aqui é a Bea da Essence Wellness.\n\nSinto a tua falta e seria um prazer receber-te novamente. Como estás?\n\nEssence Wellness ✦" },
   { nome: "reengagement_90dias", tipo: "reengagement", variaveis: ["nome"],
-    texto: "Olá {{nome}} 💚\n\nJá passou algum tempo desde a tua última visita à Essence Wellness.\n\nQueria saber como estás e se posso fazer algo por ti.\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 💚\n\nJá passou algum tempo desde a tua última visita à Essence Wellness.\n\nQueria saber como estás e se posso fazer algo por ti.\n\nEssence Wellness ✦" },
   { nome: "avaliacao_pos_sessao", tipo: "avaliacao", variaveis: ["nome"],
-    texto: "Olá {{nome}}! Obrigada pela tua visita hoje 🌿\n\nGostaria de saber como te sentiste. De 1 a 5, como avalias a sessão?\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}}! Obrigada pela tua visita hoje 🌿\n\nGostaria de saber como te sentiste. De 1 a 5, como avalias a sessão?\n\nEssence Wellness ✦" },
   { nome: "aniversario", tipo: "aniversario", variaveis: ["nome"],
-    texto: "Olá {{nome}} 🎂\n\nFeliz aniversário! Como prenda, tens 10% de desconto na próxima sessão este mês 💚\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 🎂\n\nFeliz aniversário! Como prenda, tens 10% de desconto na próxima sessão este mês 💚\n\nEssence Wellness ✦" },
   { nome: "boas_vindas_novo_cliente", tipo: "boas_vindas", variaveis: ["nome"],
-    texto: "Olá {{nome}} 🌿\n\nBem-vinda à Essence Wellness! É um prazer ter-te connosco.\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 🌿\n\nBem-vinda à Essence Wellness! É um prazer ter-te connosco.\n\nEssence Wellness ✦" },
   { nome: "campanha_drenagem_linfatica", tipo: "campanha", variaveis: ["nome"],
-    texto: "Olá {{nome}} 🌊\n\nNovidade: a Drenagem Linfática chegou à Essence Wellness! Reduz retenção e alivia pernas pesadas. A partir de 40€.\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 🌊\n\nNovidade: a Drenagem Linfática chegou à Essence Wellness! Reduz retenção e alivia pernas pesadas. A partir de 40€.\n\nEssence Wellness ✦" },
   { nome: "lembrete_agendamento", tipo: "lembrete", variaveis: ["nome", "data", "hora"],
-    texto: "Olá {{nome}} 🌿\n\nLembrete da tua sessão marcada para {{data}} às {{hora}}.\n\nAté já! 💚\n\nFlora ✦ | Essence Wellness" },
+    texto: "Olá {{nome}} 🌿\n\nLembrete da tua sessão marcada para {{data}} às {{hora}}.\n\nAté já! 💚\n\nEssence Wellness ✦" },
 ];
 
 const ETIQUETAS = [

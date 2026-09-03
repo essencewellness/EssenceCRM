@@ -143,7 +143,7 @@ model Feedback {
   2. Ramo após toque:
      - **≥4:** *"O que mais gostaste?"* chips (Ambiente, Toque/pressão, Aroma, Atenção da Bea, Resultado) + texto opcional → CTA **"Deixar uma palavra no Google ✦"** (abre `GOOGLE_REVIEW_URL`, input #1).
      - **≤3:** *"Lamento. O que podíamos ter feito melhor?"* texto (privado) → "Enviar à Bea" (sem Google).
-  3. Sucesso (copy calorosa, voz Flora). Opcional: CTA discreto "Remarcar".
+  3. Sucesso (copy calorosa, tom Essence Wellness). Opcional: CTA discreto "Remarcar".
 - **Ligações:** `POST /api/v1/public/feedback` (A3). `API_BASE` → domínio live.
 - **Aceitação:** rating alto encaminha p/ Google e grava `encaminhadoGoogle`; rating baixo capta em privado e alerta Bea; honeypot e rate-limit ativos; Friction Index ≥ 90 (form curtíssimo).
 
@@ -153,7 +153,7 @@ model Feedback {
 
 ### D1 · Gatilho N8N do feedback 24h
 - **Artefacto:** spec do fluxo N8N (`N8N - Fluxos de automação prontos a importar/`): disparado ~24h após `sessao.realizada` (cron/queue), envia WhatsApp com link `…/forms/feedback.html?clienteId=&sessaoId=&n=`.
-- Guard blacklist + `aceitaMarketing`. Texto na voz Flora (≤3 frases).
+- Guard blacklist + `aceitaMarketing`. Texto no tom Essence Wellness (≤3 frases).
 - Documentar o webhook `feedback.negativo` → notificação privada à Bea.
 - **Aceitação:** documento claro pronto a importar; variáveis de webhook listadas.
 

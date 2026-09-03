@@ -524,11 +524,11 @@ async function main() {
 
   // ── 7. Templates de mensagem (upsert) ────────────────────────────────────
   const templatesData = [
-    { nome: "reengagement_45dias", tipo: "reengagement", texto: "Olá {{nome}} 🌿\n\nTem sido algum tempo! Seria um prazer receber-te novamente.\n\nFlora ✦ | Essence Wellness", variaveis: ["nome"] },
-    { nome: "aniversario", tipo: "aniversario", texto: "Olá {{nome}} 🎂\n\nFeliz aniversário! 10% de desconto na próxima sessão este mês 💚\n\nFlora ✦ | Essence Wellness", variaveis: ["nome"] },
-    { nome: "boas_vindas_novo_cliente", tipo: "boas_vindas", texto: "Olá {{nome}} 🌿\n\nBem-vinda à Essence Wellness! Qualquer dúvida, é só falar 💚\n\nFlora ✦ | Essence Wellness", variaveis: ["nome"] },
+    { nome: "reengagement_45dias", tipo: "reengagement", texto: "Olá {{nome}} 🌿\n\nTem sido algum tempo! Seria um prazer receber-te novamente.\n\nEssence Wellness ✦", variaveis: ["nome"] },
+    { nome: "aniversario", tipo: "aniversario", texto: "Olá {{nome}} 🎂\n\nFeliz aniversário! 10% de desconto na próxima sessão este mês 💚\n\nEssence Wellness ✦", variaveis: ["nome"] },
+    { nome: "boas_vindas_novo_cliente", tipo: "boas_vindas", texto: "Olá {{nome}} 🌿\n\nBem-vinda à Essence Wellness! Qualquer dúvida, é só falar 💚\n\nEssence Wellness ✦", variaveis: ["nome"] },
     { nome: "lembrete_agendamento", tipo: "lembrete", texto: "Olá {{nome}} 🌿\n\nLembrete da tua sessão em {{data}} às {{hora}}. Até já! 💚", variaveis: ["nome", "data", "hora"] },
-    { nome: "campanha_drenagem_linfatica", tipo: "campanha", texto: "Olá {{nome}} 🌊\n\nNovidade: a Drenagem Linfática chegou à Essence Wellness! A partir de 50€.\n\nFlora ✦ | Essence Wellness", variaveis: ["nome"] },
+    { nome: "campanha_drenagem_linfatica", tipo: "campanha", texto: "Olá {{nome}} 🌊\n\nNovidade: a Drenagem Linfática chegou à Essence Wellness! A partir de 50€.\n\nEssence Wellness ✦", variaveis: ["nome"] },
   ];
   for (const t of templatesData) {
     await prisma.templateMensagem.upsert({ where: { nome: t.nome }, update: { texto: t.texto, variaveis: t.variaveis }, create: t });

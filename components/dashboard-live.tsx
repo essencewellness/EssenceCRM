@@ -445,13 +445,6 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
           }}>
             {mensagem.clienteNome}
           </p>
-          <span style={{
-            fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em",
-            color: "var(--nuit-champagne)", textTransform: "uppercase",
-          }}>
-            · Flora
-          </span>
         </div>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",

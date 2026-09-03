@@ -722,8 +722,8 @@ model ConfiguracaoNegocio {
   nomeNegocio          String   @default("Essence Wellness")
   emailContacto        String   @default("geral@essencewellnesspt.com")
   whatsappPrincipal    String   @default("+351913308271")
-  assinaturaAutomatica String   @default("Flora ✦ | Essence Wellness")
-  assinaturaReferral   String   @default("Beatriz | Essence Wellness")
+  assinaturaAutomatica String   @default("Essence Wellness ✦")
+  assinaturaReferral   String   @default("Beatriz | Essence Wellness ✦")
   horarioAbertura      String   @default("09:00")
   horarioFecho         String   @default("20:00")
 

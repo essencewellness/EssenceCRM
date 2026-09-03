@@ -15,9 +15,9 @@ distância (a confirmação 24h já cobre o resto):
 
 Máx. 1 toque por sessão por dia (prioridade: reta final > meio > boas-vindas).
 Sem envios ao domingo. Cada mensagem é gerada por Groq com um prompt de
-tom/voz da marca (Flora ✦ | Essence Wellness) diferente por ângulo — nunca
-comercial, nunca menciona preços/urgência, sempre em português europeu
-informal ("tu").
+tom/voz da marca (assinatura Essence Wellness ✦) diferente por ângulo —
+nunca comercial, nunca menciona preços/urgência, sempre em português
+europeu informal ("tu").
 
 ## Endpoints usados
 

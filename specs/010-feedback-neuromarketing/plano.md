@@ -164,7 +164,7 @@ a sugestão de marcação pode assinar-se como vinda da Beatriz
 
 **Simpatia (liking)** — persuade mais quem gostamos, sobretudo alguém
 próximo/semelhante/que coopera connosco. → **Aplicação:** manter o tom
-pessoal já existente (assinatura Flora/Beatriz, nunca "sistema"); usar o
+pessoal já existente (assinatura Essence Wellness/Beatriz, nunca "sistema"); usar o
 primeiro nome da cliente quando disponível (hoje o formulário não pede o
 nome nem o carrega — ficaria para uma fase técnica seguinte, não
 bloqueante para este plano).

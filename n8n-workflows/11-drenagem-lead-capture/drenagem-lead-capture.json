@@ -57,7 +57,7 @@
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"number\": \"351910011068\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Flora ✦ | Essence Wellness_\"\n  }\n}",
+        "jsonBody": "={\n  \"number\": \"351910011068\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Essence Wellness ✦_\"\n  }\n}",
         "options": {}
       },
       "id": "997591e9-1933-4a7b-a5b1-9a1abcce7711",
@@ -75,7 +75,7 @@
         "headerParameters": { "parameters": [{ "name": "apikey", "value": "{{EVOLUTION_API_KEY}}" }] },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"number\": \"351911150025\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Flora ✦ | Essence Wellness_\"\n  }\n}",
+        "jsonBody": "={\n  \"number\": \"351911150025\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"textMessage\": {\n    \"text\": \"✦ *Nova lead · Drenagem*\\n\\n👤 *{{ $json.nome }}*\\n📱 {{ $json.telefone }}\\n\\n❓ *Problema:* {{ $json.objetivo_label }}\\n📍 *Zona:* {{ $json.zona_label }}\\n⏱ *Urgência:* {{ $json.urgencia_label }}\\n🔄 *Experiência:* {{ $json.experiencia_label }}\\n\\n🕐 {{ $json.data_pt }}\\n\\n_Essence Wellness ✦_\"\n  }\n}",
         "options": {}
       },
       "id": "58f19aba-e603-4f8b-a4d3-93084004a176",
