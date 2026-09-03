@@ -77,10 +77,21 @@ export const clienteUpdateSchema = z.object({
   consentimentoSaudeEm: dataISO.optional().nullable(),
   // Não é campo do Cliente — metadado só lido quando "fichaClinica" vem
   // junto (o N8N manda a sessão que gerou a atualização via onboarding).
-  // Serve para reverter a ficha se essa sessão vier a ser cancelada antes
+  // Serve para assinalar a ficha se essa sessão vier a ser cancelada antes
   // de acontecer (ver lib/ficha-clinica.ts). Retirado do payload antes do
   // update ao Cliente — nunca chega ao Prisma.
-  origemSessaoId: z.string().trim().min(1).max(60).optional(),
+  //
+  // preprocess: "" → undefined. Bug real 2026-09-03 — o node do N8N manda
+  // sempre este campo, mesmo vazio (`$json.sessaoId || ''`), quando o
+  // onboarding não está ligado a nenhuma sessão (ex: lead sem marcação).
+  // Com min(1) sozinho, uma string vazia chumbava a validação e o PATCH
+  // FALHAVA POR INTEIRO — a fichaClinica nem chegava a gravar, não só o
+  // rasto do snapshot. Confirmado em produção: execução 15243 do workflow
+  // 02 (400 "Dados inválidos" com origemSessaoId:"").
+  origemSessaoId: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.string().trim().min(1).max(60).optional()
+  ),
 }).strict()
 
 export const clientesQuerySchema = z.object({
