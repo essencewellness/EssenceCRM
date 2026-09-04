@@ -164,7 +164,7 @@ export default async function FinanceiroPage({
       where: { ...filtroPack, criadoEm: { gte: inicio, lt: fim } },
       select: {
         id: true, valor: true, metodoPagamento: true, notas: true, criadoEm: true,
-        pack: { select: { id: true, servico: { select: { nome: true } }, cliente: { select: { id: true, nome: true } } } },
+        pack: { select: { id: true, servico: { select: { nome: true } }, cliente: { select: { id: true, nome: true } }, clienteNomeArquivado: true } },
       },
       orderBy: { criadoEm: "desc" },
     }),
@@ -253,6 +253,7 @@ export default async function FinanceiroPage({
     repasseNecessario: false,
     repasseFeito: false,
     cliente: pg.pack.cliente,
+    clienteNomeArquivado: pg.pack.clienteNomeArquivado,
   }))
 
   const linhasMes: SessaoRow[] = [...sessoes, ...linhasVoucher, ...linhasPack]

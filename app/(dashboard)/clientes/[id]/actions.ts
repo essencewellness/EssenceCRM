@@ -37,38 +37,58 @@ async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
 }
 
 // Apagamento DEFINITIVO do cliente (hard delete). Mensagens, etiquetas,
-// observações, preços, packs e portal token continuam em cascata — mas as
-// SESSÕES já não (2026-09-04, "sessão fantasma", pedido do Nuno depois de
+// observações, preços e portal token continuam em cascata — mas SESSÕES e
+// PACKS já não (2026-09-04, "sessão fantasma", pedido do Nuno depois de
 // reparar que apagar uma cliente de teste também apagava a receita dela do
-// /financeiro, como se a sessão nunca tivesse acontecido).
+// /financeiro, como se a sessão nunca tivesse acontecido — auditoria
+// seguinte encontrou o mesmo problema em Pack, que também tinha
+// onDelete: Cascade e ficava com o pack pago inteiro apagado).
 //
-// Por omissão as sessões ficam órfãs: Sessao.clienteId passa a opcional
+// GiftCard já estava seguro (onDelete: SetNull por omissão do Prisma em
+// relações opcionais) — só Sessao e Pack tinham FK obrigatória com Cascade,
+// confirmado por auditoria directa às constraints em produção.
+//
+// Por omissão sessões e packs ficam órfãos: clienteId passa a opcional
 // (onDelete: SetNull no schema) e o nome fica arquivado em
 // clienteNomeArquivado — aparecem no /financeiro e em /sessoes como "Cliente
-// eliminada", com a receita preservada. `apagarSessoesDefinitivamente` é o
+// eliminada", com a receita preservada. `apagarTudoDefinitivamente` é o
 // escape hatch só para lixo de teste sem valor financeiro real: aí sim
-// apaga tudo, sem deixar rasto nenhum.
-export async function eliminarCliente(clienteId: string, apagarSessoesDefinitivamente = false) {
+// apaga tudo (sessões e packs), sem deixar rasto nenhum.
+export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamente = false) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
   await verificarDonoCliente(session, clienteId)
 
   const cliente = await prisma.cliente.findUnique({
     where: { id: clienteId },
-    select: { id: true, nome: true, _count: { select: { sessoes: true } } },
+    select: {
+      id: true, nome: true,
+      _count: { select: { sessoes: true, packs: true } },
+    },
   })
   if (!cliente) throw new Error("Cliente não encontrado")
 
-  if (apagarSessoesDefinitivamente) {
+  if (apagarTudoDefinitivamente) {
+    // PackPagamento cai sozinho em cascata do Pack (onDelete: Cascade
+    // desse, nunca mudado — só o Pack->Cliente é que passou a SetNull).
     await prisma.sessao.deleteMany({ where: { clienteId } })
-  } else if (cliente._count.sessoes > 0) {
-    // Arquiva o nome ANTES de apagar o cliente — depois disto já não há
-    // onde o ir buscar. onDelete: SetNull trata do resto (orfaniza
+    await prisma.pack.deleteMany({ where: { clienteId } })
+  } else {
+    // Arquiva os nomes ANTES de apagar o cliente — depois disto já não há
+    // onde os ir buscar. onDelete: SetNull trata do resto (orfaniza
     // automaticamente ao apagar o cliente a seguir).
-    await prisma.sessao.updateMany({
-      where: { clienteId },
-      data: { clienteNomeArquivado: cliente.nome },
-    })
+    if (cliente._count.sessoes > 0) {
+      await prisma.sessao.updateMany({
+        where: { clienteId },
+        data: { clienteNomeArquivado: cliente.nome },
+      })
+    }
+    if (cliente._count.packs > 0) {
+      await prisma.pack.updateMany({
+        where: { clienteId },
+        data: { clienteNomeArquivado: cliente.nome },
+      })
+    }
   }
 
   await prisma.cliente.delete({ where: { id: clienteId } })
@@ -81,7 +101,8 @@ export async function eliminarCliente(clienteId: string, apagarSessoesDefinitiva
     detalhe: {
       nome: cliente.nome,
       sessoes: cliente._count.sessoes,
-      sessoesApagadasDefinitivamente: apagarSessoesDefinitivamente,
+      packs: cliente._count.packs,
+      apagadoDefinitivamente: apagarTudoDefinitivamente,
     },
   })
 
@@ -545,7 +566,7 @@ export async function registarPagamentoPack(
     // lib/webhooks.ts), não é um erro.
     void webhooks.packPagamentoRegistado({
       packId,
-      clienteNome: pack.cliente.nome,
+      clienteNome: pack.cliente?.nome ?? "Cliente eliminada",
       servicoNome: pack.servico?.nome ?? "Massagens",
       valor: dados.valor,
       data: new Date().toISOString(),

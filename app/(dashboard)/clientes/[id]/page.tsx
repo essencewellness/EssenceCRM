@@ -255,6 +255,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   clienteId={cliente.id}
                   primeiroNome={cliente.nome.split(" ")[0]}
                   sessoesCount={cliente.sessoes.length}
+                  packsCount={cliente.packs.length}
                 />
               </div>
             </div>

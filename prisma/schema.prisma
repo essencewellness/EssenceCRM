@@ -515,7 +515,12 @@ model PrecoPersonalizado {
 
 model Pack {
   id            String   @id @default(cuid())
-  clienteId     String
+  // Opcional desde 2026-09-04 (mesma "sessão fantasma" do modelo Sessao) —
+  // apagar o contacto não pode voltar a apagar um pack já pago em cascata,
+  // perdendo essa receita do /financeiro. clienteNomeArquivado guarda o
+  // nome nesse caso.
+  clienteId     String?
+  clienteNomeArquivado String?
   // Opcional: um pack de massagens não está preso a um ritual — a cliente
   // escolhe Essência Plena, Puro Aroma ou Cera Quente em cada marcação (o
   // preço do pack é o mesmo seja qual for). servicoId fica null nesse caso;
@@ -542,7 +547,7 @@ model Pack {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  cliente    Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cliente    Cliente?        @relation(fields: [clienteId], references: [id], onDelete: SetNull)
   servico    Servico?        @relation(fields: [servicoId], references: [id], onDelete: Cascade)
   terapeuta  User?           @relation("TerapeutaPack", fields: [terapeutaId], references: [id])
   pagamentos PackPagamento[]

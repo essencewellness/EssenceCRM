@@ -9,32 +9,40 @@ interface Props {
   clienteId: string
   primeiroNome: string
   sessoesCount: number
+  packsCount: number
 }
 
-export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: Props) {
+export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, packsCount }: Props) {
   const [aberto, setAberto] = useState(false)
   const [input, setInput] = useState("")
   // Escape hatch só para lixo de teste sem valor financeiro real — por
-  // omissão as sessões ficam órfãs (preservadas no financeiro como "Cliente
-  // eliminada"), nunca apagadas de vez (ver actions.ts, 2026-09-04).
-  const [apagarSessoesDefinitivamente, setApagarSessoesDefinitivamente] = useState(false)
+  // omissão sessões e packs ficam órfãos (preservados no financeiro como
+  // "Cliente eliminada"), nunca apagados de vez (ver actions.ts, 2026-09-04).
+  const [apagarTudoDefinitivamente, setApagarTudoDefinitivamente] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const temSessoes = sessoesCount > 0
+  const temPacks = packsCount > 0
+  const temHistoricoFinanceiro = temSessoes || temPacks
   const nomeOk = input.trim().toLowerCase() === primeiroNome.trim().toLowerCase()
   const confirmado = nomeOk
 
   function fechar() {
-    setAberto(false); setInput(""); setApagarSessoesDefinitivamente(false)
+    setAberto(false); setInput(""); setApagarTudoDefinitivamente(false)
   }
 
   function handleApagar() {
     if (!confirmado) return
     startTransition(async () => {
-      await eliminarCliente(clienteId, apagarSessoesDefinitivamente)
+      await eliminarCliente(clienteId, apagarTudoDefinitivamente)
       // Sucesso faz redirect — não há resposta para tratar aqui.
     })
   }
+
+  const partes = [
+    temSessoes ? `${sessoesCount} sessão(ões)` : null,
+    temPacks ? `${packsCount} pack(s)` : null,
+  ].filter(Boolean).join(" e ")
 
   return (
     <>
@@ -144,8 +152,8 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
               />
             </div>
 
-            {/* Aviso informativo: as sessões ficam preservadas por omissão */}
-            {temSessoes && (
+            {/* Aviso informativo: sessões/packs ficam preservados por omissão */}
+            {temHistoricoFinanceiro && (
               <div style={{
                 padding: "12px 14px", borderRadius: "8px",
                 backgroundColor: "rgba(160,169,150,0.06)",
@@ -156,37 +164,37 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
                   fontFamily: "var(--font-body, sans-serif)",
                   fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
                 }}>
-                  Este contacto tem <strong>{sessoesCount} sessão(ões)</strong>. Ficam preservadas no
-                  histórico financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligadas
+                  Este contacto tem <strong>{partes}</strong>. Ficam preservados no
+                  histórico financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligados
                   a um contacto, mas a receita não desaparece do /financeiro.
                 </p>
               </div>
             )}
 
             {/* Checkbox: escape hatch só para lixo de teste sem valor financeiro */}
-            {temSessoes && (
+            {temHistoricoFinanceiro && (
               <label
-                htmlFor="apagar-sessoes-definitivamente"
+                htmlFor="apagar-tudo-definitivamente"
                 style={{
                   display: "flex", alignItems: "flex-start", gap: "10px",
                   padding: "12px 14px", borderRadius: "8px",
                   backgroundColor: "rgba(176,96,80,0.05)",
-                  border: `1px solid ${apagarSessoesDefinitivamente ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
+                  border: `1px solid ${apagarTudoDefinitivamente ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
                   marginBottom: "16px", cursor: "pointer", transition: "border-color 150ms",
                 }}
               >
                 <input
-                  id="apagar-sessoes-definitivamente"
+                  id="apagar-tudo-definitivamente"
                   type="checkbox"
-                  checked={apagarSessoesDefinitivamente}
-                  onChange={(e) => setApagarSessoesDefinitivamente(e.target.checked)}
+                  checked={apagarTudoDefinitivamente}
+                  onChange={(e) => setApagarTudoDefinitivamente(e.target.checked)}
                   style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
                 />
                 <span style={{
                   fontFamily: "var(--font-body, sans-serif)",
                   fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
                 }}>
-                  Apagar também as sessões <strong>de vez</strong> — não fica nenhum registo, nem no
+                  Apagar também {partes} <strong>de vez</strong> — não fica nenhum registo, nem no
                   financeiro. Só faz sentido para dados de teste, sem valor financeiro real.
                 </span>
               </label>
