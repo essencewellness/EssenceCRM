@@ -29,14 +29,60 @@ export interface MensagemPendente {
 interface Props {
   mensagens: MensagemPendente[];
   aprovarBulkAction: (
-    itens: Array<{ id: string; mensagemFinal: string }>,
-    agendarParaISO?: string
+    itens: Array<{ id: string; mensagemFinal: string; agendarParaISO?: string }>
   ) => Promise<{ agendadas: number }>;
   rejeitarAction: (id: string) => Promise<void>;
 }
 
 function iniciais(nome: string): string {
   return nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+}
+
+// ── Seletor de hora individual por mensagem ───────────────────────────────
+// Cada cartão tem o seu próprio campo — antes havia um seletor único no
+// topo aplicado a TODO o lote selecionado de uma vez (2026-09-04, pedido do
+// Nuno: "para cada uma, não para todas").
+function SeletorHora({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label
+      title="Agendar hora de envio desta mensagem (opcional — sem isto, sai assim que possível)"
+      style={{
+        display: "inline-flex", alignItems: "center", gap: "6px",
+        padding: "8px 10px", borderRadius: "3px",
+        backgroundColor: value ? "rgba(185,160,122,0.14)" : "rgba(255,255,255,0.04)",
+        border: `1px solid ${value ? "rgba(185,160,122,0.45)" : "rgba(255,255,255,0.10)"}`,
+      }}
+    >
+      <CalendarClock size={13} color={value ? CHAMPAGNE : "#9d9d9a"} />
+      <input
+        type="datetime-local"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label="Agendar hora de envio desta mensagem"
+        style={{
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
+          color: value ? "var(--nuit-bone)" : "#9d9d9a",
+          backgroundColor: "transparent", border: "none", outline: "none",
+          colorScheme: "dark", width: "132px",
+        }}
+      />
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          title="Cancelar agendamento — voltar a enviar assim que possível"
+          style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            width: "16px", height: "16px", borderRadius: "50%",
+            border: "none", backgroundColor: "rgba(255,255,255,0.12)",
+            color: "#e5e5e2", cursor: "pointer", fontSize: "10px", lineHeight: 1, padding: 0,
+          }}
+        >
+          ×
+        </button>
+      )}
+    </label>
+  );
 }
 
 // ── Botão de aprovar com micro-animação de sucesso ───────────────────────────
@@ -146,10 +192,11 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
   const [saindo, setSaindo] = useState<Record<string, "aprovada" | "rejeitada">>({});
   const [pending, startTransition] = useTransition();
   const [bulkPending, setBulkPending] = useState(false);
-  // Hora escolhida pela Bea para o envio (input datetime-local) — vazio =
-  // "agora", como sempre foi. Aplica-se tanto ao "Aprovar (N)" em massa
-  // como a aprovar uma mensagem sozinha.
-  const [agendarPara, setAgendarPara] = useState("");
+  // Hora de envio POR MENSAGEM (chave = id) — vazio = "assim que possível".
+  // Cada cartão tem o seu próprio seletor (2026-09-04); o espaçamento
+  // anti-ban continua a aplicar-se sempre, mesmo quando várias pedem a
+  // mesma hora.
+  const [horas, setHoras] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -180,13 +227,21 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
   // datetime-local devolve "AAAA-MM-DDTHH:mm" na hora local do browser (a
   // da Bea) — new Date() interpreta-o como local e converte para UTC ISO,
   // que é o que o servidor espera.
-  const agendarParaISO = agendarPara ? new Date(agendarPara).toISOString() : undefined;
+  const isoDe = useCallback(
+    (id: string): string | undefined => {
+      const v = horas[id];
+      return v ? new Date(v).toISOString() : undefined;
+    },
+    [horas]
+  );
 
   async function aprovarSelecionadas() {
     const itens = visiveis
       .filter((m) => selecionadas.has(m.id))
-      .map((m) => ({ id: m.id, mensagemFinal: textoDe(m) }));
+      .map((m) => ({ id: m.id, mensagemFinal: textoDe(m), agendarParaISO: isoDe(m.id) }));
     if (itens.length === 0) return;
+
+    const alguemAgendado = itens.some((i) => i.agendarParaISO);
 
     // Marcar todas como saindo imediatamente (animação de saída)
     const novosSaindo: Record<string, "aprovada"> = {};
@@ -197,13 +252,13 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
 
     startTransition(async () => {
       try {
-        const r = await aprovarBulkAction(itens, agendarParaISO);
+        const r = await aprovarBulkAction(itens);
         toast(
-          agendarParaISO
-            ? `${r.agendadas} mensagem${r.agendadas === 1 ? "" : "s"} agendada${r.agendadas === 1 ? "" : "s"} para ${new Date(agendarParaISO).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.`
+          alguemAgendado
+            ? `${r.agendadas} mensagem${r.agendadas === 1 ? "" : "s"} na fila — cada uma na hora escolhida (ou assim que possível).`
             : r.agendadas === 1
               ? "1 mensagem na fila — sai em breve."
-              : `${r.agendadas} mensagens na fila — saem espaçadas 30–90s.`,
+              : `${r.agendadas} mensagens na fila — saem espaçadas com descanso anti-ban.`,
           "queue"
         );
       } finally {
@@ -213,9 +268,10 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
   }
 
   function aprovarUma(m: MensagemPendente) {
+    const agendarParaISO = isoDe(m.id);
     setSaindo(p => ({ ...p, [m.id]: "aprovada" }));
     startTransition(async () => {
-      await aprovarBulkAction([{ id: m.id, mensagemFinal: textoDe(m) }], agendarParaISO);
+      await aprovarBulkAction([{ id: m.id, mensagemFinal: textoDe(m), agendarParaISO }]);
       toast(
         agendarParaISO
           ? `Agendada para ${new Date(agendarParaISO).toLocaleString("pt-PT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.`
@@ -295,47 +351,12 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
           </motion.span>
         </label>
 
-        <div style={{ flex: 1 }} />
-
-        {/* Agendar hora do envio — vazio = agora, como sempre foi */}
-        <label
-          title="Agendar hora de envio (opcional — sem isto, sai já)"
-          style={{
-            display: "inline-flex", alignItems: "center", gap: "6px",
-            padding: "6px 10px", borderRadius: "3px",
-            backgroundColor: agendarPara ? "rgba(185,160,122,0.14)" : "rgba(255,255,255,0.04)",
-            border: `1px solid ${agendarPara ? "rgba(185,160,122,0.45)" : "rgba(255,255,255,0.10)"}`,
-          }}
-        >
-          <CalendarClock size={13} color={agendarPara ? CHAMPAGNE : "#9d9d9a"} />
-          <input
-            type="datetime-local"
-            value={agendarPara}
-            onChange={(e) => setAgendarPara(e.target.value)}
-            aria-label="Agendar hora de envio"
-            style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
-              color: agendarPara ? "var(--nuit-bone)" : "#9d9d9a",
-              backgroundColor: "transparent", border: "none", outline: "none",
-              colorScheme: "dark",
-            }}
-          />
-          {agendarPara && (
-            <button
-              type="button"
-              onClick={() => setAgendarPara("")}
-              title="Cancelar agendamento — voltar a enviar já"
-              style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "16px", height: "16px", borderRadius: "50%",
-                border: "none", backgroundColor: "rgba(255,255,255,0.12)",
-                color: "#e5e5e2", cursor: "pointer", fontSize: "10px", lineHeight: 1, padding: 0,
-              }}
-            >
-              ×
-            </button>
-          )}
-        </label>
+        <span style={{
+          flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+          color: "#9d9d9a", textAlign: "right",
+        }}>
+          A hora de cada mensagem agenda-se no próprio cartão
+        </span>
 
         <motion.button
           onClick={aprovarSelecionadas}
@@ -380,7 +401,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
           </AnimatePresence>
           {bulkPending
             ? "A enviar para a fila…"
-            : `${agendarPara ? "Agendar" : "Aprovar"}${selecionadas.size > 0 ? ` (${selecionadas.size})` : ""}`}
+            : `Aprovar${selecionadas.size > 0 ? ` (${selecionadas.size})` : ""}`}
         </motion.button>
       </motion.div>
 
@@ -546,12 +567,17 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                 </div>
 
                 {/* Ações */}
-                <div style={{ display: "flex", gap: "8px", marginTop: "12px", marginLeft: "64px" }}>
+                <div style={{ display: "flex", gap: "8px", marginTop: "12px", marginLeft: "64px", flexWrap: "wrap" }}>
                   <BotaoAprovar
                     onClick={() => aprovarUma(m)}
                     disabled={pending}
                     pending={pending}
-                    agendado={!!agendarPara}
+                    agendado={!!horas[m.id]}
+                  />
+
+                  <SeletorHora
+                    value={horas[m.id] ?? ""}
+                    onChange={(v) => setHoras((prev) => ({ ...prev, [m.id]: v }))}
                   />
 
                   <motion.button

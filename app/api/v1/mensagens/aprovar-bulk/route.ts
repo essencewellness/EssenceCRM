@@ -24,13 +24,16 @@ export async function POST(request: NextRequest) {
   if (!v.ok) return v.resposta
   const { mensagens, espacamentoMinSeg, espacamentoMaxSeg, agendarPara } = v.data
 
-  if (espacamentoMinSeg > espacamentoMaxSeg) {
+  if (espacamentoMinSeg !== undefined && espacamentoMaxSeg !== undefined && espacamentoMinSeg > espacamentoMaxSeg) {
     return respostaErro("espacamentoMinSeg não pode exceder espacamentoMaxSeg", "ESPACAMENTO_INVALIDO", 400)
   }
 
   try {
     const resultado = await aprovarEAgendar(
-      mensagens,
+      mensagens.map((m) => ({
+        ...m,
+        agendarPara: m.agendarPara ? new Date(m.agendarPara) : undefined,
+      })),
       espacamentoMinSeg,
       espacamentoMaxSeg,
       agendarPara ? new Date(agendarPara) : undefined

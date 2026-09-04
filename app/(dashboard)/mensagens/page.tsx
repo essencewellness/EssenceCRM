@@ -27,25 +27,26 @@ const BORDER = "rgba(212,184,134,0.16)";
 // ── Server Actions ─────────────────────────────────────────────
 
 async function aprovarBulkAction(
-  itens: Array<{ id: string; mensagemFinal: string }>,
-  // Hora escolhida pela Bea para o primeiro envio (opcional — string ISO
-  // vinda do <input type="datetime-local">). Sem isto, cai para "agora",
-  // como sempre foi.
-  agendarParaISO?: string
+  // Cada mensagem pode ter a sua PRÓPRIA hora de envio (2026-09-04 — antes
+  // uma única hora escolhida no topo aplicava-se a todo o lote de uma vez;
+  // agora cada cartão tem o seu seletor). Sem `agendarParaISO`, essa
+  // mensagem quer sair "assim que possível" — o espaçamento anti-ban (que
+  // escala com o tamanho do lote, ver lib/fila-envio.ts) continua a
+  // aplicar-se sempre, mesmo entre mensagens com a mesma hora escolhida.
+  itens: Array<{ id: string; mensagemFinal: string; agendarParaISO?: string }>
 ) {
   "use server";
   const session = await auth();
   if (!session?.user) throw new Error("Não autorizado");
 
-  const agendarPara = agendarParaISO && !Number.isNaN(Date.parse(agendarParaISO))
-    ? new Date(agendarParaISO)
-    : undefined;
-
   const resultado = await aprovarEAgendar(
-    itens.slice(0, 100).map((i) => ({ id: i.id, mensagemFinal: i.mensagemFinal.slice(0, 4000) })),
-    30,
-    90,
-    agendarPara
+    itens.slice(0, 100).map((i) => ({
+      id: i.id,
+      mensagemFinal: i.mensagemFinal.slice(0, 4000),
+      agendarPara: i.agendarParaISO && !Number.isNaN(Date.parse(i.agendarParaISO))
+        ? new Date(i.agendarParaISO)
+        : undefined,
+    }))
   );
 
   auditar({
@@ -55,7 +56,6 @@ async function aprovarBulkAction(
     detalhe: {
       agendadas: resultado.agendadas.length,
       ignoradas: resultado.ignoradas.length,
-      agendarPara: agendarPara?.toISOString() ?? null,
     },
   });
 

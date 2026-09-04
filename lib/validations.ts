@@ -241,13 +241,19 @@ export const aprovarBulkSchema = z.object({
   mensagens: z.array(z.object({
     id: z.string().trim().max(64),
     mensagemFinal: texto.max(4000).optional(),
+    // Hora desejada para ESTA mensagem em particular (2026-09-04 — antes só
+    // existia uma hora única para o lote inteiro). Sem isto, cai para
+    // `agendarPara` do lote, ou "agora".
+    agendarPara: dataISO.optional(),
   })).min(1).max(100),
-  // espaçamento entre envios em segundos (anti-ban WhatsApp)
-  espacamentoMinSeg: z.coerce.number().int().min(10).max(600).default(30),
-  espacamentoMaxSeg: z.coerce.number().int().min(10).max(900).default(90),
-  // Data/hora escolhida pela Bea para o primeiro envio do lote (opcional —
-  // sem isto, cai para "agora", como já acontecia). As seguintes cascatam
-  // o espaçamento a partir daqui, tal como já fazem a partir de "agora".
+  // Espaçamento entre envios em segundos (anti-ban WhatsApp). Sem isto, é
+  // calculado automaticamente a partir do nº de mensagens do lote (ver
+  // janelaEspacamentoPorVolume em lib/fila-envio.ts) — passar os dois
+  // explícitos substitui o cálculo automático.
+  espacamentoMinSeg: z.coerce.number().int().min(10).max(600).optional(),
+  espacamentoMaxSeg: z.coerce.number().int().min(10).max(900).optional(),
+  // Data/hora única para o lote inteiro (compat) — só usada pelos itens sem
+  // `agendarPara` própria.
   agendarPara: dataISO.optional(),
 }).strict()
 
@@ -519,8 +525,10 @@ export const campanhaCreateSchema = z.object({
     tipo:  z.enum(["servico", "estado", "inatividade", "todos"]),
     valor: z.string().trim().max(100).optional(),
   }),
-  espacamentoMinSeg: z.coerce.number().int().min(10).max(600).default(30),
-  espacamentoMaxSeg: z.coerce.number().int().min(10).max(900).default(90),
+  // Sem isto, é calculado automaticamente a partir do nº de clientes do
+  // segmento (ver janelaEspacamentoPorVolume em lib/fila-envio.ts).
+  espacamentoMinSeg: z.coerce.number().int().min(10).max(600).optional(),
+  espacamentoMaxSeg: z.coerce.number().int().min(10).max(900).optional(),
 }).strict()
 
 export const campanhasQuerySchema = z.object({
