@@ -234,7 +234,11 @@ model Cliente {
 
 model Sessao {
   id          String    @id @default(cuid())
-  clienteId   String
+  // Opcional desde 2026-09-04 ("sessão fantasma") — quando o contacto é
+  // apagado a sério, a sessão não desaparece com ele: fica órfã
+  // (onDelete: SetNull) para o histórico financeiro nunca perder uma
+  // receita já realizada. clienteNomeArquivado guarda o nome nesse caso.
+  clienteId   String?
 
   data        DateTime
   hora        String?
@@ -358,7 +362,13 @@ model Sessao {
   apagadoEm   DateTime?
   criadoEm    DateTime  @default(now())
 
-  cliente     Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  // Nome do cliente no momento em que o contacto foi apagado — só
+  // preenchido nesse instante (ver eliminarCliente em
+  // app/(dashboard)/clientes/[id]/actions.ts). Enquanto o cliente existe,
+  // usar sempre cliente.nome; isto é só o "fantasma" para depois de apagado.
+  clienteNomeArquivado String?
+
+  cliente     Cliente?  @relation(fields: [clienteId], references: [id], onDelete: SetNull)
   servico_rel Servico?  @relation(fields: [servicoId], references: [id])
   feedbacks   Feedback[]
   linkTokens  LinkToken[]

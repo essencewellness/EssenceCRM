@@ -41,6 +41,15 @@ export async function GET(request: NextRequest) {
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
+  // Cliente foi apagada depois desta sessão existir (sessão "fantasma",
+  // preservada só para o histórico financeiro) — este formulário público
+  // não faz sentido nesse caso, ninguém deveria ter um link para isto.
+  if (!sessao.cliente) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
+  // Sabido não-nulo pelo guard acima (a FK só é null quando cliente é
+  // null) — evita repetir o "!" em cada uso a seguir.
+  const clienteId = sessao.clienteId as string
 
   // Uso único: já foi submetido por este formulário — não há nada para
   // preencher outra vez. O terapeutaHabitual serve só para mostrar quem
@@ -67,10 +76,10 @@ export async function GET(request: NextRequest) {
       ? prisma.servico.findFirst({ where: { nome: sessao.servico }, select: { precoBase: true } })
       : null,
     prisma.sessao.count({
-      where: { clienteId: sessao.clienteId, apagadoEm: null, id: { not: sessao.id } },
+      where: { clienteId, apagadoEm: null, id: { not: sessao.id } },
     }),
     prisma.observacao.findMany({
-      where: { clienteId: sessao.clienteId },
+      where: { clienteId },
       select: { texto: true, autor: true, criadoEm: true },
       orderBy: { criadoEm: "desc" },
       take: 5,
@@ -79,7 +88,7 @@ export async function GET(request: NextRequest) {
     // (que serviços costuma pedir, com quem costuma ficar) antes de decidir
     // a terapeuta desta marcação, em vez de decidir às cegas.
     prisma.sessao.findMany({
-      where: { clienteId: sessao.clienteId, apagadoEm: null, id: { not: sessao.id }, estado: { not: "cancelada" } },
+      where: { clienteId, apagadoEm: null, id: { not: sessao.id }, estado: { not: "cancelada" } },
       select: {
         data: true, servico: true, estado: true,
         // O nome oficial da terapeuta (via FK) em vez do texto livre
@@ -151,6 +160,10 @@ export async function POST(request: NextRequest) {
     if (!sessao) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
     }
+    if (!sessao.cliente) {
+      return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+    }
+    const clienteId = sessao.clienteId as string
 
     // Sessão cancelada não deve receber atribuição de terapeuta/preço via link antigo
     if (sessao.estado === "cancelada") {
@@ -215,7 +228,7 @@ export async function POST(request: NextRequest) {
     // Se a cliente ainda não tem terapeuta principal, esta atribuição define-a
     if (!sessao.cliente.terapeutaPrincipalId) {
       await prisma.cliente.update({
-        where: { id: sessao.clienteId },
+        where: { id: clienteId },
         data: { terapeutaPrincipalId: terapeuta.id },
       })
     }
@@ -228,7 +241,7 @@ export async function POST(request: NextRequest) {
     if (nota) {
       const duplicada = await prisma.observacao.findFirst({
         where: {
-          clienteId: sessao.clienteId,
+          clienteId,
           texto: nota,
           criadoEm: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
         },
@@ -237,7 +250,7 @@ export async function POST(request: NextRequest) {
       if (!duplicada) {
         await prisma.observacao.create({
           data: {
-            clienteId: sessao.clienteId,
+            clienteId,
             texto: nota,
             autor: nomeTerapeuta,
           },

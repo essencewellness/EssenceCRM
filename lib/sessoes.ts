@@ -61,7 +61,7 @@ export async function dispararEfeitosSessaoRealizada(
     const ehADois = sessaoAntes.terapeuta2Id !== null
     void webhooks.sessaoReceitaBea({
       sessaoId: sessaoAntes.id,
-      clienteNome: sessaoCompleta.cliente.nome,
+      clienteNome: sessaoCompleta.cliente?.nome ?? "Cliente",
       servico: sessaoAntes.servico,
       valor: ehADois ? Number(sessaoCompleta.valorPago) / 2 : Number(sessaoCompleta.valorPago),
       data: sessaoCompleta.data.toISOString(),

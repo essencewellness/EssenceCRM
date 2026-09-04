@@ -22,7 +22,11 @@ export type SessaoRow = {
   metodoPagamento: string | null
   repasseNecessario: boolean
   repasseFeito: boolean
-  cliente: { id: string; nome: string }
+  // null = contacto apagado depois desta sessão existir ("sessão fantasma",
+  // 2026-09-04) — a receita fica preservada no financeiro mesmo sem o
+  // contacto; ver Sessao.clienteNomeArquivado no schema.
+  cliente: { id: string; nome: string } | null
+  clienteNomeArquivado?: string | null
   // As vendas de voucher entram nesta mesma tabela, porque o dinheiro
   // entrou no mês da compra. Não são sessões: a venda já está fechada, por
   // isso não têm pagamento editável. Este campo marca essas linhas.
@@ -186,7 +190,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Registar pagamento de ${sessao.cliente.nome}`}
+      aria-label={`Registar pagamento de ${sessao.cliente?.nome ?? "cliente eliminada"}`}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -212,7 +216,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               margin: 0, fontSize: "16px", fontWeight: 600, color: CREAM,
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             }}>
-              {sessao.cliente.nome}
+              {sessao.cliente?.nome ?? "Cliente eliminada"}
             </h2>
             <p style={{
               margin: "3px 0 0", fontSize: "12.5px", color: "var(--muted-foreground)",
@@ -410,8 +414,13 @@ export function TabelaSessoesPagamento({
         <tbody>
           {visiveis.map((s, i) => (
             <tr key={s.id} style={{ borderBottom: i < visiveis.length - 1 ? `1px solid ${BORDER}` : "none" }}>
-              <td style={{ padding: "12px 16px", color: CREAM, fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                {s.cliente.nome}
+              <td style={{ padding: "12px 16px", color: s.cliente ? CREAM : "var(--muted-foreground)", fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
+                {s.cliente?.nome ?? s.clienteNomeArquivado ?? "Cliente eliminada"}
+                {!s.cliente && (
+                  <span style={{ marginLeft: "6px", fontSize: "10px", opacity: 0.6 }} title="O contacto foi apagado — esta receita fica preservada no histórico">
+                    (contacto apagado)
+                  </span>
+                )}
               </td>
               <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "13px" }}>
                 {s.servico ?? "—"}
@@ -457,6 +466,16 @@ export function TabelaSessoesPagamento({
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                   }}>
                     {s.voucherCodigo}
+                  </span>
+                ) : !s.cliente ? (
+                  // Contacto apagado ("sessão fantasma") — a receita fica
+                  // preservada, mas já não há nada aqui para editar (o
+                  // endpoint recusa PATCH numa sessão sem cliente).
+                  <span style={{
+                    color: "var(--muted-foreground)", fontSize: "11.5px",
+                    fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                  }}>
+                    —
                   </span>
                 ) : s.estadoPagamento === "pendente" ? (
                   <button

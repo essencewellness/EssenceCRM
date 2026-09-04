@@ -215,80 +215,88 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             {sessoes.map((sessao, i) => {
               const cfg = ESTADO_SESSAO[sessao.estado] ?? ESTADO_SESSAO["agendada"]!;
               const isHoje = sessao.data >= inicioDia && sessao.data < fimDia;
-              return (
-                <Link
-                  key={sessao.id}
-                  href={`/clientes/${sessao.clienteId}`}
-                  style={{
-                    textDecoration: "none", display: "block",
-                    animation: "fadeUp var(--dur-med) var(--ease-out) both",
-                    animationDelay: `${Math.min(i, 12) * 22}ms`,
-                  }}
+              // Sessão "fantasma" (cliente apagado, preservada só para o
+              // histórico financeiro) — sem contacto para onde ligar.
+              const clienteApagado = !sessao.cliente;
+
+              const linha = (
+                <div style={{
+                  display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px", minWidth: "620px",
+                  padding: "13px 20px", alignItems: "center",
+                  borderBottom: i < sessoes.length - 1 ? "1px solid rgba(212,184,134,0.1)" : "none",
+                  backgroundColor: isHoje
+                    ? "rgba(185,160,122,0.04)"
+                    : i % 2 === 0 ? "var(--nuit-overlay)" : "rgba(255,255,255,0.02)",
+                  transition: "background-color 120ms",
+                }}
+                className={clienteApagado ? undefined : "row-hover"}
                 >
-                  <div style={{
-                    display: "grid", gridTemplateColumns: "120px 1fr 160px 120px 110px", minWidth: "620px",
-                    padding: "13px 20px", alignItems: "center",
-                    borderBottom: i < sessoes.length - 1 ? "1px solid rgba(212,184,134,0.1)" : "none",
-                    backgroundColor: isHoje
-                      ? "rgba(185,160,122,0.04)"
-                      : i % 2 === 0 ? "var(--nuit-overlay)" : "rgba(255,255,255,0.02)",
-                    transition: "background-color 120ms",
-                  }}
-                  className="row-hover"
-                  >
-                    <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: isHoje ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
-                      fontWeight: isHoje ? 600 : 400,
-                    }}>
-                      {isHoje ? "Hoje" : formatDate(sessao.data)}
-                      {sessao.hora && (
-                        <span style={{ color: "var(--nuit-bone-soft)", marginLeft: "6px" }}>{sessao.hora}</span>
-                      )}
-                    </span>
+                  <span style={{
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    color: isHoje ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
+                    fontWeight: isHoje ? 600 : 400,
+                  }}>
+                    {isHoje ? "Hoje" : formatDate(sessao.data)}
+                    {sessao.hora && (
+                      <span style={{ color: "var(--nuit-bone-soft)", marginLeft: "6px" }}>{sessao.hora}</span>
+                    )}
+                  </span>
 
-                    <div>
+                  <div>
+                    <span style={{
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                      fontWeight: 600, color: clienteApagado ? "var(--nuit-bone-soft)" : "var(--nuit-bone)",
+                    }}>
+                      {sessao.cliente?.nome ?? sessao.clienteNomeArquivado ?? "Cliente eliminada"}
+                    </span>
+                    {sessao.cliente?.telefone && (
                       <span style={{
-                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
-                        fontWeight: 600, color: "var(--nuit-bone)",
+                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+                        color: "var(--nuit-bone-soft)", marginLeft: "8px",
                       }}>
-                        {sessao.cliente.nome}
+                        {sessao.cliente.telefone}
                       </span>
-                      {sessao.cliente.telefone && (
-                        <span style={{
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
-                          color: "var(--nuit-bone-soft)", marginLeft: "8px",
-                        }}>
-                          {sessao.cliente.telefone}
-                        </span>
-                      )}
-                    </div>
-
-                    <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: "var(--nuit-bone-soft)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                    }}>
-                      {sessao.servico ?? "—"}
-                    </span>
-
-                    <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
-                      color: "var(--nuit-bone-soft)", textTransform: "capitalize",
-                    }}>
-                      {sessao.user?.name ?? "-"}
-                    </span>
-
-                    <span style={{
-                      padding: "3px 8px", borderRadius: "0px",
-                      fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
-                      fontFamily: "var(--font-sans, sans-serif)",
-                      color: cfg.color, backgroundColor: cfg.bg,
-                      border: `1px solid ${cfg.color}44`,
-                      display: "inline-block",
-                    }}>
-                      {cfg.label}
-                    </span>
+                    )}
                   </div>
+
+                  <span style={{
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    color: "var(--nuit-bone-soft)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>
+                    {sessao.servico ?? "—"}
+                  </span>
+
+                  <span style={{
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    color: "var(--nuit-bone-soft)", textTransform: "capitalize",
+                  }}>
+                    {sessao.user?.name ?? "-"}
+                  </span>
+
+                  <span style={{
+                    padding: "3px 8px", borderRadius: "0px",
+                    fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+                    fontFamily: "var(--font-sans, sans-serif)",
+                    color: cfg.color, backgroundColor: cfg.bg,
+                    border: `1px solid ${cfg.color}44`,
+                    display: "inline-block",
+                  }}>
+                    {cfg.label}
+                  </span>
+                </div>
+              );
+
+              const wrapperStyle = {
+                textDecoration: "none", display: "block",
+                animation: "fadeUp var(--dur-med) var(--ease-out) both",
+                animationDelay: `${Math.min(i, 12) * 22}ms`,
+              } as const;
+
+              return clienteApagado ? (
+                <div key={sessao.id} style={wrapperStyle}>{linha}</div>
+              ) : (
+                <Link key={sessao.id} href={`/clientes/${sessao.clienteId}`} style={wrapperStyle}>
+                  {linha}
                 </Link>
               );
             })}

@@ -66,7 +66,10 @@ export async function GET(request: NextRequest) {
         where: { id: { in: sessoesPassadas.map(s => s.id) } },
         data: { estado: "realizada" },
       })
-      const clientesAfetados = [...new Set(sessoesPassadas.map(s => s.clienteId))]
+      // Sessão "fantasma" (cliente apagado) nunca deveria estar aqui — nunca
+      // fica "agendada"/"confirmada", só é criada já com dados históricos —
+      // mas o filtro guarda o tipo mesmo assim.
+      const clientesAfetados = [...new Set(sessoesPassadas.map(s => s.clienteId).filter((id): id is string => id !== null))]
       await Promise.all(clientesAfetados.map(id => recalcularMetricasCliente(prisma, id)))
     }
 

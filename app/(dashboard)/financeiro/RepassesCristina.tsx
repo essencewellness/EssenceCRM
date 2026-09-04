@@ -28,7 +28,7 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
     }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "13px", color: CREAM }}>
-          {repasse.cliente.nome} <span style={{ color: "var(--muted-foreground)" }}>· {repasse.servico ?? "—"}</span>
+          {repasse.cliente?.nome ?? "Cliente eliminada"} <span style={{ color: "var(--muted-foreground)" }}>· {repasse.servico ?? "—"}</span>
         </div>
         <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: "var(--muted-foreground)", marginTop: "2px" }}>
           {new Date(repasse.data).toLocaleDateString("pt-PT")}
@@ -47,7 +47,7 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
           className={pending ? undefined : "btn-lift"}
           onClick={() => startTransition(async () => {
             await marcarRepasseFeito(repasse.id)
-            toast(`Repasse a ${repasse.cliente.nome} marcado como feito`, "success")
+            toast(`Repasse a ${repasse.cliente?.nome ?? "cliente eliminada"} marcado como feito`, "success")
           })}
           style={{
             padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: 700,

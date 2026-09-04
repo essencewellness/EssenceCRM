@@ -138,10 +138,18 @@ export default async function AgendaPage({
   const linkBase = (v: Vista, d: Date, m: Modo = modo) =>
     `/agenda?vista=${v}&modo=${m}&data=${fmtDataParam(d)}${alvo ? `&terapeuta=${alvo}` : ""}`
 
-  const sessaoParaGrade = (s: (typeof sessoes)[number]): SessaoGrade => ({
-    id: s.id, clienteId: s.clienteId, clienteNome: s.cliente.nome,
-    servico: s.servico, hora: s.hora, duracao: s.duracao, estado: s.estado,
-  })
+  // Sessão "fantasma" (cliente apagado, preservada só para o histórico
+  // financeiro) não aparece na grelha da agenda — não há contacto para onde
+  // levar o clique.
+  const sessaoParaGrade = (s: (typeof sessoes)[number]): SessaoGrade | null =>
+    s.cliente
+      ? {
+          id: s.id, clienteId: s.clienteId as string, clienteNome: s.cliente.nome,
+          servico: s.servico, hora: s.hora, duracao: s.duracao, estado: s.estado,
+        }
+      : null
+  const paraGrelha = (lista: (typeof sessoes)[number][]): SessaoGrade[] =>
+    lista.map(sessaoParaGrade).filter((s): s is SessaoGrade => s !== null)
 
   // Dados para a grelha horária (vistas dia/semana) — um dia por coluna
   const diasGrelha = vista === "mes" ? [] : Array.from(
@@ -149,7 +157,7 @@ export default async function AgendaPage({
     (_, i) => {
       const dataCol = new Date(inicio); dataCol.setDate(dataCol.getDate() + i)
       const chave = dataCol.toISOString().slice(0, 10)
-      return { data: dataCol, sessoes: (porDia.get(chave) ?? []).map(sessaoParaGrade) }
+      return { data: dataCol, sessoes: paraGrelha(porDia.get(chave) ?? []) }
     },
   )
 
@@ -166,7 +174,7 @@ export default async function AgendaPage({
     diasGrelhaMensal = Array.from({ length: totalDias }, (_, i) => {
       const dataCol = new Date(inicioGrelha); dataCol.setDate(dataCol.getDate() + i)
       const chave = dataCol.toISOString().slice(0, 10)
-      return { data: dataCol, sessoes: (porDia.get(chave) ?? []).map(sessaoParaGrade) }
+      return { data: dataCol, sessoes: paraGrelha(porDia.get(chave) ?? []) }
     })
   }
 
@@ -303,48 +311,63 @@ export default async function AgendaPage({
                 {new Date(chave + "T00:00:00").toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "short" })}
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {sessoesDia.map(s => (
-                  // Abre o perfil do cliente no CRM completo numa aba/janela nova
-                  // — não há forma de uma página web "lançar" outra app instalada
-                  // no ecrã principal do iPad; isto é o mais próximo possível
-                  // (o sistema decide se reaproveita uma aba do CRM já aberta ou
-                  // abre Safari numa nova).
-                  <a
-                    key={s.id}
-                    href={`/clientes/${s.clienteId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="row-hover"
-                    style={{
-                      display: "flex", alignItems: "center", gap: "12px",
-                      backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`,
-                      borderRadius: "8px", padding: "10px 14px",
-                      textDecoration: "none", cursor: "pointer",
-                    }}
-                  >
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: CREAM, minWidth: "44px" }}>
-                      {s.hora ?? "—"}
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {s.cliente.nome}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11.5px", color: SOFT }}>
-                        {s.servico ?? "Serviço por confirmar"}
-                      </p>
+                {sessoesDia.map(s => {
+                  // Sessão "fantasma" (cliente apagado, preservada só para o
+                  // histórico financeiro) — sem contacto para onde abrir.
+                  const conteudo = (
+                    <>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: CREAM, minWidth: "44px" }}>
+                        {s.hora ?? "—"}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {s.cliente?.nome ?? s.clienteNomeArquivado ?? "Cliente eliminada"}
+                        </p>
+                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11.5px", color: SOFT }}>
+                          {s.servico ?? "Serviço por confirmar"}
+                        </p>
+                      </div>
+                      <span style={{
+                        fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 600,
+                        letterSpacing: "0.04em", textTransform: "uppercase",
+                        color: ESTADO_COR[s.estado] ?? SOFT, flexShrink: 0,
+                      }}>
+                        {ESTADO_LABEL[s.estado] ?? s.estado}
+                      </span>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "12.5px", fontWeight: 600, color: GOLD, flexShrink: 0, minWidth: "48px", textAlign: "right" }}>
+                        {formatCurrency(Number(s.preco ?? 0))}
+                      </span>
+                    </>
+                  )
+                  const linhaStyle = {
+                    display: "flex", alignItems: "center", gap: "12px",
+                    backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`,
+                    borderRadius: "8px", padding: "10px 14px",
+                    textDecoration: "none", cursor: "pointer",
+                  } as const
+
+                  return s.cliente ? (
+                    // Abre o perfil do cliente no CRM completo numa aba/janela
+                    // nova — não há forma de uma página web "lançar" outra app
+                    // instalada no ecrã principal do iPad; isto é o mais
+                    // próximo possível (o sistema decide se reaproveita uma
+                    // aba do CRM já aberta ou abre Safari numa nova).
+                    <a
+                      key={s.id}
+                      href={`/clientes/${s.clienteId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="row-hover"
+                      style={linhaStyle}
+                    >
+                      {conteudo}
+                    </a>
+                  ) : (
+                    <div key={s.id} style={{ ...linhaStyle, cursor: "default" }}>
+                      {conteudo}
                     </div>
-                    <span style={{
-                      fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 600,
-                      letterSpacing: "0.04em", textTransform: "uppercase",
-                      color: ESTADO_COR[s.estado] ?? SOFT, flexShrink: 0,
-                    }}>
-                      {ESTADO_LABEL[s.estado] ?? s.estado}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "12.5px", fontWeight: 600, color: GOLD, flexShrink: 0, minWidth: "48px", textAlign: "right" }}>
-                      {formatCurrency(Number(s.preco ?? 0))}
-                    </span>
-                  </a>
-                ))}
+                  )
+                })}
               </div>
             </div>
           ))}

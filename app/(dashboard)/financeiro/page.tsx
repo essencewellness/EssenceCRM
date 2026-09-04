@@ -292,6 +292,10 @@ export default async function FinanceiroPage({
   // só com os €45 da sessão paga à parte).
   const totalPorCliente = new Map<string, number>()
   for (const t of receitaAllTime) {
+    // Sessão "fantasma" (cliente apagado) continua a contar para a receita
+    // total (ver .reduce mais abaixo) mas não faz sentido num ranking "top
+    // clientes" — não há ninguém para atribuir.
+    if (!t.clienteId) continue
     totalPorCliente.set(t.clienteId, (totalPorCliente.get(t.clienteId) ?? 0) + valorAtribuidoSessao(t))
   }
   for (const v of vendasVoucherAllTime) {

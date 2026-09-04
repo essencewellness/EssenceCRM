@@ -11,7 +11,9 @@ export type RepasseRow = {
   // dela); numa massagem a dois é metade, porque a outra metade é da Bea.
   valorRepasse: string | null
   metodoPagamento: string | null
-  cliente: { id: string; nome: string }
+  // null = contacto apagado depois desta sessão existir ("sessão fantasma",
+  // 2026-09-04) — a dívida à Cristina continua a existir mesmo sem contacto.
+  cliente: { id: string; nome: string } | null
 }
 
 /** O que a Bea deve mesmo à Cristina por esta sessão. */

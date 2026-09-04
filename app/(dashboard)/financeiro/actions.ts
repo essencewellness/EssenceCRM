@@ -90,7 +90,7 @@ export async function atualizarPagamento(
   ) {
     void webhooks.sessaoReceitaBea({
       sessaoId,
-      clienteNome: sessao.cliente.nome,
+      clienteNome: sessao.cliente?.nome ?? "Cliente eliminada",
       servico: sessao.servico,
       valor: ehADois ? Math.round((dados.valorPago / 2) * 100) / 100 : dados.valorPago,
       data: sessao.data.toISOString(),

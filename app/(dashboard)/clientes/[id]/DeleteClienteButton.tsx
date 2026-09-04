@@ -14,28 +14,25 @@ interface Props {
 export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: Props) {
   const [aberto, setAberto] = useState(false)
   const [input, setInput] = useState("")
-  const [apagarSessoes, setApagarSessoes] = useState(false)
-  const [erro, setErro] = useState<string | null>(null)
+  // Escape hatch só para lixo de teste sem valor financeiro real — por
+  // omissão as sessões ficam órfãs (preservadas no financeiro como "Cliente
+  // eliminada"), nunca apagadas de vez (ver actions.ts, 2026-09-04).
+  const [apagarSessoesDefinitivamente, setApagarSessoesDefinitivamente] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const temSessoes = sessoesCount > 0
   const nomeOk = input.trim().toLowerCase() === primeiroNome.trim().toLowerCase()
-  // Se há sessões, a caixa tem de estar marcada (a cascata apaga-as na mesma)
-  const confirmado = nomeOk && (!temSessoes || apagarSessoes)
+  const confirmado = nomeOk
 
   function fechar() {
-    setAberto(false); setInput(""); setApagarSessoes(false); setErro(null)
+    setAberto(false); setInput(""); setApagarSessoesDefinitivamente(false)
   }
 
   function handleApagar() {
     if (!confirmado) return
-    setErro(null)
     startTransition(async () => {
-      const res = await eliminarCliente(clienteId, apagarSessoes)
-      // Só regressa valor em caso de bloqueio (sucesso faz redirect)
-      if (res && !res.ok) {
-        setErro(`Este cliente tem ${res.sessoes} sessão(ões). Marca a opção para apagar tudo.`)
-      }
+      await eliminarCliente(clienteId, apagarSessoesDefinitivamente)
+      // Sucesso faz redirect — não há resposta para tratar aqui.
     })
   }
 
@@ -147,42 +144,52 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount }: P
               />
             </div>
 
-            {/* Checkbox: apagar sessões (a cascata apaga-as na mesma) */}
+            {/* Aviso informativo: as sessões ficam preservadas por omissão */}
+            {temSessoes && (
+              <div style={{
+                padding: "12px 14px", borderRadius: "8px",
+                backgroundColor: "rgba(160,169,150,0.06)",
+                border: "1px solid rgba(160,169,150,0.22)",
+                marginBottom: "12px",
+              }}>
+                <p style={{
+                  fontFamily: "var(--font-body, sans-serif)",
+                  fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+                }}>
+                  Este contacto tem <strong>{sessoesCount} sessão(ões)</strong>. Ficam preservadas no
+                  histórico financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligadas
+                  a um contacto, mas a receita não desaparece do /financeiro.
+                </p>
+              </div>
+            )}
+
+            {/* Checkbox: escape hatch só para lixo de teste sem valor financeiro */}
             {temSessoes && (
               <label
-                htmlFor="apagar-sessoes"
+                htmlFor="apagar-sessoes-definitivamente"
                 style={{
                   display: "flex", alignItems: "flex-start", gap: "10px",
                   padding: "12px 14px", borderRadius: "8px",
                   backgroundColor: "rgba(176,96,80,0.05)",
-                  border: `1px solid ${apagarSessoes ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
+                  border: `1px solid ${apagarSessoesDefinitivamente ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
                   marginBottom: "16px", cursor: "pointer", transition: "border-color 150ms",
                 }}
               >
                 <input
-                  id="apagar-sessoes"
+                  id="apagar-sessoes-definitivamente"
                   type="checkbox"
-                  checked={apagarSessoes}
-                  onChange={(e) => setApagarSessoes(e.target.checked)}
+                  checked={apagarSessoesDefinitivamente}
+                  onChange={(e) => setApagarSessoesDefinitivamente(e.target.checked)}
                   style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
                 />
                 <span style={{
                   fontFamily: "var(--font-body, sans-serif)",
                   fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
                 }}>
-                  Apagar também as <strong>{sessoesCount} sessão(ões)</strong> deste cliente
+                  Apagar também as sessões <strong>de vez</strong> — não fica nenhum registo, nem no
+                  financeiro. Só faz sentido para dados de teste, sem valor financeiro real.
                 </span>
               </label>
-            )}
-
-            {/* Erro do servidor */}
-            {erro && (
-              <p style={{
-                fontFamily: "var(--font-body, sans-serif)",
-                fontSize: "12.5px", color: "var(--destructive)", lineHeight: 1.5, marginBottom: "16px",
-              }}>
-                {erro}
-              </p>
             )}
 
             {/* Botões */}

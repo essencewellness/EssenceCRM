@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
           servico: true,
           preco: true,
           valorPago: true,
+          clienteNomeArquivado: true,
           cliente: { select: { nome: true, telefone: true } },
         },
         orderBy: { data: "asc" },
@@ -87,8 +88,8 @@ export async function GET(request: NextRequest) {
         sessoesPorEstadoPagamento,
         sessoesPendentes: sessoesPendentes.map((s) => ({
           id: s.id,
-          clienteNome: s.cliente.nome,
-          clienteTelefone: s.cliente.telefone,
+          clienteNome: s.cliente?.nome ?? s.clienteNomeArquivado ?? "Cliente eliminada",
+          clienteTelefone: s.cliente?.telefone ?? null,
           data: s.data,
           servico: s.servico,
           preco: s.preco,

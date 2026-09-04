@@ -36,11 +36,19 @@ async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
   }
 }
 
-// Apagamento DEFINITIVO do cliente (hard delete). A cascata do schema remove
-// sessões, mensagens, etiquetas, observações, preços, packs e portal token.
-// Como Sessao.clienteId é obrigatório, apagar o cliente implica apagar as sessões:
-// se o cliente tiver sessões, exige-se confirmação explícita (apagarSessoes).
-export async function eliminarCliente(clienteId: string, apagarSessoes = false) {
+// Apagamento DEFINITIVO do cliente (hard delete). Mensagens, etiquetas,
+// observações, preços, packs e portal token continuam em cascata — mas as
+// SESSÕES já não (2026-09-04, "sessão fantasma", pedido do Nuno depois de
+// reparar que apagar uma cliente de teste também apagava a receita dela do
+// /financeiro, como se a sessão nunca tivesse acontecido).
+//
+// Por omissão as sessões ficam órfãs: Sessao.clienteId passa a opcional
+// (onDelete: SetNull no schema) e o nome fica arquivado em
+// clienteNomeArquivado — aparecem no /financeiro e em /sessoes como "Cliente
+// eliminada", com a receita preservada. `apagarSessoesDefinitivamente` é o
+// escape hatch só para lixo de teste sem valor financeiro real: aí sim
+// apaga tudo, sem deixar rasto nenhum.
+export async function eliminarCliente(clienteId: string, apagarSessoesDefinitivamente = false) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
   await verificarDonoCliente(session, clienteId)
@@ -51,12 +59,18 @@ export async function eliminarCliente(clienteId: string, apagarSessoes = false) 
   })
   if (!cliente) throw new Error("Cliente não encontrado")
 
-  // Se há sessões e não foi confirmado apagá-las, bloquear (a cascata removê-las-ia)
-  if (cliente._count.sessoes > 0 && !apagarSessoes) {
-    return { ok: false as const, motivo: "TEM_SESSOES" as const, sessoes: cliente._count.sessoes }
+  if (apagarSessoesDefinitivamente) {
+    await prisma.sessao.deleteMany({ where: { clienteId } })
+  } else if (cliente._count.sessoes > 0) {
+    // Arquiva o nome ANTES de apagar o cliente — depois disto já não há
+    // onde o ir buscar. onDelete: SetNull trata do resto (orfaniza
+    // automaticamente ao apagar o cliente a seguir).
+    await prisma.sessao.updateMany({
+      where: { clienteId },
+      data: { clienteNomeArquivado: cliente.nome },
+    })
   }
 
-  // Hard delete — onDelete: Cascade no schema remove tudo o que depende do cliente
   await prisma.cliente.delete({ where: { id: clienteId } })
 
   auditar({
@@ -64,7 +78,11 @@ export async function eliminarCliente(clienteId: string, apagarSessoes = false) 
     acao: "cliente.apagado_definitivo",
     entidade: "Cliente",
     entidadeId: clienteId,
-    detalhe: { nome: cliente.nome, sessoesApagadas: cliente._count.sessoes },
+    detalhe: {
+      nome: cliente.nome,
+      sessoes: cliente._count.sessoes,
+      sessoesApagadasDefinitivamente: apagarSessoesDefinitivamente,
+    },
   })
 
   revalidatePath("/clientes")
@@ -205,7 +223,7 @@ async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dad
   // estado nunca mudou). As duas vias nunca podem divergir aqui.
   if (ficaRealizada && !eraRealizada) {
     await dispararEfeitosSessaoRealizada(
-      { ...sessaoAntes, terapeutaId: sessaoDepois.terapeutaId, terapeuta2Id: sessaoDepois.terapeuta2Id },
+      { ...sessaoAntes, clienteId, terapeutaId: sessaoDepois.terapeutaId, terapeuta2Id: sessaoDepois.terapeuta2Id },
       sessaoDepois.preco
     )
     await recalcularEstadoCliente(clienteId)
@@ -380,14 +398,14 @@ export async function atualizarTerapeutaSessao(
         if (valorAntes !== valorDepois) {
           if (valorAntes > 0) {
             void webhooks.sessaoReceitaReatribuida({
-              sessaoId, clienteNome: sessaoAntes.cliente.nome, servico: sessaoAntes.servico, valor: valorAntes,
+              sessaoId, clienteNome: sessaoAntes.cliente?.nome ?? "Cliente eliminada", servico: sessaoAntes.servico, valor: valorAntes,
               data: sessaoAntes.data.toISOString(), metodoPagamento: sessaoAntes.metodoPagamento,
               direcao: "bea_perde",
             })
           }
           if (valorDepois > 0) {
             void webhooks.sessaoReceitaReatribuida({
-              sessaoId, clienteNome: sessaoAntes.cliente.nome, servico: sessaoAntes.servico, valor: valorDepois,
+              sessaoId, clienteNome: sessaoAntes.cliente?.nome ?? "Cliente eliminada", servico: sessaoAntes.servico, valor: valorDepois,
               data: sessaoAntes.data.toISOString(), metodoPagamento: sessaoAntes.metodoPagamento,
               direcao: "bea_ganha",
             })

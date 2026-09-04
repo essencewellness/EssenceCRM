@@ -796,7 +796,7 @@ export function TarefasWidget({
 export interface AlertaRow {
   id: string
   avaliacaoNota: number | null
-  cliente: { nome: string }
+  cliente: { nome: string } | null
 }
 
 export interface InativaRow {
@@ -876,7 +876,7 @@ export function AlertasWidget({
               fontSize: "12px", color: "var(--nuit-bone-soft)",
               padding: "2px 0",
             }}>
-              <span>{s.cliente.nome}</span>
+              <span>{s.cliente?.nome ?? "Cliente eliminada"}</span>
               <span style={{ color: "var(--destructive)" }}>{"★".repeat(s.avaliacaoNota ?? 0)} ({s.avaliacaoNota}/5)</span>
             </p>
           ))}

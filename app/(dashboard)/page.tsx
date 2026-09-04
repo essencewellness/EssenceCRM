@@ -208,9 +208,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const receitaMesTotal = receitaSessoesMes + receitaVouchersMes + receitaPacksMes
   const saudacao = getSaudacao()
 
-  const sessoesHojeRows = sessõesHoje.map(s => ({
-    id: s.id, hora: s.hora, clienteId: s.clienteId,
-    clienteNome: s.cliente.nome, clienteIniciais: getIniciais(s.cliente.nome),
+  // Sessão "fantasma" (cliente apagado) nunca deveria aparecer aqui — é
+  // sempre uma sessão passada, preservada só para o histórico financeiro —
+  // mas o filtro guarda contra isso mesmo assim.
+  const sessoesHojeRows = sessõesHoje.filter(s => s.cliente).map(s => ({
+    id: s.id, hora: s.hora, clienteId: s.clienteId as string,
+    clienteNome: s.cliente!.nome, clienteIniciais: getIniciais(s.cliente!.nome),
     // Nome oficial via terapeutaId (user.name), nunca o texto livre
     // "terapeuta" — esse tem valores antigos inconsistentes ("beatriz"
     // minúsculas vs "Beatriz Leão"). "-" enquanto não há ninguém atribuída.
@@ -245,9 +248,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       const sessoesDia = (porDia.get(chave) ?? []).sort((a, b) => (a.hora ?? "").localeCompare(b.hora ?? ""))
       return {
         chave, diaSemana: formatarDiaSemana(d), dataCurta: formatarDataCurta(d),
-        sessoes: sessoesDia.map(s => ({
-          id: s.id, hora: s.hora, clienteId: s.clienteId,
-          clienteNome: s.cliente.nome, clienteIniciais: getIniciais(s.cliente.nome),
+        sessoes: sessoesDia.filter(s => s.cliente).map(s => ({
+          id: s.id, hora: s.hora, clienteId: s.clienteId as string,
+          clienteNome: s.cliente!.nome, clienteIniciais: getIniciais(s.cliente!.nome),
           servico: s.servico, terapeuta: s.user?.name ?? "-", estado: s.estado,
         })),
       }

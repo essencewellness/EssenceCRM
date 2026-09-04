@@ -42,6 +42,12 @@ export async function GET(request: NextRequest) {
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
+  // Cliente foi apagada depois desta sessão existir (sessão "fantasma",
+  // preservada só para o histórico financeiro) — não faz sentido a
+  // terapeuta receber um link de registo para isto.
+  if (!sessao.cliente) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
 
   // Uso único: sessão já registada como realizada — não há nada para
   // preencher outra vez (o voucher associado, se houver, já fechou).
@@ -111,6 +117,10 @@ export async function PATCH(request: NextRequest) {
     if (!sessaoAntes) {
       return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
     }
+    if (!sessaoAntes.clienteId) {
+      return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+    }
+    const clienteId = sessaoAntes.clienteId
 
     // Sessão cancelada não pode ser "ressuscitada" como realizada via link antigo
     // (o link tem 7 dias de validade e pode sobreviver a um cancelamento/reagendamento)
@@ -169,7 +179,7 @@ export async function PATCH(request: NextRequest) {
         select: { id: true, estado: true, preco: true, terapeuta2Id: true },
       })
 
-      await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
+      await recalcularMetricasCliente(tx, clienteId)
 
       // As observações da terapeuta entram diretamente nas notas do cliente
       // (mais recente primeiro) — sem isto, ficavam presas dentro da sessão e
@@ -180,12 +190,12 @@ export async function PATCH(request: NextRequest) {
         const novaEntrada = `[${dataSessao}] ${linhas.join(" — ")}`
 
         const clienteAtual = await tx.cliente.findUnique({
-          where: { id: sessaoAntes.clienteId },
+          where: { id: clienteId },
           select: { notasPessoais: true },
         })
         const notasAnteriores = clienteAtual?.notasPessoais?.trim()
         await tx.cliente.update({
-          where: { id: sessaoAntes.clienteId },
+          where: { id: clienteId },
           data: { notasPessoais: notasAnteriores ? `${novaEntrada}\n\n${notasAnteriores}` : novaEntrada },
         })
       }
@@ -204,12 +214,12 @@ export async function PATCH(request: NextRequest) {
     // terapeuta2Id vem do resultado do update: é o único dos dois que
     // pode ter sido definido nesta mesma chamada.
     await dispararEfeitosSessaoRealizada(
-      { ...sessaoAntes, terapeuta2Id: sessao.terapeuta2Id },
+      { ...sessaoAntes, clienteId, terapeuta2Id: sessao.terapeuta2Id },
       sessao.preco
     )
     // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
     // desfasado à espera do cron das 7h (lib/crm-estados).
-    await recalcularEstadoCliente(sessaoAntes.clienteId)
+    await recalcularEstadoCliente(clienteId)
 
     auditar({
       quem: "publico",

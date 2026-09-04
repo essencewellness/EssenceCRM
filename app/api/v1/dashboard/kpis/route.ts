@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
         ocupacaoSemanal: [...ocupacaoMap.values()],
         alertasSatisfacao: alertasSatisfacao.map((s) => ({
           sessaoId: s.id,
-          clienteNome: s.cliente.nome,
+          clienteNome: s.cliente?.nome ?? "Cliente eliminada",
           nota: s.avaliacaoNota,
           data: s.data,
         })),

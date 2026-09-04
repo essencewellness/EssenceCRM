@@ -117,7 +117,10 @@ export async function POST(request: NextRequest) {
       // por fora dos outros dois pontos que já tratam disto — sem esta
       // chamada, a esmagadora maioria dos cancelamentos reais nunca
       // avisava a ficha clínica (ver lib/ficha-clinica.ts).
-      await assinalarSessaoCanceladaNaFichaClinica(sessaoCancelada.id, sessaoCancelada.clienteId)
+      // Sessão "fantasma" (cliente já apagado) não tem ficha clínica para avisar
+      if (sessaoCancelada.clienteId) {
+        await assinalarSessaoCanceladaNaFichaClinica(sessaoCancelada.id, sessaoCancelada.clienteId)
+      }
 
       auditar({
         quem: "calendly",

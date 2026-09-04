@@ -37,6 +37,9 @@ export async function GET(
     if (!sessao) {
       return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
     }
+    if (!sessao.cliente) {
+      return respostaErro("Sessão sem cliente associado (contacto apagado)", "SESSAO_SEM_CLIENTE", 409)
+    }
 
     if (sessao.estado !== "realizada") {
       return respostaErro(

@@ -118,6 +118,10 @@ async function calcularGastoRecentePorCliente(
   ])
 
   for (const s of sessoes) {
+    // Sessão "fantasma" (cliente já apagado) não conta para o VIP de
+    // ninguém — o filtro clienteIds já não a inclui na prática, mas o tipo
+    // agora é nullable e isto guarda contra isso.
+    if (!s.clienteId) continue
     mapa.set(s.clienteId, (mapa.get(s.clienteId) ?? 0) + Number(s._sum.preco ?? 0))
   }
   for (const v of vouchers) {

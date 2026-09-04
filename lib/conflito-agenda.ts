@@ -61,7 +61,7 @@ export async function encontrarConflitoAgenda({
     const fimExistente = inicioExistente + (c.duracao ?? DURACAO_PADRAO_MIN)
     // Sobreposição de intervalos: [a,b) vs [c,d) tocam-se se a<d && c<b
     if (inicioNovo < fimExistente && inicioExistente < fimNovo) {
-      return { sessaoId: c.id, clienteNome: c.cliente.nome, hora: c.hora! }
+      return { sessaoId: c.id, clienteNome: c.cliente?.nome ?? "cliente apagado", hora: c.hora! }
     }
   }
   return null

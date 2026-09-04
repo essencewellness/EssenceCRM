@@ -36,6 +36,9 @@ export async function GET(request: NextRequest) {
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
+  if (!sessao.cliente) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
 
   if (!sessao.briefingJson) {
     return NextResponse.json({ error: "Ficha ainda não disponível para esta sessão" }, { status: 404 })

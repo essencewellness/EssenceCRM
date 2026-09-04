@@ -72,6 +72,13 @@ export async function PATCH(
     })
 
     if (!sessaoAntes) return respostaErro("Sessão não encontrada", "SESSAO_NAO_ENCONTRADA", 404)
+    // Sessão "fantasma" (cliente apagado, preservada só para o histórico
+    // financeiro) — não há aqui nenhum fluxo legítimo de N8N/dashboard que
+    // deva continuar a escrever nela.
+    if (!sessaoAntes.clienteId) {
+      return respostaErro("Sessão sem cliente associado (contacto apagado)", "SESSAO_SEM_CLIENTE", 409)
+    }
+    const clienteId = sessaoAntes.clienteId
 
     // Só uma sala: hora/data/duração mudam → verificar sobreposição com
     // outra sessão activa antes de gravar (ver lib/conflito-agenda.ts).
@@ -153,13 +160,13 @@ export async function PATCH(
       })
 
       const metricas = afetaMetricas
-        ? await recalcularMetricasCliente(tx, sessaoAntes.clienteId)
+        ? await recalcularMetricasCliente(tx, clienteId)
         : null
 
       return { sessao, metricas }
     })
 
-    const clienteAtualizado = metricas ? { id: sessaoAntes.clienteId, ...metricas } : null
+    const clienteAtualizado = metricas ? { id: clienteId, ...metricas } : null
 
     if (ficaRealizada && !eraRealizada) {
       // Transição para "realizada" — webhook + mensagem de avaliação, só
@@ -168,12 +175,12 @@ export async function PATCH(
       // sessaoAntes: este PATCH interno pode mudar a terapeuta na mesma
       // chamada em que marca a sessão como realizada.
       await dispararEfeitosSessaoRealizada(
-        { ...sessaoAntes, terapeutaId: sessao.terapeutaId, terapeuta2Id: sessao.terapeuta2Id },
+        { ...sessaoAntes, clienteId, terapeutaId: sessao.terapeutaId, terapeuta2Id: sessao.terapeuta2Id },
         sessao.preco
       )
       // Recalcular o estado CRM do cliente já — sem isto ficava até 24h
       // desfasado à espera do cron das 7h (lib/crm-estados).
-      await recalcularEstadoCliente(sessaoAntes.clienteId)
+      await recalcularEstadoCliente(clienteId)
     }
 
     // Sessão cancelada OU falta (não-comparência — mesma implicação
@@ -185,7 +192,7 @@ export async function PATCH(
       (estado === "cancelada" || estado === "falta") &&
       sessaoAntes.estado !== "cancelada" && sessaoAntes.estado !== "falta"
     ) {
-      await assinalarSessaoCanceladaNaFichaClinica(id, sessaoAntes.clienteId, estado)
+      await assinalarSessaoCanceladaNaFichaClinica(id, clienteId, estado)
     }
 
     auditar({

@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
+  if (!sessao.cliente) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
 
   return NextResponse.json({
     sessaoId: sessao.id,
@@ -81,6 +84,10 @@ export async function POST(request: NextRequest) {
   if (!sessao) {
     return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
   }
+  if (!sessao.cliente) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+  }
+  const clienteId = sessao.clienteId as string
 
   // Blacklist: confirma a sessão no CRM mas não dispara nenhuma automação a jusante
   if (sessao.cliente.estado === "blacklist") {
@@ -120,12 +127,14 @@ export async function POST(request: NextRequest) {
     ip: request.headers.get("x-forwarded-for"),
   })
 
+  const nomeCliente = sessao.cliente.nome
+  const telefoneCliente = sessao.cliente.telefone
   after(async () => {
     await webhooks.sessaoConfirmada({
       sessaoId: sessao.id,
-      clienteId: sessao.clienteId,
-      nomeCliente: sessao.cliente.nome,
-      telefone: sessao.cliente.telefone,
+      clienteId,
+      nomeCliente,
+      telefone: telefoneCliente,
       servico: sessao.servico,
       data: sessao.data?.toISOString() ?? null,
       hora: sessao.hora,
