@@ -156,6 +156,12 @@
     curEl = el;
     curEl.classList.add("active");
     updateProgress();
+    // As textareas deste passo estavam escondidas (display:none) quando o
+    // autoGrow inicial correu no carregamento da página — scrollHeight de
+    // um elemento escondido é sempre 0, o que colapsava o campo a altura
+    // zero e deixava-o invisível até a cliente lhe tocar (bug real
+    // reportado 2026-09-04). Recalcular agora que o passo está visível.
+    el.querySelectorAll(".fl textarea").forEach(autoGrow);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function next() { const i = idxOf(curEl); if (i < total - 1) goTo(visible[i + 1]); }

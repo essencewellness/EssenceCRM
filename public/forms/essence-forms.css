@@ -213,7 +213,13 @@ body {
 .fl input::placeholder,
 .fl textarea::placeholder { color: transparent; }
 
-.fl textarea { resize: none; overflow: hidden; }
+.fl textarea {
+  resize: none; overflow: hidden;
+  /* Nunca colapsar a zero altura — mesmo que o auto-grow corra antes do
+     campo ficar visível (passo do formulário ainda escondido) ou antes da
+     fonte carregar, isto garante sempre uma área claramente tocável. */
+  min-height: 3.25rem;
+}
 
 .fl::after {
   content: '';
