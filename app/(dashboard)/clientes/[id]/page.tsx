@@ -715,7 +715,11 @@ export default async function ClientePage({ params }: ClientePageProps) {
           {
             value: "tarefas",
             label: "Tarefas",
-            badge: tarefasCliente.length,
+            // Só as pendentes/em progresso contam para o badge — uma tarefa
+            // concluída ou cancelada não deve continuar a "pesar" no separador
+            // (bug real reportado 2026-09-04: badge mostrava o total, incluindo
+            // já concluídas).
+            badge: tarefasCliente.filter(t => t.estado === "pendente" || t.estado === "em_progresso").length,
             content: (
               <div style={{
                 backgroundColor: "var(--nuit-overlay)", borderRadius: "12px",
