@@ -598,8 +598,11 @@ export const bulkEtiquetasSchema = z.object({
 }).strict()
 
 export const bulkEliminarSchema = z.object({
-  clienteIds:    z.array(z.string().trim().min(1).max(64)).min(1).max(500),
-  apagarSessoes: z.boolean().optional().default(false),
+  clienteIds: z.array(z.string().trim().min(1).max(64)).min(1).max(500),
+  // Por omissão sessões e packs ficam preservados como "fantasma" no
+  // financeiro (ver eliminarCliente em clientes/[id]/actions.ts) — só true
+  // apaga tudo definitivamente, sem deixar rasto.
+  apagarTudoDefinitivamente: z.boolean().optional().default(false),
 }).strict()
 
 // ── Feedback público (24h pós-sessão) ────────────────────────

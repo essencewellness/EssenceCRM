@@ -4,12 +4,6 @@ import { useState } from "react"
 import { createPortal } from "react-dom"
 import { Trash2, X } from "lucide-react"
 
-interface ClienteComSessoes {
-  id: string
-  nome: string
-  sessoes: number
-}
-
 interface Props {
   clienteIds: string[]
   onClose: () => void
@@ -20,14 +14,16 @@ const PALAVRA_CONFIRMACAO = "ELIMINAR"
 
 export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
   const [input, setInput] = useState("")
-  const [apagarSessoesConfirmado, setApagarSessoesConfirmado] = useState(false)
-  const [clientesComSessoes, setClientesComSessoes] = useState<ClienteComSessoes[] | null>(null)
+  // Escape hatch só para lixo de teste sem valor financeiro real — por
+  // omissão sessões e packs ficam órfãos (preservados no financeiro como
+  // "Cliente eliminada"), nunca apagados de vez. Mesmo comportamento do
+  // apagar individual (DeleteClienteButton), ver actions.ts 2026-09-04.
+  const [apagarTudoDefinitivamente, setApagarTudoDefinitivamente] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const textoOk = input.trim().toUpperCase() === PALAVRA_CONFIRMACAO
-  const precisaConfirmarSessoes = (clientesComSessoes?.length ?? 0) > 0
-  const confirmado = textoOk && (!precisaConfirmarSessoes || apagarSessoesConfirmado)
+  const confirmado = textoOk
 
   async function handleEliminar() {
     if (!confirmado) return
@@ -37,29 +33,19 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
       const res = await fetch("/api/v1/clientes/bulk-eliminar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clienteIds,
-          apagarSessoes: precisaConfirmarSessoes ? apagarSessoesConfirmado : false,
-        }),
+        body: JSON.stringify({ clienteIds, apagarTudoDefinitivamente }),
       })
       if (!res.ok) {
         setErro("Não foi possível apagar os clientes. Tenta novamente.")
         return
       }
-      const json = await res.json()
-      if (json.data?.bloqueado) {
-        setClientesComSessoes(json.data.clientesComSessoes)
-      } else {
-        onSuccess()
-      }
+      onSuccess()
     } catch {
       setErro("Não foi possível apagar os clientes. Tenta novamente.")
     } finally {
       setLoading(false)
     }
   }
-
-  const totalSessoes = clientesComSessoes?.reduce((soma, c) => soma + c.sessoes, 0) ?? 0
 
   // Portal para document.body: a barra de ações tem um transform (-translate-x-1/2),
   // que cria um containing block novo — sem isto, este overlay "position: fixed"
@@ -151,34 +137,49 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
           />
         </div>
 
-        {/* Aviso de sessões associadas — só aparece depois de tentar apagar */}
-        {precisaConfirmarSessoes && (
-          <label
-            htmlFor="bulk-apagar-sessoes"
-            style={{
-              display: "flex", alignItems: "flex-start", gap: "10px",
-              padding: "12px 14px", borderRadius: "8px",
-              backgroundColor: "rgba(176,96,80,0.05)",
-              border: `1px solid ${apagarSessoesConfirmado ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
-              marginBottom: "16px", cursor: "pointer", transition: "border-color 150ms",
-            }}
-          >
-            <input
-              id="bulk-apagar-sessoes"
-              type="checkbox"
-              checked={apagarSessoesConfirmado}
-              onChange={(e) => setApagarSessoesConfirmado(e.target.checked)}
-              style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
-            />
-            <span style={{
-              fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
-            }}>
-              {clientesComSessoes!.length} {clientesComSessoes!.length === 1 ? "destes clientes tem" : "destes clientes têm"} sessões associadas
-              ({totalSessoes} no total). Marca esta opção para apagar também as <strong>sessões</strong>.
-            </span>
-          </label>
-        )}
+        {/* Aviso informativo: sessões/packs ficam preservados por omissão */}
+        <div style={{
+          padding: "12px 14px", borderRadius: "8px",
+          backgroundColor: "rgba(160,169,150,0.06)",
+          border: "1px solid rgba(160,169,150,0.22)",
+          marginBottom: "12px",
+        }}>
+          <p style={{
+            fontFamily: "var(--font-body, sans-serif)",
+            fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+          }}>
+            Se algum destes contactos tiver sessões ou packs, ficam preservados no histórico
+            financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligados a um
+            contacto, mas a receita não desaparece do /financeiro.
+          </p>
+        </div>
+
+        {/* Checkbox: escape hatch só para lixo de teste sem valor financeiro */}
+        <label
+          htmlFor="bulk-apagar-tudo"
+          style={{
+            display: "flex", alignItems: "flex-start", gap: "10px",
+            padding: "12px 14px", borderRadius: "8px",
+            backgroundColor: "rgba(176,96,80,0.05)",
+            border: `1px solid ${apagarTudoDefinitivamente ? "rgba(176,96,80,0.5)" : "rgba(212,184,134,0.18)"}`,
+            marginBottom: "16px", cursor: "pointer", transition: "border-color 150ms",
+          }}
+        >
+          <input
+            id="bulk-apagar-tudo"
+            type="checkbox"
+            checked={apagarTudoDefinitivamente}
+            onChange={(e) => setApagarTudoDefinitivamente(e.target.checked)}
+            style={{ width: "16px", height: "16px", marginTop: "1px", accentColor: "var(--destructive)", cursor: "pointer", flexShrink: 0 }}
+          />
+          <span style={{
+            fontFamily: "var(--font-body, sans-serif)",
+            fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+          }}>
+            Apagar também as sessões e packs <strong>de vez</strong> — não fica nenhum registo,
+            nem no financeiro. Só faz sentido para dados de teste, sem valor financeiro real.
+          </span>
+        </label>
 
         {/* Erro do servidor */}
         {erro && (
@@ -219,7 +220,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
               transition: "all 150ms",
             }}
           >
-            {loading ? "A apagar…" : precisaConfirmarSessoes ? "Confirmar eliminação" : "Eliminar contactos"}
+            {loading ? "A apagar…" : "Eliminar contactos"}
           </button>
         </div>
       </div>
