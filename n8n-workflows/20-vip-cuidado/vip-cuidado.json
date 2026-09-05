@@ -1,18 +1,18 @@
 {
-  "name": "18 | Continuidade PÃ³s-SessÃ£o (Claude Haiku)",
+  "name": "20 | VIP — Cuidado Proactivo (Claude Haiku)",
   "nodes": [
     {
       "parameters": {
         "rule": {
           "interval": [
             {
-              "triggerAtHour": 10
+              "triggerAtHour": 12
             }
           ]
         }
       },
-      "id": "sched-10h-continuidade",
-      "name": "Trigger DiÃ¡rio 10h",
+      "id": "sched",
+      "name": "Trigger Diário 12h",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -22,7 +22,7 @@
     },
     {
       "parameters": {},
-      "id": "manual-continuidade",
+      "id": "manual",
       "name": "Executar Manualmente",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
@@ -33,7 +33,7 @@
     },
     {
       "parameters": {
-        "url": "https://crm.essencewellnesspt.com/api/v1/clientes?ultimaSessaoDesdeDiasMin=5&ultimaSessaoDesdeDiasMax=14&semPackAtivo=true&semMensagemDias=14&limit=15",
+        "url": "https://crm.essencewellnesspt.com/api/v1/clientes?estado=vip_embaixadora&semMensagemDias=30&limit=10",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -45,8 +45,8 @@
         },
         "options": {}
       },
-      "id": "http-candidatos-continuidade",
-      "name": "Buscar Candidatos Continuidade",
+      "id": "http-candidatos",
+      "name": "Buscar Candidatos",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
@@ -71,7 +71,7 @@
         },
         "options": {}
       },
-      "id": "http-pendentes-continuidade",
+      "id": "http-pendentes",
       "name": "Buscar Mensagens Pendentes",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -89,7 +89,7 @@
         "combineBy": "combineAll",
         "options": {}
       },
-      "id": "merge-continuidade",
+      "id": "merge",
       "name": "Merge Pendentes",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
@@ -100,9 +100,9 @@
     },
     {
       "parameters": {
-        "jsCode": "const candidatos = $('Buscar Candidatos Continuidade').item.json.data || [];\nconst pendentes = $('Buscar Mensagens Pendentes').item.json.data || [];\nconst idsComPendente = new Set(pendentes.map(m => m.clienteId));\nconst LIMITE_DIARIO = 10;\nreturn candidatos.filter(c => !idsComPendente.has(c.id)).slice(0, LIMITE_DIARIO).map(c => ({ json: { clienteId: c.id } }));"
+        "jsCode": "const candidatos = $('Buscar Candidatos').item.json.data || [];\nconst pendentes = $('Buscar Mensagens Pendentes').item.json.data || [];\nconst idsComPendente = new Set(pendentes.map(m => m.clienteId));\nconst LIMITE_DIARIO = 10;\nreturn candidatos.filter(c => !idsComPendente.has(c.id)).slice(0, LIMITE_DIARIO).map(c => ({ json: { clienteId: c.id } }));"
       },
-      "id": "code-selecionar-continuidade",
+      "id": "code-selecionar",
       "name": "Selecionar Candidatos do Dia",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -125,7 +125,7 @@
         },
         "options": {}
       },
-      "id": "http-perfil-continuidade",
+      "id": "http-perfil",
       "name": "Buscar Perfil Completo",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -139,10 +139,10 @@
     },
     {
       "parameters": {
-        "jsCode": "const p = $json.data || $json;\nconst ultimaSessao = (p.sessoes || []).find(s => s.estado === 'realizada');\nconst servico = (ultimaSessao && ultimaSessao.servico) || 'a sessÃ£o';\nconst diasDesde = p.ultimaSessao ? Math.floor((Date.now() - new Date(p.ultimaSessao).getTime()) / 86400000) : null;\n\nconst userPrompt = [\n  'Escreve o check-in de continuidade para esta cliente da Essence Wellness:',\n  '',\n  'Nome: ' + (p.nome || '').split(' ')[0],\n  'Ãšltima sessÃ£o: ' + servico + (diasDesde !== null ? ' (hÃ¡ ' + diasDesde + ' dias)' : ''),\n  'Total de sessÃµes atÃ© agora: ' + (p.totalSessoes ?? 0),\n  '',\n  'O objectivo Ã© perguntar genuinamente como ela ficou depois da sessÃ£o -- NÃƒO Ã© sugerir marcar outra.',\n  'Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn [{ json: { clienteId: p.id, systemPrompt: \"REGRAS ABSOLUTAS -- baseadas em como a Bea escreve DE VERDADE no WhatsApp:\\n- Portugues europeu, tratamento por VOCE (nunca tu)\\n- Isto NAO e uma mensagem de venda -- e um check-in genuino sobre como a cliente ficou depois da ultima sessao\\n- PROIBIDO mencionar packs, precos, descontos, ou sugerir directamente marcar outra sessao\\n- PROIBIDO qualquer frase do tipo 'se quiser marcar' / 'para continuar o cuidado' / 'aproveite para agendar'\\n- O tom e de cuidado real: quer saber como ela esta, nao vender-lhe nada\\n- Nunca clicles de wellness (jornada, energia, equilibrio holistico)\\n- Angulo permitido e recomendado quando fizer sentido: se for natural mencionar que a sensacao de relaxamento vai desaparecendo com os dias, enquadra isso como normal e parte do processo -- sem nunca ligar isso a uma sugestao explicita de marcar\\n- Angulo tambem permitido: se o sintoma que trouxe a cliente (ex: insonia, tensao especifica) combinar melhor com outro servico do catalogo (Essencia Plena, Puro Aroma, Cera Quente, Drenagem Linfatica), pode sugerir experimentar esse servico da proxima vez -- SEM mencionar marcacao, agenda ou preco, so o nome do servico como recomendacao genuina\\n- Maximo 3 frases, sem assinatura no fim\\n- Nunca travessao no meio de frases -- usa virgula, dois pontos ou ponto final\\n- Emojis com moderacao (0 a 2), no estilo natural da Bea (\\u00f0\\u0178\\u0152\\u00bf\\u00f0\\u0178\\u02dc\\u0160\\u00f0\\u0178\\u02dc\\u2030)\\nFORMATO DE SAIDA\\nDevolve APENAS um objeto JSON valido, sem markdown e sem blocos de codigo:\\n{\\\"mensagem\\\": \\\"...\\\", \\\"motivo\\\": \\\"porque este angulo foi escolhido, para a Bea perceber\\\"}\", userPrompt } }];"
+        "jsCode": "const p = $json.data || $json;\nconst packsAtivos = (p.packs || []).filter(pk => pk.ativo);\nconst packBaixo = packsAtivos.find(pk => (pk.totalSessoes - pk.sessoesUsadas) <= 2);\nconst sinalPack = packBaixo ? ('Tem um pack activo com apenas ' + (packBaixo.totalSessoes - packBaixo.sessoesUsadas) + ' sessão(ões) por usar.') : 'Sem pack activo neste momento.';\nconst userPrompt = [\n  'Escreve uma mensagem de reconhecimento para esta cliente VIP da Essence Wellness:',\n  '',\n  'Nome: ' + (p.nome || '').split(' ')[0],\n  'Total de sessões: ' + (p.totalSessoes ?? 0) + ' (cliente VIP)',\n  sinalPack,\n  '',\n  'Objectivo: reconhecer a fidelidade dela de forma genuína, e terminar com UM convite concreto e caloroso -- marcar a próxima sessão, OU (se fizer mais sentido pelo sinal do pack) lembrar que tem sessões por usar. Nunca os dois ao mesmo tempo, nunca tom comercial.',\n  'Devolve apenas o JSON pedido.',\n].join('\\n');\n\nconst SYSTEM = \"REGRAS ABSOLUTAS -- baseadas em como a Bea escreve DE VERDADE no WhatsApp:\\n- Portugues europeu, tratamento por VOCE, nunca por tu\\n- Frases curtas e directas, sem clicles de wellness (jornada, energia, equilibrio holistico)\\n- Nunca gerundios colados no fim das frases (proporcionando, permitindo)\\n- Emojis com moderacao (0 a 2), estilo natural (\\\\ud83c\\\\udf3f\\\\ud83d\\\\ude0a\\\\ud83d\\\\ude09)\\n- Sem assinatura no fim (mensagem de WhatsApp)\\n- Nunca travessao no meio de frases -- usa virgula, dois pontos ou ponto final\\nFORMATO DE SAIDA\\nDevolve APENAS um objeto JSON valido, sem markdown e sem blocos de codigo:\\n{\\\\\\\"mensagem\\\\\\\": \\\\\\\"...\\\\\\\", \\\\\\\"motivo\\\\\\\": \\\\\\\"porque este angulo foi escolhido, para a Bea perceber\\\\\\\"}\\n- Esta cliente e VIP (activa, fiel) -- o tom e de reconhecimento e cuidado, nunca de quem 'esta a fugir'\\n- Pode terminar com UM convite concreto (marcar a proxima sessao, ou lembrar sessoes de pack por usar) -- nunca os dois\\n- Nunca mencionar precos ou descontos\\n- E permitido usar a palavra 'marcar' ou 'sessao' aqui (ao contrario de outras mensagens) -- e o unico tipo onde o convite directo faz sentido, porque a cliente ja e fiel\";\n\nreturn [{ json: { clienteId: p.id, systemPrompt: SYSTEM, userPrompt } }];"
       },
-      "id": "code-prompt-continuidade",
-      "name": "Preparar Prompt Continuidade",
+      "id": "code-prompt",
+      "name": "Preparar Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
@@ -170,14 +170,10 @@
         "jsonBody": "={{ {model: 'claude-haiku-4-5', max_tokens: 400, system: $json.systemPrompt, messages: [{role: 'user', content: $json.userPrompt}]} }}",
         "options": {}
       },
-      "id": "http-claude-continuidade",
-      "name": "Claude Haiku â€” Gerar Mensagem",
+      "id": "http-claude",
+      "name": "Claude Haiku — Gerar Mensagem",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [
-        100,
-        100
-      ],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 3000,
@@ -186,13 +182,17 @@
           "id": "FWjIgyoGZXTkUQ3n",
           "name": "Anthropic account"
         }
-      }
+      },
+      "position": [
+        100,
+        100
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const prep = $('Preparar Prompt Continuidade').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nlet mensagem = '';\nlet motivo = 'Check-in de continuidade';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) { /* JSON invalido -- falhou abaixo */ }\n\n// Rede de seguranca -- nunca deixar passar sugestao de marcacao/venda\nconst PADROES_PROIBIDOS = [/marcar/i, /agendar/i, /pack/i, /desconto/i, /pre[cÃ§]o/i];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\n\nreturn [{ json: { clienteId: prep.clienteId, mensagemGerada: mensagem, motivoGeracao: motivo, falhou: !mensagem || violacao } }];"
+        "jsCode": "const prep = $('Preparar Prompt').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nlet mensagem = '';\nlet motivo = 'Sem motivo';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) { /* falhou abaixo */ }\nconst PADROES_PROIBIDOS = [\n  /combin(a|amos|ar|ados?|\\u00e1mos)\\b/i,\n  /vamos marcar/i,\n  /deixe-me confirmar/i,\n];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\nreturn [{ json: { clienteId: prep.clienteId, mensagemGerada: mensagem, motivoGeracao: motivo, falhou: !mensagem || violacao } }];"
       },
-      "id": "code-parse-continuidade",
+      "id": "code-parse",
       "name": "Parsear Mensagem Claude",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -223,8 +223,8 @@
         },
         "options": {}
       },
-      "id": "filter-continuidade",
-      "name": "Filtrar Mensagens VÃ¡lidas",
+      "id": "filter-validas",
+      "name": "Filtrar Mensagens Válidas",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
@@ -251,28 +251,28 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { clienteId: $json.clienteId, mensagemGerada: $json.mensagemGerada, canal: 'whatsapp', motivoGeracao: $json.motivoGeracao, tipo: 'continuidade' } }}",
+        "jsonBody": "={{ { clienteId: $json.clienteId, mensagemGerada: $json.mensagemGerada, canal: 'whatsapp', motivoGeracao: $json.motivoGeracao, tipo: 'vip_cuidado' } }}",
         "options": {}
       },
-      "id": "http-criar-msg-continuidade",
+      "id": "http-criar-msg",
       "name": "Criar Mensagem Pendente",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
       "position": [
         700,
         100
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000
+      ]
     }
   ],
   "connections": {
-    "Trigger DiÃ¡rio 10h": {
+    "Trigger Diário 12h": {
       "main": [
         [
           {
-            "node": "Buscar Candidatos Continuidade",
+            "node": "Buscar Candidatos",
             "type": "main",
             "index": 0
           },
@@ -288,7 +288,7 @@
       "main": [
         [
           {
-            "node": "Buscar Candidatos Continuidade",
+            "node": "Buscar Candidatos",
             "type": "main",
             "index": 0
           },
@@ -300,7 +300,7 @@
         ]
       ]
     },
-    "Buscar Candidatos Continuidade": {
+    "Buscar Candidatos": {
       "main": [
         [
           {
@@ -348,25 +348,25 @@
       "main": [
         [
           {
-            "node": "Preparar Prompt Continuidade",
+            "node": "Preparar Prompt",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Preparar Prompt Continuidade": {
+    "Preparar Prompt": {
       "main": [
         [
           {
-            "node": "Claude Haiku â€” Gerar Mensagem",
+            "node": "Claude Haiku — Gerar Mensagem",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Claude Haiku â€” Gerar Mensagem": {
+    "Claude Haiku — Gerar Mensagem": {
       "main": [
         [
           {
@@ -381,14 +381,14 @@
       "main": [
         [
           {
-            "node": "Filtrar Mensagens VÃ¡lidas",
+            "node": "Filtrar Mensagens Válidas",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filtrar Mensagens VÃ¡lidas": {
+    "Filtrar Mensagens Válidas": {
       "main": [
         [
           {

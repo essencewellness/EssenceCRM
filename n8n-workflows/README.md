@@ -58,12 +58,21 @@ negócio e a topologia de cada workflow estão completas.
 | 10 (N8N) | [Motor de Envio (Fila de Mensagens)](10b-motor-envio/) | Schedule + Webhook | 8h-20h/20min + push | ✅ Ativo |
 | 11 | [Drenagem — Lead Capture](11-drenagem-lead-capture/) | Webhook | por evento | ✅ Ativo (legado HubSpot) |
 | 12 | [Fichas HubSpot → Drive](12-fichas-hubspot-drive/) | Schedule | semanal (2ª 8h) | ✅ Ativo (legado, baixa prioridade) |
-| 13 | [Reativação — Geração de Mensagens](13-reativacao-mensagens/) | Schedule | diário 9h + manual | ⚠️ Inativo — nunca ligado a sério |
+| 13 | [Reativação — Geração de Mensagens](13-reativacao-mensagens/) | Schedule | diário 9h + manual | ✅ Ativo — decisão do Nuno 2026-09-05, confirmado sem gerar nada real ainda (só 2 clientes em produção) |
 | 14 | [Alertas de Segurança (SIEM lite)](14-alertas-seguranca/) | Schedule | a cada 15 min | ⚠️ Inativo — construído 2026-08-25, nunca importado |
 | 15 | [Vigilância WhatsApp](15-vigilancia-whatsapp/) | Schedule | a cada 15 min | ✅ Ativo |
 | 16 | [Alerta de Falha de Workflow (central)](16-alerta-falha-workflow/) | Error Trigger | automático, por falha | ✅ Ativo |
 | 17 | [Backup Diário da Base de Dados](17-backup-diario-bd/) | Schedule | diário 4h | ✅ Ativo |
 | 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário 10h + manual | ✅ Ativo — novo (2026-09-05) |
+
+## Estado do WF13 corrigido (2026-09-05)
+
+Encontrado activo em produção durante esta auditoria (confirmado antes de
+qualquer alteração desta sessão), contradizendo a nota anterior deste
+README ("Inativo — nunca ligado a sério"). Zero mensagens reais geradas
+(só 2 clientes em produção, nenhum nos estados que o WF13 consulta). O
+Nuno confirmou explicitamente que quer deixá-lo activo — deixa de ser
+"ligado por engano".
 
 ## Upgrade do sistema de mensagens (2026-09-05)
 

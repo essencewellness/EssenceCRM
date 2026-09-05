@@ -13,7 +13,7 @@ export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "mbway_essence", "mbway_b
 export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
 export const TIPOS_MENSAGEM = [
   "reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas",
-  "nutricao", "continuidade", "nps_baixo",
+  "nutricao", "continuidade", "nps_baixo", "perdida_reconquista", "vip_cuidado",
 ] as const
 
 export const ESTADOS_TAREFA = ["pendente", "em_progresso", "concluida", "cancelada"] as const

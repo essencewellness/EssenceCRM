@@ -1,6 +1,5 @@
 {
   "name": "11 | Reativação — Geração de Mensagens (Claude Haiku 4.5)",
-  "active": false,
   "nodes": [
     {
       "parameters": {
@@ -17,7 +16,7 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1600,
+        -900,
         0
       ]
     },
@@ -28,8 +27,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -1600,
-        192
+        -900,
+        500
       ]
     },
     {
@@ -51,8 +50,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -1376,
-        -96
+        -700,
+        0
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -77,8 +76,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -1376,
-        96
+        -700,
+        110
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -103,8 +102,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -1376,
-        288
+        -700,
+        220
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -121,7 +120,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -1152,
+        -500,
         0
       ]
     },
@@ -136,8 +135,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -928,
-        96
+        -300,
+        0
       ]
     },
     {
@@ -149,8 +148,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -704,
-        96
+        -100,
+        0
       ]
     },
     {
@@ -172,8 +171,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -480,
-        96
+        100,
+        0
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -182,15 +181,15 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const p = $json.data;\nconst agora = Date.now();\n\nconst diasSemSessao = p.ultimaSessao\n  ? Math.floor((agora - new Date(p.ultimaSessao).getTime()) / 86400000)\n  : null;\n\nconst contagem = {};\nfor (const s of (p.sessoes || [])) {\n  if (s.estado !== 'realizada' || !s.servico) continue;\n  contagem[s.servico] = (contagem[s.servico] || 0) + 1;\n}\nconst servicoFrequente = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0]?.[0] || null;\n\nconst primeiroNome = (p.nome || '').split(' ')[0] || 'lá';\nconst cortar = (txt, n) => !txt ? null : (txt.length > n ? txt.slice(0, n) + '...' : txt);\n\nconst EXEMPLOS_REAIS_BEA = [\n  '\"Estou beem tambem querida 😊 Temos de combinar alguma coisa. Ja não nos vemos desde o inicio do ano\"',\n  '\"Bom dia 😊 pretende agendar ?\"',\n  '\"Amanhã, sem problema algum 😉\"',\n  '\"Que ótima ideia! Nada a agradecer, vocês são muito amáveis. Acreditamos mesmo que pequenos detalhes fazem toda a diferença numa experiência. Um beijinho MUITO grande e até breve! 🤍\"',\n  '\"Olá Patrícia\\nComo estão? Espero que esteja tudo bem consigo e com o seu marido 😊\\nLembramo-nos de vocês por estes dias, daquele momento que tiraram para vocês aqui connosco 🤍\\nSe fizer sentido para si, diga-me e tento ajudar.\\nUm beijinho\" (este é mais longo por ser campanha — NORMALMENTE escreve mais curto, como os de cima)',\n].join('\\n\\n');\n\nconst FECHOS_POSSIVEIS = [\n  'Diga-me como tem estado',\n  'Conte-me novidades',\n  'Como tem passado?',\n  'Um beijinho, até breve',\n  'Fico a pensar em si',\n  'Um grande beijinho, até já',\n];\nconst fechoAtribuido = FECHOS_POSSIVEIS[$itemIndex % FECHOS_POSSIVEIS.length];\n\nconst ABERTURAS_POSSIVEIS = [\n  'Começa com uma saudação direta e simples, tipo \"Olá ' + primeiroNome + ' 😊\" seguida LOGO do facto em si, sem anunciar que é uma memória — vai direta ao assunto como quem continua uma conversa',\n  'Começa por uma pergunta genuína e calorosa sobre o BEM-ESTAR dela relacionada com o facto (nunca sobre marcações, nunca oferecendo ajuda prática ou logística) — ex: \"Como tem estado com...?\" ou \"Isso ainda a tem ocupado?\"',\n  'Começa pelo nome dela e uma observação direta sobre o facto, sem usar a palavra \"lembro\" nem \"lembrei\" em lado nenhum da frase — ex: \"' + primeiroNome + ', esse tempo todo de...\"',\n  'Podes usar \"lembro-me\"/\"lembrei-me\" mas NUNCA como as primeiras palavras da mensagem — insere a meio da frase, depois de uma saudação ou de outra ideia',\n  'Usa uma expressão de memória DIFERENTE de \"lembro-me\"/\"lembrei-me\": por exemplo \"não consegui deixar de pensar em\", \"ainda hoje me veio à cabeça\", \"tenho pensado em si por causa de\", \"não parei de pensar em\"',\n  'Começa diretamente pelo facto descrito como continuação natural, sem qualquer verbo de memória (nem \"lembro\", nem \"pensei\", nem similares) — só descreve o facto como algo presente, tipo \"Essas noites intensas de trabalho...\"',\n].join('|||');\nconst listaAberturas = ABERTURAS_POSSIVEIS.split('|||');\nconst aberturaAtribuida = listaAberturas[($itemIndex + 2) % listaAberturas.length];\n\nconst REGRAS = [\n  'REGRAS ABSOLUTAS — baseadas em como a Bea escreve DE VERDADE no WhatsApp (exemplos reais acima), não num manual de marca abstrato',\n  '- CURTA. 1 a 2 frases curtas no corpo (sem contar saudação e fecho)',\n  '- Português europeu, tratamento por VOCÊ — NUNCA tratar por tu',\n  '- SEMPRE 2ª pessoa ao falar da cliente (\"a sua\", \"consigo\", \"lembro-me de si\") — NUNCA 3ª pessoa (\"dela\", \"ela mencionou\")',\n  '- IMPORTANTE: usa o nome exatamente como fornecido — NUNCA inventes outro nome',\n  '- A REGRA MAIS IMPORTANTE DE TODAS, NUNCA QUEBRAR: esta mensagem é PURAMENTE emocional, nunca prática. Não perguntes, sugiras, proponhas, ofereças ajuda, nem insinues marcar/agendar/combinar/confirmar/resolver NADA — nem de forma direta nem disfarçada de simpatia. Não tentes resolver questões práticas que a cliente tenha levantado no passado — só reconhece o lado emocional/humano do facto, nunca a parte logística. A mensagem tem de conseguir ser lida em voz alta sem soar a atendimento ao cliente — soa a uma amiga a pensar em ti, ponto final, sem propor nada, sem oferecer nada, sem perguntar sobre planos',\n  '- NUNCA mencionar packs, sessões restantes, preços ou descontos — mesmo que existam nos dados, são só contexto interno',\n  '- Se houver mensagens anteriores já enviadas listadas abaixo, NUNCA repitas o mesmo ângulo/facto que já foi usado nelas — escolhe algo novo',\n  '- PROIBIDO mencionar o número de dias/semanas/meses desde a última visita',\n  '- PROIBIDO tom de relatório clínico',\n  '- PROIBIDO começar SEMPRE por \"Lembro-me\"/\"Lembrei-me\" — já se tornou repetitivo e não é como a Bea escreve de verdade',\n  `- ESTILO DE ABERTURA OBRIGATÓRIO PARA ESTA MENSAGEM: ${aberturaAtribuida}`,\n  '- ESCOLHA DO SINAL: prioriza (1) mudança de comportamento/situação emocionalmente forte > (2) facto de vida específico e pessoal > (3) feedback/comentário real que a cliente deixou > (4) preferência de serviço neutra',\n  '- O OBJETIVO É A CLIENTE SENTIR-SE Única — sé tão específica que a mensagem só podia ser sobre ela',\n  `- FECHO OBRIGATÓRIO: a mensagem tem de terminar exatamente com esta frase: \"${fechoAtribuido}\" — nada depois disso`,\n  '- Emojis à vontade no estilo dela (🌿😊😉🤍🧭), no máximo 1-2',\n  '- A cliente é mulher: formas femininas',\n  '- Nunca mencionar IA/sistema automático, urgência artificial, clichés de wellness',\n].join('\\n');\n\nconst systemPrompt = `És a pessoa responsável por escrever mensagens de WhatsApp da Essence Wellness, um centro de massagens de relaxamento em Vila Nova de Gaia. Escreves para reabrir contacto com uma cliente que não vem há algum tempo, IMITANDO O ESTILO REAL da Bea (dona do espaço) nestes exemplos genuínos dela:\\n\\n${EXEMPLOS_REAIS_BEA}\\n\\n${REGRAS}\\n\\nFORMATO DE SAÍDA\\nDevolve APENAS um objeto JSON válido, sem markdown e sem blocos de código:\\n{\"mensagem\": \"...\", \"motivo\": \"resumo curto do ângulo escolhido, para a Bea perceber porque a IA escreveu isto\"}`;\n\n// Resumo compacto do perfil — só os 2-3 sinais mais fortes de cada fonte,\n// truncados, para não disparar tokens de entrada com dados irrelevantes\nconst observacoesLinhas = (p.observacoes || [])\n  .slice(0, 3)\n  .map(o => o.texto)\n  .filter(Boolean)\n  .map(t => `- ${cortar(t, 200)}`);\n\nconst etiquetasNomes = (p.etiquetas || []).map(e => e.etiqueta?.nome).filter(Boolean);\nconst etiquetasLinha = etiquetasNomes.length ? `- Etiquetas: ${etiquetasNomes.slice(0, 5).join(', ')}` : null;\n\nconst tarefasAbertas = (p.tarefas || [])\n  .filter(t => t.estado !== 'concluida' && t.estado !== 'cancelada')\n  .slice(0, 2)\n  .map(t => `- Follow-up em aberto: ${cortar(t.titulo, 100)}`);\n\nconst mensagensAnteriores = (p.mensagens || [])\n  .filter(m => m.estado === 'enviada')\n  .slice(0, 2)\n  .map(m => `- Já recebeu esta mensagem antes (NÃO REPETIR O ÂNGULO): \"${cortar(m.mensagemFinal || m.mensagemGerada, 150)}\"`);\n\nconst feedbacksLinhas = (p.feedbacks || [])\n  .slice(0, 2)\n  .map(f => {\n    const partes = [\n      f.npsScore != null ? `NPS ${f.npsScore}/10` : null,\n      f.motivoRegresso ? `motivo p/ voltar: \"${cortar(f.motivoRegresso, 120)}\"` : null,\n      f.momentoPico ? `momento alto: ${f.momentoPico}` : null,\n      f.comentario ? `comentário: \"${cortar(f.comentario, 150)}\"` : null,\n    ].filter(Boolean).join(' | ');\n    return partes ? `- Feedback real de sessão: ${partes}` : null;\n  })\n  .filter(Boolean);\n\nconst packsLinha = (p.packs && p.packs.length)\n  ? `- (uso interno, NUNCA mencionar) Tem pack ativo: ${p.packs[0].servico?.nome || ''}`\n  : null;\n\nconst sinaisLinhas = [\n  p.fichaClinica ? `- Ficha clínica/contexto pessoal: ${cortar(p.fichaClinica, 300)}` : null,\n  ...observacoesLinhas,\n  etiquetasLinha,\n  ...feedbacksLinhas,\n  ...tarefasAbertas,\n  ...mensagensAnteriores,\n  servicoFrequente ? `- (preferência neutra, só usar se nada acima servir) Serviço que mais costuma marcar: ${servicoFrequente}` : null,\n  packsLinha,\n].filter(Boolean).join('\\n');\n\nconst userPrompt = [\n  `Nome da cliente (usa exatamente este nome): ${primeiroNome}`,\n  '',\n  'SINAIS REAIS SOBRE ESTA CLIENTE:',\n  sinaisLinhas || '- (sem sinais específicos disponíveis — usa um tom genérico mas caloroso)',\n  '',\n  `Estilo de abertura obrigatório: ${aberturaAtribuida}`,\n  `Fecho obrigatório desta mensagem: \"${fechoAtribuido}\"`,\n  '',\n  'Escreve uma mensagem CURTA (1-2 frases), tão específica que só podia ser para esta pessoa. Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn { json: { clienteId: p.id, nome: p.nome, systemPrompt, userPrompt, diasSemSessao, servicoFrequente, fechoAtribuido, aberturaAtribuida } };"
+        "jsCode": "const p = $json.data;\nconst agora = Date.now();\n\nconst diasSemSessao = p.ultimaSessao\n  ? Math.floor((agora - new Date(p.ultimaSessao).getTime()) / 86400000)\n  : null;\n\nconst contagem = {};\nfor (const s of (p.sessoes || [])) {\n  if (s.estado !== 'realizada' || !s.servico) continue;\n  contagem[s.servico] = (contagem[s.servico] || 0) + 1;\n}\nconst servicoFrequente = Object.entries(contagem).sort((a, b) => b[1] - a[1])[0]?.[0] || null;\n\nconst primeiroNome = (p.nome || '').split(' ')[0] || 'lá';\nconst cortar = (txt, n) => !txt ? null : (txt.length > n ? txt.slice(0, n) + '...' : txt);\n\nconst EXEMPLOS_REAIS_BEA = [\n  '\"Estou beem tambem querida 😊 Temos de combinar alguma coisa. Ja não nos vemos desde o inicio do ano\"',\n  '\"Bom dia 😊 pretende agendar ?\"',\n  '\"Amanhã, sem problema algum 😉\"',\n  '\"Que ótima ideia! Nada a agradecer, vocês são muito amáveis. Acreditamos mesmo que pequenos detalhes fazem toda a diferença numa experiência. Um beijinho MUITO grande e até breve! 🤍\"',\n  '\"Olá Patrícia\\nComo estão? Espero que esteja tudo bem consigo e com o seu marido 😊\\nLembramo-nos de vocês por estes dias, daquele momento que tiraram para vocês aqui connosco 🤍\\nSe fizer sentido para si, diga-me e tento ajudar.\\nUm beijinho\" (este é mais longo por ser campanha — NORMALMENTE escreve mais curto, como os de cima)',\n].join('\\n\\n');\n\nconst FECHOS_POSSIVEIS = [\n  'Diga-me como tem estado',\n  'Conte-me novidades',\n  'Como tem passado?',\n  'Um beijinho, até breve',\n  'Fico a pensar em si',\n  'Um grande beijinho, até já',\n];\nconst fechoAtribuido = FECHOS_POSSIVEIS[$itemIndex % FECHOS_POSSIVEIS.length];\n\nconst ABERTURAS_POSSIVEIS = [\n  'Começa com uma saudação direta e simples, tipo \"Olá ' + primeiroNome + ' 😊\" seguida LOGO do facto em si, sem anunciar que é uma memória — vai direta ao assunto como quem continua uma conversa',\n  'Começa por uma pergunta genuína e calorosa sobre o BEM-ESTAR dela relacionada com o facto (nunca sobre marcações, nunca oferecendo ajuda prática ou logística) — ex: \"Como tem estado com...?\" ou \"Isso ainda a tem ocupado?\"',\n  'Começa pelo nome dela e uma observação direta sobre o facto, sem usar a palavra \"lembro\" nem \"lembrei\" em lado nenhum da frase — ex: \"' + primeiroNome + ', esse tempo todo de...\"',\n  'Podes usar \"lembro-me\"/\"lembrei-me\" mas NUNCA como as primeiras palavras da mensagem — insere a meio da frase, depois de uma saudação ou de outra ideia',\n  'Usa uma expressão de memória DIFERENTE de \"lembro-me\"/\"lembrei-me\": por exemplo \"não consegui deixar de pensar em\", \"ainda hoje me veio à cabeça\", \"tenho pensado em si por causa de\", \"não parei de pensar em\"',\n  'Começa diretamente pelo facto descrito como continuação natural, sem qualquer verbo de memória (nem \"lembro\", nem \"pensei\", nem similares) — só descreve o facto como algo presente, tipo \"Essas noites intensas de trabalho...\"',\n].join('|||');\nconst listaAberturas = ABERTURAS_POSSIVEIS.split('|||');\nconst aberturaAtribuida = listaAberturas[($itemIndex + 2) % listaAberturas.length];\n\nconst REGRAS = [\n  'REGRAS ABSOLUTAS — baseadas em como a Bea escreve DE VERDADE no WhatsApp (exemplos reais acima), não num manual de marca abstrato',\n  '- CURTA. 1 a 2 frases curtas no corpo (sem contar saudação e fecho)',\n  '- Português europeu, tratamento por VOCÊ — NUNCA tratar por tu',\n  '- SEMPRE 2ª pessoa ao falar da cliente (\"a sua\", \"consigo\", \"lembro-me de si\") — NUNCA 3ª pessoa (\"dela\", \"ela mencionou\")',\n  '- IMPORTANTE: usa o nome exatamente como fornecido — NUNCA inventes outro nome',\n  '- A REGRA MAIS IMPORTANTE DE TODAS, NUNCA QUEBRAR: esta mensagem é PURAMENTE emocional, nunca prática. Não perguntes, sugiras, proponhas, ofereças ajuda, nem insinues marcar/agendar/combinar/confirmar/resolver NADA — nem de forma direta nem disfarçada de simpatia. Não tentes resolver questões práticas que a cliente tenha levantado no passado — só reconhece o lado emocional/humano do facto, nunca a parte logística. A mensagem tem de conseguir ser lida em voz alta sem soar a atendimento ao cliente — soa a uma amiga a pensar em ti, ponto final, sem propor nada, sem oferecer nada, sem perguntar sobre planos',\n  '- NUNCA mencionar packs, sessões restantes, preços ou descontos — mesmo que existam nos dados, são só contexto interno',\n  '- Se houver mensagens anteriores já enviadas listadas abaixo, NUNCA repitas o mesmo ângulo/facto que já foi usado nelas — escolhe algo novo',\n  '- PROIBIDO mencionar o número de dias/semanas/meses desde a última visita',\n  '- PROIBIDO tom de relatório clínico',\n  '- PROIBIDO usar travessão no meio de frases na MENSAGEM FINAL -- usa vírgula, dois pontos ou ponto final',\n  '- PROIBIDO começar SEMPRE por \"Lembro-me\"/\"Lembrei-me\" — já se tornou repetitivo e não é como a Bea escreve de verdade',\n  `- ESTILO DE ABERTURA OBRIGATÓRIO PARA ESTA MENSAGEM: ${aberturaAtribuida}`,\n  '- ESCOLHA DO SINAL: prioriza (1) mudança de comportamento/situação emocionalmente forte > (2) facto de vida específico e pessoal > (3) feedback/comentário real que a cliente deixou > (4) preferência de serviço neutra',\n  '- O OBJETIVO É A CLIENTE SENTIR-SE Única — sé tão específica que a mensagem só podia ser sobre ela',\n  `- FECHO OBRIGATÓRIO: a mensagem tem de terminar exatamente com esta frase: \"${fechoAtribuido}\" — nada depois disso`,\n  '- Emojis à vontade no estilo dela (🌿😊😉🤍🧭), no máximo 1-2',\n  '- A cliente é mulher: formas femininas',\n  '- Nunca mencionar IA/sistema automático, urgência artificial, clichés de wellness',\n].join('\\n');\n\nconst systemPrompt = `És a pessoa responsável por escrever mensagens de WhatsApp da Essence Wellness, um centro de massagens de relaxamento em Vila Nova de Gaia. Escreves para reabrir contacto com uma cliente que não vem há algum tempo, IMITANDO O ESTILO REAL da Bea (dona do espaço) nestes exemplos genuínos dela:\\n\\n${EXEMPLOS_REAIS_BEA}\\n\\n${REGRAS}\\n\\nFORMATO DE SAÍDA\\nDevolve APENAS um objeto JSON válido, sem markdown e sem blocos de código:\\n{\"mensagem\": \"...\", \"motivo\": \"resumo curto do ângulo escolhido, para a Bea perceber porque a IA escreveu isto\"}`;\n\n// Resumo compacto do perfil — só os 2-3 sinais mais fortes de cada fonte,\n// truncados, para não disparar tokens de entrada com dados irrelevantes\nconst observacoesLinhas = (p.observacoes || [])\n  .slice(0, 3)\n  .map(o => o.texto)\n  .filter(Boolean)\n  .map(t => `- ${cortar(t, 200)}`);\n\nconst etiquetasNomes = (p.etiquetas || []).map(e => e.etiqueta?.nome).filter(Boolean);\nconst etiquetasLinha = etiquetasNomes.length ? `- Etiquetas: ${etiquetasNomes.slice(0, 5).join(', ')}` : null;\n\nconst tarefasAbertas = (p.tarefas || [])\n  .filter(t => t.estado !== 'concluida' && t.estado !== 'cancelada')\n  .slice(0, 2)\n  .map(t => `- Follow-up em aberto: ${cortar(t.titulo, 100)}`);\n\nconst mensagensAnteriores = (p.mensagens || [])\n  .filter(m => m.estado === 'enviada')\n  .slice(0, 2)\n  .map(m => `- Já recebeu esta mensagem antes (NÃO REPETIR O ÂNGULO): \"${cortar(m.mensagemFinal || m.mensagemGerada, 150)}\"`);\n\nconst feedbacksLinhas = (p.feedbacks || [])\n  .slice(0, 2)\n  .map(f => {\n    const partes = [\n      f.npsScore != null ? `NPS ${f.npsScore}/10` : null,\n      f.motivoRegresso ? `motivo p/ voltar: \"${cortar(f.motivoRegresso, 120)}\"` : null,\n      f.momentoPico ? `momento alto: ${f.momentoPico}` : null,\n      f.comentario ? `comentário: \"${cortar(f.comentario, 150)}\"` : null,\n    ].filter(Boolean).join(' | ');\n    return partes ? `- Feedback real de sessão: ${partes}` : null;\n  })\n  .filter(Boolean);\n\nconst packsLinha = (p.packs && p.packs.length)\n  ? `- (uso interno, NUNCA mencionar) Tem pack ativo: ${p.packs[0].servico?.nome || ''}`\n  : null;\n\nconst sinaisLinhas = [\n  p.fichaClinica ? `- Ficha clínica/contexto pessoal: ${cortar(p.fichaClinica, 300)}` : null,\n  ...observacoesLinhas,\n  etiquetasLinha,\n  ...feedbacksLinhas,\n  ...tarefasAbertas,\n  ...mensagensAnteriores,\n  servicoFrequente ? `- (preferência neutra, só usar se nada acima servir) Serviço que mais costuma marcar: ${servicoFrequente}` : null,\n  packsLinha,\n].filter(Boolean).join('\\n');\n\nconst userPrompt = [\n  `Nome da cliente (usa exatamente este nome): ${primeiroNome}`,\n  '',\n  'SINAIS REAIS SOBRE ESTA CLIENTE:',\n  sinaisLinhas || '- (sem sinais específicos disponíveis — usa um tom genérico mas caloroso)',\n  '',\n  `Estilo de abertura obrigatório: ${aberturaAtribuida}`,\n  `Fecho obrigatório desta mensagem: \"${fechoAtribuido}\"`,\n  '',\n  'Escreve uma mensagem CURTA (1-2 frases), tão específica que só podia ser para esta pessoa. Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn { json: { clienteId: p.id, nome: p.nome, systemPrompt, userPrompt, diasSemSessao, servicoFrequente, fechoAtribuido, aberturaAtribuida } };"
       },
       "id": "code-preparar-prompt",
       "name": "Preparar Prompt Reativação",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -256,
-        96
+        300,
+        0
       ]
     },
     {
@@ -225,8 +224,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -32,
-        96
+        500,
+        0
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -248,8 +247,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        192,
-        96
+        700,
+        0
       ]
     },
     {
@@ -297,8 +296,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        544,
-        96
+        1100,
+        0
       ],
       "retryOnFail": true,
       "maxTries": 2,
@@ -331,8 +330,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
       "position": [
-        352,
-        96
+        900,
+        0
       ]
     }
   ],
@@ -508,6 +507,7 @@
     "saveManualExecutions": true,
     "saveExecutionProgress": true,
     "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "errorWorkflow": "oXWwOV9sY5bwMYv1"
   }
 }

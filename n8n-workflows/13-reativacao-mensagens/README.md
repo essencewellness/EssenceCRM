@@ -6,7 +6,13 @@
 > N8N; esta pasta usa `13-` para não colidir. O nome do ficheiro `.json` e o
 > nome do workflow dentro dele mantêm o "11" original, tal como está no N8N.
 
-**Estado no N8N:** ⚠️ inativo (`active: false`) — nunca foi ligado a sério.
+**Estado no N8N:** ✅ ativo (`active: true`) — encontrado activo durante a
+auditoria de 2026-09-05 (confirmado que já estava assim antes de qualquer
+alteração desta sessão, não foi causado por ela). Zero mensagens reais
+geradas até agora (só 2 clientes em produção, nenhum em `reativacao`/
+`vip_em_risco`). O Nuno confirmou explicitamente que quer mantê-lo activo.
+Prompt afinado na mesma auditoria: adicionada a proibição de travessão no
+meio de frases na mensagem final.
 
 **Trigger:** Agendado diário às 9h, ou execução manual.
 
