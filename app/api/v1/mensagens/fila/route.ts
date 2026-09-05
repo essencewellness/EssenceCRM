@@ -15,18 +15,20 @@ export async function GET(request: NextRequest) {
   try {
     const maduras = await obterMensagensMaduras(limite)
 
+    const enviaveis = maduras.filter((m) => m.cliente !== null)
+
     return respostaSucesso(
-      maduras.map((m) => ({
+      enviaveis.map((m) => ({
         mensagemId: m.id,
         clienteId: m.clienteId,
-        clienteNome: m.cliente.nome,
-        telefone: m.cliente.telefone,
-        temWhatsapp: m.cliente.temWhatsapp,
+        clienteNome: m.cliente!.nome,
+        telefone: m.cliente!.telefone,
+        temWhatsapp: m.cliente!.temWhatsapp,
         canal: m.canal,
         texto: m.mensagemFinal ?? m.mensagemGerada,
         enviarApos: m.enviarApos?.toISOString() ?? null,
       })),
-      { total: maduras.length }
+      { total: enviaveis.length }
     )
   } catch (error) {
     console.error("GET /api/v1/mensagens/fila:", (error as Error).message)

@@ -141,9 +141,15 @@ export default async function FeedbackPage() {
                 <div key={f.id} style={{ border: "1px solid rgba(212,184,134,0.12)", padding: "16px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px", flexWrap: "wrap", gap: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <Link href={`/clientes/${f.cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
-                        {f.cliente.nome}
-                      </Link>
+                      {f.cliente ? (
+                        <Link href={`/clientes/${f.cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
+                          {f.cliente.nome}
+                        </Link>
+                      ) : (
+                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-smoke)" }}>
+                          {f.clienteNomeArquivado ?? "Cliente eliminada"}
+                        </span>
+                      )}
                       <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: seg.cor, border: `1px solid ${seg.cor}55`, padding: "2px 8px" }}>
                         {seg.label}{f.npsScore !== null ? ` · ${f.npsScore}/10` : ""}
                       </span>

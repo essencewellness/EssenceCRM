@@ -7,10 +7,11 @@ import { auditar } from "@/lib/audit"
 
 // Apagamento DEFINITIVO em massa (hard delete). Mesma lógica de eliminarCliente()
 // em app/(dashboard)/clientes/[id]/actions.ts, aplicada a vários clientes de
-// uma vez — sessões e packs ficam preservados como "fantasma" no financeiro
-// por omissão (2026-09-04), nunca apagados em cascata só por o contacto ser
-// apagado. Mensagens, etiquetas, observações, preços e portal token
-// continuam em cascata (sem valor financeiro a preservar).
+// uma vez — sessões, packs, feedback e mensagens IA ficam preservados como
+// "fantasma" por omissão (2026-09-04, alargado a feedback/mensagens em
+// 2026-09-05), nunca apagados em cascata só por o contacto ser apagado.
+// Etiquetas, observações, preços e portal token continuam em cascata (sem
+// valor analítico a preservar).
 // Restrito: sessão de dashboard ou API_KEY_ADMIN — a chave N8N não chega.
 export async function POST(request: NextRequest) {
   const erro = await validarApiKeyAdminOuSessao(request)
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     // ignora silenciosamente ids que não existem (não bloqueia os restantes)
     const clientes = await prisma.cliente.findMany({
       where: { id: { in: clienteIds } },
-      select: { id: true, nome: true, _count: { select: { sessoes: true, packs: true } } },
+      select: { id: true, nome: true, _count: { select: { sessoes: true, packs: true, feedbacks: true, mensagens: true } } },
     })
 
     // Eliminação sequencial (não $transaction em array): até 500 clientes
@@ -48,16 +49,20 @@ export async function POST(request: NextRequest) {
     let apagados = 0
     let sessoesArquivadas = 0
     let packsArquivados = 0
+    let feedbacksArquivados = 0
+    let mensagensArquivadas = 0
 
     for (const cliente of clientes) {
       try {
         if (apagarTudoDefinitivamente) {
           await prisma.sessao.deleteMany({ where: { clienteId: cliente.id } })
           await prisma.pack.deleteMany({ where: { clienteId: cliente.id } })
+          await prisma.feedback.deleteMany({ where: { clienteId: cliente.id } })
+          await prisma.mensagemIA.deleteMany({ where: { clienteId: cliente.id } })
         } else {
           // Arquiva os nomes ANTES de apagar o cliente — onDelete: SetNull
-          // no schema orfaniza sessões/packs automaticamente a seguir,
-          // preservando a receita no /financeiro como "Cliente eliminada".
+          // no schema orfaniza sessões/packs/feedback/mensagens automaticamente
+          // a seguir, preservando a receita e o histórico como "Cliente eliminada".
           if (cliente._count.sessoes > 0) {
             await prisma.sessao.updateMany({
               where: { clienteId: cliente.id },
@@ -71,6 +76,20 @@ export async function POST(request: NextRequest) {
               data: { clienteNomeArquivado: cliente.nome },
             })
             packsArquivados += cliente._count.packs
+          }
+          if (cliente._count.feedbacks > 0) {
+            await prisma.feedback.updateMany({
+              where: { clienteId: cliente.id },
+              data: { clienteNomeArquivado: cliente.nome },
+            })
+            feedbacksArquivados += cliente._count.feedbacks
+          }
+          if (cliente._count.mensagens > 0) {
+            await prisma.mensagemIA.updateMany({
+              where: { clienteId: cliente.id },
+              data: { clienteNomeArquivado: cliente.nome },
+            })
+            mensagensArquivadas += cliente._count.mensagens
           }
         }
 
@@ -95,7 +114,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return respostaSucesso({ apagados, falhas, sessoesArquivadas, packsArquivados })
+    return respostaSucesso({ apagados, falhas, sessoesArquivadas, packsArquivados, feedbacksArquivados, mensagensArquivadas })
   } catch (e) {
     console.error("[bulk-eliminar]", (e as Error).message)
     return respostaErro("Erro interno", "INTERNAL_ERROR", 500)

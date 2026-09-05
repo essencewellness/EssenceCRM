@@ -142,11 +142,14 @@ export async function PATCH(request: NextRequest) {
       ip: request.headers.get("x-forwarded-for"),
     })
 
-    // Disparar webhook → N8N recebe e envia automaticamente via WhatsApp
-    if (estado === "aprovada") {
+    // Disparar webhook → N8N recebe e envia automaticamente via WhatsApp.
+    // Sem cliente (contacto apagado entretanto) não há telefone — nada a
+    // disparar, a mensagem fica "aprovada" mas nunca sai da fila (os
+    // consumidores de fila filtram clienteId not null).
+    if (estado === "aprovada" && mensagem.cliente) {
       void webhooks.mensagemAprovada({
         mensagemId,
-        clienteId: mensagem.clienteId,
+        clienteId: mensagem.cliente.id,
         telefone: mensagem.cliente.telefone,
         mensagemFinal: mensagem.mensagemFinal ?? mensagem.mensagemGerada,
         canal: mensagem.canal,

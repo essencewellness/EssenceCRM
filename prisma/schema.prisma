@@ -441,7 +441,13 @@ model Observacao {
 
 model MensagemIA {
   id               String    @id @default(cuid())
-  clienteId        String
+  // Opcional desde 2026-09-05 (mesma "sessão fantasma" de Sessao/Pack) —
+  // apagar o contacto não pode voltar a apagar o histórico de mensagens/
+  // conversão (campo `converteu`) em cascata. clienteNomeArquivado guarda
+  // o nome nesse caso. A anonimização RGPD continua a apagar a sério —
+  // comportamento legal correcto, não é este caso.
+  clienteId        String?
+  clienteNomeArquivado String?
   canal            Canal     @default(whatsapp)
   mensagemGerada   String
   mensagemFinal    String?
@@ -461,7 +467,7 @@ model MensagemIA {
   tipo             String    @default("reengagement")
   campanhaId       String?
 
-  cliente          Cliente   @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cliente          Cliente?  @relation(fields: [clienteId], references: [id], onDelete: SetNull)
   campanha         Campanha? @relation(fields: [campanhaId], references: [id])
 
   @@index([estado])
@@ -771,7 +777,15 @@ model AuditLog {
 
 model Feedback {
   id                String   @id @default(cuid())
-  clienteId         String
+  // Opcional desde 2026-09-05 (mesma "sessão fantasma" de Sessao/Pack,
+  // auditoria seguinte encontrou o mesmo gap aqui) — apagar o contacto não
+  // pode voltar a apagar o histórico de NPS/feedback em cascata.
+  // clienteNomeArquivado guarda o nome nesse caso. Excepção deliberada:
+  // a anonimização RGPD (Art. 17, direito ao apagamento) continua a apagar
+  // o Feedback a sério — isso é o comportamento legal correcto, não é este
+  // caso.
+  clienteId         String?
+  clienteNomeArquivado String?
   sessaoId          String?
   rating            Int      // 1..5 — derivado de npsScore (ver lib/validations.ts mapearNpsParaRating)
   pontosPositivos   String?  // chips/tópicos do que gostou
@@ -793,7 +807,7 @@ model Feedback {
   horaPreferida          String?  // chip único (Manhã/Tarde/Fim de tarde) — idem
   criadoEm          DateTime @default(now())
 
-  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cliente Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
   sessao  Sessao? @relation(fields: [sessaoId], references: [id], onDelete: SetNull)
 
   @@index([clienteId])

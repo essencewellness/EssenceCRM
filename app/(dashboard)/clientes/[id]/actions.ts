@@ -63,7 +63,7 @@ export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamen
     where: { id: clienteId },
     select: {
       id: true, nome: true,
-      _count: { select: { sessoes: true, packs: true } },
+      _count: { select: { sessoes: true, packs: true, feedbacks: true, mensagens: true } },
     },
   })
   if (!cliente) throw new Error("Cliente não encontrado")
@@ -73,10 +73,15 @@ export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamen
     // desse, nunca mudado — só o Pack->Cliente é que passou a SetNull).
     await prisma.sessao.deleteMany({ where: { clienteId } })
     await prisma.pack.deleteMany({ where: { clienteId } })
+    await prisma.feedback.deleteMany({ where: { clienteId } })
+    await prisma.mensagemIA.deleteMany({ where: { clienteId } })
   } else {
     // Arquiva os nomes ANTES de apagar o cliente — depois disto já não há
     // onde os ir buscar. onDelete: SetNull trata do resto (orfaniza
-    // automaticamente ao apagar o cliente a seguir).
+    // automaticamente ao apagar o cliente a seguir). Feedback e MensagemIA
+    // juntaram-se a Sessao/Pack nesta lista em 2026-09-05 — a auditoria
+    // seguinte ao bug original encontrou o mesmo gap aqui (NPS e histórico
+    // de conversão desapareciam em cascata do mesmo jeito).
     if (cliente._count.sessoes > 0) {
       await prisma.sessao.updateMany({
         where: { clienteId },
@@ -85,6 +90,18 @@ export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamen
     }
     if (cliente._count.packs > 0) {
       await prisma.pack.updateMany({
+        where: { clienteId },
+        data: { clienteNomeArquivado: cliente.nome },
+      })
+    }
+    if (cliente._count.feedbacks > 0) {
+      await prisma.feedback.updateMany({
+        where: { clienteId },
+        data: { clienteNomeArquivado: cliente.nome },
+      })
+    }
+    if (cliente._count.mensagens > 0) {
+      await prisma.mensagemIA.updateMany({
         where: { clienteId },
         data: { clienteNomeArquivado: cliente.nome },
       })

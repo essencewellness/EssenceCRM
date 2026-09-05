@@ -224,10 +224,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     servico: s.servico, terapeuta: s.user?.name ?? "-", estado: s.estado,
   }))
 
-  const mensagensRows = mensagensParaEnviar.map(m => ({
+  const mensagensRows = mensagensParaEnviar.filter(m => m.cliente).map(m => ({
     id: m.id,
-    clienteNome: m.cliente.nome,
-    clienteIniciais: getIniciais(m.cliente.nome),
+    clienteNome: m.cliente!.nome,
+    clienteIniciais: getIniciais(m.cliente!.nome),
     canal: m.canal,
     preview: (() => {
       const txt = m.mensagemFinal ?? m.mensagemGerada ?? ""

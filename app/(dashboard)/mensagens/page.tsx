@@ -138,13 +138,16 @@ export default async function MensagensPage({ searchParams }: PageProps) {
     prisma.mensagemIA.count({ where: { estado: "enviada", enviadaEm: { gte: inicioMes } } }),
     prisma.mensagemIA.count({ where: { converteu: true, enviadaEm: { gte: inicioMes } } }),
     prisma.mensagemIA.findMany({
-      where: { estado: "pendente" },
+      // clienteId: not null — uma mensagem sem cliente (contacto apagado
+      // entretanto) não tem para onde ser enviada, não faz sentido aparecer
+      // como acionável na fila de aprovação (fica só em "Histórico").
+      where: { estado: "pendente", clienteId: { not: null } },
       include: { cliente: { include: { etiquetas: { include: { etiqueta: true } } } } },
       orderBy: { geradaEm: "desc" },
       take: 100,
     }),
     prisma.mensagemIA.findMany({
-      where: { estado: { in: ["em_fila", "falhada"] } },
+      where: { estado: { in: ["em_fila", "falhada"] }, clienteId: { not: null } },
       include: { cliente: { select: { id: true, nome: true, telefone: true } } },
       orderBy: { enviarApos: "asc" },
       take: 100,
@@ -160,19 +163,24 @@ export default async function MensagensPage({ searchParams }: PageProps) {
   const taxaConversao = enviadasMes > 0 ? Math.round((convertidasMes / enviadasMes) * 100) : 0;
 
   // Serializar para o componente cliente (datas → strings)
-  const pendentesDTO: MensagemPendente[] = mensagensPendentes.map((m) => ({
-    id: m.id,
-    clienteId: m.cliente.id,
-    clienteNome: m.cliente.nome,
-    telefone: m.cliente.telefone,
-    canal: m.canal,
-    texto: m.mensagemFinal ?? m.mensagemGerada,
-    motivo: m.motivoGeracao,
-    geradaEm: formatDateTime(m.geradaEm),
-    etiquetas: m.cliente.etiquetas.map(({ etiqueta }) => ({
-      id: etiqueta.id, nome: etiqueta.nome, cor: etiqueta.cor,
-    })),
-  }));
+  const pendentesDTO: MensagemPendente[] = mensagensPendentes
+    .filter((m) => m.cliente !== null)
+    .map((m) => {
+      const cliente = m.cliente!;
+      return {
+        id: m.id,
+        clienteId: cliente.id,
+        clienteNome: cliente.nome,
+        telefone: cliente.telefone,
+        canal: m.canal,
+        texto: m.mensagemFinal ?? m.mensagemGerada,
+        motivo: m.motivoGeracao,
+        geradaEm: formatDateTime(m.geradaEm),
+        etiquetas: cliente.etiquetas.map(({ etiqueta }) => ({
+          id: etiqueta.id, nome: etiqueta.nome, cor: etiqueta.cor,
+        })),
+      };
+    });
 
   const tabs = [
     { key: "pendentes", label: "Pendentes", count: totalPendentes },
@@ -285,7 +293,8 @@ export default async function MensagensPage({ searchParams }: PageProps) {
               </p>
             </div>
           ) : (
-            mensagensFila.map((m) => {
+            mensagensFila.filter((m) => m.cliente !== null).map((m) => {
+              const cliente = m.cliente!;
               const falhou = m.estado === "falhada";
               const madura = m.enviarApos !== null && m.enviarApos <= agora;
               return (
@@ -304,11 +313,11 @@ export default async function MensagensPage({ searchParams }: PageProps) {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
-                      <a href={`/clientes/${m.cliente.id}`} style={{
+                      <a href={`/clientes/${cliente.id}`} style={{
                         fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
                         fontWeight: 700, color: INK, textDecoration: "none",
                       }}>
-                        {m.cliente.nome}
+                        {cliente.nome}
                       </a>
                       <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE }}>
                         {falhou
@@ -380,12 +389,21 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                   <cfg.Icon size={16} color={cfg.color} style={{ flexShrink: 0, marginTop: "2px" }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
-                      <a href={`/clientes/${m.cliente.id}`} style={{
-                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
-                        fontWeight: 700, color: INK, textDecoration: "none",
-                      }}>
-                        {m.cliente.nome}
-                      </a>
+                      {m.cliente ? (
+                        <a href={`/clientes/${m.cliente.id}`} style={{
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                          fontWeight: 700, color: INK, textDecoration: "none",
+                        }}>
+                          {m.cliente.nome}
+                        </a>
+                      ) : (
+                        <span style={{
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                          fontWeight: 700, color: SMOKE,
+                        }}>
+                          {m.clienteNomeArquivado ?? "Cliente eliminada"}
+                        </span>
+                      )}
                       <span style={{
                         fontSize: "10px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
                         color: cfg.color, textTransform: "uppercase", letterSpacing: "0.08em",

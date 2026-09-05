@@ -127,13 +127,23 @@ export async function aprovarEAgendar(
         canal: true,
         mensagemFinal: true,
         mensagemGerada: true,
-        cliente: { select: { telefone: true } },
+        cliente: { select: { id: true, telefone: true } },
       },
     })
 
+    // Race genuína mas rara: o contacto foi apagado entre a Bea carregar a
+    // lista de pendentes e clicar em aprovar. Sem cliente não há telefone
+    // para onde enviar — a mensagem já mudou para "em_fila" acima (o motor
+    // de estados/N8N nunca vai lá buscar, filtram clienteId not null), mas
+    // não faz sentido oferecê-la como "agendada" nem disparar o webhook.
+    if (!m.cliente) {
+      resultado.ignoradas.push(item.id)
+      continue
+    }
+
     resultado.agendadas.push({
       id: m.id,
-      clienteId: m.clienteId,
+      clienteId: m.cliente.id,
       enviarApos: enviarApos.toISOString(),
     })
 
@@ -146,7 +156,7 @@ export async function aprovarEAgendar(
       jaEnviouImediata = true
       void webhooks.mensagemAprovada({
         mensagemId: m.id,
-        clienteId: m.clienteId,
+        clienteId: m.cliente.id,
         telefone: m.cliente.telefone,
         mensagemFinal: m.mensagemFinal ?? m.mensagemGerada,
         canal: m.canal,
@@ -163,6 +173,9 @@ export async function obterMensagensMaduras(limite = 10) {
     where: {
       estado: "em_fila",
       enviarApos: { lte: new Date() },
+      // Sem cliente (contacto apagado entretanto) não há para onde enviar —
+      // nunca oferecer ao N8N uma mensagem que não pode ser entregue.
+      clienteId: { not: null },
     },
     include: {
       cliente: { select: { id: true, nome: true, telefone: true, temWhatsapp: true } },
