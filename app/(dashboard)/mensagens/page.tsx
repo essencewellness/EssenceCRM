@@ -186,7 +186,46 @@ export default async function MensagensPage({ searchParams }: PageProps) {
     { key: "pendentes", label: "Pendentes", count: totalPendentes },
     { key: "fila", label: "Fila de envio", count: totalFila + totalFalhadas },
     { key: "historico", label: "Histórico", count: mensagensHistorico.length },
+    { key: "desempenho", label: "Desempenho", count: null },
   ];
+
+  // Funil + conversão por tipo — só calculado quando a tab está aberta,
+  // para não pesar nas outras 3 (groupBy varre a tabela toda, sem cursor).
+  let funilPorTipo: {
+    tipo: string; geradas: number; aprovadas: number; enviadas: number;
+    convertidas: number; taxaConversao: number; tempoMedioDiasConversao: number | null;
+  }[] = [];
+  if (tab === "desempenho") {
+    const [geradasPorTipo, aprovadasPorTipo, enviadasPorTipo, convertidasComTempo] = await Promise.all([
+      prisma.mensagemIA.groupBy({ by: ["tipo"], _count: { _all: true } }),
+      prisma.mensagemIA.groupBy({ by: ["tipo"], where: { estado: { in: ["aprovada", "em_fila", "enviada"] } }, _count: { _all: true } }),
+      prisma.mensagemIA.groupBy({ by: ["tipo"], where: { estado: "enviada" }, _count: { _all: true } }),
+      prisma.mensagemIA.findMany({
+        where: { converteu: true, convertidoEm: { not: null }, enviadaEm: { not: null } },
+        select: { tipo: true, enviadaEm: true, convertidoEm: true },
+      }),
+    ]);
+    const mapa = new Map<string, { geradas: number; aprovadas: number; enviadas: number; convertidas: number; somaDias: number }>();
+    const linha = (t: string) => {
+      if (!mapa.has(t)) mapa.set(t, { geradas: 0, aprovadas: 0, enviadas: 0, convertidas: 0, somaDias: 0 });
+      return mapa.get(t)!;
+    };
+    for (const g of geradasPorTipo) linha(g.tipo).geradas = g._count._all;
+    for (const a of aprovadasPorTipo) linha(a.tipo).aprovadas = a._count._all;
+    for (const e of enviadasPorTipo) linha(e.tipo).enviadas = e._count._all;
+    for (const c of convertidasComTempo) {
+      const l = linha(c.tipo);
+      l.convertidas += 1;
+      l.somaDias += Math.floor((c.convertidoEm!.getTime() - c.enviadaEm!.getTime()) / 86_400_000);
+    }
+    funilPorTipo = [...mapa.entries()]
+      .map(([tipo, v]) => ({
+        tipo, geradas: v.geradas, aprovadas: v.aprovadas, enviadas: v.enviadas, convertidas: v.convertidas,
+        taxaConversao: v.enviadas > 0 ? Math.round((v.convertidas / v.enviadas) * 100) : 0,
+        tempoMedioDiasConversao: v.convertidas > 0 ? Math.round(v.somaDias / v.convertidas) : null,
+      }))
+      .sort((a, b) => b.geradas - a.geradas);
+  }
 
   const stats = [
     { label: "Pendentes", value: totalPendentes, desc: "aguardam a tua aprovação", icon: <Clock size={16} color={CHAMPAGNE} /> },
@@ -255,14 +294,16 @@ export default async function MensagensPage({ searchParams }: PageProps) {
             }}
           >
             {label}
-            <span style={{
-              padding: "1px 6px", borderRadius: "0px", fontSize: "9px", fontWeight: 600,
-              fontFamily: "var(--font-sans, sans-serif)",
-              color: tab === key ? CHAMPAGNE : "#b5b5b2",
-              backgroundColor: tab === key ? "rgba(185,160,122,0.15)" : "rgba(221,214,196,0.4)",
-            }}>
-              {count}
-            </span>
+            {count !== null && (
+              <span style={{
+                padding: "1px 6px", borderRadius: "0px", fontSize: "9px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)",
+                color: tab === key ? CHAMPAGNE : "#b5b5b2",
+                backgroundColor: tab === key ? "rgba(185,160,122,0.15)" : "rgba(221,214,196,0.4)",
+              }}>
+                {count}
+              </span>
+            )}
           </a>
         ))}
       </div>
@@ -436,6 +477,59 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* ── Desempenho: funil e conversão por tipo ── */}
+      {tab === "desempenho" && (
+        <div className="anim-fade-up" style={{ animationDelay: "0.1s" }}>
+          {funilPorTipo.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "48px 0" }}>
+              <TrendingUp size={32} color={SMOKE} style={{ margin: "0 auto 12px" }} />
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: SMOKE }}>
+                Ainda não há mensagens geradas para medir.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {funilPorTipo.map((f) => (
+                <div key={f.tipo} style={{ backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: "2px", padding: "16px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                    <span style={{
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 700,
+                      color: INK, textTransform: "uppercase", letterSpacing: "0.08em",
+                    }}>
+                      {f.tipo}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE }}>
+                      {f.enviadas > 0
+                        ? `${f.taxaConversao}% de conversão${f.tempoMedioDiasConversao !== null ? ` · ~${f.tempoMedioDiasConversao}d até converter` : ""}`
+                        : "sem envios ainda"}
+                    </span>
+                  </div>
+                  {/* Funil: geradas → aprovadas → enviadas → convertidas */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    {[
+                      { label: "Geradas", valor: f.geradas, cor: SMOKE },
+                      { label: "Aprovadas", valor: f.aprovadas, cor: CHAMPAGNE },
+                      { label: "Enviadas", valor: f.enviadas, cor: "var(--nuit-sage)" },
+                      { label: "Convertidas", valor: f.convertidas, cor: SAGE },
+                    ].map((etapa, i, arr) => (
+                      <div key={etapa.label} style={{ flex: 1, display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: etapa.cor }}>{etapa.valor}</p>
+                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", color: SMOKE, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                            {etapa.label}
+                          </p>
+                        </div>
+                        {i < arr.length - 1 && <span style={{ color: BORDER, fontSize: "14px" }}>→</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}

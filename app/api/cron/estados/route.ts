@@ -9,6 +9,7 @@ import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { executarMotorEstados } from "@/lib/crm-estados"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
+import { detectarConversao } from "@/lib/mensagens-performance"
 
 // Fim real da sessão (data + hora + duração), calculado em UTC a partir da
 // hora local de Lisboa guardada nos campos `hora`/`duracao` — mesma lógica
@@ -114,6 +115,48 @@ export async function GET(request: NextRequest) {
     }
     const mensagensExpiradas = mensagensAExpirar.length
 
+    // Motor de deteção de conversão — MensagemIA.converteu nunca era
+    // calculado por nada no sistema (só um PATCH externo explícito o
+    // escrevia, o que na prática nunca acontecia; a UI de /mensagens já
+    // mostrava uma "taxa de conversão" que ficava sempre a 0%). Olha para
+    // mensagens enviadas há pelo menos 14 dias (ou já decididas como
+    // convertidas antes disso) sem decisão ainda, e verifica se o cliente
+    // reservou uma sessão ou comprou um pack depois do envio.
+    const JANELA_CONVERSAO_DIAS = 14
+    const mensagensParaAvaliar = await prisma.mensagemIA.findMany({
+      where: { estado: "enviada", converteu: null, enviadaEm: { not: null }, clienteId: { not: null } },
+      select: { id: true, clienteId: true, enviadaEm: true },
+    })
+    let conversoesDetectadas = 0
+    if (mensagensParaAvaliar.length > 0) {
+      const clienteIds = [...new Set(mensagensParaAvaliar.map(m => m.clienteId!))]
+      const [sessoesPorCliente, packsPorCliente] = await Promise.all([
+        prisma.sessao.findMany({ where: { clienteId: { in: clienteIds } }, select: { clienteId: true, criadoEm: true } }),
+        prisma.pack.findMany({ where: { clienteId: { in: clienteIds } }, select: { clienteId: true, criadoEm: true } }),
+      ])
+      const registosPorCliente = new Map<string, { criadoEm: Date }[]>()
+      for (const r of [...sessoesPorCliente, ...packsPorCliente]) {
+        if (!r.clienteId) continue
+        const lista = registosPorCliente.get(r.clienteId) ?? []
+        lista.push({ criadoEm: r.criadoEm })
+        registosPorCliente.set(r.clienteId, lista)
+      }
+
+      const atualizacoes: Promise<unknown>[] = []
+      for (const m of mensagensParaAvaliar) {
+        const resultado = detectarConversao(m.enviadaEm!, registosPorCliente.get(m.clienteId!) ?? [], agora, JANELA_CONVERSAO_DIAS)
+        if (!resultado) continue // ainda dentro da janela, decidir mais tarde
+        if (resultado.converteu) conversoesDetectadas++
+        atualizacoes.push(
+          prisma.mensagemIA.update({
+            where: { id: m.id },
+            data: { converteu: resultado.converteu, convertidoEm: resultado.convertidoEm },
+          })
+        )
+      }
+      await Promise.all(atualizacoes)
+    }
+
     auditar({
       quem: "sistema",
       acao: "motor_estados.executado",
@@ -123,11 +166,15 @@ export async function GET(request: NextRequest) {
         falhas: resultado.falhas,
         sessoesConcluidas: sessoesPassadas.length,
         mensagensExpiradas,
+        conversoesDetectadas,
         duracaoMs: Date.now() - inicio,
       },
     })
 
-    return respostaSucesso({ ...resultado, sessoesConcluidas: sessoesPassadas.length, mensagensExpiradas }, { duracaoMs: Date.now() - inicio })
+    return respostaSucesso(
+      { ...resultado, sessoesConcluidas: sessoesPassadas.length, mensagensExpiradas, conversoesDetectadas },
+      { duracaoMs: Date.now() - inicio }
+    )
   } catch (error) {
     console.error("GET /api/cron/estados:", (error as Error).message)
     Sentry.captureException(error)
