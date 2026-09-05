@@ -227,6 +227,25 @@ export default async function MensagensPage({ searchParams }: PageProps) {
       .sort((a, b) => b.geradas - a.geradas);
   }
 
+  // No-Show Rate — única métrica nova aprovada em /council (2026-09-05).
+  // As restantes (retenção 1ª→2ª sessão, intervalo médio, recomendação)
+  // ficam de propósito por construir: com só 2 clientes reais em produção
+  // são rácios sobre eventos raros, ruído estatístico disfarçado de
+  // insight. No-Show funciona por SESSÃO, não por cliente — já há N
+  // suficiente hoje para ser accionável. LIMITE_MINIMO evita mostrar uma
+  // percentagem enganosa quando a amostra ainda é demasiado pequena.
+  const LIMITE_MINIMO_NOSHOW = 15;
+  let noShow: { total: number; faltas: number; taxa: number } | null = null;
+  if (tab === "desempenho") {
+    const [totalSessoesPassadas, totalFaltas] = await Promise.all([
+      prisma.sessao.count({ where: { estado: { in: ["realizada", "falta"] }, apagadoEm: null } }),
+      prisma.sessao.count({ where: { estado: "falta", apagadoEm: null } }),
+    ]);
+    if (totalSessoesPassadas >= LIMITE_MINIMO_NOSHOW) {
+      noShow = { total: totalSessoesPassadas, faltas: totalFaltas, taxa: Math.round((totalFaltas / totalSessoesPassadas) * 100) };
+    }
+  }
+
   const stats = [
     { label: "Pendentes", value: totalPendentes, desc: "aguardam a tua aprovação", icon: <Clock size={16} color={CHAMPAGNE} /> },
     { label: "Na fila", value: totalFila, desc: "saem espaçadas 30–90s", icon: <Hourglass size={16} color={CHAMPAGNE} /> },
@@ -484,6 +503,28 @@ export default async function MensagensPage({ searchParams }: PageProps) {
       {/* ── Desempenho: funil e conversão por tipo ── */}
       {tab === "desempenho" && (
         <div className="anim-fade-up" style={{ animationDelay: "0.1s" }}>
+          <div style={{
+            backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: "2px",
+            padding: "16px 20px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap",
+          }}>
+            <div>
+              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.22em", color: SMOKE, textTransform: "uppercase" }}>
+                No-Show Rate
+              </span>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE, marginTop: "3px" }}>
+                Sessões marcadas em que a cliente faltou sem aviso
+              </p>
+            </div>
+            {noShow ? (
+              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: noShow.taxa > 10 ? TERRA : INK }}>
+                {noShow.taxa}% <span style={{ fontSize: "12px", color: SMOKE, fontFamily: "var(--font-sans, sans-serif)" }}>({noShow.faltas}/{noShow.total})</span>
+              </span>
+            ) : (
+              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: SMOKE, fontStyle: "italic" }}>
+                Ainda sem dados suficientes (mínimo {15} sessões)
+              </span>
+            )}
+          </div>
           {funilPorTipo.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <TrendingUp size={32} color={SMOKE} style={{ margin: "0 auto 12px" }} />
