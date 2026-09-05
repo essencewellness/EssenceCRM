@@ -1,5 +1,5 @@
 {
-  "name": "18 | Continuidade Pós-Sessão (Claude Haiku)",
+  "name": "18 | Continuidade PÃ³s-SessÃ£o (Claude Haiku)",
   "nodes": [
     {
       "parameters": {
@@ -12,7 +12,7 @@
         }
       },
       "id": "sched-10h-continuidade",
-      "name": "Trigger Diário 10h",
+      "name": "Trigger DiÃ¡rio 10h",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -139,7 +139,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const p = $json.data || $json;\nconst ultimaSessao = (p.sessoes || []).find(s => s.estado === 'realizada');\nconst servico = (ultimaSessao && ultimaSessao.servico) || 'a sessão';\nconst diasDesde = p.ultimaSessao ? Math.floor((Date.now() - new Date(p.ultimaSessao).getTime()) / 86400000) : null;\n\nconst userPrompt = [\n  'Escreve o check-in de continuidade para esta cliente da Essence Wellness:',\n  '',\n  'Nome: ' + (p.nome || '').split(' ')[0],\n  'Última sessão: ' + servico + (diasDesde !== null ? ' (há ' + diasDesde + ' dias)' : ''),\n  'Total de sessões até agora: ' + (p.totalSessoes ?? 0),\n  '',\n  'O objectivo é perguntar genuinamente como ela ficou depois da sessão -- NÃO é sugerir marcar outra.',\n  'Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn [{ json: { clienteId: p.id, systemPrompt: \"REGRAS ABSOLUTAS -- baseadas em como a Bea escreve DE VERDADE no WhatsApp:\\n- Portugues europeu, tratamento por VOCE (nunca tu)\\n- Isto NAO e uma mensagem de venda -- e um check-in genuino sobre como a cliente ficou depois da ultima sessao\\n- PROIBIDO mencionar packs, precos, descontos, ou sugerir directamente marcar outra sessao\\n- PROIBIDO qualquer frase do tipo 'se quiser marcar' / 'para continuar o cuidado' / 'aproveite para agendar'\\n- O tom e de cuidado real: quer saber como ela esta, nao vender-lhe nada\\n- Nunca clicles de wellness (jornada, energia, equilibrio holistico)\\n- Maximo 3 frases, sem assinatura no fim\\n- Emojis com moderacao (0 a 2), no estilo natural da Bea (\\ud83c\\udf3f\\ud83d\\ude0a\\ud83d\\ude09)\\nFORMATO DE SAIDA\\nDevolve APENAS um objeto JSON valido, sem markdown e sem blocos de codigo:\\n{\\\"mensagem\\\": \\\"...\\\", \\\"motivo\\\": \\\"porque este angulo foi escolhido, para a Bea perceber\\\"}\", userPrompt } }];"
+        "jsCode": "const p = $json.data || $json;\nconst ultimaSessao = (p.sessoes || []).find(s => s.estado === 'realizada');\nconst servico = (ultimaSessao && ultimaSessao.servico) || 'a sessÃ£o';\nconst diasDesde = p.ultimaSessao ? Math.floor((Date.now() - new Date(p.ultimaSessao).getTime()) / 86400000) : null;\n\nconst userPrompt = [\n  'Escreve o check-in de continuidade para esta cliente da Essence Wellness:',\n  '',\n  'Nome: ' + (p.nome || '').split(' ')[0],\n  'Ãšltima sessÃ£o: ' + servico + (diasDesde !== null ? ' (hÃ¡ ' + diasDesde + ' dias)' : ''),\n  'Total de sessÃµes atÃ© agora: ' + (p.totalSessoes ?? 0),\n  '',\n  'O objectivo Ã© perguntar genuinamente como ela ficou depois da sessÃ£o -- NÃƒO Ã© sugerir marcar outra.',\n  'Devolve apenas o JSON pedido.',\n].join('\\n');\n\nreturn [{ json: { clienteId: p.id, systemPrompt: \"REGRAS ABSOLUTAS -- baseadas em como a Bea escreve DE VERDADE no WhatsApp:\\n- Portugues europeu, tratamento por VOCE (nunca tu)\\n- Isto NAO e uma mensagem de venda -- e um check-in genuino sobre como a cliente ficou depois da ultima sessao\\n- PROIBIDO mencionar packs, precos, descontos, ou sugerir directamente marcar outra sessao\\n- PROIBIDO qualquer frase do tipo 'se quiser marcar' / 'para continuar o cuidado' / 'aproveite para agendar'\\n- O tom e de cuidado real: quer saber como ela esta, nao vender-lhe nada\\n- Nunca clicles de wellness (jornada, energia, equilibrio holistico)\\n- Angulo permitido e recomendado quando fizer sentido: se for natural mencionar que a sensacao de relaxamento vai desaparecendo com os dias, enquadra isso como normal e parte do processo -- sem nunca ligar isso a uma sugestao explicita de marcar\\n- Maximo 3 frases, sem assinatura no fim\\n- Emojis com moderacao (0 a 2), no estilo natural da Bea (\\u00f0\\u0178\\u0152\\u00bf\\u00f0\\u0178\\u02dc\\u0160\\u00f0\\u0178\\u02dc\\u2030)\\nFORMATO DE SAIDA\\nDevolve APENAS um objeto JSON valido, sem markdown e sem blocos de codigo:\\n{\\\"mensagem\\\": \\\"...\\\", \\\"motivo\\\": \\\"porque este angulo foi escolhido, para a Bea perceber\\\"}\", userPrompt } }];"
       },
       "id": "code-prompt-continuidade",
       "name": "Preparar Prompt Continuidade",
@@ -171,7 +171,7 @@
         "options": {}
       },
       "id": "http-claude-continuidade",
-      "name": "Claude Haiku — Gerar Mensagem",
+      "name": "Claude Haiku â€” Gerar Mensagem",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
@@ -190,7 +190,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const prep = $('Preparar Prompt Continuidade').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nlet mensagem = '';\nlet motivo = 'Check-in de continuidade';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) { /* JSON invalido -- falhou abaixo */ }\n\n// Rede de seguranca -- nunca deixar passar sugestao de marcacao/venda\nconst PADROES_PROIBIDOS = [/marcar/i, /agendar/i, /pack/i, /desconto/i, /pre[cç]o/i];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\n\nreturn [{ json: { clienteId: prep.clienteId, mensagemGerada: mensagem, motivoGeracao: motivo, falhou: !mensagem || violacao } }];"
+        "jsCode": "const prep = $('Preparar Prompt Continuidade').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nlet mensagem = '';\nlet motivo = 'Check-in de continuidade';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) { /* JSON invalido -- falhou abaixo */ }\n\n// Rede de seguranca -- nunca deixar passar sugestao de marcacao/venda\nconst PADROES_PROIBIDOS = [/marcar/i, /agendar/i, /pack/i, /desconto/i, /pre[cÃ§]o/i];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\n\nreturn [{ json: { clienteId: prep.clienteId, mensagemGerada: mensagem, motivoGeracao: motivo, falhou: !mensagem || violacao } }];"
       },
       "id": "code-parse-continuidade",
       "name": "Parsear Mensagem Claude",
@@ -224,7 +224,7 @@
         "options": {}
       },
       "id": "filter-continuidade",
-      "name": "Filtrar Mensagens Válidas",
+      "name": "Filtrar Mensagens VÃ¡lidas",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
@@ -268,7 +268,7 @@
     }
   ],
   "connections": {
-    "Trigger Diário 10h": {
+    "Trigger DiÃ¡rio 10h": {
       "main": [
         [
           {
@@ -359,14 +359,14 @@
       "main": [
         [
           {
-            "node": "Claude Haiku — Gerar Mensagem",
+            "node": "Claude Haiku â€” Gerar Mensagem",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Claude Haiku — Gerar Mensagem": {
+    "Claude Haiku â€” Gerar Mensagem": {
       "main": [
         [
           {
@@ -381,14 +381,14 @@
       "main": [
         [
           {
-            "node": "Filtrar Mensagens Válidas",
+            "node": "Filtrar Mensagens VÃ¡lidas",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filtrar Mensagens Válidas": {
+    "Filtrar Mensagens VÃ¡lidas": {
       "main": [
         [
           {

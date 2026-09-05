@@ -1,9 +1,11 @@
 # 07 | Feedback — Notificações
 
-**Estado no N8N:** ⚠️ ativo em produção com a versão sem o branch de NPS
-baixo — a versão neste ficheiro (2026-09-05) acrescenta esse branch,
-validada (`validate_workflow`, zero erros) mas ainda não importada, ver
-`../README.md`.
+**Estado no N8N:** ✅ ativo em produção com o branch de NPS baixo (aplicado
+2026-09-05 via API do N8N — 10 nós, `active: true`). Prompt do branch NPS
+afinado numa 2ª iteração no mesmo dia (feedback do Nuno sobre as
+mensagens de demonstração): passou a usar as palavras exactas da cliente
+como promessa e a terminar com um convite suave a voltar, em vez de nunca
+convidar.
 
 > **Actualizado 2026-08-31:** ganhou fallback por email quando o WhatsApp
 > falha.

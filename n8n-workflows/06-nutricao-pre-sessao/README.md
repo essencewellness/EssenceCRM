@@ -1,11 +1,8 @@
 # 06 | Nutrição Pré-Sessão (Claude Haiku)
 
-**Estado no N8N:** ⚠️ ativo em produção com a versão antiga (Groq, envio
-direto) — a versão neste ficheiro (2026-09-05, auditoria do sistema de
-mensagens) está pronta e validada (`validate_workflow`, zero erros) mas
-**ainda não foi importada para o N8N real**, bloqueada por permissão de
-escrita na sessão que a construiu. Ver `../README.md` para o estado de
-todos os workflows pendentes de import.
+**Estado no N8N:** ✅ ativo em produção com esta versão (aplicada
+2026-09-05 via API do N8N, `PUT /api/v1/workflows/{id}`, confirmada com
+GET a seguir — 12 nós, `active: true`).
 
 **Trigger:** Agendado diário 11h (+ manual para testes).
 

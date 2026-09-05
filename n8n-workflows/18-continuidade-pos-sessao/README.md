@@ -1,8 +1,10 @@
 # 18 | Continuidade Pós-Sessão (Claude Haiku)
 
-**Estado no N8N:** 🆕 novo — construído 2026-09-05, validado
-(`validate_workflow`, zero erros) mas ainda não importado para o N8N real
-(bloqueado por permissão de escrita, ver `../README.md`).
+**Estado no N8N:** ✅ ativo em produção — criado 2026-09-05 via API do N8N
+(`POST /api/v1/workflows` + `POST .../activate`), id `kRm9aYWxeZf4S5cU`,
+12 nós. Prompt afinado numa 2ª iteração no mesmo dia (feedback do Nuno):
+passou a permitir o ângulo "faz parte do processo" para normalizar o
+relaxamento a desvanecer, sem nunca ligar isso a uma sugestão de marcação.
 
 **Trigger:** Agendado diário 10h (+ manual para testes). Escolhido por não
 colidir com nenhum outro consumidor de Groq/Haiku listado no `CLAUDE.md`
