@@ -181,39 +181,12 @@ export async function dispararEfeitosSessaoRealizada(
     }
   }
 
-  const templateAvaliacao = await prisma.templateMensagem.findUnique({
-    where: { nome: "avaliacao_pos_sessao" },
-    select: { id: true, texto: true },
-  })
-  const clienteParaAvaliacao = await prisma.cliente.findUnique({
-    where: { id: sessaoAntes.clienteId },
-    select: { nome: true, estado: true },
-  })
-
-  if (
-    templateAvaliacao &&
-    clienteParaAvaliacao &&
-    clienteParaAvaliacao.estado !== "blacklist"
-  ) {
-    const textoAvaliacao = templateAvaliacao.texto.replace(
-      /\{\{nome\}\}/g,
-      clienteParaAvaliacao.nome ?? ""
-    )
-    // "pendente", nunca aprovada automaticamente — nenhuma mensagem sai
-    // para uma cliente sem a Bea a ver primeiro. Fica visível em
-    // Mensagens → Pendentes; enviarApos só fica definido quando ela
-    // aprovar (ver lib/fila-envio.ts aprovarEAgendar). Bug real
-    // 2026-09-03: isto criava a mensagem já "em_fila" com aprovadaEm
-    // preenchido, pulando a aprovação por completo.
-    void prisma.mensagemIA.create({
-      data: {
-        clienteId: sessaoAntes.clienteId,
-        canal: "whatsapp",
-        tipo: "avaliacao",
-        estado: "pendente",
-        mensagemGerada: textoAvaliacao,
-        mensagemFinal: textoAvaliacao,
-      },
-    })
-  }
+  // Nota 2026-09-04: existiu aqui um envio de "avaliação pós-sessão" 4h
+  // depois de realizada (tipo "avaliacao", template avaliacao_pos_sessao).
+  // Removido — nunca chegou a disparar em produção nem uma vez (o template
+  // só foi gravado na BD nesta mesma sessão de trabalho) e, entretanto,
+  // percebeu-se que duplicava o que o WF05 já faz às 19h do dia seguinte,
+  // de forma mais inteligente (distingue clientes recorrentes de novas,
+  // manda formulário completo com NPS só quando faz sentido). Ver
+  // ../CLAUDE.md secção do sistema de mensagens para o desenho novo.
 }
