@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
+  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, ultimaSessaoDesdeDiasMin, ultimaSessaoDesdeDiasMax, semPackAtivo, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -72,6 +72,28 @@ export async function GET(request: NextRequest) {
       where.mensagens = {
         none: { geradaEm: { gte: corteMsg }, estado: { in: ["enviada", "em_fila"] } }
       }
+    }
+
+    // Janela "between" para o check-in de continuidade (D+5 a D+14, etc.) —
+    // ao contrário de inactivos_desde_dias (só "há mais de N dias"), aqui
+    // interessa um intervalo fechado.
+    if (ultimaSessaoDesdeDiasMin !== undefined || ultimaSessaoDesdeDiasMax !== undefined) {
+      const filtroData: Prisma.DateTimeFilter = {}
+      if (ultimaSessaoDesdeDiasMax !== undefined) {
+        const limiteMin = new Date()
+        limiteMin.setDate(limiteMin.getDate() - ultimaSessaoDesdeDiasMax)
+        filtroData.gte = limiteMin
+      }
+      if (ultimaSessaoDesdeDiasMin !== undefined) {
+        const limiteMax = new Date()
+        limiteMax.setDate(limiteMax.getDate() - ultimaSessaoDesdeDiasMin)
+        filtroData.lte = limiteMax
+      }
+      where.ultimaSessao = filtroData
+    }
+
+    if (semPackAtivo === "true") {
+      where.packs = { none: { ativo: true } }
     }
 
     if (etiquetas) {

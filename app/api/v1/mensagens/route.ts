@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, mensagemCreateSchema)
   if (!v.ok) return v.resposta
-  const { telefone, email, clienteId, mensagemGerada, canal, motivoGeracao } = v.data
+  const { telefone, email, clienteId, mensagemGerada, canal, motivoGeracao, tipo } = v.data
 
   try {
     const cliente = await resolverCliente(clienteId, telefone, email)
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         mensagemGerada,
         canal: canal ?? "whatsapp",
         motivoGeracao: motivoGeracao ?? null,
+        ...(tipo ? { tipo } : {}),
         estado: "pendente",
         geradaEm: new Date(),
       },

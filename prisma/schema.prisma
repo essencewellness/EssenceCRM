@@ -454,7 +454,12 @@ model MensagemIA {
   estado           EstadoMensagem @default(pendente)
   // pendente → aprovada → em_fila → enviada | rejeitada | falhada
   motivoGeracao    String?
+  // converteu fica null enquanto a janela de deteção (motor de conversão,
+  // ver lib/mensagens-performance.ts) ainda não decidiu; convertidoEm só é
+  // preenchido quando converteu passa a true — guarda quando a conversão
+  // foi detectada, não quando a mensagem foi enviada.
   converteu        Boolean?
+  convertidoEm     DateTime?
   geradaEm         DateTime  @default(now())
   aprovadaEm       DateTime?
   enviadaEm        DateTime?

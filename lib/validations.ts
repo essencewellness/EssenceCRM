@@ -11,7 +11,10 @@ export const ESTADOS_PAGAMENTO = ["pendente", "pago", "parcial", "isento"] as co
 // novos usam sempre mbway_essence/mbway_beatriz (ver Sessao.repasseNecessario)
 export const METODOS_PAGAMENTO = ["dinheiro", "mbway", "mbway_essence", "mbway_beatriz", "transferencia", "stripe", "voucher"] as const
 export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
-export const TIPOS_MENSAGEM = ["reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas"] as const
+export const TIPOS_MENSAGEM = [
+  "reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas",
+  "nutricao", "continuidade", "nps_baixo",
+] as const
 
 export const ESTADOS_TAREFA = ["pendente", "em_progresso", "concluida", "cancelada"] as const
 export const PRIORIDADES_TAREFA = ["baixa", "normal", "alta", "urgente"] as const
@@ -103,6 +106,12 @@ export const clientesQuerySchema = z.object({
   telefone: z.string().trim().max(20).optional(),
   inactivos_desde_dias: z.coerce.number().int().min(1).max(3650).optional(),
   semMensagemDias: z.coerce.number().int().min(1).max(365).optional(),
+  // Janela "between" — falta no inactivos_desde_dias (só tem "lt"). Criada
+  // para o check-in de continuidade (D+5 a D+14 pós-sessão), mas serve
+  // qualquer segmentação por intervalo de dias desde a última sessão.
+  ultimaSessaoDesdeDiasMin: z.coerce.number().int().min(0).max(3650).optional(),
+  ultimaSessaoDesdeDiasMax: z.coerce.number().int().min(0).max(3650).optional(),
+  semPackAtivo: z.enum(["true"]).optional(),
   blacklist: z.enum(["true"]).optional(),
   ativo: z.enum(["true"]).optional(),
   etiquetas: z.union([z.string().trim(), z.array(z.string().trim())]).optional(),
@@ -219,6 +228,10 @@ export const mensagemCreateSchema = z.object({
   mensagemGerada: texto.max(4000),
   canal: z.enum(CANAIS).optional(),
   motivoGeracao: z.string().trim().max(300).optional().nullable(),
+  // Sem isto, toda mensagem criada por N8N caía sempre no default do schema
+  // Prisma ("reengagement") — impossível agrupar por tipo real no separador
+  // de desempenho. Opcional para não partir chamadas antigas.
+  tipo: z.enum(TIPOS_MENSAGEM).optional(),
 }).strict()
 
 export const mensagensQuerySchema = z.object({

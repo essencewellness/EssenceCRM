@@ -121,7 +121,7 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | ~~🟠 ALTO~~ | ~~`X-Webhook-Secret` envia segredo em plaintext~~ | ✅ Resolvido spec-007 |
 | ~~🟠 ALTO~~ | ~~Password da Neon exposta anteriormente~~ | ✅ Resolvido 2026-08-05 — password rotada na Neon, `DATABASE_URL` atualizada no Vercel |
 | ~~🟠 ALTO~~ | ~~Estado CRM só recalcula no cron — desfasado até 24h após sessão~~ | ✅ Resolvido 2026-08-05 — `recalcularEstadoCliente()` chamado inline quando uma sessão passa a "realizada" (`lib/crm-estados.ts`); cron das 7h mantido como rede de segurança |
-| ~~🟡 MÉDIO~~ | ~~Workflows N8N sem backup exportado no repositório~~ | ✅ Resolvido 2026-08-05, actualizado 2026-08-31 — todos os workflows (19) exportados para `n8n-workflows/01-.../` (API keys substituídas por placeholders, ver README do diretório). Enforcement de link tokens continua desligado por decisão separada, não por falta de visibilidade. |
+| ~~🟡 MÉDIO~~ | ~~Workflows N8N sem backup exportado no repositório~~ | ✅ Resolvido 2026-08-05, actualizado 2026-08-31 — todos os workflows (19) exportados para `n8n-workflows/01-.../` (API keys substituídas por placeholders, ver README do diretório). ⚠️ Nota "enforcement de link tokens continua desligado" desactualizada — auditoria de 2026-09-05 confirmou `LINK_TOKEN_OBRIGATORIO` **activo** em produção (endpoint `/public/onboarding` devolve 401 sem token válido). |
 | ~~🟠 ALTO~~ | ~~Quota gratuita da Neon (100 CU-hours/mês) esgotada a meio do mês~~ | ✅ Resolvido 2026-08-31 — causas identificadas e corrigidas: WF05 e WF10 faziam polling contínuo (15min/1min, 24h/dia), `AutoRefresh` do dashboard corria a cada 20s sem pausar. Ver `../CLAUDE.md` secção "Sistema de resiliência" para o detalhe completo. |
 | ~~🟡 MÉDIO~~ | ~~`confirmacao-envio` não bloqueia double-delivery~~ | ✅ Resolvido 2026-08-01 — `updateMany` com `estado: "em_fila"` no WHERE torna a transição atómica (antes: read-then-write com janela de corrida entre pedidos concorrentes do N8N) |
 | ~~🟡 MÉDIO~~ | ~~Sem paginação na lista de clientes do dashboard~~ | ✅ Nota desatualizada — já implementada (cursor-based, 50/página + scroll infinito via `ClientesInfiniteList.tsx`), confirmado 2026-08-05 |
@@ -137,6 +137,14 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | ✅ | Link Calendly dos packs de Massagens desactivado (`pack.servico` fica `null` de propósito) | Novo evento Calendly dedicado (`sessao-pack-massagem`), mapeado em `PacksTab.tsx` |
 | ✅ | Salto visual no texto da sidebar ao selecionar item | `border-left` trocado por `box-shadow` (não desloca padding), `font-weight` fixo |
 | ✅ | Ver secção "Sistema de resiliência, backup e alertas" em `../CLAUDE.md` | Backup diário + restauro testado, alerta central de falhas, vigilância WhatsApp, fallback por email, agendamento de envio, optimização de CU-hours na Neon |
+
+## Resolvido nesta fase (auditoria completa 2026-09-05)
+
+| ✅ | Problema resolvido | Como |
+|---|---|---|
+| ✅ | Mensagens IA podiam ir para o perfil da Cristina — só Bea/admin devem aprovar | `podeAprovarMensagens` em `lib/contexto-utilizador.ts`, aplicado em `/mensagens`, `aprovar-bulk`, sidebar/bottom nav e dashboard — ver `../CLAUDE.md` |
+| ✅ | `Feedback` e `MensagemIA` ainda apagavam em cascata ao apagar um cliente (mesmo gap do bug de 2026-09-04, não coberto nessa altura) | Mesmo tratamento "fantasma": `clienteId` opcional + `onDelete: SetNull` + `clienteNomeArquivado`; migração aplicada à Neon de produção via MCP e testada ao vivo de ponta a ponta — ver `../CLAUDE.md` |
+| ✅ | `ID_TERAPEUTA_PADRAO` em produção estava definida mas vazia — a identificação de "quem é a Bea" (agora também usada para segurança, não só atribuição financeira) dependia só do heurístico | Fixada explicitamente ao id real da Beatriz Leão no Vercel |
 
 ## Resolvido nesta fase (spec-002)
 

@@ -86,19 +86,33 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Expirar mensagens pendentes com mais de 3 dias sem aprovação
+    // Expirar mensagens pendentes com mais de 3 dias sem aprovação.
+    // updateMany não dá para preservar o motivo original de cada linha
+    // (era sobrescrito com uma string fixa, apagando o motivo real gerado
+    // pela IA) — por isso isto passou a update individual, mesmo padrão de
+    // isolamento por item já usado acima para as sessões passadas.
     const limiteExpiracao = new Date()
     limiteExpiracao.setDate(limiteExpiracao.getDate() - 3)
-    const { count: mensagensExpiradas } = await prisma.mensagemIA.updateMany({
-      where: {
-        estado: "pendente",
-        geradaEm: { lt: limiteExpiracao },
-      },
-      data: {
-        estado: "rejeitada",
-        motivoGeracao: "expirada_automaticamente",
-      },
+    const mensagensAExpirar = await prisma.mensagemIA.findMany({
+      where: { estado: "pendente", geradaEm: { lt: limiteExpiracao } },
+      select: { id: true, motivoGeracao: true },
     })
+    if (mensagensAExpirar.length > 0) {
+      await Promise.all(
+        mensagensAExpirar.map(m =>
+          prisma.mensagemIA.update({
+            where: { id: m.id },
+            data: {
+              estado: "rejeitada",
+              motivoGeracao: m.motivoGeracao
+                ? `${m.motivoGeracao} [expirou sem aprovação, 3d]`
+                : "expirada_automaticamente",
+            },
+          })
+        )
+      )
+    }
+    const mensagensExpiradas = mensagensAExpirar.length
 
     auditar({
       quem: "sistema",

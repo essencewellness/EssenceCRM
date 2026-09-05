@@ -17,6 +17,7 @@ import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
 import { auditar } from "@/lib/audit"
 import { getConfigNegocio } from "@/lib/config-negocio"
+import { diasDesdeUltimaSessao } from "@/lib/tempo-cliente"
 import type { EstadoCliente } from "@/lib/prisma-client"
 
 const VIP_MIN_SESSOES = 8
@@ -53,7 +54,7 @@ export function calcularEstado(
   // Sem sessões realizadas → continua lead
   if (c.totalSessoes === 0 || !c.ultimaSessao) return "lead"
 
-  const dias = Math.floor((hoje.getTime() - c.ultimaSessao.getTime()) / 86_400_000)
+  const dias = diasDesdeUltimaSessao(c.ultimaSessao, hoje)!
   const ehVip = c.totalSessoes >= VIP_MIN_SESSOES
     || c.totalGasto >= VIP_MIN_GASTO
     || c.gastoUltimos30Dias >= VIP_GASTO_RAPIDO

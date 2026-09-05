@@ -38,6 +38,12 @@ export async function GET(
           include: { servico: { select: { nome: true } } },
           orderBy: { criadoEm: "desc" },
         },
+        // Contexto de IA (WF11/WF18) até agora não tinha vouchers do
+        // cliente — nem os que recebeu como beneficiária nem os que
+        // comprou. As duas FKs são separadas de propósito (ver GiftCard no
+        // schema): beneficiária != comprador.
+        giftCards: { orderBy: { dataCompra: "desc" }, take: 10 },
+        vouchersComprados: { orderBy: { dataCompra: "desc" }, take: 10 },
       },
     })
 
