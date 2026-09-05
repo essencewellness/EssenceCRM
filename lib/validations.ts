@@ -14,6 +14,7 @@ export const ESTADOS_CAMPANHA = ["ativa", "cancelada", "concluida"] as const
 export const TIPOS_MENSAGEM = [
   "reengagement", "avaliacao", "aniversario", "campanha", "boas_vindas",
   "nutricao", "continuidade", "nps_baixo", "perdida_reconquista", "vip_cuidado",
+  "lead_nurture", "ativa_reconhecimento",
 ] as const
 
 export const ESTADOS_TAREFA = ["pendente", "em_progresso", "concluida", "cancelada"] as const
@@ -112,6 +113,11 @@ export const clientesQuerySchema = z.object({
   ultimaSessaoDesdeDiasMin: z.coerce.number().int().min(0).max(3650).optional(),
   ultimaSessaoDesdeDiasMax: z.coerce.number().int().min(0).max(3650).optional(),
   semPackAtivo: z.enum(["true"]).optional(),
+  // Mesmo padrão "between" que ultimaSessaoDesdeDias*, mas sobre criadoEm —
+  // necessário para leads (nunca têm ultimaSessao, é null) no nurture de
+  // quem preencheu o onboarding mas nunca chegou a marcar.
+  criadoDesdeDiasMin: z.coerce.number().int().min(0).max(3650).optional(),
+  criadoDesdeDiasMax: z.coerce.number().int().min(0).max(3650).optional(),
   blacklist: z.enum(["true"]).optional(),
   ativo: z.enum(["true"]).optional(),
   etiquetas: z.union([z.string().trim(), z.array(z.string().trim())]).optional(),

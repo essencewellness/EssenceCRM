@@ -64,6 +64,16 @@ negócio e a topologia de cada workflow estão completas.
 | 16 | [Alerta de Falha de Workflow (central)](16-alerta-falha-workflow/) | Error Trigger | automático, por falha | ✅ Ativo |
 | 17 | [Backup Diário da Base de Dados](17-backup-diario-bd/) | Schedule | diário 4h | ✅ Ativo |
 | 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário 10h + manual | ✅ Ativo — novo (2026-09-05) |
+| 19 | [Perdida — Reconquista](19-perdida-reconquista/) | Schedule | diário 11h + manual | ✅ Ativo — novo (2026-09-05) |
+| 20 | [VIP — Cuidado Proactivo](20-vip-cuidado/) | Schedule | diário 12h + manual | ✅ Ativo — novo (2026-09-05) |
+| 21 | [Lead — Primeira Impressão](21-lead-primeira-impressao/) | Schedule | diário 13h + manual | ✅ Ativo — novo (2026-09-05) |
+| 22 | [Ativa Frequente — Reconhecedora](22-ativa-frequente-reconhecedora/) | Schedule | diário 14h + manual | ✅ Ativo — novo (2026-09-05) |
+
+**Cobertura completa dos 9 estados CRM alcançada em 2026-09-05** — os 8
+tipos de mensagem (06/07/13/18/19/20/21/22) cobrem `novo`,
+`ativa_recente`, `ativa_frequente`, `vip_embaixadora`, `vip_em_risco`,
+`reativacao`, `perdida` e `lead`. Só `blacklist` fica de fora, de
+propósito (nunca contactar).
 
 ## Estado do WF13 corrigido (2026-09-05)
 

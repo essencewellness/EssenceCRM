@@ -1,0 +1,413 @@
+{
+  "name": "22 | Ativa Frequente — Reconhecedora (Claude Haiku)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 14
+            }
+          ]
+        }
+      },
+      "id": "sched",
+      "name": "Trigger Diário 14h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1100,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Executar Manualmente",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/clientes?estado=ativa_frequente&semMensagemDias=45&limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-candidatos",
+      "name": "Buscar Candidatos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -900,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "url": "https://crm.essencewellnesspt.com/api/v1/mensagens?estado=pendente&limit=200",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-pendentes",
+      "name": "Buscar Mensagens Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -900,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge",
+      "name": "Merge Pendentes",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -700,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const candidatos = $('Buscar Candidatos').item.json.data || [];\nconst pendentes = $('Buscar Mensagens Pendentes').item.json.data || [];\nconst idsComPendente = new Set(pendentes.map(m => m.clienteId));\nconst LIMITE_DIARIO = 10;\nreturn candidatos.filter(c => !idsComPendente.has(c.id)).slice(0, LIMITE_DIARIO).map(c => ({ json: { clienteId: c.id } }));"
+      },
+      "id": "code-selecionar",
+      "name": "Selecionar Candidatos do Dia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://crm.essencewellnesspt.com/api/v1/clientes/{{ $json.clienteId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-perfil",
+      "name": "Buscar Perfil Completo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -300,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $json.data || $json;\nconst servicoFrequente = (() => {\n  const contagem = {};\n  (p.sessoes || []).filter(s => s.estado === 'realizada').forEach(s => { contagem[s.servico] = (contagem[s.servico] || 0) + 1; });\n  const entradas = Object.entries(contagem).sort((a, b) => b[1] - a[1]);\n  return entradas.length ? entradas[0][0] : 'as suas sessões';\n})();\nconst userPrompt = [\n  'Escreve uma mensagem de reconhecimento de hábito para esta cliente frequente da Essence Wellness:',\n  '',\n  'Nome: ' + (p.nome || '').split(' ')[0],\n  'Total de sessões: ' + (p.totalSessoes ?? 0),\n  'Serviço mais frequente: ' + servicoFrequente,\n  '',\n  'Objectivo: reconhecer com leveza que se está a formar um hábito bom, sem tornar isso transaccional. Não é VIP ainda, mas já é claramente uma presença regular. Nunca mencionar packs, marcação ou preços.',\n  'Devolve apenas o JSON pedido.',\n].join('\\n');\n\nconst SYSTEM = \"REGRAS ABSOLUTAS -- baseadas em como a Bea escreve DE VERDADE no WhatsApp:\\n- Portugues europeu, tratamento por VOCE, nunca por tu\\n- Frases curtas e directas, sem clicles de wellness (jornada, energia, equilibrio holistico)\\n- Nunca gerundios colados no fim das frases (proporcionando, permitindo)\\n- Nunca travessao no meio de frases -- usa virgula, dois pontos ou ponto final\\n- Emojis com moderacao (0 a 2), estilo natural (\\\\ud83c\\\\udf3f\\\\ud83d\\\\ude0a\\\\ud83d\\\\ude09)\\n- Sem assinatura no fim (mensagem de WhatsApp)\\nFORMATO DE SAIDA\\nDevolve APENAS um objeto JSON valido, sem markdown e sem blocos de codigo:\\n{\\\\\\\"mensagem\\\\\\\": \\\\\\\"...\\\\\\\", \\\\\\\"motivo\\\\\\\": \\\\\\\"porque este angulo foi escolhido, para a Bea perceber\\\\\\\"}\\n- Esta cliente ja e frequente (4+ sessoes) mas ainda nao e VIP -- reconhece o habito, nao a fidelidade total\\n- Tom celebratorio mas leve, nunca grandioso nem comercial\\n- Nunca mencionar packs, marcacao ou precos -- ao contrario do VIP cuidado, aqui ainda nao ha convite directo\";\n\nreturn [{ json: { clienteId: p.id, systemPrompt: SYSTEM, userPrompt } }];"
+      },
+      "id": "code-prompt",
+      "name": "Preparar Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {model: 'claude-haiku-4-5', max_tokens: 400, system: $json.systemPrompt, messages: [{role: 'user', content: $json.userPrompt}]} }}",
+        "options": {}
+      },
+      "id": "http-claude",
+      "name": "Claude Haiku — Gerar Mensagem",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "anthropicApi": {
+          "id": "FWjIgyoGZXTkUQ3n",
+          "name": "Anthropic account"
+        }
+      },
+      "position": [
+        100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Preparar Prompt').item.json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '';\nlet mensagem = '';\nlet motivo = 'Sem motivo';\ntry {\n  const clean = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const d = clean ? JSON.parse(clean) : {};\n  mensagem = (d.mensagem || '').trim();\n  motivo = (d.motivo || motivo).slice(0, 300);\n} catch (e) { /* falhou abaixo */ }\nconst PADROES_PROIBIDOS = [/combin(a|amos|ar|ados?|\\u00e1mos)\\b/i, /vamos marcar/i, /deixe-me confirmar/i];\nconst violacao = PADROES_PROIBIDOS.some(re => re.test(mensagem));\nreturn [{ json: { clienteId: prep.clienteId, mensagemGerada: mensagem, motivoGeracao: motivo, falhou: !mensagem || violacao } }];"
+      },
+      "id": "code-parse",
+      "name": "Parsear Mensagem Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.falhou }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-validas",
+      "name": "Filtrar Mensagens Válidas",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        500,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://crm.essencewellnesspt.com/api/v1/mensagens",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "{{API_KEY_N8N}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { clienteId: $json.clienteId, mensagemGerada: $json.mensagemGerada, canal: 'whatsapp', motivoGeracao: $json.motivoGeracao, tipo: 'ativa_reconhecimento' } }}",
+        "options": {}
+      },
+      "id": "http-criar-msg",
+      "name": "Criar Mensagem Pendente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        700,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Trigger Diário 14h": {
+      "main": [
+        [
+          {
+            "node": "Buscar Candidatos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Mensagens Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Executar Manualmente": {
+      "main": [
+        [
+          {
+            "node": "Buscar Candidatos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Mensagens Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Candidatos": {
+      "main": [
+        [
+          {
+            "node": "Merge Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Mensagens Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Merge Pendentes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Selecionar Candidatos do Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selecionar Candidatos do Dia": {
+      "main": [
+        [
+          {
+            "node": "Buscar Perfil Completo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Perfil Completo": {
+      "main": [
+        [
+          {
+            "node": "Preparar Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude Haiku — Gerar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Haiku — Gerar Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Parsear Mensagem Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear Mensagem Claude": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Mensagens Válidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Mensagens Válidas": {
+      "main": [
+        [
+          {
+            "node": "Criar Mensagem Pendente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "oXWwOV9sY5bwMYv1"
+  }
+}

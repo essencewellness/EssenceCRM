@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, ultimaSessaoDesdeDiasMin, ultimaSessaoDesdeDiasMax, semPackAtivo, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
+  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, ultimaSessaoDesdeDiasMin, ultimaSessaoDesdeDiasMax, semPackAtivo, criadoDesdeDiasMin, criadoDesdeDiasMax, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -94,6 +94,23 @@ export async function GET(request: NextRequest) {
 
     if (semPackAtivo === "true") {
       where.packs = { none: { ativo: true } }
+    }
+
+    // Mesmo padrão "between" que ultimaSessaoDesdeDias*, mas sobre criadoEm
+    // — necessário para leads (ultimaSessao é sempre null nesse estado).
+    if (criadoDesdeDiasMin !== undefined || criadoDesdeDiasMax !== undefined) {
+      const filtroCriado: Prisma.DateTimeFilter = {}
+      if (criadoDesdeDiasMax !== undefined) {
+        const limiteMin = new Date()
+        limiteMin.setDate(limiteMin.getDate() - criadoDesdeDiasMax)
+        filtroCriado.gte = limiteMin
+      }
+      if (criadoDesdeDiasMin !== undefined) {
+        const limiteMax = new Date()
+        limiteMax.setDate(limiteMax.getDate() - criadoDesdeDiasMin)
+        filtroCriado.lte = limiteMax
+      }
+      where.criadoEm = filtroCriado
     }
 
     if (etiquetas) {
