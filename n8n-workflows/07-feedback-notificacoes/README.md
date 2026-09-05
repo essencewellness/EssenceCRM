@@ -1,6 +1,9 @@
 # 07 | Feedback — Notificações
 
-**Estado no N8N:** ✅ ativo.
+**Estado no N8N:** ⚠️ ativo em produção com a versão sem o branch de NPS
+baixo — a versão neste ficheiro (2026-09-05) acrescenta esse branch,
+validada (`validate_workflow`, zero erros) mas ainda não importada, ver
+`../README.md`.
 
 > **Actualizado 2026-08-31:** ganhou fallback por email quando o WhatsApp
 > falha.
@@ -15,9 +18,22 @@ marcar próxima sessão). Se pediu contacto e mencionou serviços de interesse,
 inclui o link real do Calendly para cada serviço mencionado (não um link
 genérico).
 
+## Mudança 2026-09-05 (auditoria do sistema de mensagens)
+
+Novo branch em paralelo, disparado pelo mesmo webhook: quando `npsScore <= 6`
+(detratora), além de notificar o Nuno/Bea (como já fazia), gera com Claude
+Haiku uma mensagem de reconhecimento para a própria cliente — reconhece o
+feedback, promete algo concreto para a próxima sessão, nunca defensiva,
+nunca menciona packs/preços. Cria `MensagemIA` `pendente`
+(`tipo: "nps_baixo"`), passa pela aprovação normal da Bea em `/mensagens`,
+**nunca envia sozinha**. Complementa a notificação existente, não a
+substitui — a Bea continua a ser avisada por WhatsApp/email como antes.
+
 ## Endpoints usados
 
 - Evolution API (`sendText`)
+- Claude Haiku (`anthropicApi`) — novo, só para o branch de NPS baixo
+- `POST /api/v1/mensagens` — novo, só para o branch de NPS baixo
 
 ## Notas importantes
 

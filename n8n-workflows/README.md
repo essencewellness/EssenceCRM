@@ -50,8 +50,8 @@ negócio e a topologia de cada workflow estão completas.
 | 04 | [Notificação de Confirmação](04-notificacao-confirmacao/) | Webhook | por evento | ✅ Ativo |
 | 05 | [Feedback Pós-Sessão](05-feedback-pos-sessao/) | Schedule | 7h + 19h + 20h | ✅ Ativo |
 | 05b | [Lembrete Individual — Registo Sessão](05b-lembrete-individual/) | Sub-workflow (do 05) | por sessão pendente | ✅ Ativo |
-| 06 | [Nutrição Pré-Sessão](06-nutricao-pre-sessao/) | Schedule | diário 11h | ✅ Ativo |
-| 07 | [Feedback — Notificações](07-feedback-notificacoes/) | Webhook | por evento | ✅ Ativo |
+| 06 | [Nutrição Pré-Sessão](06-nutricao-pre-sessao/) | Schedule | diário 11h | ⚠️ Ativo, mas com versão antiga — ver nota abaixo |
+| 07 | [Feedback — Notificações](07-feedback-notificacoes/) | Webhook | por evento | ⚠️ Ativo, mas com versão antiga — ver nota abaixo |
 | 08 | [Leads — Nova Lead](08-leads-nova-lead/) | Webhook | por evento | ✅ Ativo |
 | 09 | [Sugestão de Etiquetas](09-sugestao-etiquetas/) | Schedule | diário 6h30 | ✅ Ativo |
 | 10 | [Atualizar Telefone/WhatsApp](10-atualizar-telefone-whatsapp/) | Calendly | por evento | ✅ Ativo (legado HubSpot) |
@@ -63,6 +63,25 @@ negócio e a topologia de cada workflow estão completas.
 | 15 | [Vigilância WhatsApp](15-vigilancia-whatsapp/) | Schedule | a cada 15 min | ✅ Ativo |
 | 16 | [Alerta de Falha de Workflow (central)](16-alerta-falha-workflow/) | Error Trigger | automático, por falha | ✅ Ativo |
 | 17 | [Backup Diário da Base de Dados](17-backup-diario-bd/) | Schedule | diário 4h | ✅ Ativo |
+| 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário 10h + manual | 🆕 Novo — construído, validado, ainda não importado |
+
+## ⚠️ Três workflows pendentes de import (auditoria do sistema de mensagens, 2026-09-05)
+
+O ficheiro `.json` nas pastas **06**, **07** e **18** já reflecte a versão
+nova (validada com `validate_workflow`, zero erros) — mas **o N8N real
+continua a correr a versão antiga**. A sessão que construiu isto ficou
+bloqueada ao tentar aplicar via `PUT /api/v1/workflows/{id}` (permissão de
+escrita recusada de forma persistente, não transitória, mesmo depois de
+confirmação explícita do Nuno). Duas formas de aplicar:
+
+1. Importar manualmente estes 3 ficheiros no N8N (Workflows → Import from File)
+2. Adicionar uma regra de permissão que permita a chamada e pedir para o Claude tentar de novo
+
+Resumo do que cada um muda: **06** troca Groq por Claude Haiku e faz o toque
+WhatsApp passar pela aprovação da Bea; **07** ganha um branch novo que gera
+reconhecimento de NPS baixo em paralelo com o alerta já existente; **18** é
+um workflow inteiramente novo (check-in de continuidade pós-sessão). Ver o
+README de cada pasta para o detalhe completo.
 
 **01 continua desligado de propósito** — decisão do Nuno, evita onboarding a
 meio se cair uma marcação real antes de estar tudo testado.
