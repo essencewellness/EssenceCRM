@@ -1,18 +1,27 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { formatDateTime } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
-import { auth } from "@/lib/auth";
 import { aprovarEAgendar } from "@/lib/fila-envio";
 import { auditar } from "@/lib/audit";
 import { MensagensBulk, type MensagemPendente } from "@/components/mensagens-bulk";
-import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
-import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
-import type { Prisma } from "@/lib/prisma-client";
+import { getContextoUtilizador } from "@/lib/contexto-utilizador";
 import {
   MessageSquare, Clock, CheckCircle2, XCircle, TrendingUp,
   Hourglass, AlertTriangle, Send, RotateCcw,
 } from "lucide-react";
+
+// Mensagens IA nunca são separadas por terapeuta (ao contrário de todas as
+// outras abas): a fila é sempre partilhada, mas só a Bea e o admin podem
+// vê-la ou aprovar — nunca a Cristina, mesmo que o cliente seja dela
+// (decisão de negócio, 2026-09-04). Usado tanto na página como em cada
+// server action, para o bloqueio nunca depender só da UI.
+async function verificarPodeAprovarMensagens() {
+  const ctx = await getContextoUtilizador()
+  if (!ctx.podeAprovarMensagens) throw new Error("Sem permissão para gerir mensagens")
+  return ctx
+}
 
 export const revalidate = 10;
 
@@ -36,8 +45,7 @@ async function aprovarBulkAction(
   itens: Array<{ id: string; mensagemFinal: string; agendarParaISO?: string }>
 ) {
   "use server";
-  const session = await auth();
-  if (!session?.user) throw new Error("Não autorizado");
+  const ctx = await verificarPodeAprovarMensagens();
 
   const resultado = await aprovarEAgendar(
     itens.slice(0, 100).map((i) => ({
@@ -50,7 +58,7 @@ async function aprovarBulkAction(
   );
 
   auditar({
-    quem: session.user.email ?? "dashboard",
+    quem: ctx.username || "dashboard",
     acao: "mensagem.aprovacao_bulk",
     entidade: "MensagemIA",
     detalhe: {
@@ -65,15 +73,14 @@ async function aprovarBulkAction(
 
 async function rejeitarAction(id: string) {
   "use server";
-  const session = await auth();
-  if (!session?.user) throw new Error("Não autorizado");
+  const ctx = await verificarPodeAprovarMensagens();
 
   await prisma.mensagemIA.update({
     where: { id },
     data: { estado: "rejeitada" },
   });
   auditar({
-    quem: session.user.email ?? "dashboard",
+    quem: ctx.username || "dashboard",
     acao: "mensagem.rejeitada",
     entidade: "MensagemIA",
     entidadeId: id,
@@ -83,8 +90,7 @@ async function rejeitarAction(id: string) {
 
 async function reporNaFilaAction(formData: FormData) {
   "use server";
-  const session = await auth();
-  if (!session?.user) throw new Error("Não autorizado");
+  const ctx = await verificarPodeAprovarMensagens();
 
   const id = formData.get("id") as string;
   await prisma.mensagemIA.update({
@@ -92,7 +98,7 @@ async function reporNaFilaAction(formData: FormData) {
     data: { estado: "em_fila", enviarApos: new Date(), erroEnvio: null },
   });
   auditar({
-    quem: session.user.email ?? "dashboard",
+    quem: ctx.username || "dashboard",
     acao: "mensagem.reposta_fila",
     entidade: "MensagemIA",
     entidadeId: id,
@@ -103,16 +109,15 @@ async function reporNaFilaAction(formData: FormData) {
 // ── Page ───────────────────────────────────────────────────────
 
 interface PageProps {
-  searchParams: Promise<{ tab?: string; terapeuta?: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }
 
 export default async function MensagensPage({ searchParams }: PageProps) {
-  const { tab = "pendentes", terapeuta } = await searchParams;
-  const { filtroCliente } = await getFiltrosTerapeuta(terapeuta);
-  // Mensagens filtradas pela terapeuta do cliente associado
-  const fMsg = (filtroCliente as Prisma.ClienteWhereInput).terapeutaPrincipalId
-    ? { cliente: filtroCliente as Prisma.ClienteWhereInput }
-    : {};
+  const { tab = "pendentes" } = await searchParams;
+  // Nunca separada por terapeuta — só a Bea e o admin chegam aqui (ver
+  // verificarPodeAprovarMensagens acima). Cristina nem sequer vê a página.
+  const ctx = await getContextoUtilizador();
+  if (!ctx.podeAprovarMensagens) redirect("/");
 
   const agora = new Date();
   const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
@@ -127,25 +132,25 @@ export default async function MensagensPage({ searchParams }: PageProps) {
     mensagensFila,
     mensagensHistorico,
   ] = await Promise.all([
-    prisma.mensagemIA.count({ where: { estado: "pendente", ...fMsg } }),
-    prisma.mensagemIA.count({ where: { estado: "em_fila", ...fMsg } }),
-    prisma.mensagemIA.count({ where: { estado: "falhada", ...fMsg } }),
-    prisma.mensagemIA.count({ where: { estado: "enviada", enviadaEm: { gte: inicioMes }, ...fMsg } }),
-    prisma.mensagemIA.count({ where: { converteu: true, enviadaEm: { gte: inicioMes }, ...fMsg } }),
+    prisma.mensagemIA.count({ where: { estado: "pendente" } }),
+    prisma.mensagemIA.count({ where: { estado: "em_fila" } }),
+    prisma.mensagemIA.count({ where: { estado: "falhada" } }),
+    prisma.mensagemIA.count({ where: { estado: "enviada", enviadaEm: { gte: inicioMes } } }),
+    prisma.mensagemIA.count({ where: { converteu: true, enviadaEm: { gte: inicioMes } } }),
     prisma.mensagemIA.findMany({
-      where: { estado: "pendente", ...fMsg },
+      where: { estado: "pendente" },
       include: { cliente: { include: { etiquetas: { include: { etiqueta: true } } } } },
       orderBy: { geradaEm: "desc" },
       take: 100,
     }),
     prisma.mensagemIA.findMany({
-      where: { estado: { in: ["em_fila", "falhada"] }, ...fMsg },
+      where: { estado: { in: ["em_fila", "falhada"] } },
       include: { cliente: { select: { id: true, nome: true, telefone: true } } },
       orderBy: { enviarApos: "asc" },
       take: 100,
     }),
     prisma.mensagemIA.findMany({
-      where: { estado: { in: ["enviada", "rejeitada", "aprovada"] }, ...fMsg },
+      where: { estado: { in: ["enviada", "rejeitada", "aprovada"] } },
       include: { cliente: { select: { id: true, nome: true } } },
       orderBy: { geradaEm: "desc" },
       take: 50,
@@ -188,8 +193,6 @@ export default async function MensagensPage({ searchParams }: PageProps) {
         titulo="Mensagens IA"
         subtitulo="Aprova em massa — a fila trata do envio com espaçamento seguro."
       />
-
-      <FiltroTerapeutaSlot />
 
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "24px" }}>

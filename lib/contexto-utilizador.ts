@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao";
 
 export type ContextoUtilizador = {
   role: "admin" | "terapeuta";
@@ -12,6 +13,12 @@ export type ContextoUtilizador = {
   filtroCliente: Record<string, unknown>;
   // Filtro Prisma pronto para queries de sessões
   filtroSessao: Record<string, unknown>;
+  // Mensagens IA: decisão de negócio (2026-09-04) — NUNCA vão para o perfil
+  // da Cristina, sejam quais forem os clientes dela. Só a Bea (terapeuta
+  // principal por omissão, mesma convenção de lib/terapeuta-padrao.ts) e o
+  // admin veem/aprovam a fila de mensagens — ao contrário de todas as
+  // outras abas, que separam sempre por terapeutaPrincipalId do cliente.
+  podeAprovarMensagens: boolean;
 };
 
 export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
@@ -29,6 +36,8 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
   const userId = u.id ?? "";
   const isAdmin = role === "admin";
 
+  const idBea = await getTerapeutaPrincipalPadraoId();
+
   return {
     role,
     userId,
@@ -42,6 +51,7 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
     // Terapeuta só vê os seus; admin vê tudo (filtro aplicado via getFiltrosTerapeuta).
     filtroCliente: isAdmin ? {} : { terapeutaPrincipalId: userId },
     filtroSessao: isAdmin ? {} : { cliente: { terapeutaPrincipalId: userId } },
+    podeAprovarMensagens: isAdmin || (!!idBea && userId === idBea),
   };
 }
 

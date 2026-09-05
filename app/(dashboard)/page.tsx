@@ -88,15 +88,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       include: { cliente: true, user: { select: { name: true } } },
       orderBy: [{ data: "asc" }, { hora: "asc" }],
     }),
-    prisma.mensagemIA.findMany({
-      where: { estado: "aprovada", enviadaEm: null },
-      include: { cliente: { select: { nome: true, telefone: true } } },
-      orderBy: { aprovadaEm: "asc" },
-    }),
+    // Mensagens IA nunca aparece para a Cristina — só Bea/admin (decisão de
+    // negócio 2026-09-04, ver lib/contexto-utilizador.ts). Nem a query corre.
+    ctx.podeAprovarMensagens
+      ? prisma.mensagemIA.findMany({
+          where: { estado: "aprovada", enviadaEm: null },
+          include: { cliente: { select: { nome: true, telefone: true } } },
+          orderBy: { aprovadaEm: "asc" },
+        })
+      : Promise.resolve([]),
     prisma.cliente.count({
       where: { estado: { in: ["ativa_recente", "ativa_frequente", "vip_embaixadora"] }, ...filtroCliente },
     }),
-    prisma.mensagemIA.count({ where: { estado: "pendente" } }),
+    ctx.podeAprovarMensagens ? prisma.mensagemIA.count({ where: { estado: "pendente" } }) : Promise.resolve(0),
     prisma.cliente.count({ where: { ultimaSessao: { gte: inicioMes }, apagadoEm: null, ...filtroCliente } }),
     prisma.cliente.count({ where: { ultimaSessao: { gte: inicioMesAnterior, lt: fimMesAnterior }, apagadoEm: null, ...filtroCliente } }),
     prisma.cliente.count({ where: { apagadoEm: null, ...filtroCliente } }),
@@ -299,13 +303,24 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           cor="gold" index={2}
           icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>}
         />
-        <KpiCardPremium
-          titulo="Mensagens"
-          valor={totalMensagensPendentes}
-          descricao={totalMensagensPendentes === 0 ? "Tudo aprovado" : "A aguardar aprovação"}
-          cor={totalMensagensPendentes > 0 ? "red" : "gold"} index={3}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>}
-        />
+        {ctx.podeAprovarMensagens ? (
+          <KpiCardPremium
+            titulo="Mensagens"
+            valor={totalMensagensPendentes}
+            descricao={totalMensagensPendentes === 0 ? "Tudo aprovado" : "A aguardar aprovação"}
+            cor={totalMensagensPendentes > 0 ? "red" : "gold"} index={3}
+            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>}
+          />
+        ) : (
+          // Cristina não vê a Mensagens IA — mostra a semana em vez disso
+          <KpiCardPremium
+            titulo="Esta Semana"
+            valor={sessõesSemana.length}
+            descricao="sessões agendadas"
+            cor="blue" index={3}
+            icon={<Calendar className="w-4 h-4" />}
+          />
+        )}
       </section>
 
       {/* ── Linha 2: Sessões de hoje + Tarefas do dia ── */}
@@ -328,7 +343,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {/* ── Linha 4: Mensagens a aprovar + Clientes a reativar ── */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <MensagensCard mensagens={mensagensRows} />
+        {ctx.podeAprovarMensagens && <MensagensCard mensagens={mensagensRows} />}
 
         <ClientesReativarWidget clientes={reativarRows} />
       </section>

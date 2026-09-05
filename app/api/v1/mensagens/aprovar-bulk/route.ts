@@ -8,6 +8,7 @@ import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { aprovarBulkSchema, validarBody } from "@/lib/validations"
 import { aprovarEAgendar } from "@/lib/fila-envio"
 import { auditar } from "@/lib/audit"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 
 export async function POST(request: NextRequest) {
   // Autenticação dupla: sessão de dashboard OU X-API-Key
@@ -18,6 +19,16 @@ export async function POST(request: NextRequest) {
     const erro = validarApiKey(request)
     if (erro) return erro
     quem = "api:n8n"
+  } else {
+    // Mensagens IA nunca são aprovadas pela Cristina, mesmo via API directa
+    // — só Bea/admin (decisão de negócio 2026-09-04, mesma regra do
+    // dashboard em app/(dashboard)/mensagens/page.tsx). O caminho N8N
+    // (X-API-Key acima) não passa por aqui — é um actor de sistema, não
+    // uma terapeuta a aprovar.
+    const ctx = await getContextoUtilizador()
+    if (!ctx.podeAprovarMensagens) {
+      return respostaErro("Sem permissão para aprovar mensagens", "SEM_PERMISSAO", 403)
+    }
   }
 
   const v = await validarBody(request, aprovarBulkSchema)

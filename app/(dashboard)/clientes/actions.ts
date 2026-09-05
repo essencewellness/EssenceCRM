@@ -316,6 +316,15 @@ export async function criarCampanhaFromFiltro(dados: {
   const template = await prisma.templateMensagem.findUnique({ where: { id: dados.templateId } })
   if (!template) throw new Error("Template não encontrado")
 
+  // Motivo visível na fila de aprovação (/mensagens) — a Bea vê sempre
+  // porque uma mensagem existe, mesmo sem IA envolvida: aqui é o segmento
+  // exato que a fez entrar na campanha, não só o nome dela.
+  const criteriosSegmento = [
+    dados.estados?.length ? `estado: ${dados.estados.join(", ")}` : null,
+    dados.etiquetaIds.length ? `${dados.etiquetaIds.length} etiqueta(s)` : null,
+    dados.inativoDesdeDias ? `sem sessão há ${dados.inativoDesdeDias}+ dias` : null,
+  ].filter(Boolean).join(" · ")
+
   const campanha = await prisma.campanha.create({
     data: {
       nome:      dados.nome,
@@ -334,7 +343,9 @@ export async function criarCampanhaFromFiltro(dados: {
         mensagemGerada:  texto,
         tipo:            "campanha",
         estado:          "pendente",
-        motivoGeracao:   `Campanha: ${dados.nome}`,
+        motivoGeracao:   criteriosSegmento
+          ? `Campanha "${dados.nome}" — ${criteriosSegmento}`
+          : `Campanha "${dados.nome}"`,
       },
     })
   }

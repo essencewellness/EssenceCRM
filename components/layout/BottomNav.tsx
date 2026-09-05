@@ -32,12 +32,17 @@ const ALL_ITEMS = [
 
 interface BottomNavProps {
   mensagensPendentes?: number
+  // Mensagens IA nunca aparece para a Cristina — só Bea/admin (ver
+  // lib/contexto-utilizador.ts, decisão de negócio 2026-09-04).
+  podeAprovarMensagens?: boolean
   logoutAction: () => Promise<void>
 }
 
-export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavProps) {
+export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true, logoutAction }: BottomNavProps) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const mainItems = podeAprovarMensagens ? MAIN_ITEMS : MAIN_ITEMS.filter((i) => i.href !== "/mensagens")
+  const allItems = podeAprovarMensagens ? ALL_ITEMS : ALL_ITEMS.filter((i) => i.href !== "/mensagens")
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/"
@@ -111,7 +116,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
 
           {/* Itens do menu */}
           <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }}>
-            {ALL_ITEMS.map((item) => {
+            {allItems.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
@@ -194,7 +199,7 @@ export function BottomNav({ mensagensPendentes = 0, logoutAction }: BottomNavPro
           display: "flex", alignItems: "center", justifyContent: "space-around",
           padding: "0 8px", height: "60px",
         }}>
-          {MAIN_ITEMS.map((item) => {
+          {mainItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
             const badge = item.href === "/mensagens" && mensagensPendentes > 0 ? mensagensPendentes : 0

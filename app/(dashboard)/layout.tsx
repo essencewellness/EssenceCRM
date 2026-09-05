@@ -5,6 +5,7 @@ import { PageTransition } from "@/components/page-transition"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { ToastProvider } from "@/components/ui/toast-nuit"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 
 async function logoutAction() {
   "use server"
@@ -23,10 +24,13 @@ export default async function DashboardLayout({
   // aplicada em proxy.ts, antes de chegar aqui — feito lá para poder excluir
   // /configuracoes/perfil do redirect (senão entra em loop consigo mesma).
 
-  // Contar mensagens pendentes para badge na sidebar
-  const mensagensPendentes = await prisma.mensagemIA.count({
-    where: { estado: "pendente" },
-  })
+  // Mensagens IA nunca aparece para a Cristina — só Bea/admin (decisão de
+  // negócio 2026-09-04, ver lib/contexto-utilizador.ts). Sem permissão, nem
+  // sequer se conta o badge — evita qualquer fuga de "há X pendentes".
+  const ctx = await getContextoUtilizador()
+  const mensagensPendentes = ctx.podeAprovarMensagens
+    ? await prisma.mensagemIA.count({ where: { estado: "pendente" } })
+    : 0
 
   const preferenciaFonte = (session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"
 
@@ -38,7 +42,7 @@ export default async function DashboardLayout({
         style={{ backgroundColor: "var(--nuit-midnight)" }}
       >
         {/* Sidebar — visível em desktop */}
-        <Sidebar mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
+        <Sidebar mensagensPendentes={mensagensPendentes} podeAprovarMensagens={ctx.podeAprovarMensagens} logoutAction={logoutAction} />
 
         {/* Conteúdo principal */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0 h-screen">
@@ -48,7 +52,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Bottom nav — visível em mobile */}
-        <BottomNav mensagensPendentes={mensagensPendentes} logoutAction={logoutAction} />
+        <BottomNav mensagensPendentes={mensagensPendentes} podeAprovarMensagens={ctx.podeAprovarMensagens} logoutAction={logoutAction} />
       </div>
     </ToastProvider>
   )

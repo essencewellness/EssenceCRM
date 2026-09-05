@@ -61,10 +61,13 @@ const grupos: NavGroup[] = [
 
 interface SidebarProps {
   mensagensPendentes?: number
+  // Mensagens IA nunca aparece para a Cristina — só Bea/admin (ver
+  // lib/contexto-utilizador.ts, decisão de negócio 2026-09-04).
+  podeAprovarMensagens?: boolean
   logoutAction: () => Promise<void>
 }
 
-export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) {
+export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, logoutAction }: SidebarProps) {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
   const claro = theme === "light"
@@ -76,11 +79,13 @@ export function Sidebar({ mensagensPendentes = 0, logoutAction }: SidebarProps) 
 
   const gruposComBadge = grupos.map((g) => ({
     ...g,
-    items: g.items.map((item) =>
-      item.href === "/mensagens" && mensagensPendentes > 0
-        ? { ...item, badge: mensagensPendentes }
-        : item
-    ),
+    items: g.items
+      .filter((item) => item.href !== "/mensagens" || podeAprovarMensagens)
+      .map((item) =>
+        item.href === "/mensagens" && mensagensPendentes > 0
+          ? { ...item, badge: mensagensPendentes }
+          : item
+      ),
   }))
 
   return (
