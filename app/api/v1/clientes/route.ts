@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const q = validarQuery(request.url, clientesQuerySchema)
   if (!q.ok) return q.resposta
-  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, ultimaSessaoDesdeDiasMin, ultimaSessaoDesdeDiasMax, semPackAtivo, criadoDesdeDiasMin, criadoDesdeDiasMax, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
+  const { q: pesquisa, estado, canal, aceitaMarketing, email, telefone, inactivos_desde_dias, semMensagemDias, ultimaSessaoDesdeDiasMin, ultimaSessaoDesdeDiasMax, semPackAtivo, criadoDesdeDiasMin, criadoDesdeDiasMax, semSessaoFutura, blacklist, ativo, etiquetas, etiquetas_modo, sem_automacoes, terapeuta, includeLinkToken, limit, cursor } = q.data
 
   try {
     const where: Prisma.ClienteWhereInput = {
@@ -111,6 +111,13 @@ export async function GET(request: NextRequest) {
         filtroCriado.lte = limiteMax
       }
       where.criadoEm = filtroCriado
+    }
+
+    // "Pausa mestre" — nunca sugerir reconquista/reconhecimento a quem já
+    // tem uma sessão agendada. Sem isto o sistema podia mandar "há tanto
+    // tempo que não a vejo" a alguém que marcou ontem para amanhã.
+    if (semSessaoFutura === "true") {
+      where.sessoes = { none: { estado: { in: ["agendada", "confirmada"] }, data: { gte: new Date() } } }
     }
 
     if (etiquetas) {

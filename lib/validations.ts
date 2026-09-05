@@ -118,6 +118,10 @@ export const clientesQuerySchema = z.object({
   // quem preencheu o onboarding mas nunca chegou a marcar.
   criadoDesdeDiasMin: z.coerce.number().int().min(0).max(3650).optional(),
   criadoDesdeDiasMax: z.coerce.number().int().min(0).max(3650).optional(),
+  // "Pausa mestre" (achado da pesquisa NotebookLM, 2026-09-05): nunca gerar
+  // reconquista/reconhecimento para quem já tem uma sessão marcada — soa a
+  // sistema que não sabe o que já aconteceu, destrói a confiança na hora.
+  semSessaoFutura: z.enum(["true"]).optional(),
   blacklist: z.enum(["true"]).optional(),
   ativo: z.enum(["true"]).optional(),
   etiquetas: z.union([z.string().trim(), z.array(z.string().trim())]).optional(),
