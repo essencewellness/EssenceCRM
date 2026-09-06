@@ -45,6 +45,41 @@ Ordem de prioridade no `calcularEstado`: perdida → reativacao → VIP → ativ
 
 **Dois caminhos, já ligados os dois (2026-08-31):** pull via fila (rede de segurança, resiliente) e push via webhook `mensagem.aprovada` (`WEBHOOK_N8N_MENSAGEM_APROVADA`) — este último dispara **só para a 1ª mensagem de um lote sem `agendarPara`** (a Bea quis dizer "envia já"), dando envio quase instantâneo sem esperar pela próxima verificação periódica. Antes o push nunca era chamado na prática (o dashboard só usava `aprovarEAgendar`, nunca o `PATCH estado=aprovada` que o disparava) — corrigido e testado ao vivo.
 
+### Telefone — sempre `+351XXXXXXXXX`
+
+`normalizarTelefone()` (`lib/validations.ts`) é a única forma correcta de
+gravar ou procurar um telefone — aceita qualquer formato de entrada
+(com/sem `+`, com/sem `351`, com espaços) e devolve sempre
+`+351XXXXXXXXX`. **Nunca gravar `telefone` sem passar por aqui primeiro**
+— foi exactamente o contrário (pontos de escrita diferentes a gravar em
+formatos diferentes) que já causou um bug real de vouchers nunca ligados
+ao cliente certo (2026-09-06, ver `../CLAUDE.md`). Lookups usam sempre
+`{ telefone: { contains: normalizarTelefone(x) } }`. Exibição usa
+`formatPhone()` (`lib/utils.ts`) — não reimplementar noutro sítio.
+
+### Etiquetas automáticas vs. manuais
+
+7 das 21 etiquetas (`lib/etiquetas-automaticas.ts`, tipos `ciclo`/
+`compra`/parte de `experiencia`) são calculadas por regras puras sobre
+dados existentes e aplicadas/removidas sozinhas no cron
+`/api/cron/estados`, sem aprovação — são "propriedade do motor": um
+toggle manual que contradiga a regra é revertido na corrida seguinte.
+Todas as outras (saúde, preferência, campanha, e as 2 restantes de
+experiência) são só manuais ou sugeridas pelo WF09 (Groq, lê notas de
+sessão em texto livre) — nunca aplicadas sozinhas.
+
+### Campanhas
+
+`lib/campanhas.ts` tem a lógica partilhada entre o endpoint público
+(`POST /api/v1/campanhas`, usado por N8N/integrações — auto-aprova e
+coloca na fila) e `criarCampanhaFromFiltro` (`app/(dashboard)/clientes/actions.ts`,
+usado pelo dashboard — sempre `pendente`, nunca salta a aprovação da
+Bea). O dashboard aceita uma selecção manual de clientes (`clienteIds`)
+OU filtros por etiqueta/estado/inactividade, e uma mensagem livre
+(`mensagemTexto`) OU um `TemplateMensagem` existente — nunca os dois.
+Clientes com uma etiqueta `bloqueiaAutomacoes=true` são sempre excluídos,
+mesmo numa selecção manual.
+
 ### Webhooks de saída (CRM → N8N)
 
 `lib/webhooks.ts` — fire-and-forget, retry 3x, timeout 5s. Cada pedido vai assinado com HMAC-SHA256 no header `X-Assinatura`. O URL de cada evento vem de variáveis de ambiente `WEBHOOK_N8N_<EVENTO>` — se a variável não estiver definida, o webhook é silenciosamente ignorado (não é erro). Falhas após 3 tentativas vão para `console.error` apenas — não há dead-letter.
@@ -145,6 +180,22 @@ Variáveis de ambiente novas: `API_KEY_ADMIN` (obrigatória p/ destrutivos via A
 | ✅ | Mensagens IA podiam ir para o perfil da Cristina — só Bea/admin devem aprovar | `podeAprovarMensagens` em `lib/contexto-utilizador.ts`, aplicado em `/mensagens`, `aprovar-bulk`, sidebar/bottom nav e dashboard — ver `../CLAUDE.md` |
 | ✅ | `Feedback` e `MensagemIA` ainda apagavam em cascata ao apagar um cliente (mesmo gap do bug de 2026-09-04, não coberto nessa altura) | Mesmo tratamento "fantasma": `clienteId` opcional + `onDelete: SetNull` + `clienteNomeArquivado`; migração aplicada à Neon de produção via MCP e testada ao vivo de ponta a ponta — ver `../CLAUDE.md` |
 | ✅ | `ID_TERAPEUTA_PADRAO` em produção estava definida mas vazia — a identificação de "quem é a Bea" (agora também usada para segurança, não só atribuição financeira) dependia só do heurístico | Fixada explicitamente ao id real da Beatriz Leão no Vercel |
+
+## Resolvido nesta fase (2026-09-06 e 2026-09-07)
+
+Ver `../CLAUDE.md` secção "Correcções de produção e novas funcionalidades
+(2026-09-06 e 2026-09-07)" para o detalhe completo. Resumo do que muda a
+nível de código/arquitectura:
+
+| ✅ | Problema resolvido | Como |
+|---|---|---|
+| ✅ | Bug de sintaxe JS em produção nos 8 workflows Claude Haiku (aspas não escapadas) | Corrigido nos 8 workflows N8N, verificado com `node --check` real — não há alteração de código neste repo (workflows vivem no N8N, backups em `n8n-workflows/`) |
+| ✅ | Motor de Envio (WF10) enviava por WhatsApp mensagens de canal não suportado (ex: Email) | Corrigido só no workflow N8N — sem integração de email real (Brevo por configurar), continua a marcar como `falhada` em vez de enviar pelo canal errado |
+| ✅ | Sem forma de a Bea criar uma campanha a partir de uma selecção manual de clientes, nem escrever a mensagem na hora | `lib/campanhas.ts` (lógica partilhada), `criarCampanhaFromFiltro` em `app/(dashboard)/clientes/actions.ts` estendida (`clienteIds`, `mensagemTexto`, `canal`), `components/clientes/CampanhaSelecaoModal.tsx`, `components/clientes/BulkActionsBar.tsx` |
+| ✅ | Sistema de etiquetas sem grupos para padrão de compra, experiência, ciclo de vida | `TipoEtiqueta` (enum Postgres) ganhou 6 valores novos; 21 etiquetas activas em 6 grupos depois de corte em `/council` (removidas persuasao/advocacia/winback/automatica por falta de sustentação) |
+| ✅ | Etiquetas 100% manuais, mesmo as que dão para calcular de dados existentes | `lib/etiquetas-automaticas.ts` — `aplicarEtiquetasAutomaticas()`, integrado no cron `/api/cron/estados`, sem aprovação (metadados internos, 100% determinístico) |
+| ✅ | Vouchers reais nunca ligados ao `Cliente` certo (`compradorClienteId`/`clienteId` sempre `null`) | Causa: formato de telefone inconsistente — ver ponto seguinte. `PATCH /api/v1/vouchers/[id]` ganhou religação automática por telefone |
+| ✅ | Telefone guardado em pelo menos 3 formatos diferentes ao mesmo tempo | `normalizarTelefone()` (`lib/validations.ts`) passa a devolver sempre `+351XXXXXXXXX`; corrigidos os pontos de escrita que não normalizavam (`webhooks/calendly`, `/public/lead`, `/public/onboarding`, `PATCH /clientes/[id]`); dados migrados em produção (25 clientes + 5 vouchers, zero colisões); `formatPhone()` unificado (duas implementações duplicadas eliminadas) |
 
 ## Resolvido nesta fase (spec-002)
 

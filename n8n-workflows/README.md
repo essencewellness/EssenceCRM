@@ -40,7 +40,14 @@ negócio e a topologia de cada workflow estão completas.
 
 ---
 
-## Workflows ativos em produção (backup principal 2026-08-05, actualizado 2026-08-31)
+## Workflows ativos em produção (backup principal 2026-08-05, actualizado 2026-09-07)
+
+⚠️ **2026-09-06**: os 8 workflows Claude Haiku (06/07/13/18/19/20/21/22)
+tiveram um bug real de sintaxe JS em produção (aspas não escapadas,
+introduzidas pela correcção de tom PT-PT do dia anterior) — corrigido e
+verificado com `node --check` real. Os 7 agendados foram também
+adiantados de um leque 9h-14h para **6h00-7h30** (espaçados 15 min) no
+mesmo dia. Ver `../../CLAUDE.md` para o detalhe completo do incidente.
 
 | Nº | Workflow | Trigger | Frequência | Estado |
 |---|---|---|---|---|
@@ -50,24 +57,24 @@ negócio e a topologia de cada workflow estão completas.
 | 04 | [Notificação de Confirmação](04-notificacao-confirmacao/) | Webhook | por evento | ✅ Ativo |
 | 05 | [Feedback Pós-Sessão](05-feedback-pos-sessao/) | Schedule | 7h + 19h + 20h | ✅ Ativo |
 | 05b | [Lembrete Individual — Registo Sessão](05b-lembrete-individual/) | Sub-workflow (do 05) | por sessão pendente | ✅ Ativo |
-| 06 | [Nutrição Pré-Sessão](06-nutricao-pre-sessao/) | Schedule | diário 11h | ✅ Ativo — migrado para Claude Haiku + aprovação (2026-09-05) |
-| 07 | [Feedback — Notificações](07-feedback-notificacoes/) | Webhook | por evento | ✅ Ativo — ganhou branch de reconhecimento de NPS baixo (2026-09-05) |
+| 06 | [Nutrição Pré-Sessão](06-nutricao-pre-sessao/) | Schedule | diário **6h30** | ✅ Ativo — migrado para Claude Haiku + aprovação (2026-09-05); bug de sintaxe corrigido e horário adiantado de 11h (2026-09-06) |
+| 07 | [Feedback — Notificações](07-feedback-notificacoes/) | Webhook | por evento | ✅ Ativo — ganhou branch de reconhecimento de NPS baixo (2026-09-05); bug de sintaxe corrigido (2026-09-06) |
 | 08 | [Leads — Nova Lead](08-leads-nova-lead/) | Webhook | por evento | ✅ Ativo |
-| 09 | [Sugestão de Etiquetas](09-sugestao-etiquetas/) | Schedule | diário 6h30 | ✅ Ativo |
+| 09 | [Sugestão de Etiquetas](09-sugestao-etiquetas/) | Schedule | diário 6h30 | ✅ Ativo — alargado 2026-09-07 para cobrir também o tipo `experiencia` |
 | 10 | [Atualizar Telefone/WhatsApp](10-atualizar-telefone-whatsapp/) | Calendly | por evento | ✅ Ativo (legado HubSpot) |
-| 10 (N8N) | [Motor de Envio (Fila de Mensagens)](10b-motor-envio/) | Schedule + Webhook | 8h-20h/20min + push | ✅ Ativo |
+| 10 (N8N) | [Motor de Envio (Fila de Mensagens)](10b-motor-envio/) | Schedule + Webhook | 8h-20h/20min + push | ✅ Ativo — corrigido 2026-09-06/07: enviava por WhatsApp mensagens de canal não suportado (ex: email) em vez de as marcar como falhadas |
 | 11 | [Drenagem — Lead Capture](11-drenagem-lead-capture/) | Webhook | por evento | ✅ Ativo (legado HubSpot) |
 | 12 | [Fichas HubSpot → Drive](12-fichas-hubspot-drive/) | Schedule | semanal (2ª 8h) | ✅ Ativo (legado, baixa prioridade) |
-| 13 | [Reativação — Geração de Mensagens](13-reativacao-mensagens/) | Schedule | diário 9h + manual | ✅ Ativo — decisão do Nuno 2026-09-05, confirmado sem gerar nada real ainda (só 2 clientes em produção) |
+| 13 | [Reativação — Geração de Mensagens](13-reativacao-mensagens/) | Schedule | diário **6h00** + manual | ✅ Ativo — decisão do Nuno 2026-09-05; bug de sintaxe corrigido e horário adiantado de 9h (2026-09-06) |
 | 14 | [Alertas de Segurança (SIEM lite)](14-alertas-seguranca/) | Schedule | a cada 15 min | ⚠️ Inativo — construído 2026-08-25, nunca importado |
 | 15 | [Vigilância WhatsApp](15-vigilancia-whatsapp/) | Schedule | a cada 15 min | ✅ Ativo |
 | 16 | [Alerta de Falha de Workflow (central)](16-alerta-falha-workflow/) | Error Trigger | automático, por falha | ✅ Ativo |
 | 17 | [Backup Diário da Base de Dados](17-backup-diario-bd/) | Schedule | diário 4h | ✅ Ativo |
-| 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário 10h + manual | ✅ Ativo — novo (2026-09-05) |
-| 19 | [Perdida — Reconquista](19-perdida-reconquista/) | Schedule | diário 11h + manual | ✅ Ativo — novo (2026-09-05) |
-| 20 | [VIP — Cuidado Proactivo](20-vip-cuidado/) | Schedule | diário 12h + manual | ✅ Ativo — novo (2026-09-05) |
-| 21 | [Lead — Primeira Impressão](21-lead-primeira-impressao/) | Schedule | diário 13h + manual | ✅ Ativo — novo (2026-09-05) |
-| 22 | [Ativa Frequente — Reconhecedora](22-ativa-frequente-reconhecedora/) | Schedule | diário 14h + manual | ✅ Ativo — novo (2026-09-05) |
+| 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário **6h15** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 10h (2026-09-06) |
+| 19 | [Perdida — Reconquista](19-perdida-reconquista/) | Schedule | diário **6h45** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 11h (2026-09-06) |
+| 20 | [VIP — Cuidado Proactivo](20-vip-cuidado/) | Schedule | diário **7h00** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 12h (2026-09-06) |
+| 21 | [Lead — Primeira Impressão](21-lead-primeira-impressao/) | Schedule | diário **7h15** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 13h (2026-09-06) |
+| 22 | [Ativa Frequente — Reconhecedora](22-ativa-frequente-reconhecedora/) | Schedule | diário **7h30** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 14h (2026-09-06) |
 
 **Cobertura completa dos 9 estados CRM alcançada em 2026-09-05** — os 8
 tipos de mensagem (06/07/13/18/19/20/21/22) cobrem `novo`,

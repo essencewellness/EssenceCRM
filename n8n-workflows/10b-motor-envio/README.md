@@ -41,3 +41,28 @@ consumidor de CU-hours de todos os workflows). A correção:
 
 Testado ao vivo em 2026-08-31 com mensagens de teste reais (`TESTE TESTE`)
 em ambos os caminhos — confirmado sem duplicação de envios.
+
+## Bug corrigido 2026-09-06/07 — canal não verificado
+
+Descoberto ao construir o sistema de campanhas (que introduziu a
+possibilidade de canal `email`): o caminho pull nunca verificava o campo
+`canal` de uma mensagem — tentava enviar **tudo** por WhatsApp,
+independentemente do canal escolhido. O caminho push já verificava
+(`Normalizar Payload (Push)` devolve `[]` se `canal !== 'whatsapp'`), mas
+isso só significava que a mensagem ficava muda até o pull a apanhar 20 min
+depois e a enviar pelo canal errado — pior do que simplesmente falhar.
+
+Corrigido nos dois nós `Normalizar Telefone` (pull e push): calculam
+`canalSuportado = !item.canal || item.canal === 'whatsapp'` e forçam
+`temWhatsapp = false` quando o canal não é suportado — reaproveita a
+condição `Tem WhatsApp Válido?` já existente (routing para o branch "sem
+canal"), sem precisar de mexer no próprio nó IF (tentativa inicial de
+adicionar uma condição nova ao IF via API falhou silenciosamente —
+n8n aceitou o PUT mas não persistiu a condição; forçar a flag existente
+foi a alternativa robusta). `Preparar Confirmação (Sem Canal)` passou a
+diferenciar a mensagem de erro: "Canal X ainda não é enviado por este
+motor" vs. "Cliente sem telefone/WhatsApp válido".
+
+**Email continua sem integração real** (Brevo por configurar) — o efeito
+desta correcção é a mensagem ficar correctamente marcada `falhada` com o
+motivo certo, não que passe a ser entregue por email.
