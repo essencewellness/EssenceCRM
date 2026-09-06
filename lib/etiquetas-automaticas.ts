@@ -1,3 +1,5 @@
+import type { PrismaClient } from "@/lib/prisma-client"
+
 // Motor de sugestão/aplicação automática das etiquetas que dão para calcular
 // directamente a partir de dados estruturados já existentes — sem IA, sem
 // interpretação de texto livre (isso continua a ser o WF09/Groq, que lê
@@ -95,4 +97,72 @@ export function calcularEtiquetasAutomaticas(perfil: PerfilParaEtiquetas, agora:
   }
 
   return resultado
+}
+
+/**
+ * Busca todos os clientes elegíveis, calcula as etiquetas automáticas de
+ * cada um, e aplica/remove por diferença — extraído do cron
+ * (/api/cron/estados) para ser chamável e testável isoladamente (ex: um
+ * script de verificação directa contra produção), sem duplicar a lógica.
+ */
+export async function aplicarEtiquetasAutomaticas(
+  prisma: PrismaClient,
+  agora: Date = new Date()
+): Promise<{ etiquetasAplicadas: number; etiquetasRemovidas: number; clientesAnalisados: number }> {
+  const etiquetasAutomaticas = await prisma.etiqueta.findMany({
+    where: { nome: { in: [...NOMES_ETIQUETAS_AUTOMATICAS] } },
+    select: { id: true, nome: true },
+  })
+  const idPorNome = new Map(etiquetasAutomaticas.map(e => [e.nome, e.id]))
+  const idsAutomaticos = etiquetasAutomaticas.map(e => e.id)
+
+  let etiquetasAplicadas = 0
+  let etiquetasRemovidas = 0
+  if (idsAutomaticos.length === 0) {
+    return { etiquetasAplicadas, etiquetasRemovidas, clientesAnalisados: 0 }
+  }
+
+  const clientesParaEtiquetas = await prisma.cliente.findMany({
+    where: { apagadoEm: null, anonimizadoEm: null, estado: { not: "blacklist" } },
+    select: {
+      id: true, estado: true, criadoEm: true, totalSessoes: true, totalGasto: true, ultimaSessao: true,
+      feedbacks: { orderBy: { criadoEm: "desc" }, take: 1, select: { npsScore: true } },
+      sessoes: { where: { estado: "realizada", apagadoEm: null, servico: { not: null } }, select: { servico: true } },
+      etiquetas: { where: { etiquetaId: { in: idsAutomaticos } }, select: { etiquetaId: true } },
+    },
+  })
+
+  for (const c of clientesParaEtiquetas) {
+    const perfil: PerfilParaEtiquetas = {
+      estado: c.estado,
+      criadoEm: c.criadoEm,
+      totalSessoes: c.totalSessoes,
+      totalGasto: Number(c.totalGasto),
+      ultimaSessao: c.ultimaSessao,
+      npsScoreRecente: c.feedbacks[0]?.npsScore ?? null,
+      categoriasServicoRealizado: c.sessoes.map(s => normalizarServicoBase(s.servico!)),
+    }
+    const nomesAplicaveis = calcularEtiquetasAutomaticas(perfil, agora)
+    const idsAplicaveis = new Set(nomesAplicaveis.map(n => idPorNome.get(n)).filter((id): id is string => !!id))
+    const idsAtuais = new Set(c.etiquetas.map(e => e.etiquetaId))
+
+    const paraAdicionar = [...idsAplicaveis].filter(id => !idsAtuais.has(id))
+    const paraRemover = [...idsAtuais].filter(id => !idsAplicaveis.has(id))
+
+    if (paraAdicionar.length > 0) {
+      await prisma.clienteEtiqueta.createMany({
+        data: paraAdicionar.map(etiquetaId => ({ clienteId: c.id, etiquetaId })),
+        skipDuplicates: true,
+      })
+      etiquetasAplicadas += paraAdicionar.length
+    }
+    if (paraRemover.length > 0) {
+      await prisma.clienteEtiqueta.deleteMany({
+        where: { clienteId: c.id, etiquetaId: { in: paraRemover } },
+      })
+      etiquetasRemovidas += paraRemover.length
+    }
+  }
+
+  return { etiquetasAplicadas, etiquetasRemovidas, clientesAnalisados: clientesParaEtiquetas.length }
 }

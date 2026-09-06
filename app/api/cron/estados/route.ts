@@ -10,7 +10,7 @@ import { executarMotorEstados } from "@/lib/crm-estados"
 import { recalcularMetricasCliente } from "@/lib/metricas"
 import { auditar } from "@/lib/audit"
 import { detectarConversao } from "@/lib/mensagens-performance"
-import { calcularEtiquetasAutomaticas, normalizarServicoBase, NOMES_ETIQUETAS_AUTOMATICAS } from "@/lib/etiquetas-automaticas"
+import { aplicarEtiquetasAutomaticas } from "@/lib/etiquetas-automaticas"
 
 // Fim real da sessão (data + hora + duração), calculado em UTC a partir da
 // hora local de Lisboa guardada nos campos `hora`/`duracao` — mesma lógica
@@ -162,59 +162,7 @@ export async function GET(request: NextRequest) {
     // directamente de dados estruturados (ver lib/etiquetas-automaticas.ts).
     // Aplicadas/removidas sem aprovação (são metadados internos, nunca
     // tocam o cliente directamente) — mesmo espírito do motor de estados.
-    const etiquetasAutomaticas = await prisma.etiqueta.findMany({
-      where: { nome: { in: [...NOMES_ETIQUETAS_AUTOMATICAS] } },
-      select: { id: true, nome: true },
-    })
-    const idPorNome = new Map(etiquetasAutomaticas.map(e => [e.nome, e.id]))
-    const idsAutomaticos = etiquetasAutomaticas.map(e => e.id)
-
-    let etiquetasAplicadas = 0
-    let etiquetasRemovidas = 0
-
-    if (idsAutomaticos.length > 0) {
-      const clientesParaEtiquetas = await prisma.cliente.findMany({
-        where: { apagadoEm: null, anonimizadoEm: null, estado: { not: "blacklist" } },
-        select: {
-          id: true, estado: true, criadoEm: true, totalSessoes: true, totalGasto: true, ultimaSessao: true,
-          feedbacks: { orderBy: { criadoEm: "desc" }, take: 1, select: { npsScore: true } },
-          sessoes: { where: { estado: "realizada", apagadoEm: null, servico: { not: null } }, select: { servico: true } },
-          etiquetas: { where: { etiquetaId: { in: idsAutomaticos } }, select: { etiquetaId: true } },
-        },
-      })
-
-      for (const c of clientesParaEtiquetas) {
-        const perfil = {
-          estado: c.estado,
-          criadoEm: c.criadoEm,
-          totalSessoes: c.totalSessoes,
-          totalGasto: Number(c.totalGasto),
-          ultimaSessao: c.ultimaSessao,
-          npsScoreRecente: c.feedbacks[0]?.npsScore ?? null,
-          categoriasServicoRealizado: c.sessoes.map(s => normalizarServicoBase(s.servico!)),
-        }
-        const nomesAplicaveis = calcularEtiquetasAutomaticas(perfil, agora)
-        const idsAplicaveis = new Set(nomesAplicaveis.map(n => idPorNome.get(n)).filter((id): id is string => !!id))
-        const idsAtuais = new Set(c.etiquetas.map(e => e.etiquetaId))
-
-        const paraAdicionar = [...idsAplicaveis].filter(id => !idsAtuais.has(id))
-        const paraRemover = [...idsAtuais].filter(id => !idsAplicaveis.has(id))
-
-        if (paraAdicionar.length > 0) {
-          await prisma.clienteEtiqueta.createMany({
-            data: paraAdicionar.map(etiquetaId => ({ clienteId: c.id, etiquetaId })),
-            skipDuplicates: true,
-          })
-          etiquetasAplicadas += paraAdicionar.length
-        }
-        if (paraRemover.length > 0) {
-          await prisma.clienteEtiqueta.deleteMany({
-            where: { clienteId: c.id, etiquetaId: { in: paraRemover } },
-          })
-          etiquetasRemovidas += paraRemover.length
-        }
-      }
-    }
+    const { etiquetasAplicadas, etiquetasRemovidas } = await aplicarEtiquetasAutomaticas(prisma, agora)
 
     auditar({
       quem: "sistema",
