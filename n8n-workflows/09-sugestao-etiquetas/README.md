@@ -15,7 +15,8 @@
 2. Busca as etiquetas já existentes no CRM (para a IA preferir reutilizar em
    vez de duplicar).
 3. Para cada sessão, Groq lê as notas (`resumoSessao` + `notasPosSessao`) e
-   sugere etiquetas (existentes ou novas, com tipo saude/campanha/preferencia).
+   sugere etiquetas (existentes ou novas, com tipo saude/campanha/preferencia/
+   **experiencia** — alargado 2026-09-07, ver nota abaixo).
 4. Marca a sessão como processada.
 5. Se houver sugestões, cria uma `Tarefa` de revisão atribuída à terapeuta
    que fez a sessão (`terapeutaId` da sessão — não a etiqueta "terapeuta
@@ -35,3 +36,18 @@
 - `atribuidaA` da tarefa vem do `terapeutaId` real da sessão (corrigido
   2026-08-05) — antes causava tarefas atribuídas à terapeuta errada quando a
   etiqueta "terapeuta habitual" do cliente estava desatualizada.
+
+**2026-09-07 — divisão de trabalho com o motor de etiquetas automáticas**
+(`lib/etiquetas-automaticas.ts`, integrado no cron `/api/cron/estados`):
+7 etiquetas (Lead fria, Onboarding, LTV alto, Cross-buy alto/moderado,
+Promotora/Detratora NPS) passaram a ser calculadas por regras, sem IA e
+sem aprovação. Este workflow continua a cobrir tudo o resto — o que só dá
+para saber lendo texto livre da sessão (saúde, campanha, preferência, e
+agora também experiência: "Reclamação registada"/"Recuperação de
+serviço"). Duas mudanças no node "Preparar Prompts":
+- a lista de etiquetas existentes mostrada ao Groq já não inclui as de
+  tipo `ciclo`/`compra` (são só do motor automático, a IA nunca deve
+  sugeri-las nem reutilizá-las)
+- `tipoEtiqueta` aceita agora `experiencia` além de
+  `saude|campanha|preferencia`, com instrução explícita para nunca sugerir
+  `ciclo`/`compra`
