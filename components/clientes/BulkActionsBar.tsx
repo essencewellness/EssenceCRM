@@ -1,7 +1,8 @@
 "use client"
 import { useState } from "react"
-import { Tag, X, Plus, Trash2 } from "lucide-react"
+import { Tag, X, Plus, Trash2, Send } from "lucide-react"
 import { BulkDeleteModal } from "@/components/clientes/BulkDeleteModal"
+import { CampanhaSelecaoModal } from "@/components/clientes/CampanhaSelecaoModal"
 
 interface Etiqueta {
   id: string
@@ -9,18 +10,23 @@ interface Etiqueta {
   cor: string
 }
 
+interface TemplateOpcao { id: string; nome: string; texto: string }
+
 interface BulkActionsBarProps {
   selecionados: string[]
   etiquetas: Etiqueta[]
+  templates?: TemplateOpcao[]
+  podeGerirCampanhas?: boolean
   onClear: () => void
   onRefresh: () => void
 }
 
-export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: BulkActionsBarProps) {
+export function BulkActionsBar({ selecionados, etiquetas, templates = [], podeGerirCampanhas = false, onClear, onRefresh }: BulkActionsBarProps) {
   const [loading, setLoading] = useState(false)
   const [mostrarEtiquetas, setMostrarEtiquetas] = useState(false)
   const [acaoEtiqueta, setAcaoEtiqueta] = useState<"aplicar" | "remover">("aplicar")
   const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false)
+  const [mostrarCampanhaModal, setMostrarCampanhaModal] = useState(false)
 
   if (selecionados.length === 0) return null
 
@@ -87,6 +93,19 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
           )}
         </div>
 
+        {podeGerirCampanhas && (
+          <>
+            <div className="w-px h-5 bg-white/20" />
+            <button
+              onClick={() => setMostrarCampanhaModal(true)}
+              className="flex items-center gap-1.5 text-sm bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            >
+              <Send className="w-3.5 h-3.5" />
+              Criar campanha
+            </button>
+          </>
+        )}
+
         <div className="w-px h-5 bg-white/20" />
 
         {/* Eliminar selecionados */}
@@ -116,6 +135,19 @@ export function BulkActionsBar({ selecionados, etiquetas, onClear, onRefresh }: 
           onClose={() => setMostrarDeleteModal(false)}
           onSuccess={() => {
             setMostrarDeleteModal(false)
+            onClear()
+            onRefresh()
+          }}
+        />
+      )}
+
+      {mostrarCampanhaModal && (
+        <CampanhaSelecaoModal
+          clienteIds={selecionados}
+          templates={templates}
+          onClose={() => setMostrarCampanhaModal(false)}
+          onSuccess={() => {
+            setMostrarCampanhaModal(false)
             onClear()
             onRefresh()
           }}

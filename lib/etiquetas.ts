@@ -22,6 +22,12 @@ export const TIPO_ETIQUETA_LABELS: Record<string, string> = {
   campanha:    "Campanha",
   preferencia: "Preferência",
   automatica:  "Automática",
+  ciclo:       "Ciclo de vida",
+  compra:      "Padrão de compra",
+  experiencia: "Experiência",
+  persuasao:   "Persuasão",
+  advocacia:   "Advocacia",
+  winback:     "Winback",
 }
 
 export const ESTADO_CRM_CONFIG: Record<string, { label: string; cor: string; bg: string; border: string }> = {

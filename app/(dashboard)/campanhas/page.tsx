@@ -1,14 +1,14 @@
-import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { PageHeader } from "@/components/page-header"
 import { CampanhasClient } from "./CampanhasClient"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 
 export const dynamic = "force-dynamic"
 
 export default async function CampanhasPage() {
-  const session = await auth()
-  if (!session) redirect("/login")
+  const ctx = await getContextoUtilizador().catch(() => null)
+  if (!ctx) redirect("/login")
 
   const campanhas = await prisma.campanha.findMany({
     include: {
@@ -33,8 +33,11 @@ export default async function CampanhasPage() {
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-      <PageHeader titulo="Campanhas" subtitulo={`${campanhas.length} campanha${campanhas.length !== 1 ? "s" : ""}`} />
-      <CampanhasClient campanhas={campanhasDTO} />
+      <PageHeader
+        titulo="Campanhas"
+        subtitulo={`${campanhas.length} campanha${campanhas.length !== 1 ? "s" : ""} — criar uma campanha nova é feito em Clientes, seleccionando contactos ou usando os filtros avançados`}
+      />
+      <CampanhasClient campanhas={campanhasDTO} podeGerir={ctx.podeAprovarMensagens} />
     </div>
   )
 }

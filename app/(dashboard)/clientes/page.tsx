@@ -5,7 +5,7 @@ import type { Prisma, EstadoCliente } from "@/lib/prisma-client"
 import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/page-header"
 import { FiltrosClientes } from "./FiltrosClientes"
-import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
+import { getFiltrosTerapeuta, getContextoUtilizador } from "@/lib/contexto-utilizador"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { ClientesInfiniteList } from "@/components/clientes/ClientesInfiniteList"
 import { AnimatedSection } from "@/components/stagger"
@@ -21,6 +21,7 @@ interface ClientesPageProps {
 export default async function ClientesPage({ searchParams }: ClientesPageProps) {
   const { q, estado, estados: estadosParam, etiquetas: etiquetasParam, inativo, terapeuta } = await searchParams
   const { filtroCliente: filtroTerapeuta } = await getFiltrosTerapeuta(terapeuta)
+  const ctx = await getContextoUtilizador()
 
   const etiquetasFiltro = etiquetasParam
     ? (Array.isArray(etiquetasParam) ? etiquetasParam : [etiquetasParam])
@@ -241,6 +242,8 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             initialClientes={clientesRows}
             initialCursor={initialCursor}
             todasEtiquetas={etiquetasSerializadas}
+            templates={templates}
+            podeGerirCampanhas={ctx.podeAprovarMensagens}
             queryString={queryString}
           />
         )}

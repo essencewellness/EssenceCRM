@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { validarBody, validarQuery, campanhaCreateSchema, campanhasQuerySchema } from "@/lib/validations"
-import { aprovarEAgendar } from "@/lib/fila-envio"
+import { criarCampanha, CampanhaError } from "@/lib/campanhas"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import type { Prisma } from "@/lib/prisma-client"
 
@@ -54,97 +54,15 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, campanhaCreateSchema)
   if (!v.ok) return v.resposta
-  const { nome, templateId, segmento, espacamentoMinSeg, espacamentoMaxSeg } = v.data
 
   try {
-    const template = await prisma.templateMensagem.findUnique({
-      where: { id: templateId },
-      select: { id: true, texto: true, ativo: true },
-    })
-    if (!template) {
-      return respostaErro("Template não encontrado", "TEMPLATE_NAO_ENCONTRADO", 404)
-    }
-    if (!template.ativo) {
-      return respostaErro("Template está inativo", "TEMPLATE_INATIVO", 422)
-    }
-
-    // Resolver segmento → lista de clientes
-    const whereCliente: Prisma.ClienteWhereInput = {
-      apagadoEm: null,
-      estado: { notIn: ["blacklist", "perdida"] },
-      aceitaMarketing: true,
-      anonimizadoEm: null,
-      telefone: { not: null },
-    }
-
-    if (segmento.tipo === "servico" && segmento.valor) {
-      whereCliente.sessoes = {
-        some: { servico: segmento.valor, estado: "realizada" },
-      }
-    } else if (segmento.tipo === "estado" && segmento.valor) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      whereCliente.estado = segmento.valor as any
-    } else if (segmento.tipo === "inatividade" && segmento.valor) {
-      const dias = parseInt(segmento.valor, 10)
-      if (!isNaN(dias)) {
-        const corte = new Date()
-        corte.setDate(corte.getDate() - dias)
-        whereCliente.ultimaSessao = { lt: corte }
-      }
-    }
-    // tipo "todos": sem filtro extra
-
-    const clientes = await prisma.cliente.findMany({
-      where: whereCliente,
-      select: { id: true, nome: true, telefone: true },
-    })
-
-    if (clientes.length === 0) {
-      return respostaErro(
-        "Nenhum cliente corresponde ao segmento",
-        "SEGMENTO_VAZIO",
-        422
-      )
-    }
-
-    // Criar campanha + MensagemIA por cliente
-    const campanha = await prisma.campanha.create({
-      data: {
-        nome,
-        templateId,
-        segmento,
-        mensagens: {
-          create: clientes.map((c) => ({
-            clienteId: c.id,
-            canal: "whatsapp",
-            tipo: "campanha",
-            estado: "pendente",
-            // Substituição simples de {{nome}}
-            mensagemGerada: template.texto.replace(/\{\{nome\}\}/g, c.nome ?? ""),
-          })),
-        },
-      },
-      include: { _count: { select: { mensagens: true } } },
-    })
-
-    // Buscar ids das mensagens criadas e colocar na fila com espaçamento
-    const mensagens = await prisma.mensagemIA.findMany({
-      where: { campanhaId: campanha.id, estado: "pendente" },
-      select: { id: true },
-    })
-
-    const resultadoFila = await aprovarEAgendar(
-      mensagens.map((m) => ({ id: m.id })),
-      espacamentoMinSeg,
-      espacamentoMaxSeg
-    )
-
-    return respostaSucesso(
-      { campanha, agendadas: resultadoFila.agendadas.length },
-      { totalClientes: clientes.length },
-      201
-    )
+    const { campanha, agendadas, totalClientes } = await criarCampanha(v.data)
+    return respostaSucesso({ campanha, agendadas }, { totalClientes }, 201)
   } catch (error) {
+    if (error instanceof CampanhaError) {
+      const status = error.codigo === "SEGMENTO_VAZIO" || error.codigo === "TEMPLATE_INATIVO" ? 422 : 404
+      return respostaErro(error.message, error.codigo, status)
+    }
     console.error("POST /api/v1/campanhas:", (error as Error).message)
     return respostaErro("Erro interno do servidor", "ERRO_INTERNO", 500)
   }

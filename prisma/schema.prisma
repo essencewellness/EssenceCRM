@@ -123,6 +123,17 @@ enum TipoEtiqueta {
   campanha
   preferencia
   automatica
+  // Adicionados 2026-09-07 para segmentação de campanhas — ver
+  // lib/etiquetas.ts (TIPO_ETIQUETA_LABELS) para os rótulos na UI.
+  // "ciclo" cobre só o que o EstadoCliente (motor de estados) não cobre —
+  // nunca duplicar lead/novo/ativa_recente/vip_embaixadora/etc. como tag,
+  // esses já são automáticos e filtráveis directamente por estado.
+  ciclo
+  compra
+  experiencia
+  persuasao
+  advocacia
+  winback
 }
 
 enum EstadoCliente {

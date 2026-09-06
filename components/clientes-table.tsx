@@ -221,7 +221,9 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
   )
 }
 
-export function ClientesTable({ clientes, todasEtiquetas = [] }: { clientes: ClienteRow[]; todasEtiquetas?: Etiqueta[] }) {
+interface TemplateOpcao { id: string; nome: string; texto: string }
+
+export function ClientesTable({ clientes, todasEtiquetas = [], templates = [], podeGerirCampanhas = false }: { clientes: ClienteRow[]; todasEtiquetas?: Etiqueta[]; templates?: TemplateOpcao[]; podeGerirCampanhas?: boolean }) {
   const router = useRouter()
   const [selecionados, setSelecionados] = useState<string[]>([])
 
@@ -253,6 +255,8 @@ export function ClientesTable({ clientes, todasEtiquetas = [] }: { clientes: Cli
       <BulkActionsBar
         selecionados={selecionados}
         etiquetas={todasEtiquetas}
+        templates={templates}
+        podeGerirCampanhas={podeGerirCampanhas}
         onClear={() => setSelecionados([])}
         onRefresh={() => router.refresh()}
       />

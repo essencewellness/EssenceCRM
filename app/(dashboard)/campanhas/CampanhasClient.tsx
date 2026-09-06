@@ -1,7 +1,9 @@
 "use client"
 
+import { useState, useTransition } from "react"
 import { motion } from "motion/react"
 import { AnimatedProgress } from "@/components/animated-progress"
+import { cancelarCampanhaAction } from "./actions"
 
 const ESTADO_ESTILO: Record<string, { bg: string; color: string; border: string }> = {
   ativa:     { bg: "rgba(80,200,120,0.12)",  color: "#6fcf97", border: "rgba(80,200,120,0.30)" },
@@ -23,9 +25,26 @@ interface CampanhaDTO {
 
 interface Props {
   campanhas: CampanhaDTO[]
+  podeGerir: boolean
 }
 
-export function CampanhasClient({ campanhas }: Props) {
+export function CampanhasClient({ campanhas, podeGerir }: Props) {
+  const [isPending, startTransition] = useTransition()
+  const [cancelandoId, setCancelandoId] = useState<string | null>(null)
+  const [erro, setErro] = useState<string | null>(null)
+
+  function handleCancelar(id: string) {
+    setErro(null)
+    startTransition(async () => {
+      try {
+        await cancelarCampanhaAction(id)
+        setCancelandoId(null)
+      } catch (e) {
+        setErro((e as Error).message)
+      }
+    })
+  }
+
   if (campanhas.length === 0) {
     return (
       <motion.div
@@ -116,6 +135,50 @@ export function CampanhasClient({ campanhas }: Props) {
                 {c.estado}
               </motion.span>
             </div>
+
+            {podeGerir && c.estado === "ativa" && (
+              <div style={{ marginBottom: "12px" }}>
+                {cancelandoId === c.id ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
+                      Cancelar esta campanha? As mensagens ainda por enviar são rejeitadas.
+                    </span>
+                    <button
+                      onClick={() => handleCancelar(c.id)}
+                      disabled={isPending}
+                      style={{
+                        padding: "5px 12px", borderRadius: "6px", border: "none",
+                        backgroundColor: "#e07070", color: "#1a0e0e",
+                        fontSize: "11.5px", fontWeight: 700, cursor: isPending ? "default" : "pointer",
+                        fontFamily: "var(--font-sans, sans-serif)",
+                      }}
+                    >
+                      {isPending ? "..." : "Sim, cancelar"}
+                    </button>
+                    <button
+                      onClick={() => setCancelandoId(null)}
+                      style={{ background: "none", border: "none", color: "var(--nuit-bone-soft)", fontSize: "11.5px", cursor: "pointer" }}
+                    >
+                      Voltar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setCancelandoId(c.id)}
+                    style={{
+                      background: "none", border: "1px solid rgba(220,60,60,0.3)", borderRadius: "6px",
+                      padding: "4px 10px", color: "#e07070", fontSize: "11.5px", cursor: "pointer",
+                      fontFamily: "var(--font-sans, sans-serif)",
+                    }}
+                  >
+                    Cancelar campanha
+                  </button>
+                )}
+              </div>
+            )}
+            {erro && cancelandoId === null && (
+              <p style={{ fontSize: "11.5px", color: "#e07070", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}>{erro}</p>
+            )}
 
             {/* Stats */}
             <div style={{

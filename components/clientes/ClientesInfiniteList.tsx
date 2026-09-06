@@ -16,10 +16,14 @@ interface ClienteRow {
   etiquetas: { etiqueta: Etiqueta }[]
 }
 
+interface TemplateOpcao { id: string; nome: string; texto: string }
+
 interface ClientesInfiniteListProps {
   initialClientes: ClienteRow[]
   initialCursor: string | null
   todasEtiquetas?: Etiqueta[]
+  templates?: TemplateOpcao[]
+  podeGerirCampanhas?: boolean
   /** Query params to append on each "load more" fetch */
   queryString?: string
 }
@@ -30,6 +34,8 @@ export function ClientesInfiniteList({
   initialClientes,
   initialCursor,
   todasEtiquetas = [],
+  templates = [],
+  podeGerirCampanhas = false,
   queryString = "",
 }: ClientesInfiniteListProps) {
   const [clientes, setClientes] = useState<ClienteRow[]>(initialClientes)
@@ -82,7 +88,7 @@ export function ClientesInfiniteList({
 
   return (
     <div>
-      <ClientesTable clientes={clientes} todasEtiquetas={todasEtiquetas} />
+      <ClientesTable clientes={clientes} todasEtiquetas={todasEtiquetas} templates={templates} podeGerirCampanhas={podeGerirCampanhas} />
 
       {/* Sentinel para IntersectionObserver */}
       {temMais && <div ref={sentinelRef} className="h-1" />}

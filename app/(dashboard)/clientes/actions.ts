@@ -8,6 +8,7 @@ import { webhooks } from "@/lib/webhooks"
 import { clienteUpdateSchema, normalizarTelefone } from "@/lib/validations"
 import { Prisma } from "@/lib/prisma-client"
 import type { EstadoCliente } from "@/lib/prisma-client"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 
 async function verificarSessao() {
   const session = await auth()
@@ -279,27 +280,42 @@ export async function atribuirTerapeutaCliente(clienteId: string, terapeutaId: s
 
 export async function criarCampanhaFromFiltro(dados: {
   nome: string
-  templateId: string
+  // Ou um template existente, ou texto livre escrito na hora — nunca os dois.
+  templateId?: string
+  mensagemTexto?: string
+  canal?: "whatsapp" | "email"
+  // Ou uma seleção manual de clientes (checkboxes em /clientes), ou os
+  // filtros abaixo — clienteIds tem sempre prioridade quando presente.
+  clienteIds?: string[]
   etiquetaIds: string[]
   estados?: EstadoCliente[]
   inativoDesdeDias?: number
 }): Promise<{ campanhaId: string; totalCriadas: number; totalExcluidas: number }> {
-  await verificarSessao()
+  // Campanha = envio em massa sem aprovação individual por mensagem antes de
+  // chegar a /mensagens — mesma regra de quem pode aprovar mensagens (Bea/admin).
+  const ctx = await getContextoUtilizador()
+  if (!ctx.podeAprovarMensagens) throw new Error("Sem permissão para criar campanhas.")
 
-  const baseWhere = {
-    apagadoEm: null as null,
-    ...(dados.etiquetaIds.length > 0 ? {
-      etiquetas: { some: { etiquetaId: { in: dados.etiquetaIds } } },
-    } : {}),
-    ...(dados.estados && dados.estados.length > 0 ? {
-      estado: { in: dados.estados },
-    } : {}),
-    ...(dados.inativoDesdeDias ? {
-      ultimaSessao: { lt: new Date(Date.now() - dados.inativoDesdeDias * 86_400_000) },
-    } : {}),
-  }
+  const usaSelecaoManual = !!dados.clienteIds && dados.clienteIds.length > 0
 
-  // Contar excluídos (têm tag bloqueante)
+  const baseWhere = usaSelecaoManual
+    ? { apagadoEm: null as null, id: { in: dados.clienteIds } }
+    : {
+        apagadoEm: null as null,
+        ...(dados.etiquetaIds.length > 0 ? {
+          etiquetas: { some: { etiquetaId: { in: dados.etiquetaIds } } },
+        } : {}),
+        ...(dados.estados && dados.estados.length > 0 ? {
+          estado: { in: dados.estados },
+        } : {}),
+        ...(dados.inativoDesdeDias ? {
+          ultimaSessao: { lt: new Date(Date.now() - dados.inativoDesdeDias * 86_400_000) },
+        } : {}),
+      }
+
+  // Contar excluídos (têm tag bloqueante) — a exclusão por bloqueiaAutomacoes
+  // aplica-se sempre, mesmo numa seleção manual: uma etiqueta de bloqueio
+  // existe precisamente para nunca ser contornada por escolher a dedo.
   const totalSemFiltro = await prisma.cliente.count({ where: baseWhere })
 
   const clientesFiltrados = await prisma.cliente.findMany({
@@ -313,22 +329,43 @@ export async function criarCampanhaFromFiltro(dados: {
 
   const totalExcluidas = totalSemFiltro - clientesFiltrados.length
 
-  const template = await prisma.templateMensagem.findUnique({ where: { id: dados.templateId } })
-  if (!template) throw new Error("Template não encontrado")
+  // Texto livre → cria um template "invisível" para a campanha ficar com a
+  // mesma estrutura (Campanha.templateId é obrigatório no schema); template
+  // existente → usa-o directamente. Nunca os dois em simultâneo.
+  let template: { id: string; texto: string }
+  if (dados.mensagemTexto?.trim()) {
+    template = await prisma.templateMensagem.create({
+      data: {
+        nome: `ad-hoc — ${dados.nome} — ${Date.now()}`,
+        tipo: "campanha",
+        texto: dados.mensagemTexto.trim(),
+        ativo: true,
+      },
+      select: { id: true, texto: true },
+    })
+  } else if (dados.templateId) {
+    const encontrado = await prisma.templateMensagem.findUnique({ where: { id: dados.templateId } })
+    if (!encontrado) throw new Error("Template não encontrado")
+    template = encontrado
+  } else {
+    throw new Error("Escreve uma mensagem ou escolhe um template.")
+  }
 
   // Motivo visível na fila de aprovação (/mensagens) — a Bea vê sempre
   // porque uma mensagem existe, mesmo sem IA envolvida: aqui é o segmento
   // exato que a fez entrar na campanha, não só o nome dela.
-  const criteriosSegmento = [
-    dados.estados?.length ? `estado: ${dados.estados.join(", ")}` : null,
-    dados.etiquetaIds.length ? `${dados.etiquetaIds.length} etiqueta(s)` : null,
-    dados.inativoDesdeDias ? `sem sessão há ${dados.inativoDesdeDias}+ dias` : null,
-  ].filter(Boolean).join(" · ")
+  const criteriosSegmento = usaSelecaoManual
+    ? `${dados.clienteIds!.length} cliente(s) selecionado(s) manualmente`
+    : [
+        dados.estados?.length ? `estado: ${dados.estados.join(", ")}` : null,
+        dados.etiquetaIds.length ? `${dados.etiquetaIds.length} etiqueta(s)` : null,
+        dados.inativoDesdeDias ? `sem sessão há ${dados.inativoDesdeDias}+ dias` : null,
+      ].filter(Boolean).join(" · ")
 
   const campanha = await prisma.campanha.create({
     data: {
       nome:      dados.nome,
-      templateId: dados.templateId,
+      templateId: template.id,
       segmento:  dados as object,
       estado:    "ativa",
     },
@@ -343,6 +380,7 @@ export async function criarCampanhaFromFiltro(dados: {
         mensagemGerada:  texto,
         tipo:            "campanha",
         estado:          "pendente",
+        canal:           dados.canal ?? "whatsapp",
         motivoGeracao:   criteriosSegmento
           ? `Campanha "${dados.nome}" — ${criteriosSegmento}`
           : `Campanha "${dados.nome}"`,
