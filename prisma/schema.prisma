@@ -131,6 +131,11 @@ enum TipoEtiqueta {
   ciclo
   compra
   experiencia
+  // persuasao/advocacia/winback: valores de enum mantidos (Postgres não
+  // permite remover valores de enum facilmente) mas SEM etiquetas activas —
+  // cortados em /council 2026-09-07 por zero deteção e zero dado real por
+  // trás (ver commit). Não voltar a semear etiquetas nestes 3 tipos sem
+  // primeiro construir o campo/sinal que os sustente.
   persuasao
   advocacia
   winback

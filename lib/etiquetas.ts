@@ -25,9 +25,10 @@ export const TIPO_ETIQUETA_LABELS: Record<string, string> = {
   ciclo:       "Ciclo de vida",
   compra:      "Padrão de compra",
   experiencia: "Experiência",
-  persuasao:   "Persuasão",
-  advocacia:   "Advocacia",
-  winback:     "Winback",
+  // persuasao/advocacia/winback: cortados em /council 2026-09-07 — zero
+  // deteção, zero dado que os sustente hoje (referral "Miminho" não tem
+  // campo próprio, psicografia sem validação, winback sem pergunta feita
+  // ao cliente). Retomar só quando houver um campo real por trás.
 }
 
 export const ESTADO_CRM_CONFIG: Record<string, { label: string; cor: string; bg: string; border: string }> = {
