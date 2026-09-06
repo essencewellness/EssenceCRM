@@ -492,6 +492,10 @@ export const voucherUpdateSchema = z.object({
   mensagemVoucher: z.string().trim().max(500).optional().nullable(),
   terapeutaId: z.string().trim().max(64).optional().nullable(),
   metodoPagamento: z.enum(METODOS_PAGAMENTO).optional().nullable(),
+  // Liga manualmente à ficha de quem comprou (o oposto de clienteId, que é
+  // sempre a beneficiária). Normalmente preenchido sozinho por telefone —
+  // ver PATCH /api/v1/vouchers/[id] — mas dá para forçar/corrigir à mão.
+  compradorClienteId: z.string().trim().max(64).optional().nullable(),
 }).strict()
 
 export const voucherQuerySchema = z.object({
