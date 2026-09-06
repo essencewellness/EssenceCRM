@@ -752,7 +752,16 @@ export function validarQuery<S extends z.ZodTypeAny>(
   return { ok: true, data: parsed.data }
 }
 
-// Normalização de telefone consistente em toda a API
+// Normalização de telefone consistente em toda a API — padrão único desde
+// 2026-09-07: sempre com indicativo, sempre "+351XXXXXXXXX" (sem espaços).
+// Antes disto o telefone era guardado sem indicativo (9 dígitos nus), o que
+// já tinha causado um bug real (vouchers nunca ligados ao cliente certo
+// porque o telefone importado trazia "+351 " e o do cliente não — ver
+// commit 2026-09-07). Aceita qualquer formato de entrada (com/sem "+",
+// com/sem "351", com espaços/pontos/traços) e devolve sempre o mesmo
+// formato canónico, para nunca mais depender de dois sítios concordarem
+// por acaso.
 export function normalizarTelefone(telefone: string): string {
-  return telefone.replace(/\D/g, "").replace(/^351/, "")
+  const digitos = telefone.replace(/\D/g, "").replace(/^351/, "")
+  return digitos ? `+351${digitos}` : ""
 }

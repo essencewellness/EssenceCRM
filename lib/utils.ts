@@ -17,14 +17,20 @@ export function formatDateTime(date: Date | string | null): string {
   return d.toLocaleString("pt-PT", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
 }
 
-// Sempre mostra o indicativo — números guardados sem ele (formato legado,
-// 9 dígitos) assumem Portugal (+351), o padrão do negócio.
+// Sempre mostra o indicativo, sempre agrupado — desde 2026-09-07 o padrão
+// único de armazenamento é "+351XXXXXXXXX" (ver normalizarTelefone em
+// lib/validations.ts), mas números legados (9 dígitos nus, sem indicativo)
+// ainda podem aparecer até a migração de dados chegar a todos os sítios —
+// esta função assume Portugal (+351) em qualquer um dos dois casos.
 export function formatPhone(phone: string | null): string {
   if (!phone) return "—"
-  const digits = phone.replace(/\D/g, "")
-  if (digits.length === 9) return `+351 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`
+  let digits = phone.replace(/\D/g, "")
+  if (digits.length === 9) digits = `351${digits}` // legado sem indicativo
+  if (digits.length === 12 && digits.startsWith("351")) {
+    return `+351 ${digits.slice(3, 6)} ${digits.slice(6, 9)} ${digits.slice(9)}`
+  }
   if (phone.trim().startsWith("+")) return phone
-  return `+${digits}`
+  return digits ? `+${digits}` : phone
 }
 
 export function formatCurrency(value: number): string {

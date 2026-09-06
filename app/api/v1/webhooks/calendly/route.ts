@@ -7,6 +7,7 @@ import { NextRequest } from "next/server"
 import { createHmac, timingSafeEqual } from "node:crypto"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
+import { normalizarTelefone } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     const nome = String(invitee.name ?? invitee.nome ?? "").trim().slice(0, 120)
     const email = String(invitee.email ?? "").trim().toLowerCase().slice(0, 254)
     const telefoneRaw = invitee.text_reminder_number ?? invitee.telefone ?? null
-    const telefone = telefoneRaw ? String(telefoneRaw).trim().slice(0, 20) : null
+    const telefone = telefoneRaw ? normalizarTelefone(String(telefoneRaw).trim().slice(0, 20)) || null : null
     const dataEvento = String(event?.start_time ?? payload.data ?? new Date().toISOString())
     const nomeServicoRaw = event?.name ?? payload.servico ?? null
     const nomeServico = nomeServicoRaw ? String(nomeServicoRaw).slice(0, 120) : null

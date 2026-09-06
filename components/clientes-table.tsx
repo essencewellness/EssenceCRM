@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { calcularTagActividade } from "@/lib/etiquetas"
+import { formatPhone } from "@/lib/utils"
 import { BulkActionsBar } from "@/components/clientes/BulkActionsBar"
 
 interface Etiqueta { id: string; nome: string; cor: string; tipo: string; bloqueiaAutomacoes: boolean }
@@ -25,13 +26,6 @@ function getInitials(nome: string) {
   const p = nome.trim().split(" ")
   if (p.length === 1) return p[0].slice(0, 2).toUpperCase()
   return (p[0][0] + p[p.length - 1][0]).toUpperCase()
-}
-
-function formatPhone(t: string | null) {
-  if (!t) return "—"
-  const d = t.replace(/\D/g, "")
-  if (d.length === 9) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`
-  return t
 }
 
 function formatCurrency(v: number) {

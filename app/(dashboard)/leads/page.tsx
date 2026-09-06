@@ -3,6 +3,7 @@ import { UserPlus } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { PageHeader } from "@/components/page-header"
 import { AnimatedSection } from "@/components/stagger"
+import { formatPhone } from "@/lib/utils"
 import { NovoLeadForm } from "./NovoLeadForm"
 
 // Nota: sem isolamento por terapeuta (ao contrário de /clientes) de propósito
@@ -20,13 +21,6 @@ const ORIGEM_LABELS: Record<string, string> = {
   parceiro: "Parceiro",
   manual: "Manual",
   formulario: "Formulário",
-}
-
-function formatPhone(t: string | null) {
-  if (!t) return "—"
-  const d = t.replace(/\D/g, "")
-  if (d.length === 9) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`
-  return t
 }
 
 function formatDate(d: Date) {

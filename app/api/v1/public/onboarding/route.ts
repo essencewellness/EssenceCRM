@@ -8,7 +8,7 @@ export const preferredRegion = "fra1"
 import { NextRequest, NextResponse, after } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
-import { onboardingPublicSchema, onboardingQuerySchema, validarBody, validarQuery } from "@/lib/validations"
+import { onboardingPublicSchema, onboardingQuerySchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
@@ -57,10 +57,11 @@ export async function POST(request: NextRequest) {
   const v = await validarBody(request, onboardingPublicSchema)
   if (!v.ok) return v.resposta
   const {
-    clienteId, sessaoId, t, nome, email, telefone, dataNascimento, comoNosConheceu,
+    clienteId, sessaoId, t, nome, email, telefone: telefoneBruto, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
     notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
   } = v.data
+  const telefone = telefoneBruto ? normalizarTelefone(telefoneBruto) || null : null
 
   // Honeypot preenchido = bot
   if (website) {

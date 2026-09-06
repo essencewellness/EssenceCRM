@@ -4,7 +4,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { webhooks } from "@/lib/webhooks"
-import { leadPublicSchema, validarBody } from "@/lib/validations"
+import { leadPublicSchema, validarBody, normalizarTelefone } from "@/lib/validations"
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
 
   const v = await validarBody(request, leadPublicSchema)
   if (!v.ok) return v.resposta
-  const { nome, email, telefone, servico_interesse, como_nos_conheceu, consentimento_marketing, website } = v.data
+  const { nome, email, telefone: telefoneBruto, servico_interesse, como_nos_conheceu, consentimento_marketing, website } = v.data
+  const telefone = telefoneBruto ? normalizarTelefone(telefoneBruto) || null : null
 
   // Honeypot preenchido = bot. Responder 200 falso para não dar pistas.
   if (website) {
