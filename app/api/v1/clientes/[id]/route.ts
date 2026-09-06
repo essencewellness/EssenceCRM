@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { webhooks } from "@/lib/webhooks"
-import { clienteUpdateSchema, validarBody } from "@/lib/validations"
+import { clienteUpdateSchema, validarBody, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import { verificarRateLimit } from "@/lib/rate-limit"
@@ -113,6 +113,12 @@ export async function PATCH(
       where: { id },
       data: {
         ...camposParaGravar,
+        // Sem isto, um PATCH externo (N8N, integrações) grava o telefone tal
+        // como vier — foi exactamente essa inconsistência que já causou um
+        // bug real (vouchers nunca ligados ao cliente certo, 2026-09-07).
+        ...(campos.telefone !== undefined
+          ? { telefone: campos.telefone ? normalizarTelefone(campos.telefone) : null }
+          : {}),
         ...(campos.dataNascimento ? { dataNascimento: new Date(campos.dataNascimento) } : {}),
         ...(campos.ultimaSessao ? { ultimaSessao: new Date(campos.ultimaSessao) } : {}),
         ...(campos.consentimentoMarketingEm
