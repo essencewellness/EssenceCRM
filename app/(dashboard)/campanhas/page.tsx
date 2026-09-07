@@ -28,7 +28,7 @@ export default async function CampanhasPage() {
     totalMensagens: c._count.mensagens,
     totalEnviado: c.totalEnviado,
     totalFalhado: c.totalFalhado,
-    criadaEm: c.criadaEm.toLocaleDateString("pt-PT"),
+    criadaEm: c.criadaEm.toLocaleDateString("pt-PT", { timeZone: "Europe/Lisbon" }),
   }))
 
   return (

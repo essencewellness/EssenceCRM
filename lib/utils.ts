@@ -5,16 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// timeZone fixo: estas funções correm em Server Components no Vercel, cujo
+// runtime Node usa UTC como fuso local por omissão — sem isto, toLocaleString
+// mostra a hora UTC crua em vez da hora de Lisboa, ficando 1h atrás em
+// horário de verão (bug real reportado 2026-09-07: mensagem agendada para
+// 14:12 aparecia na Fila de Envio como "13:12", já passada).
 export function formatDate(date: Date | string | null): string {
   if (!date) return "—"
   const d = typeof date === "string" ? new Date(date) : date
-  return d.toLocaleDateString("pt-PT", { day: "numeric", month: "short", year: "numeric" })
+  return d.toLocaleDateString("pt-PT", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Lisbon" })
 }
 
 export function formatDateTime(date: Date | string | null): string {
   if (!date) return "—"
   const d = typeof date === "string" ? new Date(date) : date
-  return d.toLocaleString("pt-PT", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+  return d.toLocaleString("pt-PT", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Lisbon" })
 }
 
 // Sempre mostra o indicativo, sempre agrupado — desde 2026-09-07 o padrão

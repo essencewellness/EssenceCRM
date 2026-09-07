@@ -29,7 +29,7 @@ const ESTADOS: Record<string, { label: string; cor: string; bg: string }> = {
 function formatarData(iso: string | null) {
   if (!iso) return "—"
   const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-PT")
+  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-PT", { timeZone: "Europe/Lisbon" })
 }
 
 function Chip({ estado }: { estado: string }) {

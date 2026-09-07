@@ -21,7 +21,7 @@ import { prisma } from "@/lib/prisma"
 import { auditar } from "@/lib/audit"
 
 function formatarDataPT(data: Date): string {
-  return data.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
+  return data.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Lisbon" })
 }
 
 export async function assinalarSessaoCanceladaNaFichaClinica(

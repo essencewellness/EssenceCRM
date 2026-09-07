@@ -16,7 +16,7 @@ type DadosSessao = Pick<
 type DadosCliente = Pick<Cliente, "nome" | "dataNascimento">
 
 function formatarData(d: Date): string {
-  return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
+  return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Lisbon" })
 }
 
 export async function gerarPdfSessao(
