@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion } from "motion/react"
 
-function useCountUp(target: number, duration = 1100) {
+export function useCountUp(target: number, duration = 1100) {
   const [value, setValue] = useState(0)
   const startTime = useRef<number | null>(null)
   const frameRef = useRef<number>(0)

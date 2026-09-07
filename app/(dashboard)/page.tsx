@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { KpiCardPremium } from "@/components/kpi-card"
-import { DashboardHeader, SessoesHojeCard, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
+import { DashboardHeader, SessoesHojeCard, SessoesHojeKpi, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -22,7 +22,12 @@ function buildDateRange() {
 }
 
 function getSaudacao(): string {
-  const hora = new Date().getHours()
+  // Server Component no Vercel corre em UTC — getHours() sem fuso mostraria
+  // "Boa noite" às 9h da manhã em Lisboa (mesma causa do bug de 2026-09-07,
+  // ver lib/utils.ts). Hora obtida sempre via Europe/Lisbon.
+  const hora = Number(
+    new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon", hour: "2-digit", hour12: false })
+  )
   if (hora < 12) return "Bom dia"
   if (hora < 19) return "Boa tarde"
   return "Boa noite"
@@ -281,13 +286,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       {/* ── Linha 1: 4 KPI cards ── */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCardPremium
-          titulo="Sessões Hoje"
-          valor={sessõesHoje.length}
-          descricao={sessõesHoje.length === 0 ? "Dia livre" : `${sessõesHoje.filter(s => s.estado === "confirmada").length} confirmada(s)`}
-          cor="blue" index={0}
-          icon={<Calendar className="w-4 h-4" />}
-        />
+        <SessoesHojeKpi sessoes={sessoesHojeRows} index={0} />
         <KpiCardPremium
           titulo="Receita do Mês"
           valor={Math.round(receitaMesTotal)}

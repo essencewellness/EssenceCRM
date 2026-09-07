@@ -1,8 +1,11 @@
 "use client"
 
-import { motion } from "motion/react"
+import { useState } from "react"
+import { createPortal } from "react-dom"
+import { motion, AnimatePresence } from "motion/react"
 import Link from "next/link"
-import { CheckSquare, AlertTriangle } from "lucide-react"
+import { CheckSquare, AlertTriangle, Calendar, X } from "lucide-react"
+import { useCountUp } from "@/components/kpi-card"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -169,6 +172,213 @@ export function DashboardHeader({
         }
       `}</style>
     </motion.header>
+  )
+}
+
+// ─── KPI "Sessões Hoje" clicável (abre todas vs. confirmadas) ─────────────────
+
+export function SessoesHojeKpi({ sessoes, index = 0 }: { sessoes: SessaoRow[]; index?: number }) {
+  const [aberto, setAberto] = useState(false)
+  const count = useCountUp(sessoes.length)
+  const confirmadas = sessoes.filter(s => s.estado === "confirmada")
+  const temSessoes = sessoes.length > 0
+
+  return (
+    <>
+      <motion.div
+        role="button"
+        tabIndex={temSessoes ? 0 : -1}
+        aria-haspopup="dialog"
+        aria-label={`Sessões hoje: ${sessoes.length}, ${confirmadas.length} confirmada(s). Clicar para ver a lista.`}
+        onClick={() => temSessoes && setAberto(true)}
+        onKeyDown={(e) => {
+          if (temSessoes && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault()
+            setAberto(true)
+          }
+        }}
+        whileHover={temSessoes ? { y: -2 } : undefined}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          backgroundColor: "var(--nuit-overlay)",
+          border: "1px solid rgba(212,184,134,0.16)",
+          borderRadius: "2px",
+          padding: "22px 24px 20px",
+          position: "relative",
+          boxShadow: "var(--shadow-1)",
+          cursor: temSessoes ? "pointer" : "default",
+          outline: "none",
+        }}
+      >
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+          backgroundColor: "#7a8eb5", opacity: 0.45,
+        }} />
+
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
+            color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
+          }}>
+            Sessões Hoje
+          </p>
+          <Calendar size={16} style={{ color: "rgba(122,142,181,0.55)" }} />
+        </div>
+
+        <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginBottom: "8px" }}>
+          <span style={{
+            fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
+            fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
+            lineHeight: 1, letterSpacing: "-0.02em",
+          }}>
+            {count.toLocaleString("pt-PT")}
+          </span>
+        </div>
+
+        <p style={{
+          fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "11px", color: "var(--nuit-bone-soft)",
+          lineHeight: 1.4,
+        }}>
+          {sessoes.length === 0 ? "Dia livre" : `${confirmadas.length} confirmada(s) · toca para ver`}
+        </p>
+      </motion.div>
+
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {aberto && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setAberto(false)}
+              style={{
+                position: "fixed", inset: 0, zIndex: 60,
+                backgroundColor: "rgba(22,26,38,0.5)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Sessões de hoje"
+                style={{
+                  backgroundColor: "var(--nuit-overlay)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(212,184,134,0.16)",
+                  boxShadow: "0 16px 48px rgba(14,17,25,0.50)",
+                  width: "100%", maxWidth: "620px", maxHeight: "82vh",
+                  display: "flex", flexDirection: "column", overflow: "hidden",
+                }}
+              >
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "18px 20px 14px", borderBottom: "1px solid rgba(212,184,134,0.10)",
+                  flexShrink: 0,
+                }}>
+                  <h3 style={{
+                    fontFamily: "var(--font-heading, Georgia, serif)",
+                    fontSize: "18px", color: "var(--nuit-bone)",
+                  }}>
+                    Sessões de hoje
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setAberto(false)}
+                    aria-label="Fechar"
+                    style={{
+                      background: "none", border: "none", cursor: "pointer",
+                      color: "var(--nuit-bone-soft)", padding: "4px", display: "flex",
+                    }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div style={{
+                  display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0",
+                  overflow: "hidden", flex: 1, minHeight: 0,
+                }}
+                className="max-sm:grid-cols-1"
+                >
+                  <SessoesListaBox
+                    titulo={`Todas (${sessoes.length})`}
+                    sessoes={sessoes}
+                    borderRight
+                  />
+                  <SessoesListaBox
+                    titulo={`Confirmadas (${confirmadas.length})`}
+                    sessoes={confirmadas}
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
+  )
+}
+
+function SessoesListaBox({ titulo, sessoes, borderRight }: { titulo: string; sessoes: SessaoRow[]; borderRight?: boolean }) {
+  return (
+    <div style={{
+      padding: "16px 20px", overflowY: "auto",
+      borderRight: borderRight ? "1px solid rgba(212,184,134,0.10)" : undefined,
+    }}>
+      <p style={{
+        fontFamily: "var(--font-sans, sans-serif)",
+        fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+        color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
+        marginBottom: "12px",
+      }}>
+        {titulo}
+      </p>
+
+      {sessoes.length === 0 ? (
+        <p style={{
+          fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
+          fontSize: "13px", color: "var(--nuit-bone-soft)",
+        }}>
+          Nenhuma sessão.
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {sessoes.map((s) => (
+            <div key={s.id} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+              <span style={{
+                flexShrink: 0, width: "38px",
+                fontFamily: "var(--font-sans, sans-serif)",
+                fontSize: "12px", fontWeight: 600, color: "var(--nuit-champagne)",
+              }}>
+                {s.hora ? s.hora.slice(0, 5) : "—"}
+              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{
+                  fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "13px", color: "var(--nuit-bone)",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {s.clienteNome}
+                </p>
+              </div>
+              <BadgeEstado estado={s.estado} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
