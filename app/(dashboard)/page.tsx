@@ -6,18 +6,19 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { Calendar } from "lucide-react"
 import type { Prisma } from "@/lib/prisma-client"
+import { inicioFimDiaLisboa } from "@/lib/data-lisboa"
 
 export const revalidate = 30
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// "Hoje" sempre pela meia-noite de Lisboa, não a de UTC (servidor Vercel
+// corre em UTC) — mesma causa raiz do bug de fuso horário corrigido em
+// lib/utils.ts; sem isto, sessões/tarefas entre 00h-01h de Lisboa (horário
+// de verão) ficavam atribuídas ao dia errado.
 function buildDateRange() {
-  const hoje = new Date()
-  hoje.setHours(0, 0, 0, 0)
-  const amanha = new Date(hoje)
-  amanha.setDate(amanha.getDate() + 1)
-  const semanaFim = new Date(hoje)
-  semanaFim.setDate(semanaFim.getDate() + 7)
+  const { gte: hoje, lt: amanha } = inicioFimDiaLisboa(0)
+  const { gte: semanaFim } = inicioFimDiaLisboa(7)
   return { hoje, amanha, semanaFim }
 }
 

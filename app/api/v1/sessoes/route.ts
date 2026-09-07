@@ -9,25 +9,7 @@ import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import { encontrarConflitoAgenda, mensagemConflitoAgenda } from "@/lib/conflito-agenda"
 import type { Prisma } from "@/lib/prisma-client"
-
-// Devolve o intervalo [início do dia, fim do dia] em UTC para o fuso de Lisboa
-// offsetDias=0 → hoje; offsetDias=1 → amanhã
-// Usa o truque de parsing locale para converter sem bibliotecas externas
-function inicioFimDiaLisboa(offsetDias = 0): { gte: Date; lt: Date } {
-  const utcNow = new Date()
-  // Interpretar a hora atual como "string Lisboa" e re-parsear como UTC local do servidor
-  const lisboaNow = new Date(utcNow.toLocaleString("en-US", { timeZone: "Europe/Lisbon" }))
-  // offsetMs = Lisboa_timestamp - UTC_timestamp (positivo se Lisboa está à frente de UTC)
-  const offsetMs = lisboaNow.getTime() - utcNow.getTime()
-  // Meia-noite Lisboa do dia alvo (em "pseudo-UTC" do parser)
-  const meiaNoiteLisboa = new Date(lisboaNow)
-  meiaNoiteLisboa.setHours(0, 0, 0, 0)
-  meiaNoiteLisboa.setDate(meiaNoiteLisboa.getDate() + offsetDias)
-  // Converter de volta para UTC real
-  const gte = new Date(meiaNoiteLisboa.getTime() - offsetMs)
-  const lt  = new Date(gte.getTime() + 24 * 60 * 60 * 1000)
-  return { gte, lt }
-}
+import { inicioFimDiaLisboa } from "@/lib/data-lisboa"
 
 // Resolução de cliente: id → telefone → email (padrão consistente em toda a API v1)
 async function resolverCliente(clienteId?: string, telefone?: string, email?: string) {
