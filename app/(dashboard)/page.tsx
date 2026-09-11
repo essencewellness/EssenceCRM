@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma"
-import { KpiCardPremium } from "@/components/kpi-card"
-import { DashboardHeader, SessoesHojeCard, SessoesHojeKpi, MensagensCard, ProximosDiasCard, TarefasWidget, AlertasWidget, ClientesReativarWidget } from "@/components/dashboard-live"
+import {
+  DashboardHeader, SessoesHojeCard, SessoesHojeKpi, MensagensCard, ProximosDiasCard,
+  TarefasWidget, AlertasWidget, ClientesReativarWidget, KpiClicavel,
+  ReceitaDetalhe, ClientesActivasDetalhe, MensagensPendentesDetalhe, EstaSemanaDetalhe,
+} from "@/components/dashboard-live"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
@@ -83,6 +86,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     ativosEsteMes, ativosMesAnterior, totalClientes, clientesEmRisco,
     inativas30a60, inativas61a90, inativasMais90,
     alertasSatisfacao, tarefasHoje, tarefasVencidas, receitaMesSessoes, vendasVoucherMes, pagamentosPackMes,
+    clientesActivasLista, mensagensPendentesLista,
   ] = await Promise.all([
     prisma.sessao.findMany({
       where: { data: { gte: hoje, lt: amanha }, ...filtroSessao },
@@ -195,6 +199,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       },
       select: { valor: true },
     }),
+    // Detalhe do modal "Clientes Ativas" — lista, não só a contagem.
+    prisma.cliente.findMany({
+      where: { estado: { in: ["ativa_recente", "ativa_frequente", "vip_embaixadora"] }, ...filtroCliente },
+      select: { id: true, nome: true, telefone: true, estado: true },
+      take: 50, orderBy: { nome: "asc" },
+    }),
+    // Detalhe do modal "Mensagens" — a mesma contagem de totalMensagensPendentes acima, agora com as linhas.
+    ctx.podeAprovarMensagens
+      ? prisma.mensagemIA.findMany({
+          where: { estado: "pendente" },
+          include: { cliente: { select: { nome: true } } },
+          orderBy: { geradaEm: "desc" },
+          take: 30,
+        })
+      : Promise.resolve([]),
   ])
 
   const pctEsteMes = totalClientes > 0 ? Math.round((ativosEsteMes / totalClientes) * 100) : 0
@@ -266,6 +285,22 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       }
     })
 
+  const clientesActivasRows = clientesActivasLista.map(c => ({ id: c.id, nome: c.nome, telefone: c.telefone, estado: c.estado }))
+  const mensagensPendentesRows = mensagensPendentesLista.filter(m => m.cliente).map(m => ({
+    id: m.id,
+    clienteNome: m.cliente!.nome,
+    tipo: m.tipo,
+    preview: (() => {
+      const txt = m.mensagemFinal ?? m.mensagemGerada ?? ""
+      return txt.length > 80 ? txt.slice(0, 80) + "…" : txt || "—"
+    })(),
+  }))
+  const sessoesSemanaRows = sessõesSemana.filter(s => s.cliente).map(s => ({
+    id: s.id, hora: s.hora, clienteId: s.clienteId as string,
+    clienteNome: s.cliente!.nome, clienteIniciais: getIniciais(s.cliente!.nome),
+    servico: s.servico, terapeuta: s.user?.name ?? "-", estado: s.estado,
+    dataLabel: formatarDataCurta(s.data),
+  }))
   const tarefasHojeRows = tarefasHoje.map(t => ({ id: t.id, titulo: t.titulo, cliente: t.cliente }))
   const tarefasVencidasRows = tarefasVencidas.map(t => ({ id: t.id, titulo: t.titulo, cliente: t.cliente }))
   const alertasRows = alertasSatisfacao.map(s => ({ id: s.id, avaliacaoNota: s.avaliacaoNota, cliente: s.cliente }))
@@ -288,38 +323,54 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       {/* ── Linha 1: 4 KPI cards ── */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SessoesHojeKpi sessoes={sessoesHojeRows} index={0} />
-        <KpiCardPremium
+        <KpiClicavel
           titulo="Receita do Mês"
           valor={Math.round(receitaMesTotal)}
           suffix=" €"
           descricao="Sessões realizadas"
           cor="green" index={1}
+          temDados={receitaMesTotal > 0}
+          tituloModal="Receita do mês — detalhe"
           icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.25 7.756a4.5 4.5 0 1 0 0 8.488M7.5 10.5h5.25m-5.25 3h5.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>}
-        />
-        <KpiCardPremium
+        >
+          <ReceitaDetalhe sessoes={receitaSessoesMes} vouchers={receitaVouchersMes} packs={receitaPacksMes} />
+        </KpiClicavel>
+        <KpiClicavel
           titulo="Clientes Ativas"
           valor={totalClientesActivos}
           descricao={`${tendencia >= 0 ? "+" : ""}${tendencia}pp vs mês ant.`}
           cor="gold" index={2}
+          temDados={clientesActivasRows.length > 0}
+          tituloModal="Clientes ativas"
           icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>}
-        />
+        >
+          <ClientesActivasDetalhe clientes={clientesActivasRows} />
+        </KpiClicavel>
         {ctx.podeAprovarMensagens ? (
-          <KpiCardPremium
+          <KpiClicavel
             titulo="Mensagens"
             valor={totalMensagensPendentes}
             descricao={totalMensagensPendentes === 0 ? "Tudo aprovado" : "A aguardar aprovação"}
             cor={totalMensagensPendentes > 0 ? "red" : "gold"} index={3}
+            temDados={mensagensPendentesRows.length > 0}
+            tituloModal="Mensagens pendentes"
             icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>}
-          />
+          >
+            <MensagensPendentesDetalhe mensagens={mensagensPendentesRows} />
+          </KpiClicavel>
         ) : (
           // Cristina não vê a Mensagens IA — mostra a semana em vez disso
-          <KpiCardPremium
+          <KpiClicavel
             titulo="Esta Semana"
             valor={sessõesSemana.length}
             descricao="sessões agendadas"
             cor="blue" index={3}
+            temDados={sessoesSemanaRows.length > 0}
+            tituloModal="Sessões desta semana"
             icon={<Calendar className="w-4 h-4" />}
-          />
+          >
+            <EstaSemanaDetalhe sessoes={sessoesSemanaRows} />
+          </KpiClicavel>
         )}
       </section>
 

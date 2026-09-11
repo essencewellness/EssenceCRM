@@ -5,7 +5,8 @@ import { createPortal } from "react-dom"
 import { motion, AnimatePresence } from "motion/react"
 import Link from "next/link"
 import { CheckSquare, AlertTriangle, Calendar, X } from "lucide-react"
-import { useCountUp } from "@/components/kpi-card"
+import { useCountUp, COR_MAP } from "@/components/kpi-card"
+import { formatCurrency, formatPhone } from "@/lib/utils"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -378,6 +379,318 @@ function SessoesListaBox({ titulo, sessoes, borderRight }: { titulo: string; ses
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── KPI genérico clicável (Receita / Clientes Ativas / Mensagens / Esta Semana) ──
+
+/** Mesmo cartão visual do KpiCardPremium, mas clicável — abre um modal com
+ * o `children` passado. Reutilizado por Receita do Mês, Clientes Ativas,
+ * Mensagens pendentes e Esta Semana (o padrão já estabelecido pelo
+ * SessoesHojeKpi, generalizado para não repetir a mesma casca 4 vezes). */
+export function KpiClicavel({
+  titulo, valor, suffix = "", descricao, cor, icon, index = 0, temDados, tituloModal, children,
+}: {
+  titulo: string
+  valor: number
+  suffix?: string
+  descricao: string
+  cor: keyof typeof COR_MAP
+  icon: React.ReactNode
+  index?: number
+  temDados: boolean
+  tituloModal: string
+  children: React.ReactNode
+}) {
+  const [aberto, setAberto] = useState(false)
+  const count = useCountUp(valor)
+  const cores = COR_MAP[cor]
+
+  return (
+    <>
+      <motion.div
+        role="button"
+        tabIndex={temDados ? 0 : -1}
+        aria-haspopup="dialog"
+        aria-label={`${titulo}: ${valor}${suffix}. Clicar para ver detalhe.`}
+        onClick={() => temDados && setAberto(true)}
+        onKeyDown={(e) => {
+          if (temDados && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault()
+            setAberto(true)
+          }
+        }}
+        whileHover={temDados ? { y: -2 } : undefined}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          backgroundColor: "var(--nuit-overlay)",
+          border: "1px solid rgba(212,184,134,0.16)",
+          borderRadius: "2px",
+          padding: "22px 24px 20px",
+          position: "relative",
+          boxShadow: "var(--shadow-1)",
+          cursor: temDados ? "pointer" : "default",
+          outline: "none",
+        }}
+      >
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+          backgroundColor: cores.accent, opacity: 0.45,
+        }} />
+
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
+            color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
+          }}>
+            {titulo}
+          </p>
+          <span style={{ color: cores.icon, display: "flex", marginTop: "1px" }}>{icon}</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginBottom: "8px" }}>
+          <span style={{
+            fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
+            fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
+            lineHeight: 1, letterSpacing: "-0.02em",
+          }}>
+            {count.toLocaleString("pt-PT")}
+          </span>
+          {suffix && (
+            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "16px", color: "var(--nuit-bone-soft)" }}>
+              {suffix}
+            </span>
+          )}
+        </div>
+
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", lineHeight: 1.4 }}>
+          {temDados ? `${descricao} · toca para ver` : descricao}
+        </p>
+      </motion.div>
+
+      {typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          {aberto && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setAberto(false)}
+              style={{
+                position: "fixed", inset: 0, zIndex: 60,
+                backgroundColor: "rgba(22,26,38,0.5)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={tituloModal}
+                style={{
+                  backgroundColor: "var(--nuit-overlay)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(212,184,134,0.16)",
+                  boxShadow: "0 16px 48px rgba(14,17,25,0.50)",
+                  width: "100%", maxWidth: "460px", maxHeight: "78vh",
+                  display: "flex", flexDirection: "column", overflow: "hidden",
+                }}
+              >
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "18px 20px 14px", borderBottom: "1px solid rgba(212,184,134,0.10)",
+                  flexShrink: 0,
+                }}>
+                  <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px", color: "var(--nuit-bone)" }}>
+                    {tituloModal}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setAberto(false)}
+                    aria-label="Fechar"
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--nuit-bone-soft)", padding: "4px", display: "flex" }}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <div style={{ padding: "16px 20px", overflowY: "auto" }}>
+                  {children}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+    </>
+  )
+}
+
+// ─── Conteúdo do modal — Receita do Mês ──────────────────────────────────────
+
+export function ReceitaDetalhe({
+  sessoes, vouchers, packs,
+}: {
+  sessoes: number
+  vouchers: number
+  packs: number
+}) {
+  const total = sessoes + vouchers + packs
+  const linhas = [
+    { label: "Sessões pagas directamente", valor: sessoes },
+    { label: "Vouchers vendidos", valor: vouchers },
+    { label: "Pagamentos de pack", valor: packs },
+  ]
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+      {linhas.map((l) => (
+        <div key={l.label} style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)",
+        }}>
+          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+            {l.label}
+          </span>
+          <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "16px", color: "var(--nuit-bone)" }}>
+            {formatCurrency(l.valor)}
+          </span>
+        </div>
+      ))}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0 4px" }}>
+        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-champagne-soft)" }}>
+          Total
+        </span>
+        <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "20px", color: "var(--nuit-champagne)" }}>
+          {formatCurrency(total)}
+        </span>
+      </div>
+      <Link href="/financeiro" style={{
+        display: "block", marginTop: "14px", textAlign: "center",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+        color: "var(--nuit-champagne-soft)", textDecoration: "none",
+      }}>
+        Ver detalhe completo em Financeiro →
+      </Link>
+    </div>
+  )
+}
+
+// ─── Conteúdo do modal — Clientes Ativas ─────────────────────────────────────
+
+export interface ClienteAtivoRow { id: string; nome: string; telefone: string | null; estado: string }
+
+const ESTADO_LABELS: Record<string, string> = {
+  ativa_recente: "Ativa Recente",
+  ativa_frequente: "Ativa Frequente",
+  vip_embaixadora: "VIP Embaixadora",
+}
+
+export function ClientesActivasDetalhe({ clientes }: { clientes: ClienteAtivoRow[] }) {
+  if (clientes.length === 0) {
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Nenhuma cliente activa.</p>
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      {clientes.map((c) => (
+        <Link key={c.id} href={`/clientes/${c.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", textDecoration: "none" }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone)",
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>
+              {c.nome}
+            </p>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>
+              {formatPhone(c.telefone)}
+            </p>
+          </div>
+          <span style={{
+            flexShrink: 0, padding: "3px 8px",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase",
+            backgroundColor: "rgba(160,169,150,0.08)", border: "1px solid rgba(160,169,150,0.20)", color: "var(--nuit-sage)",
+          }}>
+            {ESTADO_LABELS[c.estado] ?? c.estado}
+          </span>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+// ─── Conteúdo do modal — Mensagens pendentes ─────────────────────────────────
+
+export interface MensagemPendenteRow { id: string; clienteNome: string; tipo: string; preview: string }
+
+export function MensagensPendentesDetalhe({ mensagens }: { mensagens: MensagemPendenteRow[] }) {
+  if (mensagens.length === 0) {
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Nada à espera de aprovação.</p>
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      {mensagens.map((m) => (
+        <div key={m.id} style={{ paddingBottom: "10px", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "3px" }}>
+            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)" }}>
+              {m.clienteNome}
+            </span>
+            <span style={{
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", textTransform: "uppercase",
+              color: "var(--nuit-champagne-soft)",
+            }}>
+              {m.tipo}
+            </span>
+          </div>
+          <p style={{
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {m.preview}
+          </p>
+        </div>
+      ))}
+      <Link href="/mensagens" style={{
+        display: "block", marginTop: "4px", textAlign: "center",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+        color: "var(--nuit-champagne-soft)", textDecoration: "none",
+      }}>
+        Ir para Mensagens →
+      </Link>
+    </div>
+  )
+}
+
+// ─── Conteúdo do modal — Esta Semana (conta da Cristina) ─────────────────────
+
+export interface SessaoSemanaRow extends SessaoRow { dataLabel: string }
+
+export function EstaSemanaDetalhe({ sessoes }: { sessoes: SessaoSemanaRow[] }) {
+  if (sessoes.length === 0) {
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Sem sessões nos próximos 7 dias.</p>
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      {sessoes.map((s) => (
+        <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ flexShrink: 0, width: "60px" }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>{s.dataLabel}</p>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne)" }}>{s.hora ? s.hora.slice(0, 5) : "—"}</p>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {s.clienteNome}
+            </p>
+          </div>
+          <BadgeEstado estado={s.estado} />
+        </div>
+      ))}
     </div>
   )
 }

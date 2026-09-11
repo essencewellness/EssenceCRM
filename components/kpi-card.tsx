@@ -24,7 +24,7 @@ export function useCountUp(target: number, duration = 1100) {
   return value
 }
 
-const COR_MAP = {
+export const COR_MAP = {
   gold:  { accent: "var(--nuit-champagne-soft)", icon: "rgba(185,160,122,0.55)" },
   green: { accent: "#7a9e7e", icon: "rgba(122,158,126,0.55)" },
   blue:  { accent: "#7a8eb5", icon: "rgba(122,142,181,0.55)" },
