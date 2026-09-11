@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils"
+import { inicioDiaLisboaDe } from "@/lib/data-lisboa"
 import { ClientePerfilTabs } from "@/components/clientes/ClientePerfilTabs"
 import { VouchersTab, type VoucherDoCliente } from "./VouchersTab"
 import { ClienteTimeline } from "@/components/clientes/ClienteTimeline"
@@ -156,10 +157,8 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
   function diasRelativos(data: Date | null): string {
     if (!data) return "—"
-    const hoje = new Date()
-    hoje.setHours(0, 0, 0, 0)
-    const d = new Date(data)
-    d.setHours(0, 0, 0, 0)
+    const hoje = inicioDiaLisboaDe(new Date())
+    const d = inicioDiaLisboaDe(new Date(data))
     const diff = Math.round((d.getTime() - hoje.getTime()) / 86400000)
     if (diff === 0) return "hoje"
     if (diff > 0) return `em ${diff} dia${diff === 1 ? "" : "s"}`

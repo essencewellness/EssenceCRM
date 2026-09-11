@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/utils"
 import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
 import { GradeMensal } from "./GradeMensal"
 import type { Prisma } from "@/lib/prisma-client"
+import { inicioDiaLisboaDe } from "@/lib/data-lisboa"
 
 type Vista = "dia" | "semana" | "mes"
 type Modo = "lista" | "calendario"
@@ -16,10 +17,11 @@ const CREAM = "var(--nuit-bone)"
 const SOFT = "var(--nuit-bone-soft)"
 const BORDER = "var(--rule-soft)"
 
+// Sempre por hora de Lisboa (servidor Vercel corre em UTC), e idempotente —
+// seguro chamar tanto sobre "new Date()" como sobre um valor que já passou
+// por aqui antes (ex: dataRef deslocada via setDate), ver inicioDiaLisboaDe.
 function inicioDoDia(d: Date) {
-  const x = new Date(d)
-  x.setHours(0, 0, 0, 0)
-  return x
+  return inicioDiaLisboaDe(d)
 }
 
 // Segunda-feira como início da semana (convenção PT)
@@ -82,7 +84,12 @@ export default async function AgendaPage({
   const { vista: vistaParam, modo: modoParam, data: dataParam, terapeuta: terapeutaParam } = await searchParams
   const vista: Vista = vistaParam === "dia" || vistaParam === "mes" ? vistaParam : "semana"
   const modo: Modo = modoParam === "lista" ? "lista" : "calendario"
-  const dataRef = dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam) ? new Date(dataParam + "T00:00:00") : inicioDoDia(new Date())
+  // "T12:00:00Z" (meio-dia UTC, não meia-noite) evita qualquer ambiguidade
+  // de fuso mesmo no próprio dia da mudança de horário de Verão/Inverno —
+  // inicioDiaLisboaDe trunca a seguir para a meia-noite de Lisboa real.
+  const dataRef = dataParam && /^\d{4}-\d{2}-\d{2}$/.test(dataParam)
+    ? inicioDiaLisboaDe(new Date(dataParam + "T12:00:00Z"))
+    : inicioDoDia(new Date())
 
   const { inicio, fim, label } = calcularIntervalo(vista, dataRef)
   const anterior = deslocarData(vista, dataRef, -1)

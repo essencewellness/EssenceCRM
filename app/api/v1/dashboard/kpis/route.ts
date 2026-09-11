@@ -3,9 +3,13 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { validarQuery, kpisQuerySchema } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
+import { inicioDiaLisboaDe } from "@/lib/data-lisboa"
 
 function parseMes(mes?: string): { inicio: Date; fim: Date } {
-  const ref = mes ?? new Date().toISOString().slice(0, 7)
+  // "Mês actual" sempre por hora de Lisboa (servidor corre em UTC) — sem
+  // isto, na última/primeira hora do mês (hora de Lisboa) devolvia o mês
+  // errado. en-CA formata sempre AAAA-MM-DD, útil para cortar "AAAA-MM".
+  const ref = mes ?? new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Lisbon" }).slice(0, 7)
   const [ano, mesNum] = ref.split("-").map(Number)
   return {
     inicio: new Date(ano!, mesNum! - 1, 1),
@@ -25,12 +29,14 @@ function parseSemana(semana?: string): { inicio: Date; fim: Date } {
     const fim = new Date(inicio.getTime() + 7 * 86400000)
     return { inicio, fim }
   }
-  // Semana atual (segunda a domingo)
-  const hoje = new Date()
-  const diaSemana = hoje.getDay() || 7
-  const inicio = new Date(hoje)
-  inicio.setDate(hoje.getDate() - diaSemana + 1)
-  inicio.setHours(0, 0, 0, 0)
+  // Semana atual (segunda a domingo), sempre por hora de Lisboa — o dia da
+  // semana (getDay) tem de vir da hora de parede de Lisboa, nunca da leitura
+  // UTC do servidor, ou a semana "actual" começa no dia errado perto da
+  // meia-noite.
+  const pseudoAgoraLisboa = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon" }))
+  const diaSemana = pseudoAgoraLisboa.getDay() || 7
+  const inicio = inicioDiaLisboaDe(new Date())
+  inicio.setDate(inicio.getDate() - diaSemana + 1)
   const fim = new Date(inicio.getTime() + 7 * 86400000)
   return { inicio, fim }
 }

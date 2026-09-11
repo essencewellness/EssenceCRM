@@ -2,6 +2,7 @@
 // vertical, cada sessão desenhada como um bloco posicionado e dimensionado
 // pela hora/duração reais. Sem interatividade própria (server component) —
 // cada bloco é um <a> normal para o perfil do cliente.
+import { inicioDiaLisboaDe, horaMinutoAtualLisboa } from "@/lib/data-lisboa"
 
 const HORA_INICIO = 7
 const HORA_FIM = 21
@@ -50,7 +51,7 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
         {/* Cabeçalho */}
         <div />
         {dias.map(({ data }) => {
-          const hoje = new Date(); hoje.setHours(0, 0, 0, 0)
+          const hoje = inicioDiaLisboaDe(new Date())
           const ehHoje = data.getTime() === hoje.getTime()
           return (
             <div key={data.toISOString()} style={{ textAlign: "center", paddingBottom: "8px" }}>
@@ -84,10 +85,10 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
 
         {/* Colunas por dia */}
         {dias.map(({ data, sessoes }) => {
-          const hoje = new Date(); hoje.setHours(0, 0, 0, 0)
+          const hoje = inicioDiaLisboaDe(new Date())
           const ehHoje = data.getTime() === hoje.getTime()
-          const agora = new Date()
-          const minutosAgora = agora.getHours() * 60 + agora.getMinutes()
+          const { hora, minuto } = horaMinutoAtualLisboa()
+          const minutosAgora = hora * 60 + minuto
           const mostrarLinhaAgora = ehHoje && minutosAgora >= HORA_INICIO * 60 && minutosAgora <= HORA_FIM * 60
           return (
           <div key={data.toISOString()} style={{
