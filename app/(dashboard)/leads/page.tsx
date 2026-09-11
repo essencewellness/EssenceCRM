@@ -1,10 +1,10 @@
-import Link from "next/link"
 import { UserPlus } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { PageHeader } from "@/components/page-header"
 import { AnimatedSection } from "@/components/stagger"
-import { formatPhone } from "@/lib/utils"
+import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 import { NovoLeadForm } from "./NovoLeadForm"
+import { LeadsTable } from "./LeadsTable"
 
 // Nota: sem isolamento por terapeuta (ao contrário de /clientes) de propósito
 // — leads ainda não têm terapeutaPrincipalId atribuído (isso só acontece
@@ -14,26 +14,27 @@ import { NovoLeadForm } from "./NovoLeadForm"
 
 export const revalidate = 30
 
-const ORIGEM_LABELS: Record<string, string> = {
-  indicacao: "Indicação",
-  instagram: "Instagram",
-  google: "Google",
-  parceiro: "Parceiro",
-  manual: "Manual",
-  formulario: "Formulário",
-}
-
-function formatDate(d: Date) {
-  return new Intl.DateTimeFormat("pt-PT", { day: "2-digit", month: "short" }).format(d)
-}
-
 export default async function LeadsPage() {
-  const leads = await prisma.cliente.findMany({
-    where: { estado: "lead", apagadoEm: null },
-    orderBy: { criadoEm: "desc" },
-    take: 200,
-    select: { id: true, nome: true, email: true, telefone: true, comoNosConheceu: true, criadoEm: true },
-  })
+  const ctx = await getContextoUtilizador()
+
+  const [leads, templates] = await Promise.all([
+    prisma.cliente.findMany({
+      where: { estado: "lead", apagadoEm: null },
+      orderBy: { criadoEm: "desc" },
+      take: 200,
+      select: { id: true, nome: true, email: true, telefone: true, comoNosConheceu: true, criadoEm: true },
+    }),
+    // Campanhas para leads usam os mesmos templates de /clientes — mesma
+    // fila de aprovação, mesmo motor (criarCampanhaFromFiltro já aceita
+    // qualquer estado via clienteIds, leads incluídas, sem alterações).
+    ctx.podeAprovarMensagens
+      ? prisma.templateMensagem.findMany({
+          where: { ativo: true },
+          select: { id: true, nome: true, texto: true },
+          orderBy: { nome: "asc" },
+        })
+      : Promise.resolve([]),
+  ])
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
@@ -54,55 +55,11 @@ export default async function LeadsPage() {
             </p>
           </div>
         ) : (
-          <div style={{ border: "1px solid rgba(212,184,134,0.12)", overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "480px" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.12)" }}>
-                  {["Nome", "Telefone", "Email", "Origem", "Desde"].map((h) => (
-                    <th key={h} style={{
-                      padding: "11px 16px", textAlign: "left",
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700,
-                      letterSpacing: "0.16em", textTransform: "uppercase",
-                      color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)",
-                    }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((lead, idx) => (
-                  <tr key={lead.id} style={{ borderBottom: idx < leads.length - 1 ? "1px solid rgba(212,184,134,0.10)" : "none" }}>
-                    <td style={{ padding: "13px 16px" }}>
-                      <Link href={`/clientes/${lead.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
-                        {lead.nome}
-                      </Link>
-                    </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                      {formatPhone(lead.telefone)}
-                    </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                      {lead.email ?? "—"}
-                    </td>
-                    <td style={{ padding: "13px 16px" }}>
-                      {lead.comoNosConheceu ? (
-                        <span style={{
-                          padding: "3px 9px", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.08em",
-                          textTransform: "uppercase", fontFamily: "var(--font-sans, sans-serif)",
-                          color: "var(--nuit-champagne-soft)", border: "1px solid rgba(185,160,122,0.35)",
-                        }}>
-                          {ORIGEM_LABELS[lead.comoNosConheceu] ?? lead.comoNosConheceu}
-                        </span>
-                      ) : "—"}
-                    </td>
-                    <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
-                      {formatDate(lead.criadoEm)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <LeadsTable
+            leads={leads.map(l => ({ ...l, criadoEm: l.criadoEm.toISOString() }))}
+            templates={templates}
+            podeGerirCampanhas={ctx.podeAprovarMensagens}
+          />
         )}
       </AnimatedSection>
     </div>
