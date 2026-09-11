@@ -69,7 +69,16 @@ export default async function RootLayout({
       className={`${dmSerifDisplay.variable} ${manrope.variable} h-full antialiased dark`}
     >
       <head>
-        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* suppressHydrationWarning: o browser esconde deliberadamente o
+            atributo nonce depois de inserido no DOM (medida de segurança,
+            impede outro script de o ler) — o React vê nonce="" ao hidratar
+            e assinala isso como incompatibilidade, mas é um comportamento
+            do browser, não um bug. Sem isto: erro de hidratação real
+            (#418) em toda a app, confirmado em produção 2026-09-11 e
+            reproduzido em dev com o aviso completo do React apontando
+            exactamente para este nonce. Padrão documentado pela própria
+            Next.js para scripts inline com CSP nonce. */}
+        <script nonce={nonce} suppressHydrationWarning dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
         <a
