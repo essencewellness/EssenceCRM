@@ -9,7 +9,7 @@ import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot"
 import { Calendar } from "lucide-react"
 import type { Prisma } from "@/lib/prisma-client"
-import { inicioFimDiaLisboa } from "@/lib/data-lisboa"
+import { inicioFimDiaLisboa, dataISOLisboa } from "@/lib/data-lisboa"
 
 export const revalidate = 30
 
@@ -267,13 +267,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   })
   const porDia = new Map<string, typeof sessõesSemana>()
   for (const s of sessõesSemana) {
-    const chave = s.data.toISOString().slice(0, 10)
+    const chave = dataISOLisboa(s.data)
     porDia.set(chave, [...(porDia.get(chave) ?? []), s])
   }
   const diasRows = dias7
-    .filter(d => (porDia.get(d.toISOString().slice(0, 10)) ?? []).length > 0)
+    .filter(d => (porDia.get(dataISOLisboa(d)) ?? []).length > 0)
     .map(d => {
-      const chave = d.toISOString().slice(0, 10)
+      const chave = dataISOLisboa(d)
       const sessoesDia = (porDia.get(chave) ?? []).sort((a, b) => (a.hora ?? "").localeCompare(b.hora ?? ""))
       return {
         chave, diaSemana: formatarDiaSemana(d), dataCurta: formatarDataCurta(d),

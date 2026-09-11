@@ -46,3 +46,16 @@ export function horaMinutoAtualLisboa(): { hora: number; minuto: number } {
   const pseudo = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon" }))
   return { hora: pseudo.getHours(), minuto: pseudo.getMinutes() }
 }
+
+/** Formata um instante como "AAAA-MM-DD" do dia de CALENDÁRIO DE LISBOA a
+ * que pertence — usar sempre isto para chaves de agrupamento/lookup por
+ * dia (ex: mapear sessões da semana por coluna), nunca
+ * `d.toISOString().slice(0,10)` (sempre UTC). Ao contrário desse, esta
+ * função dá a resposta certa tanto para timestamps reais da BD como para
+ * instantes já ancorados à meia-noite de Lisboa (inicioDiaLisboaDe) — os
+ * dois lados de uma comparação/lookup batem sempre certo, seja qual for a
+ * origem de cada data. Bug real encontrado 2026-09-11: misturar as duas
+ * convenções fazia sessões "desaparecerem" do dia certo na Agenda. */
+export function dataISOLisboa(d: Date): string {
+  return d.toLocaleDateString("en-CA", { timeZone: "Europe/Lisbon" })
+}

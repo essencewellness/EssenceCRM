@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/utils"
 import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
 import { GradeMensal } from "./GradeMensal"
 import type { Prisma } from "@/lib/prisma-client"
-import { inicioDiaLisboaDe } from "@/lib/data-lisboa"
+import { inicioDiaLisboaDe, dataISOLisboa } from "@/lib/data-lisboa"
 
 type Vista = "dia" | "semana" | "mes"
 type Modo = "lista" | "calendario"
@@ -60,7 +60,7 @@ function deslocarData(vista: Vista, dataRef: Date, direcao: 1 | -1): Date {
 }
 
 function fmtDataParam(d: Date) {
-  return d.toISOString().slice(0, 10)
+  return dataISOLisboa(d)
 }
 
 const ESTADO_COR: Record<string, string> = {
@@ -126,7 +126,7 @@ export default async function AgendaPage({
   // Agrupar por dia
   const porDia = new Map<string, typeof sessoes>()
   for (const s of sessoes) {
-    const chave = s.data.toISOString().slice(0, 10)
+    const chave = dataISOLisboa(s.data)
     if (!porDia.has(chave)) porDia.set(chave, [])
     porDia.get(chave)!.push(s)
   }
@@ -163,7 +163,7 @@ export default async function AgendaPage({
     { length: vista === "dia" ? 1 : 7 },
     (_, i) => {
       const dataCol = new Date(inicio); dataCol.setDate(dataCol.getDate() + i)
-      const chave = dataCol.toISOString().slice(0, 10)
+      const chave = dataISOLisboa(dataCol)
       return { data: dataCol, sessoes: paraGrelha(porDia.get(chave) ?? []) }
     },
   )
@@ -180,7 +180,7 @@ export default async function AgendaPage({
     const totalDias = Math.round((fimGrelha.getTime() - inicioGrelha.getTime()) / 86400000)
     diasGrelhaMensal = Array.from({ length: totalDias }, (_, i) => {
       const dataCol = new Date(inicioGrelha); dataCol.setDate(dataCol.getDate() + i)
-      const chave = dataCol.toISOString().slice(0, 10)
+      const chave = dataISOLisboa(dataCol)
       return { data: dataCol, sessoes: paraGrelha(porDia.get(chave) ?? []) }
     })
   }
