@@ -59,3 +59,16 @@ export function horaMinutoAtualLisboa(): { hora: number; minuto: number } {
 export function dataISOLisboa(d: Date): string {
   return d.toLocaleDateString("en-CA", { timeZone: "Europe/Lisbon" })
 }
+
+/** Componentes de calendário (ano, mês 0-indexado, dia-do-mês, dia-da-
+ * -semana 0-6 domingo-sábado) de um instante real, como percebidos em
+ * Lisboa — nunca usar getFullYear()/getMonth()/getDate()/getDay()
+ * directamente sobre uma data já ancorada a Lisboa (lê sempre os
+ * componentes UTC do servidor, sistematicamente errados quando a âncora
+ * cai do lado de lá da meia-noite UTC). Bug real encontrado 2026-09-11:
+ * inicioDaSemana() da Agenda calculava o início de semana errado por
+ * usar x.getDay() nativo sobre um instante já ancorado. */
+export function componentesDataLisboa(d: Date): { ano: number; mes: number; dia: number; diaSemana: number } {
+  const pseudo = new Date(d.toLocaleString("en-US", { timeZone: "Europe/Lisbon" }))
+  return { ano: pseudo.getFullYear(), mes: pseudo.getMonth(), dia: pseudo.getDate(), diaSemana: pseudo.getDay() }
+}

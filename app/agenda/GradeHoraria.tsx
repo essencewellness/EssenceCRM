@@ -2,7 +2,7 @@
 // vertical, cada sessão desenhada como um bloco posicionado e dimensionado
 // pela hora/duração reais. Sem interatividade própria (server component) —
 // cada bloco é um <a> normal para o perfil do cliente.
-import { inicioDiaLisboaDe, horaMinutoAtualLisboa } from "@/lib/data-lisboa"
+import { inicioDiaLisboaDe, horaMinutoAtualLisboa, componentesDataLisboa } from "@/lib/data-lisboa"
 
 const HORA_INICIO = 7
 const HORA_FIM = 21
@@ -56,7 +56,7 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
           return (
             <div key={data.toISOString()} style={{ textAlign: "center", paddingBottom: "8px" }}>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
-                {data.toLocaleDateString("pt-PT", { weekday: "short" }).replace(".", "")}
+                {data.toLocaleDateString("pt-PT", { weekday: "short", timeZone: "Europe/Lisbon" }).replace(".", "")}
               </p>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px",
@@ -65,7 +65,7 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
                 width: "30px", height: "30px", borderRadius: "50%",
                 display: "flex", alignItems: "center", justifyContent: "center", margin: "2px auto 0",
               }}>
-                {data.getDate()}
+                {componentesDataLisboa(data).dia}
               </p>
             </div>
           )

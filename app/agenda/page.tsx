@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/utils"
 import { GradeHoraria, type SessaoGrade } from "./GradeHoraria"
 import { GradeMensal } from "./GradeMensal"
 import type { Prisma } from "@/lib/prisma-client"
-import { inicioDiaLisboaDe, dataISOLisboa } from "@/lib/data-lisboa"
+import { inicioDiaLisboaDe, dataISOLisboa, componentesDataLisboa } from "@/lib/data-lisboa"
 
 type Vista = "dia" | "semana" | "mes"
 type Modo = "lista" | "calendario"
@@ -24,10 +24,14 @@ function inicioDoDia(d: Date) {
   return inicioDiaLisboaDe(d)
 }
 
-// Segunda-feira como início da semana (convenção PT)
+// Segunda-feira como início da semana (convenção PT). O dia-da-semana TEM
+// de vir de componentesDataLisboa, nunca de x.getDay() nativo — x já está
+// ancorado à meia-noite de Lisboa, e .getDay() lê os componentes UTC do
+// servidor, sistematicamente um dia atrasado em horário de Verão (bug
+// real encontrado 2026-09-11: a semana começava sempre uma terça-feira).
 function inicioDaSemana(d: Date) {
   const x = inicioDoDia(d)
-  const diaSemana = x.getDay() // 0=domingo
+  const diaSemana = componentesDataLisboa(x).diaSemana // 0=domingo
   const deslocamento = diaSemana === 0 ? -6 : 1 - diaSemana
   x.setDate(x.getDate() + deslocamento)
   return x
@@ -37,18 +41,22 @@ function calcularIntervalo(vista: Vista, dataRef: Date): { inicio: Date; fim: Da
   if (vista === "dia") {
     const inicio = inicioDoDia(dataRef)
     const fim = new Date(inicio); fim.setDate(fim.getDate() + 1)
-    return { inicio, fim, label: inicio.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long" }) }
+    return { inicio, fim, label: inicio.toLocaleDateString("pt-PT", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Lisbon" }) }
   }
   if (vista === "semana") {
     const inicio = inicioDaSemana(dataRef)
     const fim = new Date(inicio); fim.setDate(fim.getDate() + 7)
     const fimVisivel = new Date(fim); fimVisivel.setDate(fimVisivel.getDate() - 1)
-    const label = `${inicio.toLocaleDateString("pt-PT", { day: "numeric", month: "short" })} – ${fimVisivel.toLocaleDateString("pt-PT", { day: "numeric", month: "short" })}`
+    const label = `${inicio.toLocaleDateString("pt-PT", { day: "numeric", month: "short", timeZone: "Europe/Lisbon" })} – ${fimVisivel.toLocaleDateString("pt-PT", { day: "numeric", month: "short", timeZone: "Europe/Lisbon" })}`
     return { inicio, fim, label }
   }
-  const inicio = new Date(dataRef.getFullYear(), dataRef.getMonth(), 1)
-  const fim = new Date(dataRef.getFullYear(), dataRef.getMonth() + 1, 1)
-  return { inicio, fim, label: inicio.toLocaleDateString("pt-PT", { month: "long", year: "numeric" }) }
+  // Mês: ano/mês têm de vir de componentesDataLisboa (mesma razão do
+  // dia-da-semana acima), e o próprio início/fim do mês re-ancorado com
+  // inicioDiaLisboaDe (meio-dia UTC do dia 1 evita ambiguidade de DST).
+  const { ano, mes } = componentesDataLisboa(dataRef)
+  const inicio = inicioDiaLisboaDe(new Date(Date.UTC(ano, mes, 1, 12)))
+  const fim = inicioDiaLisboaDe(new Date(Date.UTC(ano, mes + 1, 1, 12)))
+  return { inicio, fim, label: inicio.toLocaleDateString("pt-PT", { month: "long", year: "numeric", timeZone: "Europe/Lisbon" }) }
 }
 
 function deslocarData(vista: Vista, dataRef: Date, direcao: 1 | -1): Date {
