@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import type { SessaoGrade } from "./GradeHoraria"
 
@@ -54,7 +54,20 @@ export function GradeMensal({ mesRef, dias }: {
 }) {
   const [diaAberto, setDiaAberto] = useState<string | null>(null)
   const mesAtual = mesRef.getMonth()
-  const hoje = new Date(); hoje.setHours(0, 0, 0, 0)
+  // "hoje" calculado só depois de montar (useEffect), nunca durante o
+  // primeiro render — o Next.js faz um passo de SSR mesmo em componentes
+  // "use client", com o relógio do SERVIDOR (Vercel = UTC); calcular
+  // new Date() directamente no corpo do componente dava um valor diferente
+  // do calculado depois no browser (Lisboa) e o React rebentava com um erro
+  // de hidratação real (#418, confirmado em produção 2026-09-11) sempre que
+  // "hoje" caísse perto da meia-noite consoante o fuso. null no 1º render
+  // = nenhum dia destacado como "hoje" até o valor certo chegar do browser.
+  const [hoje, setHoje] = useState<Date | null>(null)
+  useEffect(() => {
+    const h = new Date(); h.setHours(0, 0, 0, 0)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHoje(h)
+  }, [])
   const semanas: typeof dias[] = []
   for (let i = 0; i < dias.length; i += 7) semanas.push(dias.slice(i, i + 7))
 
@@ -91,7 +104,7 @@ export function GradeMensal({ mesRef, dias }: {
         {semanas.flatMap((semana) =>
           semana.map(({ data, sessoes }, colIndex) => {
             const foraDoMes = data.getMonth() !== mesAtual
-            const ehHoje = data.getTime() === hoje.getTime()
+            const ehHoje = hoje !== null && data.getTime() === hoje.getTime()
             const fimDeSemana = colIndex >= 5
             const chave = data.toISOString().slice(0, 10)
             const visiveis = sessoes.slice(0, 3)
