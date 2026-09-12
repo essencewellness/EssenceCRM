@@ -192,6 +192,7 @@ function DetailItem({ label, value }: { label: string; value: string | null | un
       <p style={{
         fontFamily: "var(--font-body, sans-serif)",
         fontSize: "13px", color: "var(--nuit-bone)",
+        whiteSpace: "pre-line",
       }}>
         {value ?? "—"}
       </p>
