@@ -175,14 +175,26 @@ export async function POST(request: NextRequest) {
               ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
             }
           : {}),
-        // Autorização de gravação para redes sociais — regista sempre a
-        // resposta (marcada ou desmarcada) com timestamp, prova de que a
-        // pergunta foi mesmo feita, independentemente do valor.
-        ...(typeof aceitaGravacaoRedesSociais === "boolean"
-          ? { aceitaGravacaoRedesSociais, consentimentoGravacaoRedesSociaisEm: new Date() }
-          : {}),
       },
     })
+
+    // Autorização de gravação para redes sociais — escrita separada e
+    // best-effort, de propósito: as colunas (aceitaGravacaoRedesSociais,
+    // consentimentoGravacaoRedesSociaisEm) só existem em produção depois da
+    // migração `ALTER TABLE` correr manualmente (ver CLAUDE.md). Enquanto
+    // isso não acontece, esta escrita falha sozinha sem derrubar a
+    // submissão inteira do onboarding — remover este try/catch só depois de
+    // confirmada a migração em produção.
+    if (typeof aceitaGravacaoRedesSociais === "boolean") {
+      try {
+        await prisma.cliente.update({
+          where: { id: cliente.id },
+          data: { aceitaGravacaoRedesSociais, consentimentoGravacaoRedesSociaisEm: new Date() },
+        })
+      } catch (erroGravacao) {
+        console.error("onboarding: falha ao gravar aceitaGravacaoRedesSociais (migração pendente?):", (erroGravacao as Error).message)
+      }
+    }
 
     // Gravar dados específicos desta sessão na Sessao (snapshot do dia)
     let sessao = null
