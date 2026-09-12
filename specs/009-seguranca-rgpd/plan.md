@@ -49,7 +49,7 @@ Fechar as lacunas encontradas na auditoria de 2026-07-21: anonimização RGPD in
 
 ## Fase 2 (opcional — depois do pacote principal)
 
-[ ] **14. Alertas de segurança (SIEM lite)** — workflow N8N agendado (15 em 15 min) que consulta o `AuditLog` via API e envia WhatsApp à equipa quando deteta: >10 eventos `login.falhado`/`webhook.assinatura_invalida` na última hora, ou qualquer `rgpd.anonimizacao`/`clientes.bulk_eliminar`. Sem ferramentas externas pagas — reutiliza o audit log que já existe.
+[x] **14. Alertas de segurança (SIEM lite)** — endpoint `GET /api/v1/seguranca/alertas` construído 2026-08-25; ramo N8N ligado em 2026-09-11 dentro do workflow "15 | Vigilância WhatsApp" (mesmo trigger de 15 em 15 min, sem workflow novo) em vez de um workflow N8N à parte. Consulta o `AuditLog` e envia WhatsApp ao Nuno quando deteta >10 `login.falhado`/`webhook.assinatura_invalida` na última hora, ou qualquer `rgpd.anonimizacao`/`cliente.apagado_definitivo` nos últimos 20 min. Testado ao vivo (12 `login.falhado` reais gerados de propósito, WhatsApp confirmado recebido).
 
 [ ] **15. 2FA (TOTP) no login** — código de 6 dígitos via app autenticadora para as contas do dashboard (2–3 utilizadores). NextAuth Credentials + campo `totpSecret` no User.
 

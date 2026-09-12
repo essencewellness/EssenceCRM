@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  const [terapeutas, servicoCatalogo, sessoesAnteriores, notas, historico] = await Promise.all([
+  const [terapeutas, servicoCatalogo, giftCard, sessoesAnteriores, notas, historico] = await Promise.all([
     prisma.user.findMany({
       where: { ativo: true, role: "terapeuta" },
       select: { id: true, name: true },
@@ -75,6 +75,11 @@ export async function GET(request: NextRequest) {
     sessao.servico
       ? prisma.servico.findFirst({ where: { nome: sessao.servico }, select: { precoBase: true } })
       : null,
+    // Sessão paga por voucher: "sessao.servico" vem com o prefixo "Voucher — "
+    // (ver lib/sessoes.ts), nunca bate certo com o nome exato do catálogo —
+    // sem isto o preço ficava sempre em branco numa marcação de voucher,
+    // obrigando a Bea a adivinhar um valor que já foi pago antes.
+    prisma.giftCard.findFirst({ where: { sessaoId: sessao.id }, select: { valorPago: true } }),
     prisma.sessao.count({
       where: { clienteId, apagadoEm: null, id: { not: sessao.id } },
     }),
@@ -117,7 +122,7 @@ export async function GET(request: NextRequest) {
       servico: sessao.servico, data: sessao.data, hora: sessao.hora, duracao: sessao.duracao,
       precoAtual: sessao.preco,
     },
-    precoBase: servicoCatalogo?.precoBase ?? sessao.preco ?? null,
+    precoBase: servicoCatalogo?.precoBase ?? giftCard?.valorPago ?? sessao.preco ?? null,
     terapeutas,
     notas,
     historico: historico.map((s) => ({

@@ -66,8 +66,8 @@ mesmo dia. Ver `../../CLAUDE.md` para o detalhe completo do incidente.
 | 11 | [Drenagem — Lead Capture](11-drenagem-lead-capture/) | Webhook | por evento | ✅ Ativo (legado HubSpot) |
 | 12 | [Fichas HubSpot → Drive](12-fichas-hubspot-drive/) | Schedule | semanal (2ª 8h) | ✅ Ativo (legado, baixa prioridade) |
 | 13 | [Reativação — Geração de Mensagens](13-reativacao-mensagens/) | Schedule | diário **6h00** + manual | ✅ Ativo — decisão do Nuno 2026-09-05; bug de sintaxe corrigido e horário adiantado de 9h (2026-09-06) |
-| 14 | [Alertas de Segurança (SIEM lite)](14-alertas-seguranca/) | Schedule | a cada 15 min | ⚠️ Inativo — construído 2026-08-25, nunca importado |
-| 15 | [Vigilância WhatsApp](15-vigilancia-whatsapp/) | Schedule | a cada 15 min | ✅ Ativo |
+| 14 | Migração HubSpot — Cliente Individual (Manual) | Manual | sob pedido | ⚠️ Inativo — legado, sem backup neste repositório. Nota: este número já pertencia, na documentação, ao workflow de Alertas de Segurança — reatribuído ao ver que já estava em uso real no N8N (ver "23" abaixo) |
+| 15 | [Vigilância WhatsApp](15-vigilancia-whatsapp/) | Schedule | a cada 15 min | ✅ Ativo — ganhou um ramo extra em 2026-09-11 (Alertas de Segurança / SIEM lite, ver README da pasta) em vez de um workflow novo |
 | 16 | [Alerta de Falha de Workflow (central)](16-alerta-falha-workflow/) | Error Trigger | automático, por falha | ✅ Ativo |
 | 17 | [Backup Diário da Base de Dados](17-backup-diario-bd/) | Schedule | diário 4h | ✅ Ativo |
 | 18 | [Continuidade Pós-Sessão](18-continuidade-pos-sessao/) | Schedule | diário **6h15** + manual | ✅ Ativo — novo (2026-09-05); bug de sintaxe corrigido e horário adiantado de 10h (2026-09-06) |

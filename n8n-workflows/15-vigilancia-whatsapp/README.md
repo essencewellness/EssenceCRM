@@ -28,3 +28,26 @@
 Nota: destinatário do email é `geral@essencewellnesspt.com` (o
 [16-alerta-falha-workflow](../16-alerta-falha-workflow/) é que vai para o
 email pessoal do Nuno, não este).
+
+## Ramo extra — Alertas de Segurança (SIEM lite), acrescentado 2026-09-11
+
+Em vez de criar mais um workflow a correr sozinho a cada 15 min (o
+resultado do `/council` original do item 14 tinha sido esse, mas ia
+duplicar um intervalo já existente), o ramo do
+[23-alertas-seguranca](../23-alertas-seguranca/) foi **fundido para dentro
+deste workflow** — mesmo trigger de 15 min, sem executar nada a mais.
+
+Ramo paralelo ao da vigilância WhatsApp, a partir do mesmo nó "A cada 15
+min":
+
+1. `GET /api/v1/seguranca/alertas` (CRM).
+2. Se `alertar: true` (>10 `login.falhado`/`webhook.assinatura_invalida`
+   na última hora, ou qualquer `rgpd.anonimizacao`/
+   `cliente.apagado_definitivo` nos últimos 20 min): manda WhatsApp ao
+   Nuno (`351911150025`) via Evolution API.
+
+Testado ao vivo em 2026-09-11: gerados 12 `login.falhado` reais (3
+usernames fictícios × 4 tentativas, nenhum perto de contas reais) para
+forçar `alertar: true`, execução manual confirmada, WhatsApp recebido.
+Workflow "23" standalone apagado a seguir — esta secção é agora a única
+fonte de verdade para o SIEM lite.
