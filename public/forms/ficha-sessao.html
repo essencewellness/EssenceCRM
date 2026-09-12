@@ -42,6 +42,14 @@
     }
     .ficha-section-corpo { font-size: 14px; line-height: 1.75; color: var(--bone-soft); }
 
+    .segunda-pessoa-card {
+      background: var(--overlay); border: 1px solid var(--border);
+      border-radius: 6px; padding: 14px 16px; margin-bottom: 26px;
+    }
+    .segunda-pessoa-linha { display: flex; gap: 8px; font-size: 13.5px; line-height: 1.6; padding: 3px 0; }
+    .segunda-pessoa-linha span:first-child { color: var(--smoke); flex-shrink: 0; }
+    .segunda-pessoa-linha span:last-child { color: var(--bone-soft); }
+
     .zona-item {
       background: var(--overlay); border: 1px solid var(--border);
       border-radius: 6px; padding: 12px 16px; margin-bottom: 10px;
@@ -80,7 +88,9 @@
       .header-title, .heading, .zona-nome { color: #1a1a1a !important; }
       .ficha-section-corpo, .zona-abordagem, .recomendacao-item, .booking-row span:last-child, .desc { color: #333 !important; }
       .booking-row span:first-child, .zona-meta, .smoke { color: #666 !important; }
-      .booking-card, .zona-item { background: #f7f5f0 !important; border-color: #ddd !important; }
+      .booking-card, .zona-item, .segunda-pessoa-card { background: #f7f5f0 !important; border-color: #ddd !important; }
+      .segunda-pessoa-linha span:last-child { color: #333 !important; }
+      .segunda-pessoa-linha span:first-child { color: #666 !important; }
       .alerta-box { background: #fdeeec !important; border-left-color: #b4756a !important; color: #8a3c2e !important; }
     }
   </style>
@@ -108,6 +118,11 @@
       <div class="booking-card" id="booking-card"></div>
 
       <div id="alerta-box"></div>
+
+      <div class="segunda-pessoa-card" id="sec-segunda-pessoa" style="display:none;">
+        <div class="ficha-section-titulo">2.ª Pessoa (sessão a dois)</div>
+        <div id="segunda-pessoa-corpo"></div>
+      </div>
 
       <div class="ficha-section" id="sec-resumo" style="display:none;">
         <div class="ficha-section-titulo">Resumo da cliente</div>
@@ -212,6 +227,30 @@
         row.append(l, v);
         bookingCard.appendChild(row);
       });
+
+      const segPessoaCorpo = document.getElementById("segunda-pessoa-corpo");
+      segPessoaCorpo.replaceChildren();
+      const segPessoaNome = data.sessao.segundaPessoaNome;
+      mostrarSeccao("sec-segunda-pessoa", !!segPessoaNome);
+      if (segPessoaNome) {
+        const linhas = [
+          ["Nome", segPessoaNome],
+          ["Telemóvel", data.sessao.segundaPessoaTelefone],
+          ["Zonas de tensão", data.sessao.segundaPessoaZonasTensao],
+          ["Condições / alergias", data.sessao.segundaPessoaCondicoesAlergias],
+        ];
+        linhas.forEach(([label, valor]) => {
+          if (!valor) return;
+          const linha = document.createElement("div");
+          linha.className = "segunda-pessoa-linha";
+          const l = document.createElement("span");
+          l.textContent = label;
+          const v = document.createElement("span");
+          v.textContent = valor;
+          linha.append(l, v);
+          segPessoaCorpo.appendChild(linha);
+        });
+      }
 
       const alertaBox = document.getElementById("alerta-box");
       alertaBox.replaceChildren();

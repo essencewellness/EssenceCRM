@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
     select: {
       id: true, servico: true, data: true, hora: true, duracao: true,
       terapeutaId: true, briefingJson: true,
+      segundaPessoaNome: true, segundaPessoaTelefone: true,
+      segundaPessoaZonasTensao: true, segundaPessoaCondicoesAlergias: true,
       cliente: { select: { nome: true } },
     },
   })
@@ -63,6 +65,10 @@ export async function GET(request: NextRequest) {
     sessao: {
       servico: sessao.servico, data: sessao.data, hora: sessao.hora,
       duracao: sessao.duracao, terapeuta: nomeTerapeuta,
+      segundaPessoaNome: sessao.segundaPessoaNome,
+      segundaPessoaTelefone: sessao.segundaPessoaTelefone,
+      segundaPessoaZonasTensao: sessao.segundaPessoaZonasTensao,
+      segundaPessoaCondicoesAlergias: sessao.segundaPessoaCondicoesAlergias,
     },
     briefing: sessao.briefingJson,
   })
