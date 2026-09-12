@@ -282,6 +282,18 @@ model Sessao {
   fichaCondicoesAlergias  String?
   fichaAromasPreferidos   String?
 
+  // Sessão a dois (massagem/voucher "a dois", casal): dados da 2ª pessoa,
+  // campo próprio em vez de texto colado dentro de fichaFoco/fichaZonasTensao
+  // — antes ficava tudo condensado num único bloco de texto livre ("— 2.ª
+  // pessoa —"), e a IA que gera a ficha da terapeuta (WF02/WF03) não
+  // conseguia separar de forma fiável quem era quem (bug real 2026-09-12).
+  // segundaPessoaNome presente = sinal explícito de que esta é uma sessão
+  // a dois com dados da 2ª pessoa — não depender de regex sobre servico.
+  segundaPessoaNome           String?
+  segundaPessoaTelefone       String?
+  segundaPessoaZonasTensao    String?
+  segundaPessoaCondicoesAlergias String?
+
   // Formulários públicos de uso único (WhatsApp): preenchido quando o envio
   // é aceite pela primeira vez. Um segundo GET com este campo já preenchido
   // mostra "já enviaste" em vez do formulário; um segundo POST não regrava —

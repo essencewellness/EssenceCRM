@@ -337,6 +337,14 @@ export const onboardingPublicSchema = z.object({
   voucherCodigo: z.string().trim().max(40).optional().nullable(),
   consentimentoSaude: z.boolean().optional(),
   aceitaMarketing: z.boolean().optional(),
+  // Sessão a dois (massagem-a-dois.html, voucher-a-dois.html): dados da 2ª
+  // pessoa em campos próprios — nunca colados dentro de notasPessoais/
+  // historicoZonasTensao, para a IA que gera a ficha da terapeuta (WF02/
+  // WF03) conseguir sempre distinguir quem é quem sem adivinhar por regex.
+  segundaPessoaNome: texto.max(120).optional().nullable(),
+  segundaPessoaTelefone: telefoneSchema.optional().nullable(),
+  segundaPessoaZonasTensao: textoOpcional,
+  segundaPessoaCondicoesAlergias: textoOpcional,
   // honeypot: sem limite de tamanho — ver comentário equivalente em leadPublicSchema
   website: z.string().max(500).optional(),
 }).strict()

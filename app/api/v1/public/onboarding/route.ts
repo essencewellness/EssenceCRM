@@ -60,8 +60,11 @@ export async function POST(request: NextRequest) {
     clienteId, sessaoId, t, nome, email, telefone: telefoneBruto, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
     notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
+    segundaPessoaNome, segundaPessoaTelefone: segundaPessoaTelefoneBruto,
+    segundaPessoaZonasTensao, segundaPessoaCondicoesAlergias,
   } = v.data
   const telefone = telefoneBruto ? normalizarTelefone(telefoneBruto) || null : null
+  const segundaPessoaTelefone = segundaPessoaTelefoneBruto ? normalizarTelefone(segundaPessoaTelefoneBruto) || null : null
 
   // Honeypot preenchido = bot
   if (website) {
@@ -209,6 +212,12 @@ export async function POST(request: NextRequest) {
               ...(historicoZonasTensao ? { fichaZonasTensao: historicoZonasTensao } : {}),
               ...(notasPessoais ? { fichaFoco: notasPessoais } : {}),
               ...(historicoCondicoesAlergias ? { fichaCondicoesAlergias: historicoCondicoesAlergias } : {}),
+              // Sessão a dois: campos próprios da 2ª pessoa, nunca colados
+              // dentro dos campos acima (ver comentário no schema.prisma).
+              ...(segundaPessoaNome ? { segundaPessoaNome } : {}),
+              ...(segundaPessoaTelefone ? { segundaPessoaTelefone } : {}),
+              ...(segundaPessoaZonasTensao ? { segundaPessoaZonasTensao } : {}),
+              ...(segundaPessoaCondicoesAlergias ? { segundaPessoaCondicoesAlergias } : {}),
             } : {}),
             // Marca a ficha como preenchida independentemente de
             // consentimentoSaude (que só controla se os dados clínicos são
@@ -250,6 +259,10 @@ export async function POST(request: NextRequest) {
         condicoesAlergias: historicoCondicoesAlergias ?? null,
         objetivo: notasPessoais ?? null,
         voucherCodigo: voucherCodigo ?? null,
+        segundaPessoaNome: segundaPessoaNome ?? null,
+        segundaPessoaTelefone: segundaPessoaTelefone ?? null,
+        segundaPessoaZonasTensao: segundaPessoaZonasTensao ?? null,
+        segundaPessoaCondicoesAlergias: segundaPessoaCondicoesAlergias ?? null,
       })
 
       if (created) {

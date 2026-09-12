@@ -93,6 +93,14 @@ export const webhooks = {
     condicoesAlergias?: string | null
     objetivo?: string | null
     voucherCodigo?: string | null
+    // Sessão a dois: dados da 2ª pessoa em campos próprios (ver schema.prisma
+    // e comentário em app/api/v1/public/onboarding/route.ts) — presença de
+    // segundaPessoaNome é o sinal explícito de "isto é uma sessão a dois"
+    // para o WF02, em vez de tentar adivinhar por regex no nome do serviço.
+    segundaPessoaNome?: string | null
+    segundaPessoaTelefone?: string | null
+    segundaPessoaZonasTensao?: string | null
+    segundaPessoaCondicoesAlergias?: string | null
     // Nota: o n8n busca o perfil completo (fichaClinica, histórico, notas, tarefas,
     // mensagens) diretamente via GET /api/v1/clientes/{clienteId} — não é preciso
     // duplicar esses dados aqui.

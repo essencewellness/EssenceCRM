@@ -279,38 +279,17 @@
       alergias ? "Alergias: " + alergias : "",
     ].filter(Boolean).join("\n") || null;
 
-    // 2.ª pessoa (opcional) — sem criar cliente próprio, mas a informação
-    // clínica dela (zonas de tensão, alergias) vai para os MESMOS campos
-    // estruturados da cliente principal (não para o foco/objetivo da
-    // sessão), para aparecer no sítio certo no CRM — "Zonas de tensão" e
-    // "Condições / alergias" — em vez de ficar escondida dentro do texto
-    // livre do "Foco / objetivo da sessão". Nome/telemóvel dela, por não
-    // serem dado clínico, continuam só como referência no foco.
-    let notas = foco;
-    let zonasFinal = zonas;
-    let condAlergFinal = condAlerg;
+    // 2.ª pessoa (opcional) — campos PRÓPRIOS (segundaPessoa*), nunca
+    // colados dentro de notasPessoais/historicoZonasTensao. Antes ficava
+    // tudo condensado num único bloco de texto livre ("— 2.ª pessoa —"), e
+    // a IA que gera a ficha da terapeuta (WF02/WF03) não conseguia separar
+    // de forma fiável quem era quem (bug real 2026-09-12) — com campos
+    // próprios no schema, a distinção é garantida pelo código, não pela IA.
     const inclui2 = document.getElementById("bloco-2pessoa")?.classList.contains("show");
-    if (inclui2) {
-      const nome2     = EF.val("nome2");
-      const telefone2 = EF.val("telefone2");
-      const tensao2   = EF.chips("chips-tensao2");
-      const alergias2 = EF.val("alergias2");
-
-      const contactoBloco = [
-        nome2 ? "Nome: " + nome2 : "",
-        telefone2 ? "Telemóvel: " + telefone2 : "",
-      ].filter(Boolean).join("\n");
-      if (contactoBloco) notas = foco + "\n\n— 2.ª pessoa —\n" + contactoBloco;
-
-      if (tensao2.length) {
-        const zonas2 = "Zonas (2.ª pessoa): " + tensao2.join(", ");
-        zonasFinal = zonasFinal ? zonasFinal + "\n" + zonas2 : zonas2;
-      }
-      if (alergias2) {
-        const alerg2 = "Alergias (2.ª pessoa): " + alergias2;
-        condAlergFinal = condAlergFinal ? condAlergFinal + "\n" + alerg2 : alerg2;
-      }
-    }
+    const segundaPessoaNome = inclui2 ? (EF.val("nome2") || null) : null;
+    const segundaPessoaTelefone = inclui2 ? (EF.val("telefone2") || null) : null;
+    const segundaPessoaZonasTensao = inclui2 ? (EF.chips("chips-tensao2").join(", ") || null) : null;
+    const segundaPessoaCondicoesAlergias = inclui2 ? (EF.val("alergias2") || null) : null;
 
     return {
       nome:     !EF.PERSONAL ? (EF.val("nome") || undefined) : undefined,
@@ -318,9 +297,13 @@
       telefone: !EF.PERSONAL ? (EF.val("telefone") || null) : null,
       dataNascimento: EF.val("dataNascimento") || null,
       historicoEstadoEmocional: estado,
-      historicoZonasTensao: zonasFinal,
-      historicoCondicoesAlergias: condAlergFinal,
-      notasPessoais: notas,
+      historicoZonasTensao: zonas,
+      historicoCondicoesAlergias: condAlerg,
+      notasPessoais: foco,
+      segundaPessoaNome,
+      segundaPessoaTelefone,
+      segundaPessoaZonasTensao,
+      segundaPessoaCondicoesAlergias,
     };
   };
 </script>

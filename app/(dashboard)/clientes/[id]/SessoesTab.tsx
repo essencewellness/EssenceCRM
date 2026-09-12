@@ -33,6 +33,11 @@ type Sessao = {
   fichaZonasTensao: string | null
   fichaFoco: string | null
   fichaCondicoesAlergias: string | null
+  // Sessão a dois: dados da 2ª pessoa (campo próprio, ver schema.prisma)
+  segundaPessoaNome: string | null
+  segundaPessoaTelefone: string | null
+  segundaPessoaZonasTensao: string | null
+  segundaPessoaCondicoesAlergias: string | null
   // Ficha clínica gerada por IA (Groq) para a terapeuta, 24h antes da sessão
   briefingJson: unknown
 }
@@ -861,6 +866,30 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       {sessaoAberta.fichaZonasTensao && <DetailItem label="Zonas de tensão" value={sessaoAberta.fichaZonasTensao} />}
                       {sessaoAberta.fichaCondicoesAlergias && <DetailItem label="Condições / alergias" value={sessaoAberta.fichaCondicoesAlergias} />}
                       {sessaoAberta.fichaFoco && <DetailItem label="Foco / objetivo da sessão" value={sessaoAberta.fichaFoco} />}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sessão a dois: dados da 2ª pessoa em bloco próprio — nunca
+                    misturados com os da cliente principal acima. */}
+                {sessaoAberta.segundaPessoaNome && (
+                  <div style={{
+                    borderRadius: "10px", border: "1px solid rgba(138,155,176,0.3)",
+                    padding: "16px", marginBottom: "20px",
+                    backgroundColor: "rgba(138,155,176,0.05)",
+                  }}>
+                    <p style={{
+                      fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                      letterSpacing: "0.18em", color: "#8a9bb0", textTransform: "uppercase",
+                      marginBottom: "14px",
+                    }}>
+                      2.ª Pessoa (sessão a dois)
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      <DetailItem label="Nome" value={sessaoAberta.segundaPessoaNome} />
+                      {sessaoAberta.segundaPessoaTelefone && <DetailItem label="Telemóvel" value={sessaoAberta.segundaPessoaTelefone} />}
+                      {sessaoAberta.segundaPessoaZonasTensao && <DetailItem label="Zonas de tensão" value={sessaoAberta.segundaPessoaZonasTensao} />}
+                      {sessaoAberta.segundaPessoaCondicoesAlergias && <DetailItem label="Condições / alergias" value={sessaoAberta.segundaPessoaCondicoesAlergias} />}
                     </div>
                   </div>
                 )}
