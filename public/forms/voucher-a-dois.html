@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Essence Wellness — O vosso Voucher</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./essence-forms.css">
+</head>
+<body>
+
+<div class="card">
+
+  <header class="header">
+    <div class="header-inner">
+      <img class="header-logo" src="./logo-lotus.png" alt="Essence Wellness">
+      <div class="header-brand">
+        <div class="header-name">Essence Wellness</div>
+        <div class="header-title" id="header-title">O vosso <em>momento oferecido</em></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="progress">
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:25%"></div></div>
+    <div class="progress-labels">
+      <span class="prog-label" id="pl-1">Sobre ti</span>
+      <span class="prog-label" id="pl-2">A tua mente</span>
+      <span class="prog-label" id="pl-3">O teu corpo</span>
+      <span class="prog-label" id="pl-4">A sessão</span>
+    </div>
+  </div>
+
+  <div class="form-body">
+    <div class="gerr" id="gerr"></div>
+    <div class="hp" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+
+    <!-- STEP 1 — Identidade -->
+    <div class="step active" id="step-1" data-identity>
+      <div class="eyebrow" data-sub="~2 minutos"></div>
+      <h1 class="heading">Alguém especial <em>pensou em vocês</em></h1>
+      <div class="accent-line"></div>
+      <p class="desc">Recebeste um momento Essence de presente, a dois. Conta-nos quem és para prepararmos tudo à vossa medida.</p>
+
+      <div class="fg">
+        <div class="fl" id="fl-nome">
+          <input type="text" id="nome" placeholder=" " autocomplete="name" aria-required="true">
+          <label for="nome">Nome completo *</label>
+        </div>
+        <div class="f-err" id="err-nome">Por favor, indica o teu nome.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-email">
+          <input type="email" id="email" placeholder=" " autocomplete="email" inputmode="email" aria-required="true">
+          <label for="email">Email *</label>
+        </div>
+        <div class="f-hint">Apenas a Essence terá acesso. Total confidencialidade.</div>
+        <div class="f-err" id="err-email">Por favor, indica um email válido.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-tel">
+          <input type="tel" id="telefone" placeholder=" " autocomplete="tel" inputmode="tel">
+          <label for="telefone">Telemóvel <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para confirmar a vossa sessão pelo WhatsApp.</div>
+      </div>
+
+      <div class="nav"><button class="btn-primary" data-next><span>Continuar →</span></button></div>
+    </div>
+
+    <!-- STEP 2 — A tua mente -->
+    <div class="step" id="step-2">
+      <div class="eyebrow"></div>
+      <h2 class="heading">Como te <em>sentes?</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Não há respostas certas. Saber como chegas até nós ajuda a Essence a ajustar o toque e o ritmo a ti.</p>
+
+      <div class="fg">
+        <span class="slabel">Como está a tua mente agora? <span class="opt">(podes escolher mais do que uma)</span></span>
+        <div class="chips" id="chips-mente">
+          <div class="chip" data-value="muito-ativa">Muito ativa (mil pensamentos)</div>
+          <div class="chip" data-value="em-paz">Em paz</div>
+          <div class="chip" data-value="ansiosa">Ansiosa / Preocupada</div>
+          <div class="chip" data-value="stressada">Stressada</div>
+          <div class="chip" data-value="irritada">Irritada / Impaciente</div>
+          <div class="chip" data-value="cansada">Cansada</div>
+          <div class="chip" data-value="triste">Triste / A precisar de atenção</div>
+          <div class="chip" data-value="sob-controlo">Sob controlo</div>
+          <div class="chip outra-trigger" data-value="outra" data-target="outra-mente">Outra</div>
+        </div>
+        <div class="outra-field" id="outra-mente">
+          <input type="text" class="outra-input" id="outra-mente-input" placeholder="Descreve brevemente como te sentes…" maxlength="200">
+        </div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Quando foi a última vez que tiveste 1 hora só para ti?</span>
+        <div class="chips auto-advance" id="chips-1h">
+          <div class="chip single" data-value="7-dias">Nos últimos 7 dias</div>
+          <div class="chip single" data-value="1-3-meses">Entre 1 a 3 meses</div>
+          <div class="chip single" data-value="3-6-meses">Entre 3 a 6 meses</div>
+          <div class="chip single" data-value="mais-6-meses">Há mais de 6 meses</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" data-next><span>Continuar →</span></button>
+        <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — O teu corpo -->
+    <div class="step" id="step-3">
+      <div class="eyebrow"></div>
+      <h2 class="heading">Conhecer <em>o teu corpo</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">Isto ajuda a Essence a cuidar de ti em segurança. Partilha apenas o que te sentires confortável</p>
+
+      <div class="fg">
+        <span class="slabel">Onde sentes mais tensão? <span class="opt">(podes escolher mais do que uma)</span></span>
+        <div class="chips" id="chips-tensao">
+          <div class="chip sage-chip" data-value="Pescoço">Pescoço</div>
+          <div class="chip sage-chip" data-value="Costas superiores">Costas (parte superior)</div>
+          <div class="chip sage-chip" data-value="Lombar">Costas (zona lombar)</div>
+          <div class="chip sage-chip" data-value="Pernas">Pernas</div>
+          <div class="chip sage-chip" data-value="Pés">Pés</div>
+          <div class="chip sage-chip" data-value="Corpo inteiro">Corpo inteiro</div>
+          <div class="chip sage-chip outra-trigger" data-value="Outro" data-target="outra-tensao">Outro</div>
+        </div>
+        <div class="outra-field" id="outra-tensao">
+          <input type="text" class="outra-input" id="outra-tensao-input" placeholder="Ex: cotovelos, mandíbula…" maxlength="200">
+        </div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-cond">
+          <textarea id="condicoes" placeholder=" "></textarea>
+          <label for="condicoes">Condições clínicas <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Ex: gravidez (indica de quantas semanas), lesões, dores crónicas, tensão arterial...</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-alergia">
+          <textarea id="alergias" placeholder=" "></textarea>
+          <label for="alergias">Alergias ou sensibilidades <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Ex: óleos essenciais, látex, frutos secos...</div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" data-next><span>Continuar →</span></button>
+        <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 — A sessão + 2.ª pessoa -->
+    <div class="step" id="step-4">
+      <div class="eyebrow"></div>
+      <h2 class="heading">A vossa <em>sessão</em></h2>
+      <div class="accent-line"></div>
+      <p class="desc">O que escreverem aqui guia toda a sessão. Pode ser uma frase, uma sensação ou só uma palavra.</p>
+
+      <div class="fg">
+        <div class="fl" id="fl-foco">
+          <textarea id="foco" placeholder=" " aria-required="true"></textarea>
+          <label for="foco">O que esperam sentir quando saírem daqui? *</label>
+        </div>
+        <div class="f-hint">Ex: "Queremos relaxar juntos", "Só desligar do mundo"...</div>
+        <div class="f-err" id="err-foco">Contem-nos o que esperam sentir. É assim que a Essence prepara a sessão para vocês.</div>
+      </div>
+
+      <div class="fg">
+        <div class="fl" id="fl-nasc">
+          <input type="date" id="dataNascimento" autocomplete="bday">
+          <label for="dataNascimento">A tua data de nascimento <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+        </div>
+        <div class="f-hint">Para te surpreendermos no teu dia especial.</div>
+      </div>
+
+      <div class="fg">
+        <span class="slabel">Queres adicionar as preferências da 2.ª pessoa? <span class="opt">(opcional)</span></span>
+        <div class="chips">
+          <div class="chip single" data-reveal="bloco-2pessoa" data-reveal-value="sim">Sim, vou preencher</div>
+          <div class="chip single" data-reveal="bloco-2pessoa" data-reveal-value="nao">Não, obrigada</div>
+        </div>
+
+        <div class="reveal-block" id="bloco-2pessoa">
+          <div class="fg">
+            <div class="fl" id="fl-nome2">
+              <input type="text" id="nome2" placeholder=" " autocomplete="off">
+              <label for="nome2">Nome da 2ª pessoa</label>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fl" id="fl-tel2">
+              <input type="tel" id="telefone2" placeholder=" " autocomplete="off" inputmode="tel">
+              <label for="telefone2">Telemóvel da 2.ª pessoa <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+            </div>
+            <div class="f-hint">Para a Essence poder confirmar a sessão com ela também.</div>
+          </div>
+
+          <div class="fg">
+            <span class="slabel">Onde sente mais tensão? <span class="opt">(podes escolher mais do que uma)</span></span>
+            <div class="chips" id="chips-tensao2">
+              <div class="chip sage-chip" data-value="Pescoço">Pescoço</div>
+              <div class="chip sage-chip" data-value="Cabeça">Cabeça</div>
+              <div class="chip sage-chip" data-value="Costas superiores">Costas (parte superior)</div>
+              <div class="chip sage-chip" data-value="Lombar">Costas (zona lombar)</div>
+              <div class="chip sage-chip" data-value="Pernas">Pernas</div>
+              <div class="chip sage-chip" data-value="Pés">Pés</div>
+              <div class="chip sage-chip" data-value="Enxaquecas">Enxaquecas</div>
+              <div class="chip sage-chip" data-value="Corpo inteiro">Corpo inteiro</div>
+            </div>
+          </div>
+
+          <div class="fg">
+            <div class="fl" id="fl-alergia2">
+              <textarea id="alergias2" placeholder=" "></textarea>
+              <label for="alergias2">Alergias ou sensibilidades dela <span style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--smoke)">(opcional)</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn-primary" data-submit><span>Enviar a nossa ficha ✦</span></button>
+        <button class="btn-back" data-back><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M5 1L1 5L5 9M1 5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Voltar</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success" id="success">
+      <h2>Estamos prontas para vocês, <span id="nome-ok"></span>.</h2>
+      <p>A vossa ficha chegou até nós. A Essence vai preparar este momento com cuidado para que seja verdadeiramente vosso.</p>
+      <p class="success-tag">Ate já.</p>
+      <div class="success-info">
+        <p>⏳ Pedimos, por favor, que cheguem apenas à hora marcada, para garantirmos a melhor organização e preparação da sala.</p>
+        <p><strong>📍 Morada</strong><br>Av. da República, nº 2208, Piso 2, Sala 2 Esquerda<br>4430-192 Vila Nova de Gaia</p>
+        <p><strong>💳 Métodos de pagamento aceites</strong><br>Numerário (Preferencial) e MBWay</p>
+      </div>
+      <div style="margin-top:28px;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0.88;"><img src="./lotus-512.png" alt="" style="height:100px;width:auto;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font-family:'DM Serif Display',serif;font-size:28px;line-height:1;color:#ece6d6;letter-spacing:-0.005em;">Essence</span><span style="font-family:'DM Serif Display',serif;font-size:13px;line-height:1;color:#d4b886;letter-spacing:0.12em;text-transform:uppercase;">Wellness</span></div></div>
+    </div>
+
+  </div>
+
+  <footer class="footer">Os teus dados ficam confidenciais. Só a terapeuta tem acesso à vossa ficha.</footer>
+</div>
+
+<script src="./essence-forms.js"></script>
+<script>
+  window.buildPayload = function () {
+    const EF = window.EF;
+    const foco = EF.val("foco");
+    if (!foco) {
+      document.getElementById("fl-foco")?.classList.add("has-err");
+      document.getElementById("err-foco")?.classList.add("show");
+      throw { focusEl: document.getElementById("foco") };
+    }
+
+    const mente    = EF.chipsCom("chips-mente", "outra-mente-input", "Outra");
+    const ultima1h = EF.chip1("chips-1h");
+    const tensao   = EF.chipsCom("chips-tensao", "outra-tensao-input", "Outro");
+    const condicoes = EF.val("condicoes");
+    const alergias  = EF.val("alergias");
+
+    const estado = [
+      mente.length ? "Estado da mente: " + mente.join(", ") : "",
+      ultima1h ? "Última hora para si: " + ultima1h : "",
+    ].filter(Boolean).join("\n") || null;
+
+    const zonas = tensao.length ? "Zonas: " + tensao.join(", ") : null;
+
+    const condAlerg = [
+      condicoes ? "Condições: " + condicoes : "",
+      alergias ? "Alergias: " + alergias : "",
+    ].filter(Boolean).join("\n") || null;
+
+    // 2.ª pessoa (opcional) — sem criar cliente próprio, mas a informação
+    // clínica dela (zonas de tensão, alergias) vai para os MESMOS campos
+    // estruturados da cliente principal (não para o foco/objetivo da
+    // sessão), para aparecer no sítio certo no CRM — "Zonas de tensão" e
+    // "Condições / alergias" — em vez de ficar escondida dentro do texto
+    // livre do "Foco / objetivo da sessão". Nome/telemóvel dela, por não
+    // serem dado clínico, continuam só como referência no foco.
+    let notas = foco;
+    let zonasFinal = zonas;
+    let condAlergFinal = condAlerg;
+    const inclui2 = document.getElementById("bloco-2pessoa")?.classList.contains("show");
+    if (inclui2) {
+      const nome2     = EF.val("nome2");
+      const telefone2 = EF.val("telefone2");
+      const tensao2   = EF.chips("chips-tensao2");
+      const alergias2 = EF.val("alergias2");
+
+      const contactoBloco = [
+        nome2 ? "Nome: " + nome2 : "",
+        telefone2 ? "Telemóvel: " + telefone2 : "",
+      ].filter(Boolean).join("\n");
+      if (contactoBloco) notas = foco + "\n\n— 2.ª pessoa —\n" + contactoBloco;
+
+      if (tensao2.length) {
+        const zonas2 = "Zonas (2.ª pessoa): " + tensao2.join(", ");
+        zonasFinal = zonasFinal ? zonasFinal + "\n" + zonas2 : zonas2;
+      }
+      if (alergias2) {
+        const alerg2 = "Alergias (2.ª pessoa): " + alergias2;
+        condAlergFinal = condAlergFinal ? condAlergFinal + "\n" + alerg2 : alerg2;
+      }
+    }
+
+    return {
+      nome:     !EF.PERSONAL ? (EF.val("nome") || undefined) : undefined,
+      email:    !EF.PERSONAL ? (EF.val("email") || undefined) : undefined,
+      telefone: !EF.PERSONAL ? (EF.val("telefone") || null) : null,
+      dataNascimento: EF.val("dataNascimento") || null,
+      historicoEstadoEmocional: estado,
+      historicoZonasTensao: zonasFinal,
+      historicoCondicoesAlergias: condAlergFinal,
+      notasPessoais: notas,
+    };
+  };
+</script>
+</body>
+</html>
