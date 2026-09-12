@@ -64,10 +64,16 @@ interface SidebarProps {
   // Mensagens IA nunca aparece para a Cristina — só Bea/admin (ver
   // lib/contexto-utilizador.ts, decisão de negócio 2026-09-04).
   podeAprovarMensagens?: boolean
+  // Tarefas em aberto (pendente/em_progresso) visíveis para esta sessão —
+  // mesmo isolamento por terapeuta que já existe em GET /api/v1/tarefas.
+  tarefasAbertas?: number
+  // Sessões/vouchers pagos por MBWay que ainda não foram repassados à
+  // Cristina (ver lib/repasses.ts) — dinheiro dela na conta da Bea.
+  repassesPendentes?: number
   logoutAction: () => Promise<void>
 }
 
-export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, logoutAction }: SidebarProps) {
+export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, tarefasAbertas = 0, repassesPendentes = 0, logoutAction }: SidebarProps) {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
   const claro = theme === "light"
@@ -77,13 +83,19 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, l
     return pathname.startsWith(href)
   }
 
+  const badgesPorHref: Record<string, number> = {
+    "/mensagens": mensagensPendentes,
+    "/tarefas": tarefasAbertas,
+    "/financeiro": repassesPendentes,
+  }
+
   const gruposComBadge = grupos.map((g) => ({
     ...g,
     items: g.items
       .filter((item) => item.href !== "/mensagens" || podeAprovarMensagens)
       .map((item) =>
-        item.href === "/mensagens" && mensagensPendentes > 0
-          ? { ...item, badge: mensagensPendentes }
+        (badgesPorHref[item.href] ?? 0) > 0
+          ? { ...item, badge: badgesPorHref[item.href] }
           : item
       ),
   }))

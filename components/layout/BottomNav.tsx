@@ -35,14 +35,23 @@ interface BottomNavProps {
   // Mensagens IA nunca aparece para a Cristina — só Bea/admin (ver
   // lib/contexto-utilizador.ts, decisão de negócio 2026-09-04).
   podeAprovarMensagens?: boolean
+  // Tarefas em aberto (pendente/em_progresso) visíveis para esta sessão.
+  tarefasAbertas?: number
+  // Sessões/vouchers pagos por MBWay ainda não repassados à Cristina.
+  repassesPendentes?: number
   logoutAction: () => Promise<void>
 }
 
-export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true, logoutAction }: BottomNavProps) {
+export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true, tarefasAbertas = 0, repassesPendentes = 0, logoutAction }: BottomNavProps) {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const mainItems = podeAprovarMensagens ? MAIN_ITEMS : MAIN_ITEMS.filter((i) => i.href !== "/mensagens")
   const allItems = podeAprovarMensagens ? ALL_ITEMS : ALL_ITEMS.filter((i) => i.href !== "/mensagens")
+  const badgesPorHref: Record<string, number> = {
+    "/mensagens": mensagensPendentes,
+    "/tarefas": tarefasAbertas,
+    "/financeiro": repassesPendentes,
+  }
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/"
@@ -119,6 +128,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
             {allItems.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
+              const badge = badgesPorHref[item.href] ?? 0
               return (
                 <Link
                   key={item.href}
@@ -143,6 +153,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                     }}
                   />
                   <span style={{
+                    flex: 1,
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "13px",
                     fontWeight: active ? 500 : 400,
@@ -150,6 +161,18 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                   }}>
                     {item.label}
                   </span>
+                  {badge > 0 && (
+                    <span style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      minWidth: "18px", height: "18px", padding: "0 4px",
+                      fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "9px", fontWeight: 600,
+                      backgroundColor: "var(--nuit-champagne)",
+                      color: "var(--nuit-midnight)",
+                    }}>
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  )}
                 </Link>
               )
             })}
@@ -202,7 +225,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
           {mainItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.href)
-            const badge = item.href === "/mensagens" && mensagensPendentes > 0 ? mensagensPendentes : 0
+            const badge = badgesPorHref[item.href] ?? 0
             return (
               <Link
                 key={item.href}

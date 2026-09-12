@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   const {
     clienteId, sessaoId, t, nome, email, telefone: telefoneBruto, dataNascimento, comoNosConheceu,
     historicoCondicoesAlergias, historicoZonasTensao, historicoEstadoEmocional,
-    notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, website,
+    notasPessoais, voucherCodigo, consentimentoSaude, aceitaMarketing, aceitaGravacaoRedesSociais, website,
     segundaPessoaNome, segundaPessoaTelefone: segundaPessoaTelefoneBruto,
     segundaPessoaZonasTensao, segundaPessoaCondicoesAlergias,
   } = v.data
@@ -174,6 +174,12 @@ export async function POST(request: NextRequest) {
               aceitaMarketing,
               ...(aceitaMarketing ? { consentimentoMarketingEm: new Date() } : {}),
             }
+          : {}),
+        // Autorização de gravação para redes sociais — regista sempre a
+        // resposta (marcada ou desmarcada) com timestamp, prova de que a
+        // pergunta foi mesmo feita, independentemente do valor.
+        ...(typeof aceitaGravacaoRedesSociais === "boolean"
+          ? { aceitaGravacaoRedesSociais, consentimentoGravacaoRedesSociaisEm: new Date() }
           : {}),
       },
     })

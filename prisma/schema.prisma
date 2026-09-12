@@ -219,6 +219,14 @@ model Cliente {
   consentimentoSaudeEm      DateTime?   // consentimento explícito para dados clínicos
   anonimizadoEm             DateTime?   // preenchido quando exerce direito ao apagamento
 
+  // Autorização de gravação/fotografia durante a sessão para uso exclusivo
+  // nas redes sociais — caixa própria no onboarding (pré-marcada, opt-out),
+  // separada do consentimento de saúde acima. @default(false) na BD porque
+  // clientes já existentes nunca responderam a isto — nunca assumir "sim"
+  // sem resposta; o valor pré-marcado é só a experiência do formulário novo.
+  aceitaGravacaoRedesSociais     Boolean   @default(false)
+  consentimentoGravacaoRedesSociaisEm DateTime?
+
   // Soft delete — nunca destruir histórico clínico por acidente
   apagadoEm           DateTime?
 

@@ -32,6 +32,26 @@ export default async function DashboardLayout({
     ? await prisma.mensagemIA.count({ where: { estado: "pendente" } })
     : 0
 
+  const u = session.user as { id?: string; role?: string }
+  // Mesmo isolamento por terapeuta que GET /api/v1/tarefas já aplica: uma
+  // terapeuta não-admin só vê tarefas dos seus clientes ou atribuídas a si.
+  const tarefasAbertas = await prisma.tarefa.count({
+    where: {
+      estado: { in: ["pendente", "em_progresso"] },
+      ...(u.role !== "admin" && u.id
+        ? { OR: [{ cliente: { terapeutaPrincipalId: u.id } }, { atribuidaA: u.id }] }
+        : {}),
+    },
+  })
+
+  // Dinheiro da Bea (MBWay) por repassar à Cristina — sessões e vouchers,
+  // mesma regra de lib/repasses.ts já usada em /financeiro.
+  const [sessoesPorRepassar, vouchersPorRepassar] = await Promise.all([
+    prisma.sessao.count({ where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null } }),
+    prisma.giftCard.count({ where: { repasseNecessario: true, repasseFeito: false } }),
+  ])
+  const repassesPendentes = sessoesPorRepassar + vouchersPorRepassar
+
   const preferenciaFonte = (session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"
 
   return (
@@ -42,7 +62,13 @@ export default async function DashboardLayout({
         style={{ backgroundColor: "var(--nuit-midnight)" }}
       >
         {/* Sidebar — visível em desktop */}
-        <Sidebar mensagensPendentes={mensagensPendentes} podeAprovarMensagens={ctx.podeAprovarMensagens} logoutAction={logoutAction} />
+        <Sidebar
+          mensagensPendentes={mensagensPendentes}
+          podeAprovarMensagens={ctx.podeAprovarMensagens}
+          tarefasAbertas={tarefasAbertas}
+          repassesPendentes={repassesPendentes}
+          logoutAction={logoutAction}
+        />
 
         {/* Conteúdo principal */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0 h-screen">
@@ -52,7 +78,13 @@ export default async function DashboardLayout({
         </div>
 
         {/* Bottom nav — visível em mobile */}
-        <BottomNav mensagensPendentes={mensagensPendentes} podeAprovarMensagens={ctx.podeAprovarMensagens} logoutAction={logoutAction} />
+        <BottomNav
+          mensagensPendentes={mensagensPendentes}
+          podeAprovarMensagens={ctx.podeAprovarMensagens}
+          tarefasAbertas={tarefasAbertas}
+          repassesPendentes={repassesPendentes}
+          logoutAction={logoutAction}
+        />
       </div>
     </ToastProvider>
   )

@@ -479,6 +479,35 @@
     (btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
   })();
 
+  // ── Autorização de gravação para redes sociais (opt-out, pré-marcada) ──
+  // Pedido explícito do Nuno: perguntar se a cliente autoriza ser gravada
+  // durante a sessão, para uso exclusivo nas redes sociais da Essence —
+  // caixa pré-selecionada (a cliente desmarca se não quiser), separada do
+  // consentimento de dados de saúde acima.
+  (function injetarConsentimentoGravacao() {
+    const btn = document.querySelector("[data-submit]");
+    const aviso = document.getElementById("aviso-rgpd");
+    if (!btn || document.getElementById("consentimento-gravacao")) return;
+    const wrap = document.createElement("label");
+    wrap.id = "consentimento-gravacao";
+    wrap.style.cssText =
+      "display:flex;align-items:flex-start;gap:8px;margin:16px auto 0;" +
+      "max-width:420px;text-align:left;cursor:pointer;";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.id = "aceita-gravacao-redes-sociais";
+    input.checked = true;
+    input.style.cssText = "margin-top:3px;flex-shrink:0;cursor:pointer;";
+    const texto = document.createElement("span");
+    texto.style.cssText =
+      "font-size:10px;line-height:1.5;color:rgba(157,157,154,0.7);";
+    texto.textContent =
+      "Autorizo ser gravada/fotografada durante a sessão, para uso exclusivo " +
+      "nas redes sociais da Essence Wellness.";
+    wrap.append(input, texto);
+    (aviso || btn.closest(".nav") || btn).insertAdjacentElement("afterend", wrap);
+  })();
+
   // ── Submissão ─────────────────────────────────────────────────
   async function submeter() {
     const btn = document.querySelector("[data-submit]");
@@ -507,6 +536,11 @@
     // dados de saúde (aviso visível por baixo do botão). Sem esta flag, a API
     // descarta toda a ficha clínica (RGPD Art. 9).
     payload.consentimentoSaude = true;
+    // Autorização de gravação para redes sociais — caixa pré-marcada, a
+    // cliente pode desmarcar; se por algum motivo o form não a injetou,
+    // assume-se o valor pré-definido (marcada).
+    const checkboxGravacao = document.getElementById("aceita-gravacao-redes-sociais");
+    payload.aceitaGravacaoRedesSociais = checkboxGravacao ? checkboxGravacao.checked : true;
 
     try {
       const res = await fetch(API_BASE + "/api/v1/public/onboarding", {

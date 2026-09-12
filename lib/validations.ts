@@ -337,6 +337,7 @@ export const onboardingPublicSchema = z.object({
   voucherCodigo: z.string().trim().max(40).optional().nullable(),
   consentimentoSaude: z.boolean().optional(),
   aceitaMarketing: z.boolean().optional(),
+  aceitaGravacaoRedesSociais: z.boolean().optional(),
   // Sessão a dois (massagem-a-dois.html, voucher-a-dois.html): dados da 2ª
   // pessoa em campos próprios — nunca colados dentro de notasPessoais/
   // historicoZonasTensao, para a IA que gera a ficha da terapeuta (WF02/
