@@ -847,28 +847,42 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                 {/* Ficha da terapeuta gerada por IA (Groq), mesma fonte da ficha-sessao.html */}
                 <FichaTerapeutaSection briefingJson={sessaoAberta.briefingJson} />
 
-                {/* Ficha da cliente (preenchida no onboarding) */}
-                {(sessaoAberta.fichaEstadoEmocional || sessaoAberta.fichaZonasTensao || sessaoAberta.fichaFoco || sessaoAberta.fichaCondicoesAlergias) && (
-                  <div style={{
-                    borderRadius: "10px", border: "1px solid rgba(185,160,122,0.25)",
-                    padding: "16px", marginBottom: "20px",
-                    backgroundColor: "rgba(185,160,122,0.04)",
-                  }}>
-                    <p style={{
-                      fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
-                      letterSpacing: "0.18em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
-                      marginBottom: "14px",
+                {/* Ficha da cliente (preenchida no onboarding). Sessões antigas (antes dos
+                    campos segundaPessoa* próprios) podiam ter dados da 2ª pessoa colados
+                    em texto livre aqui — cortamos esse resto legado, já que agora tem
+                    secção própria abaixo. */}
+                {(() => {
+                  const semLegadoSegundaPessoa = (valor: string) => {
+                    const corte = valor.search(/[—-]\s*2\.?ª\s*pessoa\s*[—-]|Zonas\s*\(2\.?ª\s*pessoa\)/i)
+                    return corte === -1 ? valor : valor.slice(0, corte).trim()
+                  }
+                  const estadoEmocional = sessaoAberta.fichaEstadoEmocional ? semLegadoSegundaPessoa(sessaoAberta.fichaEstadoEmocional) : null
+                  const zonasTensao = sessaoAberta.fichaZonasTensao ? semLegadoSegundaPessoa(sessaoAberta.fichaZonasTensao) : null
+                  const condicoesAlergias = sessaoAberta.fichaCondicoesAlergias ? semLegadoSegundaPessoa(sessaoAberta.fichaCondicoesAlergias) : null
+                  const foco = sessaoAberta.fichaFoco ? semLegadoSegundaPessoa(sessaoAberta.fichaFoco) : null
+
+                  return (estadoEmocional || zonasTensao || foco || condicoesAlergias) && (
+                    <div style={{
+                      borderRadius: "10px", border: "1px solid rgba(185,160,122,0.25)",
+                      padding: "16px", marginBottom: "20px",
+                      backgroundColor: "rgba(185,160,122,0.04)",
                     }}>
-                      Ficha preenchida pela cliente
-                    </p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                      {sessaoAberta.fichaEstadoEmocional && <DetailItem label="Estado emocional / mente" value={sessaoAberta.fichaEstadoEmocional} />}
-                      {sessaoAberta.fichaZonasTensao && <DetailItem label="Zonas de tensão" value={sessaoAberta.fichaZonasTensao} />}
-                      {sessaoAberta.fichaCondicoesAlergias && <DetailItem label="Condições / alergias" value={sessaoAberta.fichaCondicoesAlergias} />}
-                      {sessaoAberta.fichaFoco && <DetailItem label="Foco / objetivo da sessão" value={sessaoAberta.fichaFoco} />}
+                      <p style={{
+                        fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                        letterSpacing: "0.18em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
+                        marginBottom: "14px",
+                      }}>
+                        Ficha preenchida pela cliente
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        {estadoEmocional && <DetailItem label="Estado emocional / mente" value={estadoEmocional} />}
+                        {zonasTensao && <DetailItem label="Zonas de tensão" value={zonasTensao} />}
+                        {condicoesAlergias && <DetailItem label="Condições / alergias" value={condicoesAlergias} />}
+                        {foco && <DetailItem label="Foco / objetivo da sessão" value={foco} />}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )
+                })()}
 
                 {/* Sessão a dois: dados da 2ª pessoa em bloco próprio — nunca
                     misturados com os da cliente principal acima. */}
