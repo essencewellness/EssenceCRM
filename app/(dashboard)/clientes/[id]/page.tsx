@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { getContextoUtilizador, listarTerapeutas } from "@/lib/contexto-utilizador"
 import {
   ArrowLeft, Phone, Mail, CalendarDays, Wallet,
-  MessageSquare,
+  MessageSquare, Video, VideoOff,
 } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils"
@@ -248,6 +248,24 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 terapeutas={terapeutas.map((t) => ({ id: t.id, name: t.name }))}
                 podeEditar={ctx.isAdmin}
               />
+              {/* Autorização de gravação para redes sociais — caixinha bem
+                  visível (pedido do Nuno), mostra sempre a resposta real da
+                  cliente. Só aparece depois de ela responder no onboarding
+                  (consentimentoGravacaoRedesSociaisEm null = nunca perguntado
+                  ainda, ex: clientes antigos antes desta funcionalidade). */}
+              {cliente.consentimentoGravacaoRedesSociaisEm && (
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: "6px",
+                  padding: "6px 12px", borderRadius: "100px",
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                  backgroundColor: cliente.aceitaGravacaoRedesSociais ? "rgba(160,169,150,0.15)" : "rgba(180,117,106,0.12)",
+                  border: `1px solid ${cliente.aceitaGravacaoRedesSociais ? "var(--nuit-sage)" : "var(--nuit-terra, #B4756A)"}`,
+                  color: cliente.aceitaGravacaoRedesSociais ? "var(--nuit-sage)" : "var(--nuit-terra, #B4756A)",
+                }}>
+                  {cliente.aceitaGravacaoRedesSociais ? <Video size={12} /> : <VideoOff size={12} />}
+                  {cliente.aceitaGravacaoRedesSociais ? "Autoriza gravações" : "Não autoriza gravações"}
+                </div>
+              )}
               <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "8px" }}>
                 <EdicaoPerfilToggle />
                 <DeleteClienteButton

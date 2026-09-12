@@ -448,13 +448,52 @@
 
   window.EF = { CTX, PERSONAL, chips, chip1, chipsCom, val, goTo, next, back };
 
+  // ── Autorização de gravação para redes sociais (opt-out, pré-marcada) ──
+  // Pedido explícito do Nuno: perguntar se a cliente autoriza ser gravada
+  // durante a sessão, para uso exclusivo nas redes sociais da Essence —
+  // caixa pré-selecionada (a cliente desmarca se não quiser), separada do
+  // consentimento de dados de saúde abaixo. Fica logo a seguir ao botão
+  // "Enviar a minha ficha" (pedido do Nuno: mais perto e mais visível do
+  // que o aviso RGPD, que é só texto pequeno) — por isso um "caixinha"
+  // com fundo e borda própria, não só uma linha de texto.
+  (function injetarConsentimentoGravacao() {
+    const btn = document.querySelector("[data-submit]");
+    if (!btn || document.getElementById("consentimento-gravacao")) return;
+    const wrap = document.createElement("label");
+    wrap.id = "consentimento-gravacao";
+    wrap.style.cssText =
+      "display:flex;align-items:flex-start;gap:10px;margin:16px auto 0;" +
+      "max-width:420px;text-align:left;cursor:pointer;padding:12px 14px;" +
+      "border:1px solid var(--champagne-soft, rgba(212,184,134,0.35));" +
+      "border-radius:8px;background:rgba(212,184,134,0.06);";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.id = "aceita-gravacao-redes-sociais";
+    input.checked = true;
+    input.style.cssText = "margin-top:2px;flex-shrink:0;cursor:pointer;width:16px;height:16px;";
+    const texto = document.createElement("span");
+    texto.style.cssText =
+      "font-size:12px;line-height:1.5;color:var(--bone, #ECE6D6);";
+    texto.textContent =
+      "Autorizo ser gravada/fotografada durante a sessão, para uso exclusivo " +
+      "nas redes sociais da Essence Wellness.";
+    wrap.append(input, texto);
+    // Depois do contentor .nav, não do botão: em desktop o .nav é flex row-reverse
+    // (essence-forms.css:511), e inserir aqui logo após o botão fazia da caixa um
+    // terceiro item flex — espremida numa coluna estreita entre "Voltar" e "Enviar".
+    (btn.closest(".nav") || btn).insertAdjacentElement("afterend", wrap);
+  })();
+
   // ── Aviso de tratamento de dados (consentimento no acto de envio) ──
   // Declaração explícita: enviar o formulário é o acto afirmativo de
   // consentimento (RGPD Art. 9). A versão deste texto fica registada no
   // audit log do CRM (ver CONSENT_VERSAO em /api/v1/public/onboarding).
+  // Vem DEPOIS da caixinha de gravação de propósito — essa é a que o Nuno
+  // quer mais perto do botão de enviar.
   (function injetarAvisoRGPD() {
+    const consentimento = document.getElementById("consentimento-gravacao");
     const btn = document.querySelector("[data-submit]");
-    if (!btn || document.getElementById("aviso-rgpd")) return;
+    if ((!consentimento && !btn) || document.getElementById("aviso-rgpd")) return;
     const p = document.createElement("p");
     p.id = "aviso-rgpd";
     p.style.cssText =
@@ -473,39 +512,7 @@
       "pedir o apagamento dos teus dados a qualquer momento. ",
       a
     );
-    // Depois do contentor .nav, não do botão: em desktop o .nav é flex row-reverse
-    // (essence-forms.css:511), e inserir aqui logo após o botão fazia do aviso um
-    // terceiro item flex — espremido numa coluna estreita entre "Voltar" e "Enviar".
-    (btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
-  })();
-
-  // ── Autorização de gravação para redes sociais (opt-out, pré-marcada) ──
-  // Pedido explícito do Nuno: perguntar se a cliente autoriza ser gravada
-  // durante a sessão, para uso exclusivo nas redes sociais da Essence —
-  // caixa pré-selecionada (a cliente desmarca se não quiser), separada do
-  // consentimento de dados de saúde acima.
-  (function injetarConsentimentoGravacao() {
-    const btn = document.querySelector("[data-submit]");
-    const aviso = document.getElementById("aviso-rgpd");
-    if (!btn || document.getElementById("consentimento-gravacao")) return;
-    const wrap = document.createElement("label");
-    wrap.id = "consentimento-gravacao";
-    wrap.style.cssText =
-      "display:flex;align-items:flex-start;gap:8px;margin:16px auto 0;" +
-      "max-width:420px;text-align:left;cursor:pointer;";
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.id = "aceita-gravacao-redes-sociais";
-    input.checked = true;
-    input.style.cssText = "margin-top:3px;flex-shrink:0;cursor:pointer;";
-    const texto = document.createElement("span");
-    texto.style.cssText =
-      "font-size:10px;line-height:1.5;color:rgba(157,157,154,0.7);";
-    texto.textContent =
-      "Autorizo ser gravada/fotografada durante a sessão, para uso exclusivo " +
-      "nas redes sociais da Essence Wellness.";
-    wrap.append(input, texto);
-    (aviso || btn.closest(".nav") || btn).insertAdjacentElement("afterend", wrap);
+    (consentimento || btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
   })();
 
   // ── Submissão ─────────────────────────────────────────────────
