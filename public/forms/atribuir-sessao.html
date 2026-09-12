@@ -108,11 +108,20 @@
         <select id="terapeuta" class="plain-select"></select>
       </div>
 
-      <div class="plain-fg">
+      <div class="plain-fg" id="bloco-preco-editavel">
         <label class="plain-label" for="preco">Preço da sessão *</label>
         <div class="price-prefix">
           <input type="number" id="preco" class="plain-input" step="0.01" min="0" inputmode="decimal">
         </div>
+      </div>
+
+      <!-- Sessão paga por voucher: o preço já ficou fechado na compra e está
+           registado em Financeiro — mostrar como informação, nunca como
+           campo editável (evita alterações acidentais a um valor já fixo). -->
+      <div class="plain-fg" id="bloco-preco-voucher" style="display:none;">
+        <label class="plain-label">Preço da sessão</label>
+        <div class="plain-input" id="texto-preco-voucher" style="display:flex;align-items:center;min-height:44px;color:var(--champagne-soft);"></div>
+        <input type="hidden" id="preco-voucher-valor">
       </div>
 
       <div class="plain-fg">
@@ -142,6 +151,7 @@
   // Massagem a dois: preenchido no carregar(), lido no submit.
   let eADois = false;
   let terapeutasADois = null;
+  let eVoucher = false;
   const linkToken = new URLSearchParams(location.search).get("t");
   const tokenQS = linkToken ? `&t=${encodeURIComponent(linkToken)}` : "";
 
@@ -333,7 +343,21 @@
       }
 
       const precoInicial = data.precoBase ?? data.sessao.precoAtual ?? "";
-      document.getElementById("preco").value = precoInicial !== null ? precoInicial : "";
+      eVoucher = !!data.isVoucher;
+      const blocoPrecoEditavel = document.getElementById("bloco-preco-editavel");
+      const blocoPrecoVoucher = document.getElementById("bloco-preco-voucher");
+      if (data.isVoucher) {
+        blocoPrecoEditavel.style.display = "none";
+        blocoPrecoVoucher.style.display = "block";
+        const valor = precoInicial !== null && precoInicial !== "" ? Number(precoInicial).toFixed(2) : "0.00";
+        document.getElementById("texto-preco-voucher").textContent =
+          `€ ${valor} — valor do voucher já registado no Financeiro`;
+        document.getElementById("preco-voucher-valor").value = precoInicial !== null ? precoInicial : "";
+      } else {
+        blocoPrecoEditavel.style.display = "block";
+        blocoPrecoVoucher.style.display = "none";
+        document.getElementById("preco").value = precoInicial !== null ? precoInicial : "";
+      }
 
       elLoading.style.display = "none";
       elForm.style.display = "block";
@@ -362,7 +386,9 @@
       ...(eADois
         ? { terapeutaId: terapeutasADois[0].id, terapeuta2Id: terapeutasADois[1].id }
         : { terapeutaId: document.getElementById("terapeuta").value }),
-      preco: document.getElementById("preco").value,
+      preco: eVoucher
+        ? document.getElementById("preco-voucher-valor").value
+        : document.getElementById("preco").value,
       nota: document.getElementById("nota").value.trim() || null,
       website: document.getElementById("website").value,
     };

@@ -123,6 +123,10 @@ export async function GET(request: NextRequest) {
       precoAtual: sessao.preco,
     },
     precoBase: servicoCatalogo?.precoBase ?? giftCard?.valorPago ?? sessao.preco ?? null,
+    // Sessão paga por voucher: o preço já ficou fechado na compra do
+    // voucher e está registado em Financeiro — não faz sentido a Bea poder
+    // editá-lo aqui (o form mostra o valor só como informação, sem input).
+    isVoucher: !!giftCard,
     terapeutas,
     notas,
     historico: historico.map((s) => ({
