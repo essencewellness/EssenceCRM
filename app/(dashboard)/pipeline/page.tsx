@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
+import { FunilChart } from "@/components/pipeline/FunilChart";
 import { BarChart2, Users, AlertTriangle, TrendingUp, MessageSquare, Calendar, List, Filter as FunnelIcon } from "lucide-react";
 import type { Prisma } from "@/lib/prisma-client";
 
@@ -217,87 +218,14 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             </span>
           </div>
 
-          <div className="nuit-scrollbar" style={{ overflowX: "auto", marginBottom: "28px", paddingBottom: "4px" }}>
-            <div style={{ display: "flex", alignItems: "stretch", gap: 0, minWidth: "760px" }}>
-              {(() => {
-                const contagensFunil = FUNIL_ESTADOS.map((e) => porEstado[e.key] ?? 0);
-                const primeiraContagem = contagensFunil[0] || 1;
-                // Opacidade mínima de 0.30 — um estágio com 0 clientes
-                // ainda aparece como um degrau real, não desaparece.
-                return FUNIL_ESTADOS.map((estado, i) => {
-                  const count = porEstado[estado.key] ?? 0;
-                  const proporcao = Math.max(0.30, count / primeiraContagem);
-                  const ultimo = i === FUNIL_ESTADOS.length - 1;
-                  // A seta a seguir a este cartão liga-o ao PRÓXIMO estágio
-                  // — a conversão mostrada tem de ser count→próximo, não
-                  // anterior→count (esse já foi mostrado na seta anterior).
-                  const proximo = ultimo ? null : contagensFunil[i + 1];
-                  const pctConversao = proximo !== null ? (count > 0 ? Math.round((proximo / count) * 100) : null) : null;
-                  return (
-                    <div key={estado.key} style={{ display: "flex", alignItems: "stretch", flex: ultimo ? "1 1 0" : "1 1 0" }}>
-                      <Link
-                        href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href}
-                        className="card-hover"
-                        style={{
-                          textDecoration: "none", flex: 1, minWidth: 0,
-                          display: "flex", flexDirection: "column", justifyContent: "space-between",
-                          gap: "18px", padding: "20px 18px",
-                          backgroundColor: "var(--nuit-overlay)",
-                          border: "1px solid rgba(212,184,134,0.14)",
-                          borderTop: `2px solid rgba(212,184,134,${proporcao})`,
-                          borderRadius: "2px",
-                        }}
-                      >
-                        <span style={{
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
-                          letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-bone-soft)",
-                        }}>
-                          {estado.label}
-                        </span>
-
-                        <span style={{
-                          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "38px",
-                          fontWeight: 400, color: "var(--nuit-bone)", lineHeight: 1,
-                        }}>
-                          {count}
-                        </span>
-
-                        {/* Hairline de proporção — desenha-se da esquerda para
-                            a direita ao carregar a página (anim-line-reveal). */}
-                        <div style={{ height: "2px", backgroundColor: "rgba(236,230,214,0.08)", borderRadius: "1px", overflow: "hidden" }}>
-                          <div
-                            className="anim-line-reveal"
-                            style={{
-                              height: "100%", width: `${proporcao * 100}%`,
-                              backgroundColor: "var(--nuit-champagne)",
-                              animationDelay: `${i * 90 + 120}ms`,
-                            }}
-                          />
-                        </div>
-                      </Link>
-
-                      {!ultimo && (
-                        <div style={{
-                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                          width: "56px", flexShrink: 0, gap: "4px",
-                        }}>
-                          <span style={{
-                            fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700,
-                            color: pctConversao !== null && pctConversao < 50 ? "var(--destructive)" : "var(--nuit-champagne-soft)",
-                            whiteSpace: "nowrap",
-                          }}>
-                            {pctConversao !== null ? `${pctConversao}%` : "—"}
-                          </span>
-                          <svg width="28" height="14" viewBox="0 0 28 14" fill="none" role="img" aria-label="progride para o estágio seguinte">
-                            <path d="M1 7H25M25 7L19 1M25 7L19 13" stroke="var(--nuit-smoke-deep)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  );
-                });
-              })()}
-            </div>
+          <div style={{
+            backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
+            borderRadius: "2px", padding: "28px 24px", marginBottom: "28px",
+          }}>
+            <FunilChart
+              estagios={FUNIL_ESTADOS.map((e) => ({ ...e, count: porEstado[e.key] ?? 0 }))}
+              terapeuta={terapeuta}
+            />
           </div>
 
           {/* Fora do funil — desvios/saídas, não fazem parte da progressão */}
