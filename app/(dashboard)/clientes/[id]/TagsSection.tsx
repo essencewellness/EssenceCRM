@@ -23,7 +23,11 @@ interface Props {
   ultimaSessao: string | null
 }
 
-const TIPOS_ORDEM = ["saude", "campanha", "preferencia", "automatica"]
+// As 6 categorias reais (ver CLAUDE.md "21 etiquetas em 6 grupos") — faltavam
+// ciclo/compra/experiencia desde que foram criadas em 2026-09-07. Sem isto,
+// uma etiqueta destes 3 tipos aplicada a um cliente ficava invisível aqui
+// (mesmo bug do painel de Configurações → Etiquetas).
+const TIPOS_ORDEM = ["saude", "campanha", "preferencia", "ciclo", "compra", "experiencia"]
 
 export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultimaSessao }: Props) {
   const [abertoDropdown, setAbertoDropdown] = useState(false)

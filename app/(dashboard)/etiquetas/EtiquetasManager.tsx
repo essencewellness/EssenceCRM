@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { Edit2, Trash2, Check, X } from "lucide-react"
 import { CORES_PALETA, TIPO_ETIQUETA_LABELS } from "@/lib/etiquetas"
+import { NOMES_ETIQUETAS_AUTOMATICAS } from "@/lib/etiquetas-automaticas"
 import { atualizarEtiqueta, apagarEtiqueta } from "./actions"
 import { criarEtiqueta } from "../clientes/actions"
 import { ConfirmModal } from "@/components/ui/ConfirmModal"
@@ -20,7 +21,13 @@ interface Props {
   etiquetas: Etiqueta[]
 }
 
-const TIPOS_ORDEM = ["saude", "campanha", "preferencia", "automatica"]
+// As 6 categorias reais (ver CLAUDE.md "21 etiquetas em 6 grupos") — "automatica"
+// é um valor de enum legado sem nenhuma etiqueta activa (as 7 automáticas
+// vivem dentro de ciclo/compra/experiencia, identificadas pelo NOME exacto
+// em NOMES_ETIQUETAS_AUTOMATICAS, não por um tipo próprio). Faltavam aqui
+// ciclo/compra/experiencia desde que foram criadas em 2026-09-07 — as
+// etiquetas existiam na BD mas nunca apareciam nesta página.
+const TIPOS_ORDEM = ["saude", "campanha", "preferencia", "ciclo", "compra", "experiencia"]
 
 export function EtiquetasManager({ etiquetas }: Props) {
   const [editandoId, setEditandoId] = useState<string | null>(null)
@@ -198,7 +205,6 @@ export function EtiquetasManager({ etiquetas }: Props) {
       {TIPOS_ORDEM.map(tipo => {
         const tags = porTipo[tipo] ?? []
         if (tags.length === 0) return null
-        const isAutomatica = tipo === "automatica"
 
         return (
           <div key={tipo} style={{ marginBottom: "28px" }}>
@@ -216,6 +222,10 @@ export function EtiquetasManager({ etiquetas }: Props) {
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               {tags.map(tag => {
                 const isEditing = editandoId === tag.id
+                // Etiqueta "propriedade do motor" (lib/etiquetas-automaticas.ts) —
+                // aplicada/removida sozinha a cada cron, editar/apagar aqui não
+                // faz sentido (a corrida seguinte desfaz ou recria).
+                const isAutomatica = (NOMES_ETIQUETAS_AUTOMATICAS as readonly string[]).includes(tag.nome)
 
                 return (
                   <div key={tag.id} style={{
