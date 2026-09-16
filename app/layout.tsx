@@ -4,6 +4,7 @@ import { DM_Serif_Display, Manrope } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { auth } from "@/lib/auth";
 import "./globals.css";
 
 // Corre antes da hidratação React — sem isto via <head>, a página nasce
@@ -60,9 +61,21 @@ export default async function RootLayout({
   // primeiro paint, sendo depois reescrita para "dark" pelo próprio
   // ThemeProvider ao ler a classe (errada) já presente no <html>.
   const nonce = (await headers()).get("x-nonce") ?? undefined
+  // Tamanho de texto (Configurações → Acessibilidade) aplicado aqui, na
+  // raiz real do documento — não só num div dentro do dashboard. Painéis
+  // que abrem por cima da página (SessoesTab, TagsSection, EstadoEditor,
+  // PacksTab, etc.) usam createPortal directamente para document.body,
+  // que fica FORA da subárvore desse div — herdavam sempre o tamanho por
+  // omissão, nunca a preferência da pessoa a usar o CRM (reportado pelo
+  // Nuno: a Cristina aumenta o texto nas Configurações e as "caixinhas"
+  // continuam pequenas). Aqui, no <html>, chega a tudo por herança normal
+  // de CSS, portal incluído.
+  const session = await auth()
+  const preferenciaFonte = (session?.user as { preferenciaFonte?: string } | undefined)?.preferenciaFonte ?? "baixo"
   return (
     <html
       lang="pt"
+      data-font-scale={preferenciaFonte}
       // "dark" por omissão no HTML servido (SSR não sabe o localStorage do
       // browser) — o script abaixo corrige para "light" antes do primeiro
       // paint se for essa a preferência guardada.

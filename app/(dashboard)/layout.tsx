@@ -52,13 +52,13 @@ export default async function DashboardLayout({
   ])
   const repassesPendentes = sessoesPorRepassar + vouchersPorRepassar
 
-  const preferenciaFonte = (session.user as { preferenciaFonte?: string }).preferenciaFonte ?? "baixo"
-
+  // Tamanho de texto já é aplicado no <html> (app/layout.tsx) — chega por
+  // herança normal de CSS a tudo, incluindo os painéis que abrem via
+  // createPortal para document.body (fora desta div).
   return (
     <ToastProvider>
       <div
         className="min-h-screen flex"
-        data-font-scale={preferenciaFonte}
         style={{ backgroundColor: "var(--nuit-midnight)" }}
       >
         {/* Sidebar — visível em desktop */}
