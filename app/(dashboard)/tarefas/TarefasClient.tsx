@@ -27,7 +27,7 @@ const ESTADOS = ["pendente", "em_progresso", "concluida", "cancelada"]
 const PRIORIDADES = ["baixa", "normal", "alta", "urgente"]
 const TIPOS = ["follow_up", "ligacao", "mensagem", "nota", "outro"]
 
-export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terapeutas: Terapeuta[] }) {
+export function TarefasClient({ isAdmin, podeAtribuirTarefas, terapeutas }: { isAdmin: boolean; podeAtribuirTarefas: boolean; terapeutas: Terapeuta[] }) {
   const [vista, setVista] = useState<"lista" | "kanban">("lista")
   const [tarefas, setTarefas] = useState<Tarefa[]>([])
   const [loading, setLoading] = useState(true)
@@ -240,9 +240,9 @@ export function TarefasClient({ isAdmin, terapeutas }: { isAdmin: boolean; terap
           action={filtroEstado || filtroPrioridade || filtroTipo ? { label: "Limpar filtros", onClick: () => { setFiltroEstado(""); setFiltroPrioridade(""); setFiltroTipo("") } } : undefined}
         />
       ) : vista === "lista" ? (
-        <TarefasLista tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} />
+        <TarefasLista tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} terapeutas={podeAtribuirTarefas ? terapeutas : []} />
       ) : (
-        <TarefasKanban tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} />
+        <TarefasKanban tarefas={tarefas} onRefresh={carregar} onUpdate={atualizarTarefa} terapeutas={podeAtribuirTarefas ? terapeutas : []} />
       )}
     </div>
   )

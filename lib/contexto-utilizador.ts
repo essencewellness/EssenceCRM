@@ -19,6 +19,10 @@ export type ContextoUtilizador = {
   // admin veem/aprovam a fila de mensagens — ao contrário de todas as
   // outras abas, que separam sempre por terapeutaPrincipalId do cliente.
   podeAprovarMensagens: boolean;
+  // Atribuir tarefas a qualquer terapeuta (não só a si própria) — mesma
+  // convenção de permissão que podeAprovarMensagens: admin ou a Bea
+  // especificamente, nunca a Cristina.
+  podeAtribuirTarefas: boolean;
 };
 
 export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
@@ -52,6 +56,7 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
     filtroCliente: isAdmin ? {} : { terapeutaPrincipalId: userId },
     filtroSessao: isAdmin ? {} : { cliente: { terapeutaPrincipalId: userId } },
     podeAprovarMensagens: isAdmin || (!!idBea && userId === idBea),
+    podeAtribuirTarefas: isAdmin || (!!idBea && userId === idBea),
   };
 }
 

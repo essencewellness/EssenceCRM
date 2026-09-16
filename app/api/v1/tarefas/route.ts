@@ -98,11 +98,12 @@ export async function POST(request: NextRequest) {
   // admin ativo (é FK para User.id — uma string arbitrária como "api:n8n"
   // rebenta a criação com um 500 por violar a foreign key)
   let criadoPor: string | null = null
+  let criadoPorRole: string | null = null
   try {
     const session = await auth()
     if (session?.user?.email) {
-      const user = await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true } })
-      if (user) criadoPor = user.id
+      const user = await prisma.user.findUnique({ where: { email: session.user.email }, select: { id: true, role: true } })
+      if (user) { criadoPor = user.id; criadoPorRole = user.role }
     }
   } catch { /* ignora — pode não haver sessão em chamadas N8N */ }
 
@@ -114,6 +115,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Sem utilizador admin disponível para atribuir a tarefa", code: "SEM_ADMIN" }, { status: 500 })
   }
 
+  // Sem atribuição explícita: uma terapeuta a criar uma tarefa sem escolher
+  // ninguém quer dizer "para mim" — sem isto a tarefa ficava invisível no
+  // seu próprio separador de Tarefas (a isolação em GET só mostra tarefas
+  // atribuídas a si ou de um cliente seu), bug real reportado pelo Nuno.
+  // Admin/N8N sem sessão de terapeuta ficam sem este default (não faz
+  // sentido auto-atribuir ao admin).
+  const atribuidaA = dados.atribuidaA ?? (criadoPorRole === "terapeuta" ? criadoPor : null)
+
   const tarefa = await prisma.tarefa.create({
     data: {
       clienteId:  dados.clienteId ?? null,
@@ -122,7 +131,7 @@ export async function POST(request: NextRequest) {
       dataLimite: dados.dataLimite ? new Date(dados.dataLimite) : null,
       prioridade: dados.prioridade ?? "normal",
       tipo:       dados.tipo ?? "follow_up",
-      atribuidaA: dados.atribuidaA ?? null,
+      atribuidaA,
       criadoPor,
     },
   })

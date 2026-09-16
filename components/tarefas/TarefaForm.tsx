@@ -2,18 +2,28 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
 
+interface Terapeuta {
+  id: string
+  name: string | null
+}
+
 interface TarefaFormProps {
   clienteId?: string
   onCreated?: () => void
   compact?: boolean
+  // Só passado quando a sessão pode atribuir a qualquer terapeuta (admin ou
+  // Bea, ver lib/contexto-utilizador.ts) — sem isto o formulário nem mostra
+  // o seletor, e o servidor atribui à própria pessoa por omissão.
+  terapeutas?: Terapeuta[]
 }
 
-export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaFormProps) {
+export function TarefaForm({ clienteId, onCreated, compact = false, terapeutas = [] }: TarefaFormProps) {
   const [show, setShow] = useState(false)
   const [titulo, setTitulo] = useState("")
   const [tipo, setTipo] = useState("follow_up")
   const [prioridade, setPrioridade] = useState("normal")
   const [dataLimite, setDataLimite] = useState("")
+  const [atribuidaA, setAtribuidaA] = useState("")
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -32,10 +42,12 @@ export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaForm
           prioridade,
           ...(clienteId ? { clienteId } : {}),
           ...(dataLimite ? { dataLimite } : {}),
+          ...(atribuidaA ? { atribuidaA } : {}),
         }),
       })
       setTitulo("")
       setDataLimite("")
+      setAtribuidaA("")
       setShow(false)
       onCreated?.()
     } finally {
@@ -93,6 +105,18 @@ export function TarefaForm({ clienteId, onCreated, compact = false }: TarefaForm
           onChange={(e) => setDataLimite(e.target.value)}
           className="text-xs border border-[rgba(212,184,134,0.16)] bg-[var(--nuit-midnight)] rounded-lg px-2 py-1 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
         />
+        {terapeutas.length > 0 && (
+          <select
+            value={atribuidaA}
+            onChange={(e) => setAtribuidaA(e.target.value)}
+            className="text-xs border border-[rgba(212,184,134,0.16)] bg-[var(--nuit-midnight)] rounded-lg px-2 py-1 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
+          >
+            <option value="">Atribuir a…</option>
+            {terapeutas.map((t) => (
+              <option key={t.id} value={t.id}>{t.name ?? "—"}</option>
+            ))}
+          </select>
+        )}
         <div className="flex gap-2 ml-auto">
           <button
             type="button"

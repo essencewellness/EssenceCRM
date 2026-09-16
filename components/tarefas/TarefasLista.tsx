@@ -18,12 +18,20 @@ type Tarefa = {
   atribuida?: { id: string; name?: string | null } | null
 }
 
+interface Terapeuta {
+  id: string
+  name: string | null
+}
+
 interface TarefasListaProps {
   tarefas: Tarefa[]
   showClienteLink?: boolean
   onRefresh?: () => void
   onUpdate?: (id: string, dados: object) => Promise<void>
   clienteId?: string
+  // Só não-vazio quando a sessão pode atribuir a qualquer terapeuta (admin
+  // ou Bea) — ver lib/contexto-utilizador.ts.
+  terapeutas?: Terapeuta[]
 }
 
 function agrupar(tarefas: Tarefa[]) {
@@ -63,7 +71,7 @@ const GRUPO_META = {
   semprazo: { label: "Sem prazo", cor: "var(--nuit-bone-soft)" },
 }
 
-export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: TarefasListaProps) {
+export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeutas = [] }: TarefasListaProps) {
   const grupos = agrupar(tarefas)
   const { toast } = useToast()
 
@@ -107,7 +115,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: Tarefa
   if (tarefas.length === 0) {
     return (
       <div className="space-y-4">
-        <TarefaForm clienteId={clienteId} onCreated={onRefresh} />
+        <TarefaForm clienteId={clienteId} onCreated={onRefresh} terapeutas={terapeutas} />
         <EmptyState
           icon={CheckSquare}
           title="Sem tarefas"
@@ -119,7 +127,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId }: Tarefa
 
   return (
     <div className="space-y-6">
-      <TarefaForm clienteId={clienteId} onCreated={onRefresh} />
+      <TarefaForm clienteId={clienteId} onCreated={onRefresh} terapeutas={terapeutas} />
       {total === 0 && (
         <p style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
           Sem tarefas pendentes — {concluidas.length + canceladas.length === 1 ? "há uma tarefa" : `há ${concluidas.length + canceladas.length} tarefas`} já fechada{concluidas.length + canceladas.length === 1 ? "" : "s"} abaixo.

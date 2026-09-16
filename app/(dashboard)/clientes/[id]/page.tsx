@@ -756,6 +756,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     atribuida: t.atribuida ? { id: t.atribuida.id, name: t.atribuida.name } : null,
                   }))}
                   clienteId={cliente.id}
+                  terapeutas={ctx.podeAtribuirTarefas ? terapeutas.map((t) => ({ id: t.id, name: t.name })) : []}
                 />
               </div>
             ),

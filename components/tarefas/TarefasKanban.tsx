@@ -28,6 +28,11 @@ type Tarefa = {
   atribuida?: { id: string; name?: string | null } | null
 }
 
+interface Terapeuta {
+  id: string
+  name: string | null
+}
+
 const COLUNAS = [
   { id: "pendente",     label: "Pendente" },
   { id: "em_progresso", label: "Em Progresso" },
@@ -45,12 +50,13 @@ function SortableTarefa({ tarefa, onUpdate }: { tarefa: Tarefa; onUpdate?: (id: 
 }
 
 function KanbanColuna({
-  id, label, tarefas, onUpdate, clienteId, onRefresh,
+  id, label, tarefas, onUpdate, clienteId, onRefresh, terapeutas,
 }: {
   id: string; label: string; tarefas: Tarefa[]
   onUpdate?: (id: string, d: object) => Promise<void>
   clienteId?: string
   onRefresh?: () => void
+  terapeutas?: Terapeuta[]
 }) {
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
@@ -70,7 +76,7 @@ function KanbanColuna({
       </SortableContext>
       {id === "pendente" && (
         <div className="mt-3">
-          <TarefaForm clienteId={clienteId} onCreated={onRefresh} compact />
+          <TarefaForm clienteId={clienteId} onCreated={onRefresh} compact terapeutas={terapeutas} />
         </div>
       )}
     </div>
@@ -82,9 +88,10 @@ interface TarefasKanbanProps {
   clienteId?: string
   onRefresh?: () => void
   onUpdate?: (id: string, dados: object) => Promise<void>
+  terapeutas?: Terapeuta[]
 }
 
-export function TarefasKanban({ tarefas, clienteId, onRefresh, onUpdate }: TarefasKanbanProps) {
+export function TarefasKanban({ tarefas, clienteId, onRefresh, onUpdate, terapeutas = [] }: TarefasKanbanProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const { toast } = useToast()
@@ -148,6 +155,7 @@ export function TarefasKanban({ tarefas, clienteId, onRefresh, onUpdate }: Taref
             onUpdate={efetivo}
             clienteId={clienteId}
             onRefresh={onRefresh}
+            terapeutas={terapeutas}
           />
         ))}
       </div>
