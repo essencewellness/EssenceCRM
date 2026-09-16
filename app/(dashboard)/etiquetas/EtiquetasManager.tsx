@@ -42,7 +42,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
   const [mostraCriar, setMostraCriar] = useState(false)
   const [novoNome, setNovoNome] = useState("")
   const [novoCor, setNovoCor] = useState(CORES_PALETA[0])
-  const [novoTipo, setNovoTipo] = useState<"saude" | "campanha" | "preferencia">("campanha")
+  const [novoTipo, setNovoTipo] = useState<"saude" | "campanha" | "preferencia">("saude")
   const [novoBloqueio, setNovoBloqueio] = useState(false)
   const [erroNovo, setErroNovo] = useState("")
 
@@ -101,7 +101,7 @@ export function EtiquetasManager({ etiquetas }: Props) {
         await criarEtiqueta({ nome: novoNome, cor: novoCor, tipo: novoTipo, bloqueiaAutomacoes: novoBloqueio })
         setNovoNome("")
         setNovoCor(CORES_PALETA[0])
-        setNovoTipo("campanha")
+        setNovoTipo("saude")
         setNovoBloqueio(false)
         setMostraCriar(false)
       } catch (e: unknown) {
