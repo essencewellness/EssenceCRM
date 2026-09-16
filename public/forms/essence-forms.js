@@ -452,17 +452,16 @@
   // Pedido explícito do Nuno: perguntar se a cliente autoriza ser gravada
   // durante a sessão, para uso exclusivo nas redes sociais da Essence —
   // caixa pré-selecionada (a cliente desmarca se não quiser), separada do
-  // consentimento de dados de saúde abaixo. Fica logo a seguir ao botão
-  // "Enviar a minha ficha" (pedido do Nuno: mais perto e mais visível do
-  // que o aviso RGPD, que é só texto pequeno) — por isso um "caixinha"
-  // com fundo e borda própria, não só uma linha de texto.
+  // consentimento de dados de saúde abaixo. Fica ACIMA do botão "Enviar a
+  // minha ficha" (pedido do Nuno) — por isso uma "caixinha" com fundo e
+  // borda própria, não só uma linha de texto, para não passar despercebida.
   (function injetarConsentimentoGravacao() {
     const btn = document.querySelector("[data-submit]");
     if (!btn || document.getElementById("consentimento-gravacao")) return;
     const wrap = document.createElement("label");
     wrap.id = "consentimento-gravacao";
     wrap.style.cssText =
-      "display:flex;align-items:flex-start;gap:10px;margin:16px auto 0;" +
+      "display:flex;align-items:flex-start;gap:10px;margin:0 auto 16px;" +
       "max-width:420px;text-align:left;cursor:pointer;padding:12px 14px;" +
       "border:1px solid var(--champagne-soft, rgba(212,184,134,0.35));" +
       "border-radius:8px;background:rgba(212,184,134,0.06);";
@@ -478,22 +477,19 @@
       "Autorizo ser gravada/fotografada durante a sessão, para uso exclusivo " +
       "nas redes sociais da Essence Wellness.";
     wrap.append(input, texto);
-    // Depois do contentor .nav, não do botão: em desktop o .nav é flex row-reverse
-    // (essence-forms.css:511), e inserir aqui logo após o botão fazia da caixa um
-    // terceiro item flex — espremida numa coluna estreita entre "Voltar" e "Enviar".
-    (btn.closest(".nav") || btn).insertAdjacentElement("afterend", wrap);
+    // Antes do contentor .nav (onde vive o botão "Enviar"), não depois —
+    // é aqui que fica ACIMA do botão, pedido explícito do Nuno.
+    (btn.closest(".nav") || btn).insertAdjacentElement("beforebegin", wrap);
   })();
 
   // ── Aviso de tratamento de dados (consentimento no acto de envio) ──
   // Declaração explícita: enviar o formulário é o acto afirmativo de
   // consentimento (RGPD Art. 9). A versão deste texto fica registada no
   // audit log do CRM (ver CONSENT_VERSAO em /api/v1/public/onboarding).
-  // Vem DEPOIS da caixinha de gravação de propósito — essa é a que o Nuno
-  // quer mais perto do botão de enviar.
+  // Fica sempre DEPOIS do botão — a caixinha de gravação é que vem antes.
   (function injetarAvisoRGPD() {
-    const consentimento = document.getElementById("consentimento-gravacao");
     const btn = document.querySelector("[data-submit]");
-    if ((!consentimento && !btn) || document.getElementById("aviso-rgpd")) return;
+    if (!btn || document.getElementById("aviso-rgpd")) return;
     const p = document.createElement("p");
     p.id = "aviso-rgpd";
     p.style.cssText =
@@ -512,7 +508,7 @@
       "pedir o apagamento dos teus dados a qualquer momento. ",
       a
     );
-    (consentimento || btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
+    (btn.closest(".nav") || btn).insertAdjacentElement("afterend", p);
   })();
 
   // ── Submissão ─────────────────────────────────────────────────
