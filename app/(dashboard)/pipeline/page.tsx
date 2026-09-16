@@ -10,12 +10,12 @@ import type { Prisma } from "@/lib/prisma-client";
 // nesta ordem. "vip_em_risco"/"reativacao"/"perdida"/"blacklist" não são
 // "mais um passo à frente" — são desvios/saídas do caminho, por isso ficam
 // de fora do funil e aparecem à parte (ver secção "Fora do funil" abaixo).
-const FUNIL_ESTADOS: { key: string; label: string; color: string; href: string }[] = [
-  { key: "lead",            label: "Lead",            color: "var(--nuit-champagne-soft)", href: "/clientes?estado=lead"            },
-  { key: "novo",            label: "Novo",            color: "var(--nuit-sage)",            href: "/clientes?estado=novo"            },
-  { key: "ativa_recente",   label: "Ativa Recente",   color: "#7a9e7e",                      href: "/clientes?estado=ativa_recente"   },
-  { key: "ativa_frequente", label: "Ativa Frequente", color: "#4a8e5e",                      href: "/clientes?estado=ativa_frequente" },
-  { key: "vip_embaixadora", label: "VIP Embaixadora", color: "var(--nuit-champagne)",        href: "/clientes?estado=vip_embaixadora" },
+const FUNIL_ESTADOS: { key: string; label: string; href: string }[] = [
+  { key: "lead",            label: "Lead",            href: "/clientes?estado=lead"            },
+  { key: "novo",            label: "Novo",            href: "/clientes?estado=novo"            },
+  { key: "ativa_recente",   label: "Ativa Recente",   href: "/clientes?estado=ativa_recente"   },
+  { key: "ativa_frequente", label: "Ativa Frequente", href: "/clientes?estado=ativa_frequente" },
+  { key: "vip_embaixadora", label: "VIP Embaixadora", href: "/clientes?estado=vip_embaixadora" },
 ];
 
 const FORA_DO_FUNIL: { key: string; label: string; color: string; href: string }[] = [
@@ -204,7 +204,10 @@ export default async function PipelinePage({ searchParams }: PageProps) {
 
       {vista === "funil" ? (
         <>
-          {/* Funil de crescimento */}
+          {/* Funil de crescimento — cinco estágios, um único acento
+              (champagne) em opacidade decrescente para ler a progressão,
+              em vez de uma cor por estágio. Ligados por setas finas com a
+              taxa de conversão real entre cada par. */}
           <div style={{ marginBottom: "8px" }}>
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
@@ -214,60 +217,87 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             </span>
           </div>
 
-          <div style={{
-            backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
-            borderRadius: "2px", padding: "32px 20px 24px", marginBottom: "24px",
-          }}>
-            {(() => {
-              const contagensFunil = FUNIL_ESTADOS.map((e) => porEstado[e.key] ?? 0);
-              const primeiraContagem = contagensFunil[0] || 1;
-              // Largura mínima de 30% — um estágio com 0 clientes ainda
-              // aparece como um degrau real do funil, não desaparece.
-              return FUNIL_ESTADOS.map((estado, i) => {
-                const count = porEstado[estado.key] ?? 0;
-                const largura = Math.max(30, (count / primeiraContagem) * 100);
-                const anterior = i > 0 ? contagensFunil[i - 1] : null;
-                const pctConversao = anterior && anterior > 0 ? Math.round((count / anterior) * 100) : null;
-                return (
-                  <div key={estado.key} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    {i > 0 && (
-                      <div style={{
-                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "10.5px", fontWeight: 600,
-                        color: "var(--nuit-bone-soft)", padding: "6px 0",
-                      }}>
-                        {pctConversao !== null ? `↓ ${pctConversao}%` : "↓"}
-                      </div>
-                    )}
-                    <Link
-                      href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href}
-                      style={{ textDecoration: "none", width: `${largura}%`, minWidth: "180px" }}
-                    >
-                      <div
-                        className="hover:opacity-90"
+          <div className="nuit-scrollbar" style={{ overflowX: "auto", marginBottom: "28px", paddingBottom: "4px" }}>
+            <div style={{ display: "flex", alignItems: "stretch", gap: 0, minWidth: "760px" }}>
+              {(() => {
+                const contagensFunil = FUNIL_ESTADOS.map((e) => porEstado[e.key] ?? 0);
+                const primeiraContagem = contagensFunil[0] || 1;
+                // Opacidade mínima de 0.30 — um estágio com 0 clientes
+                // ainda aparece como um degrau real, não desaparece.
+                return FUNIL_ESTADOS.map((estado, i) => {
+                  const count = porEstado[estado.key] ?? 0;
+                  const proporcao = Math.max(0.30, count / primeiraContagem);
+                  const ultimo = i === FUNIL_ESTADOS.length - 1;
+                  // A seta a seguir a este cartão liga-o ao PRÓXIMO estágio
+                  // — a conversão mostrada tem de ser count→próximo, não
+                  // anterior→count (esse já foi mostrado na seta anterior).
+                  const proximo = ultimo ? null : contagensFunil[i + 1];
+                  const pctConversao = proximo !== null ? (count > 0 ? Math.round((proximo / count) * 100) : null) : null;
+                  return (
+                    <div key={estado.key} style={{ display: "flex", alignItems: "stretch", flex: ultimo ? "1 1 0" : "1 1 0" }}>
+                      <Link
+                        href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href}
+                        className="card-hover"
                         style={{
-                          display: "flex", flexDirection: "column", alignItems: "center", gap: "2px",
-                          padding: "14px 16px", borderRadius: "4px",
-                          backgroundColor: estado.color, transition: "opacity 120ms",
+                          textDecoration: "none", flex: 1, minWidth: 0,
+                          display: "flex", flexDirection: "column", justifyContent: "space-between",
+                          gap: "18px", padding: "20px 18px",
+                          backgroundColor: "var(--nuit-overlay)",
+                          border: "1px solid rgba(212,184,134,0.14)",
+                          borderTop: `2px solid rgba(212,184,134,${proporcao})`,
+                          borderRadius: "2px",
                         }}
                       >
                         <span style={{
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700,
-                          letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-midnight)",
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
+                          letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-bone-soft)",
                         }}>
                           {estado.label}
                         </span>
+
                         <span style={{
-                          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px",
-                          fontWeight: 400, color: "var(--nuit-midnight)",
+                          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "38px",
+                          fontWeight: 400, color: "var(--nuit-bone)", lineHeight: 1,
                         }}>
                           {count}
                         </span>
-                      </div>
-                    </Link>
-                  </div>
-                );
-              });
-            })()}
+
+                        {/* Hairline de proporção — desenha-se da esquerda para
+                            a direita ao carregar a página (anim-line-reveal). */}
+                        <div style={{ height: "2px", backgroundColor: "rgba(236,230,214,0.08)", borderRadius: "1px", overflow: "hidden" }}>
+                          <div
+                            className="anim-line-reveal"
+                            style={{
+                              height: "100%", width: `${proporcao * 100}%`,
+                              backgroundColor: "var(--nuit-champagne)",
+                              animationDelay: `${i * 90 + 120}ms`,
+                            }}
+                          />
+                        </div>
+                      </Link>
+
+                      {!ultimo && (
+                        <div style={{
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                          width: "56px", flexShrink: 0, gap: "4px",
+                        }}>
+                          <span style={{
+                            fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700,
+                            color: pctConversao !== null && pctConversao < 50 ? "var(--destructive)" : "var(--nuit-champagne-soft)",
+                            whiteSpace: "nowrap",
+                          }}>
+                            {pctConversao !== null ? `${pctConversao}%` : "—"}
+                          </span>
+                          <svg width="28" height="14" viewBox="0 0 28 14" fill="none" role="img" aria-label="progride para o estágio seguinte">
+                            <path d="M1 7H25M25 7L19 1M25 7L19 13" stroke="var(--nuit-smoke-deep)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           </div>
 
           {/* Fora do funil — desvios/saídas, não fazem parte da progressão */}
@@ -284,10 +314,12 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               const count = porEstado[estado.key] ?? 0;
               return (
                 <Link key={estado.key} href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href} style={{ textDecoration: "none" }}>
-                  <div style={{
-                    backgroundColor: "var(--nuit-overlay)", border: `1px solid ${estado.color}44`,
+                  <div className="card-hover" style={{
+                    backgroundColor: "var(--nuit-overlay)",
+                    border: "1px solid rgba(212,184,134,0.14)",
+                    borderLeft: `2px solid ${estado.color}`,
                     borderRadius: "2px", padding: "14px",
-                  }} className="hover:bg-[rgba(212,184,134,0.06)]">
+                  }}>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
                       letterSpacing: "0.14em", textTransform: "uppercase", color: estado.color, display: "block", marginBottom: "6px",
