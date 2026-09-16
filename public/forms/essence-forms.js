@@ -475,7 +475,7 @@
       "font-size:12px;line-height:1.5;color:var(--bone, #ECE6D6);";
     texto.textContent =
       "Autorizo ser gravada/fotografada durante a sessão, para uso nas redes " +
-      "sociais da Essence Wellness e da Beatriz Leão.";
+      "sociais @essencewellnesspt e @beatrizleao.massagens.";
     wrap.append(input, texto);
     // Antes do contentor .nav (onde vive o botão "Enviar"), não depois —
     // é aqui que fica ACIMA do botão, pedido explícito do Nuno.
