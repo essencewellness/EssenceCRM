@@ -20,11 +20,26 @@ interface LeadRow {
 
 const ORIGEM_LABELS: Record<string, string> = {
   indicacao: "Indicação",
+  referencia: "Indicação",
   instagram: "Instagram",
   google: "Google",
   parceiro: "Parceiro",
   manual: "Manual",
   formulario: "Formulário",
+}
+
+// "Como nos conheceu" é texto livre (ex: "Comprou voucher EWD2026-07 para
+// bg", "Formulário Drenagem") — agrupar por padrão em vez de filtrar pelo
+// valor exato, senão cada compra de voucher vira o seu próprio filtro
+// (código único) e a lista de origens nunca mais pára de crescer.
+function origemGrupo(comoNosConheceu: string | null): { chave: string; label: string } {
+  if (!comoNosConheceu) return { chave: "sem-origem", label: "Sem origem" }
+  const raw = comoNosConheceu.trim()
+  if (/^comprou voucher/i.test(raw)) return { chave: "voucher", label: "Voucher" }
+  if (/^formul[aá]rio/i.test(raw)) return { chave: "formulario", label: "Formulário" }
+  const chaveConhecida = raw.toLowerCase()
+  if (ORIGEM_LABELS[chaveConhecida]) return { chave: chaveConhecida, label: ORIGEM_LABELS[chaveConhecida] }
+  return { chave: chaveConhecida, label: raw.charAt(0).toUpperCase() + raw.slice(1) }
 }
 
 function formatDate(iso: string) {
@@ -41,18 +56,76 @@ export function LeadsTable({
   const router = useRouter()
   const [selecionados, setSelecionados] = useState<string[]>([])
   const [mostrarCampanhaModal, setMostrarCampanhaModal] = useState(false)
+  const [filtroOrigem, setFiltroOrigem] = useState<string | null>(null)
 
-  const todosSelec = selecionados.length === leads.length && leads.length > 0
+  // Chips de origem construídos a partir dos dados reais (nunca uma lista
+  // fixa) — cada grupo mostra quantas leads tem, para se ver logo qual vale
+  // a pena usar numa campanha.
+  const origens = (() => {
+    const contagem = new Map<string, { label: string; total: number }>()
+    for (const l of leads) {
+      const { chave, label } = origemGrupo(l.comoNosConheceu)
+      const atual = contagem.get(chave)
+      contagem.set(chave, { label, total: (atual?.total ?? 0) + 1 })
+    }
+    return Array.from(contagem.entries())
+      .map(([chave, v]) => ({ chave, ...v }))
+      .sort((a, b) => b.total - a.total)
+  })()
+
+  const leadsFiltradas = filtroOrigem
+    ? leads.filter((l) => origemGrupo(l.comoNosConheceu).chave === filtroOrigem)
+    : leads
+
+  const todosSelec = selecionados.length === leadsFiltradas.length && leadsFiltradas.length > 0
 
   function onToggle(id: string) {
     setSelecionados((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id])
   }
   function onToggleTodos() {
-    setSelecionados(todosSelec ? [] : leads.map((l) => l.id))
+    setSelecionados(todosSelec ? [] : leadsFiltradas.map((l) => l.id))
+  }
+  function onFiltrarOrigem(chave: string) {
+    setFiltroOrigem((atual) => (atual === chave ? null : chave))
+    setSelecionados([])
   }
 
   return (
     <>
+      {origens.length > 1 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+          <button
+            type="button"
+            onClick={() => { setFiltroOrigem(null); setSelecionados([]) }}
+            style={{
+              padding: "6px 13px", borderRadius: "100px", cursor: "pointer",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+              border: `1px solid ${filtroOrigem === null ? "var(--nuit-champagne)" : "rgba(185,160,122,0.3)"}`,
+              backgroundColor: filtroOrigem === null ? "rgba(212,184,134,0.14)" : "transparent",
+              color: filtroOrigem === null ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
+            }}
+          >
+            Todas · {leads.length}
+          </button>
+          {origens.map(({ chave, label, total }) => (
+            <button
+              key={chave}
+              type="button"
+              onClick={() => onFiltrarOrigem(chave)}
+              style={{
+                padding: "6px 13px", borderRadius: "100px", cursor: "pointer",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+                border: `1px solid ${filtroOrigem === chave ? "var(--nuit-champagne)" : "rgba(185,160,122,0.3)"}`,
+                backgroundColor: filtroOrigem === chave ? "rgba(212,184,134,0.14)" : "transparent",
+                color: filtroOrigem === chave ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
+              }}
+            >
+              {label} · {total}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div style={{ border: "1px solid rgba(212,184,134,0.12)", overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "540px" }}>
           <thead>
@@ -80,13 +153,13 @@ export function LeadsTable({
             </tr>
           </thead>
           <tbody>
-            {leads.map((lead, idx) => {
+            {leadsFiltradas.map((lead, idx) => {
               const isSelec = selecionados.includes(lead.id)
               return (
                 <tr
                   key={lead.id}
                   style={{
-                    borderBottom: idx < leads.length - 1 ? "1px solid rgba(212,184,134,0.10)" : "none",
+                    borderBottom: idx < leadsFiltradas.length - 1 ? "1px solid rgba(212,184,134,0.10)" : "none",
                     backgroundColor: isSelec ? "rgba(185,160,122,0.10)" : undefined,
                   }}
                 >
