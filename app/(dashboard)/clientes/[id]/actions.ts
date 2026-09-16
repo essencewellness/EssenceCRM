@@ -16,26 +16,6 @@ import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 
-// Garante que a terapeuta autenticada é admin OU a dona do cliente
-// (terapeutaPrincipalId). Sem isto, qualquer terapeuta autenticada conseguia
-// eliminar/editar clientes e sessões de outra colega só por adivinhar o cuid
-// — estas actions só validavam sessão, nunca posse.
-type SessaoComUser = { user?: { role?: string; id?: string } | null } | null | undefined
-
-async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
-  const role = (session?.user as { role?: string })?.role ?? "terapeuta"
-  if (role === "admin") return
-
-  const userId = (session?.user as { id?: string })?.id
-  const cliente = await prisma.cliente.findUnique({
-    where: { id: clienteId },
-    select: { terapeutaPrincipalId: true },
-  })
-  if (!cliente || !userId || cliente.terapeutaPrincipalId !== userId) {
-    throw new Error("Não tens permissão para aceder a este cliente.")
-  }
-}
-
 // Apagamento DEFINITIVO do cliente (hard delete). Mensagens, etiquetas,
 // observações, preços e portal token continuam em cascata — mas SESSÕES e
 // PACKS já não (2026-09-04, "sessão fantasma", pedido do Nuno depois de
@@ -57,7 +37,6 @@ async function verificarDonoCliente(session: SessaoComUser, clienteId: string) {
 export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamente = false) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
-  await verificarDonoCliente(session, clienteId)
 
   const cliente = await prisma.cliente.findUnique({
     where: { id: clienteId },
@@ -131,7 +110,6 @@ export async function eliminarCliente(clienteId: string, apagarTudoDefinitivamen
 export async function eliminarSessao(sessaoId: string, clienteId: string) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
-  await verificarDonoCliente(session, clienteId)
 
   const sessao = await prisma.sessao.findUnique({
     where: { id: sessaoId },
@@ -184,7 +162,6 @@ type DadosSessao = {
 async function aplicarAtualizacaoSessao(sessaoId: string, clienteId: string, dados: DadosSessao) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
-  await verificarDonoCliente(session, clienteId)
 
   const sessaoAntes = await prisma.sessao.findUnique({
     where: { id: sessaoId },
@@ -337,7 +314,6 @@ export async function atualizarTerapeutaSessao(
   try {
     const session = await auth()
     if (!session?.user) throw new Error("Não autorizado")
-    await verificarDonoCliente(session, clienteId)
 
     const terapeuta = await prisma.user.findFirst({
       where: { id: terapeutaId, ativo: true, role: "terapeuta" },
@@ -488,7 +464,6 @@ export async function criarPack(
   try {
     const session = await auth()
     if (!session?.user) throw new Error("Não autorizado")
-    await verificarDonoCliente(session, clienteId)
 
     if (dados.totalSessoes < 1 || dados.totalSessoes > 100) {
       return { ok: false, erro: "Número de sessões inválido" }
@@ -541,7 +516,6 @@ export async function registarPagamentoPack(
   try {
     const session = await auth()
     if (!session?.user) throw new Error("Não autorizado")
-    await verificarDonoCliente(session, clienteId)
 
     if (dados.valor <= 0) return { ok: false, erro: "O valor tem de ser maior que zero" }
 
@@ -615,7 +589,6 @@ export async function registarPagamentoPack(
 export async function eliminarPack(packId: string, clienteId: string) {
   const session = await auth()
   if (!session?.user) throw new Error("Não autorizado")
-  await verificarDonoCliente(session, clienteId)
 
   const pack = await prisma.pack.findUnique({
     where: { id: packId },

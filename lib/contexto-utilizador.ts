@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao";
+import { getTerapeutaPrincipalPadraoId, mapaTerapeutasPrincipais } from "@/lib/terapeuta-padrao";
 
 export type ContextoUtilizador = {
   role: "admin" | "terapeuta";
@@ -9,15 +9,11 @@ export type ContextoUtilizador = {
   username: string;
   nome: string;
   isAdmin: boolean;
-  // Filtro Prisma pronto para queries de clientes
-  filtroCliente: Record<string, unknown>;
-  // Filtro Prisma pronto para queries de sessões
-  filtroSessao: Record<string, unknown>;
   // Mensagens IA: decisão de negócio (2026-09-04) — NUNCA vão para o perfil
   // da Cristina, sejam quais forem os clientes dela. Só a Bea (terapeuta
   // principal por omissão, mesma convenção de lib/terapeuta-padrao.ts) e o
-  // admin veem/aprovam a fila de mensagens — ao contrário de todas as
-  // outras abas, que separam sempre por terapeutaPrincipalId do cliente.
+  // admin veem/aprovam a fila de mensagens — a única aba que continua
+  // restrita; todas as outras deixaram de o ser (ver getFiltrosTerapeuta).
   podeAprovarMensagens: boolean;
   // Atribuir tarefas a qualquer terapeuta (não só a si própria) — mesma
   // convenção de permissão que podeAprovarMensagens: admin ou a Bea
@@ -51,28 +47,37 @@ export async function getContextoUtilizador(): Promise<ContextoUtilizador> {
     // 2026-09-01: a saudação do dashboard estava fixa em "Bea" para todos).
     nome: (u.name ?? u.username ?? "").trim().split(" ")[0] || "",
     isAdmin,
-    // O cliente "pertence" a uma terapeuta via terapeutaPrincipalId.
-    // Terapeuta só vê os seus; admin vê tudo (filtro aplicado via getFiltrosTerapeuta).
-    filtroCliente: isAdmin ? {} : { terapeutaPrincipalId: userId },
-    filtroSessao: isAdmin ? {} : { cliente: { terapeutaPrincipalId: userId } },
     podeAprovarMensagens: isAdmin || (!!idBea && userId === idBea),
     podeAtribuirTarefas: isAdmin || (!!idBea && userId === idBea),
   };
 }
 
 /**
- * Resolve os filtros de cliente/sessão tendo em conta:
- *  - terapeuta: forçado aos seus próprios clientes (ignora o parâmetro)
- *  - admin: opcionalmente filtra por uma terapeuta (?terapeuta=<id>), senão vê tudo
+ * Decisão do Nuno (2026-09-16): sem isolamento entre terapeutas — a Bea e a
+ * Cristina veem e podem gerir todos os clientes, tal como o admin, sempre
+ * (Clientes, Sessões, Tarefas, Agenda, Leads, Dashboard). "terapeuta
+ * principal" deixou de ser uma fronteira de acesso e passou a ser só uma
+ * etiqueta informativa, calculada ao vivo a partir do histórico real de
+ * sessões (ver lib/terapeuta-padrao.ts, mapaTerapeutasPrincipais).
  *
- * Usar em todas as abas para um comportamento consistente.
+ * `?terapeuta=<id>` continua a existir como filtro de CONVENIÊNCIA opcional
+ * (ex: "ver só os clientes onde a Beatriz é quem mais sessões faz"),
+ * disponível a qualquer sessão, não só ao admin — nunca bloqueia acesso,
+ * só estreita a lista mostrada.
  */
 export async function getFiltrosTerapeuta(terapeutaParam?: string) {
   const ctx = await getContextoUtilizador();
-  const alvo = ctx.isAdmin ? (terapeutaParam || null) : ctx.userId;
+  const alvo = terapeutaParam || null;
 
-  const filtroCliente = alvo ? { terapeutaPrincipalId: alvo } : {};
-  const filtroSessao = alvo ? { cliente: { terapeutaPrincipalId: alvo } } : {};
+  let filtroCliente: Record<string, unknown> = {};
+  let filtroSessao: Record<string, unknown> = {};
+
+  if (alvo) {
+    const mapa = await mapaTerapeutasPrincipais();
+    const clienteIds = [...mapa.entries()].filter(([, t]) => t === alvo).map(([id]) => id);
+    filtroCliente = { id: { in: clienteIds } };
+    filtroSessao = { cliente: { id: { in: clienteIds } } };
+  }
 
   return { ctx, alvo, filtroCliente, filtroSessao };
 }

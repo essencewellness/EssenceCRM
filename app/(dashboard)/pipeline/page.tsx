@@ -65,9 +65,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
   const filtroCliente = fcBase as Prisma.ClienteWhereInput;
   const filtroSessao = fsBase as Prisma.SessaoWhereInput;
   // Mensagens são filtradas pelo cliente associado
-  const filtroMensagemCliente = (terapeuta || (filtroCliente.terapeutaPrincipalId))
-    ? { cliente: filtroCliente }
-    : {};
+  const filtroMensagemCliente = terapeuta ? { cliente: filtroCliente } : {};
 
   const hoje = new Date();
   const inicioDia = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());

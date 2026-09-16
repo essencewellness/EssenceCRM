@@ -9,6 +9,7 @@ import { atribuirSessaoQuerySchema, atribuirSessaoSchema, validarBody, validarQu
 import { verificarRateLimit } from "@/lib/rate-limit"
 import { auditar } from "@/lib/audit"
 import { validarLinkToken } from "@/lib/link-token"
+import { computarTerapeutaPrincipal } from "@/lib/terapeuta-padrao"
 
 export async function GET(request: NextRequest) {
   const bloqueio = await verificarRateLimit(request, {
@@ -31,10 +32,7 @@ export async function GET(request: NextRequest) {
       id: true, servico: true, data: true, hora: true, duracao: true, preco: true,
       clienteId: true, atribuicaoSubmetidaEm: true, terapeutaId: true,
       cliente: {
-        select: {
-          nome: true, telefone: true, totalSessoes: true, criadoEm: true,
-          terapeutaPrincipal: { select: { id: true, name: true } },
-        },
+        select: { nome: true, telefone: true, totalSessoes: true, criadoEm: true },
       },
     },
   })
@@ -110,13 +108,18 @@ export async function GET(request: NextRequest) {
     }),
   ])
 
+  // "Terapeuta habitual" calculada ao vivo (quem tem mais sessões realizadas
+  // com esta cliente) — deixou de ser um campo fixo, ver lib/terapeuta-padrao.ts.
+  const terapeutaHabitualId = await computarTerapeutaPrincipal(clienteId)
+  const terapeutaHabitual = terapeutas.find((t) => t.id === terapeutaHabitualId) ?? null
+
   return NextResponse.json({
     cliente: {
       nome: sessao.cliente.nome,
       telefone: sessao.cliente.telefone,
       primeiraVisita: sessoesAnteriores === 0,
       totalSessoesAnteriores: sessoesAnteriores,
-      terapeutaHabitual: sessao.cliente.terapeutaPrincipal,
+      terapeutaHabitual,
     },
     sessao: {
       servico: sessao.servico, data: sessao.data, hora: sessao.hora, duracao: sessao.duracao,
@@ -163,7 +166,7 @@ export async function POST(request: NextRequest) {
       where: { id: sessaoId, apagadoEm: null },
       select: {
         id: true, clienteId: true, estado: true, atribuicaoSubmetidaEm: true,
-        cliente: { select: { terapeutaPrincipalId: true } },
+        cliente: { select: { id: true } },
       },
     })
     if (!sessao) {
@@ -234,13 +237,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, jaSubmetido: true })
     }
 
-    // Se a cliente ainda não tem terapeuta principal, esta atribuição define-a
-    if (!sessao.cliente.terapeutaPrincipalId) {
-      await prisma.cliente.update({
-        where: { id: clienteId },
-        data: { terapeutaPrincipalId: terapeuta.id },
-      })
-    }
+    // "Terapeuta principal" já não é um campo gravado — passou a ser
+    // calculada ao vivo a partir do histórico de sessões (ver
+    // lib/terapeuta-padrao.ts). Esta sessão só passa a contar para esse
+    // cálculo quando ficar "realizada", não já aqui na atribuição.
 
     // Só chega aqui na primeira submissão (uso único, ver acima). A
     // deduplicação da nota fica de qualquer forma — cobre o caso de dois

@@ -5,6 +5,7 @@ import { validarBody, validarQuery, tarefaCreateSchema, tarefaQuerySchema } from
 import { auditar } from "@/lib/audit"
 import { auth } from "@/lib/auth"
 import { verificarRateLimit } from "@/lib/rate-limit"
+import { mapaTerapeutasPrincipais } from "@/lib/terapeuta-padrao"
 import type { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -28,21 +29,15 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Isolamento por sessão: terapeuta (não-admin) só vê tarefas dos SEUS clientes
-  // ou atribuídas a si. Admin pode filtrar por terapeuta via ?terapeuta=.
-  // Chamadas N8N (X-API-Key sem cookie de sessão) não são afetadas.
-  try {
-    const session = await auth()
-    const u = session?.user as { id?: string; role?: string } | undefined
-    if (u?.id && u.role !== "admin") {
-      where.OR = [
-        { cliente: { terapeutaPrincipalId: u.id } },
-        { atribuidaA: u.id },
-      ]
-    } else if (u?.role === "admin" && q.terapeuta) {
-      where.cliente = { terapeutaPrincipalId: q.terapeuta }
-    }
-  } catch { /* sem sessão (N8N) — sem scope */ }
+  // Sem isolamento entre terapeutas (decisão do Nuno, 2026-09-16) — qualquer
+  // sessão autenticada vê todas as tarefas. ?terapeuta= continua a existir
+  // como filtro de conveniência opcional, calculado ao vivo a partir do
+  // histórico real de sessões (não do campo fixo terapeutaPrincipalId).
+  if (q.terapeuta) {
+    const mapa = await mapaTerapeutasPrincipais()
+    const clienteIds = [...mapa.entries()].filter(([, t]) => t === q.terapeuta).map(([id]) => id)
+    where.cliente = { id: { in: clienteIds } }
+  }
 
   // findMany + count em paralelo — eram dois round-trips sequenciais à
   // Neon (cada um com a latência própria da ligação serverless) para o

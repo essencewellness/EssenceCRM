@@ -21,6 +21,7 @@ import { NomeServico } from "@/components/NomeServico"
 import { EstadoEditor } from "./EstadoEditor"
 import { TagsSection } from "./TagsSection"
 import { TerapeutaEditor } from "./TerapeutaEditor"
+import { computarTerapeutaPrincipal } from "@/lib/terapeuta-padrao"
 import { InlineEditField } from "@/components/clientes/InlineEditField"
 import { EdicaoPerfilProvider } from "@/components/clientes/EdicaoPerfilContext"
 import { EdicaoPerfilToggle } from "@/components/clientes/EdicaoPerfilToggle"
@@ -118,6 +119,9 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
   if (!cliente) notFound()
 
+  const terapeutaPrincipalId = await computarTerapeutaPrincipal(cliente.id)
+  const terapeutaPrincipalNome = terapeutas.find((t) => t.id === terapeutaPrincipalId)?.name ?? null
+
   const eventosTimeline = await construirEventosTimeline(cliente.id, 50)
 
   const serializarVoucher = (v: {
@@ -140,11 +144,6 @@ export default async function ClientePage({ params }: ClientePageProps) {
 
   const vouchersComprados = cliente.vouchersComprados.map(serializarVoucher)
   const vouchersRecebidos = cliente.giftCards.map(serializarVoucher)
-
-  // Verificar scope para role terapeuta: só vê os SEUS clientes
-  if (!ctx.isAdmin && cliente.terapeutaPrincipalId !== ctx.userId) {
-    notFound()
-  }
 
   const canalLabel: Record<string, string> = {
     whatsapp: "WhatsApp", email: "Email", telefone: "Telefone", instagram: "Instagram",
@@ -242,12 +241,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 onSave={atualizarCampoCliente.bind(null, cliente.id, "nome")}
               />
               <EstadoEditor clienteId={cliente.id} estadoAtual={cliente.estado} />
-              <TerapeutaEditor
-                clienteId={cliente.id}
-                terapeutaAtualId={cliente.terapeutaPrincipalId}
-                terapeutas={terapeutas.map((t) => ({ id: t.id, name: t.name }))}
-                podeEditar={ctx.isAdmin}
-              />
+              <TerapeutaEditor terapeutaNome={terapeutaPrincipalNome} />
               {/* Autorização de gravação para redes sociais — caixinha bem
                   visível (pedido do Nuno), mostra sempre a resposta real da
                   cliente. Só aparece depois de ela responder no onboarding

@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { validarApiKey, validarApiKeyOuSessao, respostaSucesso, respostaErro } from "@/lib/api-auth"
-import { auth } from "@/lib/auth"
 import { clientesQuerySchema, clienteCreateSchema, validarBody, validarQuery, normalizarTelefone } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
-import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { getTerapeutaPrincipalPadraoId, mapaTerapeutasPrincipais } from "@/lib/terapeuta-padrao"
 import { Prisma } from "@/lib/prisma-client"
 
 export async function GET(request: NextRequest) {
@@ -137,18 +136,14 @@ export async function GET(request: NextRequest) {
       where.NOT = { etiquetas: { some: { etiqueta: { bloqueiaAutomacoes: true } } } }
     }
 
-    // Isolamento por sessão: terapeuta (não-admin) só vê os SEUS clientes.
-    // Admin pode filtrar por ?terapeuta=. N8N (só API key, sem sessão) vê tudo.
-    if (!validarApiKey(request)) {
-      // pedido autenticado por API key (N8N) — sem isolamento
-    } else {
-      const session = await auth()
-      const u = session?.user as { id?: string; role?: string } | undefined
-      if (u?.id && u.role !== "admin") {
-        where.terapeutaPrincipalId = u.id
-      } else if (u?.role === "admin" && terapeuta) {
-        where.terapeutaPrincipalId = terapeuta
-      }
+    // Sem isolamento entre terapeutas (decisão do Nuno, 2026-09-16) —
+    // qualquer sessão autenticada vê todos os clientes. ?terapeuta=
+    // continua a existir como filtro de conveniência opcional, calculado
+    // ao vivo a partir do histórico real de sessões.
+    if (terapeuta) {
+      const mapa = await mapaTerapeutasPrincipais()
+      const clienteIds = [...mapa.entries()].filter(([, t]) => t === terapeuta).map(([id]) => id)
+      where.id = { in: clienteIds }
     }
 
     const clientes = await prisma.cliente.findMany({

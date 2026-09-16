@@ -34,16 +34,11 @@ export default async function DashboardLayout({
     ? await prisma.mensagemIA.count({ where: { estado: "pendente" } })
     : 0
 
-  const u = session.user as { id?: string; role?: string }
-  // Mesmo isolamento por terapeuta que GET /api/v1/tarefas já aplica: uma
-  // terapeuta não-admin só vê tarefas dos seus clientes ou atribuídas a si.
+  // Sem isolamento entre terapeutas (decisão do Nuno, 2026-09-16) — o badge
+  // conta todas as tarefas abertas, tal como a página /tarefas já as mostra
+  // todas a qualquer sessão autenticada.
   const tarefasAbertas = await prisma.tarefa.count({
-    where: {
-      estado: { in: ["pendente", "em_progresso"] },
-      ...(u.role !== "admin" && u.id
-        ? { OR: [{ cliente: { terapeutaPrincipalId: u.id } }, { atribuidaA: u.id }] }
-        : {}),
-    },
+    where: { estado: { in: ["pendente", "em_progresso"] } },
   })
 
   // Dinheiro da Bea (MBWay) por repassar à Cristina — sessões e vouchers,
