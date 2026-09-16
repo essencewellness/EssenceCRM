@@ -181,22 +181,21 @@ export async function PATCH(request: NextRequest) {
 
       await recalcularMetricasCliente(tx, clienteId)
 
-      // As observações da terapeuta entram diretamente nas notas do cliente
-      // (mais recente primeiro) — sem isto, ficavam presas dentro da sessão e
-      // só visíveis abrindo-a uma a uma no separador Sessões.
+      // As observações da terapeuta entram nas notas gerais do cliente (separador
+      // "Notas", tabela Observacao) — sem isto, ficavam presas dentro da sessão e
+      // só visíveis abrindo-a uma a uma no separador Sessões. Corrigido 2026-09-16:
+      // esta escrita ia antes para Cliente.notasPessoais, um campo que o separador
+      // "Notas" nunca leu (lê sempre Observacao) — as notas ficavam gravadas mas
+      // invisíveis. Observacao tem também a vantagem de dar uma entrada própria
+      // por sessão, com autor e data certos, em vez de um bloco de texto único.
       if (resumoSessao?.trim() || notasPosSessao?.trim()) {
-        const dataSessao = new Date(sessaoAntes.data).toLocaleDateString("pt-PT")
         const linhas = [resumoSessao?.trim(), notasPosSessao?.trim()].filter(Boolean)
-        const novaEntrada = `[${dataSessao}] ${linhas.join(" — ")}`
-
-        const clienteAtual = await tx.cliente.findUnique({
-          where: { id: clienteId },
-          select: { notasPessoais: true },
-        })
-        const notasAnteriores = clienteAtual?.notasPessoais?.trim()
-        await tx.cliente.update({
-          where: { id: clienteId },
-          data: { notasPessoais: notasAnteriores ? `${novaEntrada}\n\n${notasAnteriores}` : novaEntrada },
+        await tx.observacao.create({
+          data: {
+            clienteId,
+            texto: `${servico}: ${linhas.join(" — ")}`,
+            autor: sessaoAntes.terapeuta ?? "bea",
+          },
         })
       }
 

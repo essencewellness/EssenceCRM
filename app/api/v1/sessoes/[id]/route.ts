@@ -159,6 +159,21 @@ export async function PATCH(
         },
       })
 
+      // Edição de notas de sessão (resumo/observações) a partir do dashboard
+      // (SessoesTab.tsx → InlineEditField, um campo de cada vez) entra
+      // também nas notas gerais do cliente — mesmo destino do fluxo público
+      // pos-sessao.html, para nunca ficar dependente de abrir a sessão
+      // sessão a sessão para ver o que a terapeuta escreveu.
+      if (resumoSessao?.trim() || notasPosSessao?.trim()) {
+        await tx.observacao.create({
+          data: {
+            clienteId,
+            texto: `${sessao.servico}: ${[resumoSessao?.trim(), notasPosSessao?.trim()].filter(Boolean).join(" — ")}`,
+            autor: sessaoAntes.terapeuta ?? "bea",
+          },
+        })
+      }
+
       const metricas = afetaMetricas
         ? await recalcularMetricasCliente(tx, clienteId)
         : null
