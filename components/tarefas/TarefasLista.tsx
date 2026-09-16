@@ -143,7 +143,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeut
             </h3>
             <div className="space-y-2">
               {itens.map((t) => (
-                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} />
+                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} terapeutas={terapeutas} />
               ))}
             </div>
           </div>
@@ -161,7 +161,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeut
             </h3>
             <div className="space-y-2">
               {itens.map((t) => (
-                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} />
+                <TarefaCard key={t.id} tarefa={t} onUpdate={efetivo} terapeutas={terapeutas} />
               ))}
             </div>
           </div>

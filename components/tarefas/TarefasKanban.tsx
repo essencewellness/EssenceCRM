@@ -39,12 +39,12 @@ const COLUNAS = [
   { id: "concluida",    label: "Concluída" },
 ]
 
-function SortableTarefa({ tarefa, onUpdate }: { tarefa: Tarefa; onUpdate?: (id: string, d: object) => Promise<void> }) {
+function SortableTarefa({ tarefa, onUpdate, terapeutas }: { tarefa: Tarefa; onUpdate?: (id: string, d: object) => Promise<void>; terapeutas?: Terapeuta[] }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tarefa.id })
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <TarefaCard tarefa={tarefa} onUpdate={onUpdate} />
+      <TarefaCard tarefa={tarefa} onUpdate={onUpdate} terapeutas={terapeutas} />
     </div>
   )
 }
@@ -70,7 +70,7 @@ function KanbanColuna({
       <SortableContext items={tarefas.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
           {tarefas.map((t) => (
-            <SortableTarefa key={t.id} tarefa={t} onUpdate={onUpdate} />
+            <SortableTarefa key={t.id} tarefa={t} onUpdate={onUpdate} terapeutas={terapeutas} />
           ))}
         </div>
       </SortableContext>

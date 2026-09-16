@@ -68,10 +68,17 @@ export function TarefasClient({ isAdmin, podeAtribuirTarefas, terapeutas }: { is
   const atualizarTarefa = useCallback(
     async (id: string, dados: object) => {
       let anterior: Tarefa | undefined
+      // atribuidaA (reatribuição/partilha) vem só como id — sem resolver o
+      // nome aqui, o cartão continuava a mostrar a pessoa antiga até um
+      // refresh manual, mesmo já guardado no servidor.
+      const { atribuidaA, ...resto } = dados as { atribuidaA?: string }
+      const patchOtimista = atribuidaA !== undefined
+        ? { ...resto, atribuida: terapeutas.find(t => t.id === atribuidaA) ?? null }
+        : resto
       setTarefas(prev => prev.map(t => {
         if (t.id !== id) return t
         anterior = t
-        return { ...t, ...dados }
+        return { ...t, ...patchOtimista }
       }))
       try {
         const res = await fetch(`/api/v1/tarefas/${id}`, {
@@ -89,7 +96,7 @@ export function TarefasClient({ isAdmin, podeAtribuirTarefas, terapeutas }: { is
         toast("Sem ligação — não foi possível guardar. Tenta novamente.", "error")
       }
     },
-    [toast]
+    [toast, terapeutas]
   )
 
   const tarefasAtivas = tarefas.filter(

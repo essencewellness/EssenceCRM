@@ -1,8 +1,13 @@
 "use client"
 import { useState } from "react"
-import { CheckSquare, X, Calendar, User } from "lucide-react"
+import { CheckSquare, X, Calendar, User, Share2 } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
+
+interface Terapeuta {
+  id: string
+  name: string | null
+}
 
 const PRIORIDADE_CLASSES: Record<string, string> = {
   urgente: "border-l-4 border-red-500",
@@ -30,12 +35,18 @@ interface TarefaCardProps {
     cliente?: { id: string; nome: string } | null
     atribuida?: { id: string; name?: string | null } | null
   }
-  onUpdate?: (id: string, dados: { estado?: string; titulo?: string; descricao?: string | null }) => Promise<void>
+  onUpdate?: (id: string, dados: { estado?: string; titulo?: string; descricao?: string | null; atribuidaA?: string | null }) => Promise<void>
+  // Só não-vazio quando a sessão pode atribuir a qualquer terapeuta (admin
+  // ou Bea, ver lib/contexto-utilizador.ts) — mostra o seletor "Partilhar
+  // com" para passar a tarefa a outra pessoa. Sem esta lista, o cartão só
+  // mostra a quem já está atribuída, sem forma de mudar.
+  terapeutas?: Terapeuta[]
 }
 
-export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
+export function TarefaCard({ tarefa, onUpdate, terapeutas = [] }: TarefaCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [partilhando, setPartilhando] = useState(false)
 
   const dataLimite = tarefa.dataLimite ? new Date(tarefa.dataLimite) : null
   const vencida = dataLimite && dataLimite < new Date() && tarefa.estado === "pendente"
@@ -52,6 +63,14 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
     setLoading(true)
     await onUpdate(tarefa.id, { estado: "cancelada" })
     setLoading(false)
+  }
+
+  async function partilharCom(novaTerapeutaId: string) {
+    if (!onUpdate || !novaTerapeutaId) return
+    setLoading(true)
+    await onUpdate(tarefa.id, { atribuidaA: novaTerapeutaId })
+    setLoading(false)
+    setPartilhando(false)
   }
 
   return (
@@ -99,9 +118,34 @@ export function TarefaCard({ tarefa, onUpdate }: TarefaCardProps) {
           {tarefa.descricao && (
             <p className="text-sm text-[var(--nuit-bone-soft)] mb-3">{tarefa.descricao}</p>
           )}
-          <div className="flex items-center gap-2 text-xs text-[var(--nuit-bone-soft)] mb-3">
+          <div className="flex items-center gap-2 text-xs text-[var(--nuit-bone-soft)] mb-3 flex-wrap">
             <span>Tipo: {tarefa.tipo.replace("_", " ")}</span>
             {tarefa.atribuida?.name && <span>· Atribuída a: {tarefa.atribuida.name}</span>}
+            {terapeutas.length > 0 && tarefa.estado !== "concluida" && tarefa.estado !== "cancelada" && (
+              partilhando ? (
+                <select
+                  autoFocus
+                  disabled={loading}
+                  defaultValue=""
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => partilharCom(e.target.value)}
+                  onBlur={() => setPartilhando(false)}
+                  className="text-xs border border-[rgba(212,184,134,0.25)] bg-[var(--nuit-midnight)] rounded-md px-1.5 py-0.5 text-[var(--nuit-bone-soft)] focus:outline-none cursor-pointer"
+                >
+                  <option value="" disabled>Escolher pessoa…</option>
+                  {terapeutas.filter((t) => t.id !== tarefa.atribuida?.id).map((t) => (
+                    <option key={t.id} value={t.id}>{t.name ?? "—"}</option>
+                  ))}
+                </select>
+              ) : (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setPartilhando(true) }}
+                  className="flex items-center gap-1 text-[var(--nuit-champagne-soft)] hover:text-[var(--nuit-champagne)] cursor-pointer"
+                >
+                  <Share2 className="w-3 h-3" /> Partilhar
+                </button>
+              )
+            )}
           </div>
           {tarefa.estado !== "concluida" && tarefa.estado !== "cancelada" && (
             <div className="flex items-center gap-2">
