@@ -2,8 +2,28 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador";
 import { FiltroTerapeutaSlot } from "@/components/filtro-terapeuta-slot";
-import { BarChart2, Users, AlertTriangle, TrendingUp, MessageSquare, Calendar } from "lucide-react";
+import { BarChart2, Users, AlertTriangle, TrendingUp, MessageSquare, Calendar, List, Filter as FunnelIcon } from "lucide-react";
 import type { Prisma } from "@/lib/prisma-client";
+
+// Caminho de crescimento real (lead → embaixadora) — os únicos estados em
+// que faz sentido desenhar um funil, porque um cliente só avança por aqui
+// nesta ordem. "vip_em_risco"/"reativacao"/"perdida"/"blacklist" não são
+// "mais um passo à frente" — são desvios/saídas do caminho, por isso ficam
+// de fora do funil e aparecem à parte (ver secção "Fora do funil" abaixo).
+const FUNIL_ESTADOS: { key: string; label: string; color: string; href: string }[] = [
+  { key: "lead",            label: "Lead",            color: "var(--nuit-champagne-soft)", href: "/clientes?estado=lead"            },
+  { key: "novo",            label: "Novo",            color: "var(--nuit-sage)",            href: "/clientes?estado=novo"            },
+  { key: "ativa_recente",   label: "Ativa Recente",   color: "#7a9e7e",                      href: "/clientes?estado=ativa_recente"   },
+  { key: "ativa_frequente", label: "Ativa Frequente", color: "#4a8e5e",                      href: "/clientes?estado=ativa_frequente" },
+  { key: "vip_embaixadora", label: "VIP Embaixadora", color: "var(--nuit-champagne)",        href: "/clientes?estado=vip_embaixadora" },
+];
+
+const FORA_DO_FUNIL: { key: string; label: string; color: string; href: string }[] = [
+  { key: "vip_em_risco", label: "VIP em Risco", color: "#d4956b",             href: "/clientes?estado=vip_em_risco" },
+  { key: "reativacao",   label: "Reativação",    color: "var(--destructive)", href: "/clientes?estado=reativacao"   },
+  { key: "perdida",      label: "Perdida",       color: "var(--nuit-bone-soft)", href: "/clientes?estado=perdida"   },
+  { key: "blacklist",    label: "Blacklist",     color: "var(--destructive)", href: "/clientes?estado=blacklist"    },
+];
 
 export const revalidate = 60;
 
@@ -27,11 +47,19 @@ const ESTADOS: {
 ];
 
 interface PageProps {
-  searchParams: Promise<{ terapeuta?: string }>;
+  searchParams: Promise<{ terapeuta?: string; vista?: string }>;
 }
 
 export default async function PipelinePage({ searchParams }: PageProps) {
-  const { terapeuta } = await searchParams;
+  const { terapeuta, vista: vistaParam } = await searchParams;
+  const vista = vistaParam === "funil" ? "funil" : "lista";
+  const linkVista = (v: string) => {
+    const p = new URLSearchParams();
+    if (terapeuta) p.set("terapeuta", terapeuta);
+    if (v !== "lista") p.set("vista", v);
+    const qs = p.toString();
+    return qs ? `/pipeline?${qs}` : "/pipeline";
+  };
   const { filtroCliente: fcBase, filtroSessao: fsBase } = await getFiltrosTerapeuta(terapeuta);
   const filtroCliente = fcBase as Prisma.ClienteWhereInput;
   const filtroSessao = fsBase as Prisma.SessaoWhereInput;
@@ -96,7 +124,30 @@ export default async function PipelinePage({ searchParams }: PageProps) {
         </h1>
       </div>
 
-      <FiltroTerapeutaSlot />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+        <FiltroTerapeutaSlot />
+        <div style={{ display: "flex", border: "1px solid rgba(212,184,134,0.16)", borderRadius: "6px", overflow: "hidden" }}>
+          {[
+            { v: "lista", label: "Lista", icon: List },
+            { v: "funil", label: "Funil", icon: FunnelIcon },
+          ].map(({ v, label, icon: Icon }) => (
+            <Link
+              key={v}
+              href={linkVista(v)}
+              style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "7px 13px", textDecoration: "none",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+                backgroundColor: vista === v ? "rgba(185,160,122,0.10)" : "transparent",
+                color: vista === v ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
+              }}
+            >
+              <Icon size={13} />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "12px", marginBottom: "28px" }}>
@@ -151,6 +202,112 @@ export default async function PipelinePage({ searchParams }: PageProps) {
         </div>
       </div>
 
+      {vista === "funil" ? (
+        <>
+          {/* Funil de crescimento */}
+          <div style={{ marginBottom: "8px" }}>
+            <span style={{
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+              fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
+            }}>
+              Funil de Crescimento
+            </span>
+          </div>
+
+          <div style={{
+            backgroundColor: "var(--nuit-overlay)", border: "1px solid rgba(212,184,134,0.16)",
+            borderRadius: "2px", padding: "32px 20px 24px", marginBottom: "24px",
+          }}>
+            {(() => {
+              const contagensFunil = FUNIL_ESTADOS.map((e) => porEstado[e.key] ?? 0);
+              const primeiraContagem = contagensFunil[0] || 1;
+              // Largura mínima de 30% — um estágio com 0 clientes ainda
+              // aparece como um degrau real do funil, não desaparece.
+              return FUNIL_ESTADOS.map((estado, i) => {
+                const count = porEstado[estado.key] ?? 0;
+                const largura = Math.max(30, (count / primeiraContagem) * 100);
+                const anterior = i > 0 ? contagensFunil[i - 1] : null;
+                const pctConversao = anterior && anterior > 0 ? Math.round((count / anterior) * 100) : null;
+                return (
+                  <div key={estado.key} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    {i > 0 && (
+                      <div style={{
+                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "10.5px", fontWeight: 600,
+                        color: "var(--nuit-bone-soft)", padding: "6px 0",
+                      }}>
+                        {pctConversao !== null ? `↓ ${pctConversao}%` : "↓"}
+                      </div>
+                    )}
+                    <Link
+                      href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href}
+                      style={{ textDecoration: "none", width: `${largura}%`, minWidth: "180px" }}
+                    >
+                      <div
+                        className="hover:opacity-90"
+                        style={{
+                          display: "flex", flexDirection: "column", alignItems: "center", gap: "2px",
+                          padding: "14px 16px", borderRadius: "4px",
+                          backgroundColor: estado.color, transition: "opacity 120ms",
+                        }}
+                      >
+                        <span style={{
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700,
+                          letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-midnight)",
+                        }}>
+                          {estado.label}
+                        </span>
+                        <span style={{
+                          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px",
+                          fontWeight: 400, color: "var(--nuit-midnight)",
+                        }}>
+                          {count}
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+
+          {/* Fora do funil — desvios/saídas, não fazem parte da progressão */}
+          <div style={{ marginBottom: "8px" }}>
+            <span style={{
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+              fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
+            }}>
+              Fora do Funil — Risco &amp; Saída
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: "10px" }}>
+            {FORA_DO_FUNIL.map((estado) => {
+              const count = porEstado[estado.key] ?? 0;
+              return (
+                <Link key={estado.key} href={terapeuta ? `${estado.href}&terapeuta=${terapeuta}` : estado.href} style={{ textDecoration: "none" }}>
+                  <div style={{
+                    backgroundColor: "var(--nuit-overlay)", border: `1px solid ${estado.color}44`,
+                    borderRadius: "2px", padding: "14px",
+                  }} className="hover:bg-[rgba(212,184,134,0.06)]">
+                    <span style={{
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
+                      letterSpacing: "0.14em", textTransform: "uppercase", color: estado.color, display: "block", marginBottom: "6px",
+                    }}>
+                      {estado.label}
+                    </span>
+                    <span style={{
+                      fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px",
+                      fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke)",
+                    }}>
+                      {count}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+      <>
       {/* Estados CRM */}
       <div style={{ marginBottom: "8px" }}>
         <span style={{
@@ -245,6 +402,8 @@ export default async function PipelinePage({ searchParams }: PageProps) {
           );
         })}
       </div>
+      </>
+      )}
 
       {/* Total */}
       <div style={{
