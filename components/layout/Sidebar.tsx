@@ -104,11 +104,12 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
     <aside style={{
       flexDirection: "column",
       width: "216px",
-      height: "100vh",
+      height: "var(--app-vh)",
       position: "sticky",
       top: 0,
       backgroundColor: "var(--nuit-deep)",
-      borderRight: "1px solid rgba(212,184,134,0.10)",
+      borderRight: "1px solid var(--sidebar-border)",
+      boxShadow: "inset -1px 0 0 rgba(255,255,255,0.02)",
       flexShrink: 0,
     }}
     className="hidden lg:flex"
@@ -166,6 +167,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-active={active}
                   style={{
                     display: "flex", alignItems: "center", gap: "10px",
                     margin: "0 8px 2px",
@@ -178,13 +180,14 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                     // pelo Nuno 2026-08-29.
                     padding: "8px 12px",
                     textDecoration: "none",
-                    transition: "background-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out)",
+                    transition: "background-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out)",
+                    transform: active ? "translateX(1px)" : "translateX(0)",
                     boxShadow: active
                       ? "inset 2px 0 0 0 var(--nuit-champagne)"
                       : "inset 2px 0 0 0 transparent",
                     ...(active ? { backgroundColor: "rgba(212,184,134,0.08)" } : {}),
                   }}
-                  className={!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}
+                  className={`crm-nav-link ${!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}`}
                 >
                   <Icon
                     size={14}
@@ -242,6 +245,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
             type="button"
             role="switch"
             aria-checked={claro}
+            aria-label={claro ? "Mudar para modo escuro" : "Mudar para modo claro"}
             onClick={toggleTheme}
             title={claro ? "Mudar para modo escuro" : "Mudar para modo claro"}
             style={{

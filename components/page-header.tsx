@@ -15,9 +15,9 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      style={{ marginBottom: "32px" }}
+      style={{ marginBottom: "28px", position: "relative" }}
     >
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "14px" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "18px", marginBottom: "14px" }}>
         <div>
           {subtitulo && (
             <motion.p
@@ -28,21 +28,17 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
                 fontFamily: "var(--font-sans, sans-serif)",
                 fontSize: "9px", fontWeight: 500,
                 letterSpacing: "0.32em", textTransform: "uppercase",
-                color: "var(--nuit-champagne-soft)", marginBottom: "6px",
+                color: "var(--nuit-champagne-soft)", marginBottom: "7px",
               }}
             >
               {subtitulo}
             </motion.p>
           )}
           <motion.h1
+            className="crm-page-title"
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.42, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-              fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
-              letterSpacing: "-0.005em", lineHeight: 1.1,
-            }}
           >
             {titulo}
           </motion.h1>
@@ -62,8 +58,14 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.65, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-        className="nuit-hairline"
-        style={{ transformOrigin: "left", margin: 0 }}
+        aria-hidden="true"
+        style={{
+          border: 0,
+          height: "1px",
+          transformOrigin: "left",
+          margin: 0,
+          background: "linear-gradient(90deg, var(--rule), rgba(185,160,122,0.10), transparent)",
+        }}
       />
     </motion.header>
   )

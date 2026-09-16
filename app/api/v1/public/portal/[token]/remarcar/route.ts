@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { validarBody, portalRemarcarSchema } from "@/lib/validations"
+import { verificarRateLimit } from "@/lib/rate-limit"
 import { webhooks } from "@/lib/webhooks"
 
 export async function POST(
@@ -9,6 +10,20 @@ export async function POST(
   { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params
+
+  const bloqueioIp = await verificarRateLimit(request, {
+    recurso: "portal-remarcar-ip",
+    limite: 10,
+    janelaSeg: 3600,
+  })
+  if (bloqueioIp) return bloqueioIp
+
+  const bloqueioToken = await verificarRateLimit(request, {
+    recurso: "portal-remarcar-token",
+    limite: 5,
+    janelaSeg: 3600,
+  }, token)
+  if (bloqueioToken) return bloqueioToken
 
   const v = await validarBody(request, portalRemarcarSchema)
   if (!v.ok) return v.resposta

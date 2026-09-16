@@ -52,15 +52,13 @@ export async function validarApiKeyOuSessao(request: NextRequest): Promise<NextR
   return erroApiKey
 }
 
-// Operações destrutivas (anonimização RGPD, eliminação em massa) exigem a
-// chave API_KEY_ADMIN — a API_KEY_N8N (partilhada com os workflows) deixa de
-// ter esse poder. Sessão de utilizador do dashboard continua a ser aceite
-// (equipa interna de confiança). FAIL-CLOSED no caminho por chave: sem
-// API_KEY_ADMIN configurada, só a sessão de dashboard autoriza.
+// Operações destrutivas/sensíveis exigem sessão admin ou API_KEY_ADMIN.
+// API_KEY_N8N e sessões de terapeuta nunca chegam para exportar/apagar dados.
 export async function validarApiKeyAdminOuSessao(request: NextRequest): Promise<NextResponse | null> {
   try {
     const session = await auth()
-    if (session?.user) return null
+    const role = (session?.user as { role?: string } | undefined)?.role
+    if (role === "admin") return null
   } catch {
     /* sem sessão — tenta a chave admin */
   }
@@ -70,7 +68,7 @@ export async function validarApiKeyAdminOuSessao(request: NextRequest): Promise<
 
   if (!chaveAdmin || chaveAdmin.length < 16) {
     return NextResponse.json(
-      { error: "Operação restrita: requer sessão de dashboard ou API_KEY_ADMIN configurada.", code: "ADMIN_NAO_CONFIGURADO" },
+      { error: "Operação restrita: requer sessão admin ou API_KEY_ADMIN configurada.", code: "ADMIN_NAO_CONFIGURADO" },
       { status: 503 }
     )
   }

@@ -78,6 +78,9 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
             width: "264px", zIndex: 50, display: "flex", flexDirection: "column",
             backgroundColor: "var(--nuit-deep)",
             borderRight: "1px solid rgba(212,184,134,0.12)",
+            boxShadow: "24px 0 80px rgba(0,0,0,0.35)",
+            paddingTop: "var(--safe-top)",
+            paddingBottom: "var(--safe-bottom)",
           }}
         >
           {/* Header do menu */}
@@ -134,16 +137,16 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                   key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
+                  data-active={active}
                   style={{
                     display: "flex", alignItems: "center", gap: "12px",
                     margin: "0 8px 2px", padding: "10px 12px",
                     textDecoration: "none",
-                    borderLeft: active ? "2px solid var(--nuit-champagne)" : "2px solid transparent",
+                    boxShadow: active ? "inset 2px 0 0 0 var(--nuit-champagne)" : "inset 2px 0 0 0 transparent",
                     backgroundColor: active ? "rgba(212,184,134,0.08)" : "transparent",
-                    paddingLeft: active ? "10px" : "12px",
-                    transition: "background-color 150ms",
+                    transition: "background-color 150ms, box-shadow 150ms",
                   }}
-                  className={!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}
+                  className={`crm-nav-link ${!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}`}
                 >
                   <Icon
                     size={15}
@@ -190,7 +193,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                   display: "flex", alignItems: "center", gap: "12px",
                   width: "100%", padding: "10px 12px",
                   background: "none", border: "none", cursor: "pointer",
-                  borderLeft: "2px solid transparent",
+                  boxShadow: "inset 2px 0 0 0 transparent",
                   transition: "background-color 150ms",
                 }}
                 className="hover:bg-[rgba(212,184,134,0.05)]"
@@ -216,6 +219,10 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
           backgroundColor: "var(--nuit-deep)",
           borderTop: "1px solid rgba(212,184,134,0.12)",
+          boxShadow: "0 -18px 50px rgba(0,0,0,0.22)",
+          paddingBottom: "var(--safe-bottom)",
+          paddingLeft: "var(--safe-left)",
+          paddingRight: "var(--safe-right)",
         }}
       >
         <div style={{
@@ -264,6 +271,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
           })}
           <button
             onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu"
             style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
               padding: "6px 12px", background: "none", border: "none",

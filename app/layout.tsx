@@ -37,16 +37,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Impede o pinch-zoom e o duplo-toque-para-zoom em touch (iPad/telemóvel) —
-// evita desformatar o layout ao usar o CRM sem querer (ex: dois dedos no
-// ecrã ao arrastar uma tabela). Já não depende do zoom automático do Safari
-// em inputs pequenos (ver globals.css, font-size mínimo de 16px) — isto
-// cobre o resto dos gestos de zoom manual.
+// Viewport standard: deixa o browser aplicar as mesmas regras de escala em
+// iOS/iPadOS/Android e evita diferenças artificiais entre equipamentos.
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default async function RootLayout({

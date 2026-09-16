@@ -118,6 +118,18 @@
   --dur-slow:  520ms;
 
   --font-body: var(--font-sans);
+  --app-vh: 100dvh;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --ui-font-scale: 1;
+}
+
+@supports not (height: 100dvh) {
+  :root {
+    --app-vh: 100vh;
+  }
 }
 
 .dark {
@@ -207,6 +219,67 @@
 }
 .nuit-hairline { border: 0; border-top: 1px solid var(--rule); }
 .nuit-hairline-soft { border: 0; border-top: 1px solid var(--rule-soft); }
+
+/* ── Shell CRM — quiet luxury operativo ── */
+.crm-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: var(--app-vh);
+  background:
+    linear-gradient(135deg, rgba(185,160,122,0.06) 0, transparent 32%),
+    linear-gradient(180deg, var(--nuit-midnight) 0%, var(--nuit-deep) 100%);
+}
+.crm-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  min-height: var(--app-vh);
+  opacity: 0.34;
+  background-image:
+    linear-gradient(rgba(185,160,122,0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(185,160,122,0.040) 1px, transparent 1px),
+    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.08) 78%, transparent 100%);
+  background-size: 44px 44px;
+}
+.crm-main {
+  padding-bottom: calc(80px + var(--safe-bottom));
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.crm-main > * {
+  max-width: 1560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.crm-page-title {
+  font-family: var(--font-heading, "DM Serif Display", Georgia, serif);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--nuit-bone);
+  letter-spacing: 0;
+  line-height: 1.04;
+}
+.crm-nav-link {
+  position: relative;
+}
+.crm-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, transparent, var(--nuit-champagne-soft), transparent);
+  transition: transform var(--dur-med) var(--ease-out);
+}
+.crm-nav-link:hover::after,
+.crm-nav-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
 
 /* ── Animações globais de entrada ── */
 @keyframes fadeUp {
@@ -354,17 +427,15 @@ input, select, textarea {
 }
 
 /* ── Escala de leitura (Configurações → Perfil → Tamanho do Texto) ── */
-/* zoom (não transform/font-size isolado) porque escala TUDO de uma vez —
-   texto, ícones, espaçamento, largura da sidebar — sem ter de reescrever
-   cada tamanho fixo em px espalhado pelos componentes. "Baixo" já é maior
-   que o tamanho por omissão de antes desta funcionalidade (pedido directo:
-   "o baixo é o tamanho base que vai ficar com o aumento que vais fazer").
-   Aplicado no wrapper de topo do dashboard e da mini-app /agenda — nunca no
-   ecrã de login. Suportado em Safari 16.4+ (iPadOS 16.4+) e Chromium; onde
-   não houver suporte (Firefox < 126), simplesmente não escala — sem quebra. */
-[data-font-scale="baixo"] { zoom: 1.08; }
-[data-font-scale="medio"] { zoom: 1.18; }
-[data-font-scale="alto"]  { zoom: 1.30; }
+/* `zoom` varia bastante entre Safari iOS/iPadOS e Chromium Android. A escala
+   passa a ser feita por font-size no contentor, que é standard e mantém o CRM
+   mais fiel entre equipamentos. */
+[data-font-scale="baixo"] { --ui-font-scale: 1.02; }
+[data-font-scale="medio"] { --ui-font-scale: 1.10; }
+[data-font-scale="alto"]  { --ui-font-scale: 1.18; }
+[data-font-scale] {
+  font-size: calc(16px * var(--ui-font-scale));
+}
 
 /* ── Input focus premium ── */
 /* select: sempre incluído — vários formulários do dashboard tinham
@@ -439,9 +510,29 @@ button:focus-visible,
   .anim-scale-in, .anim-line-reveal {
     animation: none !important;
   }
+  .crm-main {
+    scroll-behavior: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .crm-main {
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .crm-page-title {
+    font-size: 26px;
+  }
 }
 
 @layer base {
+  html {
+    min-height: 100%;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
   * {
     @apply border-border outline-ring/50;
   }

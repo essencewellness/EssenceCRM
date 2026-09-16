@@ -4,6 +4,8 @@ import Link from "next/link"
 import { LayoutDashboard } from "lucide-react"
 import { auth } from "@/lib/auth"
 
+export const dynamic = "force-dynamic"
+
 // Identidade própria de "Adicionar ao Ecrã Principal" — ícone e nome
 // diferentes do CRM completo, para dar duas apps separadas no ecrã do
 // iPad ligadas à mesma base de dados (pedido do Nuno, 2026-08-24).
@@ -28,11 +30,12 @@ export default async function AgendaLayout({ children }: { children: React.React
     <div
       className="min-h-screen"
       data-font-scale={preferenciaFonte}
-      style={{ backgroundColor: "var(--nuit-midnight)" }}
+      style={{ backgroundColor: "var(--nuit-midnight)", minHeight: "var(--app-vh)" }}
     >
       <header style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "14px 20px", borderBottom: "1px solid var(--rule-soft)",
+        padding: "calc(14px + var(--safe-top)) calc(20px + var(--safe-right)) 14px calc(20px + var(--safe-left))",
+        borderBottom: "1px solid var(--rule-soft)",
       }}>
         <span style={{
           fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px",
@@ -57,7 +60,11 @@ export default async function AgendaLayout({ children }: { children: React.React
           CRM
         </Link>
       </header>
-      <main style={{ padding: "16px 20px 40px", maxWidth: "780px", margin: "0 auto" }}>
+      <main style={{
+        padding: "16px calc(20px + var(--safe-right)) calc(40px + var(--safe-bottom)) calc(20px + var(--safe-left))",
+        maxWidth: "780px",
+        margin: "0 auto",
+      }}>
         {children}
       </main>
     </div>

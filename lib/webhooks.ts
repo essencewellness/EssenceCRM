@@ -17,16 +17,20 @@ async function dispararWebhook(evento: string, payload: object): Promise<void> {
   if (!url) return // webhook não configurado — silencioso
 
   const secret = process.env.WEBHOOK_SECRET ?? ""
+  if (!secret || secret.length < 16) {
+    console.error(`[webhooks] ${evento} bloqueado: WEBHOOK_SECRET ausente ou demasiado curto`)
+    return
+  }
   const body = JSON.stringify({ evento, payload, timestamp: new Date().toISOString() })
 
-  console.log(`[webhooks] a disparar ${evento} → ${url}`)
+  console.log(`[webhooks] a disparar ${evento}`)
   for (let tentativa = 0; tentativa < 3; tentativa++) {
     try {
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Assinatura": secret ? assinarPayload(body, secret) : "",
+          "X-Assinatura": assinarPayload(body, secret),
           "X-Evento": evento,
         },
         body,

@@ -7,6 +7,8 @@ import { BottomNav } from "@/components/layout/BottomNav"
 import { ToastProvider } from "@/components/ui/toast-nuit"
 import { getContextoUtilizador } from "@/lib/contexto-utilizador"
 
+export const dynamic = "force-dynamic"
+
 async function logoutAction() {
   "use server"
   await signOut({ redirectTo: "/login" })
@@ -58,7 +60,7 @@ export default async function DashboardLayout({
   return (
     <ToastProvider>
       <div
-        className="min-h-screen flex"
+        className="crm-shell flex"
         style={{ backgroundColor: "var(--nuit-midnight)" }}
       >
         {/* Sidebar — visível em desktop */}
@@ -71,8 +73,8 @@ export default async function DashboardLayout({
         />
 
         {/* Conteúdo principal */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 h-screen">
-          <main id="main-content" className="flex-1 overflow-auto pb-20 lg:pb-0 px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0" style={{ height: "var(--app-vh)" }}>
+          <main id="main-content" className="crm-main flex-1 overflow-auto pb-20 lg:pb-0 px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6">
             <PageTransition>{children}</PageTransition>
           </main>
         </div>
