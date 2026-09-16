@@ -448,12 +448,12 @@
 
   window.EF = { CTX, PERSONAL, chips, chip1, chipsCom, val, goTo, next, back };
 
-  // ── Autorização de gravação para redes sociais (opt-out, pré-marcada) ──
-  // Pedido explícito do Nuno: perguntar se a cliente autoriza ser gravada
-  // durante a sessão, para uso exclusivo nas redes sociais da Essence —
-  // caixa pré-selecionada (a cliente desmarca se não quiser), separada do
-  // consentimento de dados de saúde abaixo. Fica ACIMA do botão "Enviar a
-  // minha ficha" (pedido do Nuno) — por isso uma "caixinha" com fundo e
+  // ── Autorização de gravação para redes sociais (opt-in, por marcar) ──
+  // Pedido do Nuno: perguntar se a cliente autoriza ser gravada durante a
+  // sessão, para uso nas redes sociais da Essence Wellness e da Beatriz
+  // Leão — caixa por marcar por omissão (a cliente marca se quiser),
+  // separada do consentimento de dados de saúde abaixo. Fica ACIMA do
+  // botão "Enviar a minha ficha" — por isso uma "caixinha" com fundo e
   // borda própria, não só uma linha de texto, para não passar despercebida.
   (function injetarConsentimentoGravacao() {
     const btn = document.querySelector("[data-submit]");
@@ -468,14 +468,14 @@
     const input = document.createElement("input");
     input.type = "checkbox";
     input.id = "aceita-gravacao-redes-sociais";
-    input.checked = true;
+    input.checked = false;
     input.style.cssText = "margin-top:2px;flex-shrink:0;cursor:pointer;width:16px;height:16px;";
     const texto = document.createElement("span");
     texto.style.cssText =
       "font-size:12px;line-height:1.5;color:var(--bone, #ECE6D6);";
     texto.textContent =
-      "Autorizo ser gravada/fotografada durante a sessão, para uso exclusivo " +
-      "nas redes sociais da Essence Wellness.";
+      "Autorizo ser gravada/fotografada durante a sessão, para uso nas redes " +
+      "sociais da Essence Wellness e da Beatriz Leão.";
     wrap.append(input, texto);
     // Antes do contentor .nav (onde vive o botão "Enviar"), não depois —
     // é aqui que fica ACIMA do botão, pedido explícito do Nuno.
@@ -539,11 +539,11 @@
     // dados de saúde (aviso visível por baixo do botão). Sem esta flag, a API
     // descarta toda a ficha clínica (RGPD Art. 9).
     payload.consentimentoSaude = true;
-    // Autorização de gravação para redes sociais — caixa pré-marcada, a
-    // cliente pode desmarcar; se por algum motivo o form não a injetou,
-    // assume-se o valor pré-definido (marcada).
+    // Autorização de gravação para redes sociais — caixa por marcar, a
+    // cliente marca se quiser; se por algum motivo o form não a injetou,
+    // assume-se o valor pré-definido (não marcada, sem consentimento).
     const checkboxGravacao = document.getElementById("aceita-gravacao-redes-sociais");
-    payload.aceitaGravacaoRedesSociais = checkboxGravacao ? checkboxGravacao.checked : true;
+    payload.aceitaGravacaoRedesSociais = checkboxGravacao ? checkboxGravacao.checked : false;
 
     try {
       const res = await fetch(API_BASE + "/api/v1/public/onboarding", {
