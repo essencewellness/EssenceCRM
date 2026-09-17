@@ -7,7 +7,12 @@ import { inicioDiaLisboaDe, horaMinutoAtualLisboa, componentesDataLisboa } from 
 
 const HORA_INICIO = 7
 const HORA_FIM = 21
-const PX_HORA = 56
+// 56 → 44: a grelha inteira (14h) passava dos 780px de altura, obrigando a
+// scroll da página inteira para além do que já cabia no ecrã. Com cabeçalho
+// dos dias fixo (sticky) e só o corpo com scroll próprio (ver maxHeight
+// abaixo), já não é preciso descer a página toda para ver as horas
+// seguintes — pedido do Nuno, 2026-09-17.
+const PX_HORA = 44
 
 const ESTADO_BG: Record<string, string> = {
   agendada: "rgba(185,160,122,0.22)",
@@ -45,114 +50,133 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
   const horas = Array.from({ length: HORA_FIM - HORA_INICIO + 1 }, (_, i) => HORA_INICIO + i)
   const alturaTotal = (HORA_FIM - HORA_INICIO) * PX_HORA
 
+  const colunas = `44px repeat(${dias.length}, minmax(120px, 1fr))`
+  const minWidth = dias.length > 1 ? `${44 + dias.length * 120}px` : undefined
+
   return (
     <div style={{ overflowX: "auto" }}>
-      <div style={{ display: "grid", gridTemplateColumns: `44px repeat(${dias.length}, minmax(120px, 1fr))`, minWidth: dias.length > 1 ? `${44 + dias.length * 120}px` : undefined }}>
+      <div style={{ minWidth }}>
 
-        {/* Cabeçalho */}
-        <div />
-        {dias.map(({ data }) => {
-          const hoje = inicioDiaLisboaDe(new Date())
-          const ehHoje = data.getTime() === hoje.getTime()
-          return (
-            <div key={data.toISOString()} style={{ textAlign: "center", paddingBottom: "8px" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
-                {data.toLocaleDateString("pt-PT", { weekday: "short", timeZone: "Europe/Lisbon" }).replace(".", "")}
-              </p>
-              <p style={{
-                fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px",
-                color: ehHoje ? "var(--nuit-midnight)" : "var(--nuit-bone)",
-                backgroundColor: ehHoje ? "var(--nuit-champagne)" : "transparent",
-                width: "30px", height: "30px", borderRadius: "50%",
-                display: "flex", alignItems: "center", justifyContent: "center", margin: "2px auto 0",
-              }}>
-                {componentesDataLisboa(data).dia}
-              </p>
-            </div>
-          )
-        })}
-
-        {/* Eixo de horas */}
-        <div style={{ position: "relative", height: `${alturaTotal}px` }}>
-          {horas.map(h => (
-            <span key={h} style={{
-              position: "absolute", top: `${(h - HORA_INICIO) * PX_HORA - 6}px`, right: "6px",
-              fontFamily: "var(--font-sans)", fontSize: "9.5px", color: "var(--nuit-bone-soft)", opacity: 0.6,
-            }}>
-              {String(h).padStart(2, "0")}h
-            </span>
-          ))}
+        {/* Cabeçalho dos dias — fixo, fora da área com scroll próprio, para
+            nunca sair do ecrã enquanto se percorrem as horas. */}
+        <div style={{
+          display: "grid", gridTemplateColumns: colunas,
+          position: "sticky", top: 0, zIndex: 3,
+          backgroundColor: "var(--nuit-midnight)",
+        }}>
+          <div />
+          {dias.map(({ data }) => {
+            const hoje = inicioDiaLisboaDe(new Date())
+            const ehHoje = data.getTime() === hoje.getTime()
+            return (
+              <div key={data.toISOString()} style={{ textAlign: "center", paddingBottom: "8px" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                  {data.toLocaleDateString("pt-PT", { weekday: "short", timeZone: "Europe/Lisbon" }).replace(".", "")}
+                </p>
+                <p style={{
+                  fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px",
+                  color: ehHoje ? "var(--nuit-midnight)" : "var(--nuit-bone)",
+                  backgroundColor: ehHoje ? "var(--nuit-champagne)" : "transparent",
+                  width: "30px", height: "30px", borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center", margin: "2px auto 0",
+                }}>
+                  {componentesDataLisboa(data).dia}
+                </p>
+              </div>
+            )
+          })}
         </div>
 
-        {/* Colunas por dia */}
-        {dias.map(({ data, sessoes }) => {
-          const hoje = inicioDiaLisboaDe(new Date())
-          const ehHoje = data.getTime() === hoje.getTime()
-          const { hora, minuto } = horaMinutoAtualLisboa()
-          const minutosAgora = hora * 60 + minuto
-          const mostrarLinhaAgora = ehHoje && minutosAgora >= HORA_INICIO * 60 && minutosAgora <= HORA_FIM * 60
-          return (
-          <div key={data.toISOString()} style={{
-            position: "relative", height: `${alturaTotal}px`,
-            borderLeft: "1px solid var(--rule-soft)",
-            backgroundColor: ehHoje ? "rgba(212,184,134,0.045)" : "transparent",
-          }}>
-            {/* Linhas horizontais de hora */}
-            {horas.map(h => (
-              <div key={h} style={{
-                position: "absolute", top: `${(h - HORA_INICIO) * PX_HORA}px`, left: 0, right: 0,
-                borderTop: "1px solid var(--rule-soft)",
-              }} />
-            ))}
+        {/* Corpo com scroll próprio — a grelha das 14h (7h-21h) fica alta
+            demais para caber sempre no ecrã; em vez de empurrar a página
+            inteira para baixo, só esta zona desliza, com o cabeçalho acima
+            sempre visível. */}
+        <div style={{ maxHeight: "56vh", overflowY: "auto" }} className="nuit-scrollbar">
+          <div style={{ display: "grid", gridTemplateColumns: colunas }}>
 
-            {/* Linha da hora atual — só na coluna de hoje */}
-            {mostrarLinhaAgora && (
-              <div style={{
-                position: "absolute", left: 0, right: 0,
-                top: `${(minutosAgora - HORA_INICIO * 60) * (PX_HORA / 60)}px`,
-                borderTop: "1.5px solid var(--nuit-champagne)", zIndex: 2,
-              }}>
-                <span style={{
-                  position: "absolute", left: "-4px", top: "-3.5px",
-                  width: "7px", height: "7px", borderRadius: "50%",
-                  backgroundColor: "var(--nuit-champagne)",
-                }} />
-              </div>
-            )}
+            {/* Eixo de horas */}
+            <div style={{ position: "relative", height: `${alturaTotal}px` }}>
+              {horas.map(h => (
+                <span key={h} style={{
+                  position: "absolute", top: `${(h - HORA_INICIO) * PX_HORA - 6}px`, right: "6px",
+                  fontFamily: "var(--font-sans)", fontSize: "9.5px", color: "var(--nuit-bone-soft)", opacity: 0.6,
+                }}>
+                  {String(h).padStart(2, "0")}h
+                </span>
+              ))}
+            </div>
 
-            {sessoes.map(s => {
-              const minutos = s.hora ? minutosDesdeMeiaNoite(s.hora) : HORA_INICIO * 60
-              const top = Math.max(0, (minutos - HORA_INICIO * 60) * (PX_HORA / 60))
-              const altura = Math.max(22, (s.duracao ?? 60) * (PX_HORA / 60) - 2)
-              const cor = ESTADO_BORDA[s.estado] ?? "var(--nuit-bone-soft)"
+            {/* Colunas por dia */}
+            {dias.map(({ data, sessoes }) => {
+              const hoje = inicioDiaLisboaDe(new Date())
+              const ehHoje = data.getTime() === hoje.getTime()
+              const { hora, minuto } = horaMinutoAtualLisboa()
+              const minutosAgora = hora * 60 + minuto
+              const mostrarLinhaAgora = ehHoje && minutosAgora >= HORA_INICIO * 60 && minutosAgora <= HORA_FIM * 60
               return (
-                <Link
-                  key={s.id}
-                  href={`/clientes/${s.clienteId}`}
-                  title={`${s.hora ?? ""} · ${s.clienteNome} · ${s.servico ?? ""}`}
-                  style={{
-                    position: "absolute", top: `${top}px`, left: "3px", right: "3px", height: `${altura}px`,
-                    backgroundColor: ESTADO_BG[s.estado] ?? "rgba(212,184,134,0.14)",
-                    borderLeft: `3px solid ${cor}`,
-                    borderRadius: "4px", padding: "3px 6px",
-                    overflow: "hidden", textDecoration: "none",
-                    display: "flex", flexDirection: "column", gap: "1px",
-                  }}
-                >
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, color: "var(--nuit-bone)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {s.hora} {s.clienteNome}
-                  </span>
-                  {altura > 30 && (
-                    <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "9px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {s.servico ?? "—"}
-                    </span>
-                  )}
-                </Link>
+              <div key={data.toISOString()} style={{
+                position: "relative", height: `${alturaTotal}px`,
+                borderLeft: "1px solid var(--rule-soft)",
+                backgroundColor: ehHoje ? "rgba(212,184,134,0.045)" : "transparent",
+              }}>
+                {/* Linhas horizontais de hora */}
+                {horas.map(h => (
+                  <div key={h} style={{
+                    position: "absolute", top: `${(h - HORA_INICIO) * PX_HORA}px`, left: 0, right: 0,
+                    borderTop: "1px solid var(--rule-soft)",
+                  }} />
+                ))}
+
+                {/* Linha da hora atual — só na coluna de hoje */}
+                {mostrarLinhaAgora && (
+                  <div style={{
+                    position: "absolute", left: 0, right: 0,
+                    top: `${(minutosAgora - HORA_INICIO * 60) * (PX_HORA / 60)}px`,
+                    borderTop: "1.5px solid var(--nuit-champagne)", zIndex: 2,
+                  }}>
+                    <span style={{
+                      position: "absolute", left: "-4px", top: "-3.5px",
+                      width: "7px", height: "7px", borderRadius: "50%",
+                      backgroundColor: "var(--nuit-champagne)",
+                    }} />
+                  </div>
+                )}
+
+                {sessoes.map(s => {
+                  const minutos = s.hora ? minutosDesdeMeiaNoite(s.hora) : HORA_INICIO * 60
+                  const top = Math.max(0, (minutos - HORA_INICIO * 60) * (PX_HORA / 60))
+                  const altura = Math.max(20, (s.duracao ?? 60) * (PX_HORA / 60) - 2)
+                  const cor = ESTADO_BORDA[s.estado] ?? "var(--nuit-bone-soft)"
+                  return (
+                    <Link
+                      key={s.id}
+                      href={`/clientes/${s.clienteId}`}
+                      title={`${s.hora ?? ""} · ${s.clienteNome} · ${s.servico ?? ""}`}
+                      style={{
+                        position: "absolute", top: `${top}px`, left: "3px", right: "3px", height: `${altura}px`,
+                        backgroundColor: ESTADO_BG[s.estado] ?? "rgba(212,184,134,0.14)",
+                        borderLeft: `3px solid ${cor}`,
+                        borderRadius: "4px", padding: "3px 6px",
+                        overflow: "hidden", textDecoration: "none",
+                        display: "flex", flexDirection: "column", gap: "1px",
+                      }}
+                    >
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, color: "var(--nuit-bone)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {s.hora} {s.clienteNome}
+                      </span>
+                      {altura > 28 && (
+                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "9px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {s.servico ?? "—"}
+                        </span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
               )
             })}
           </div>
-          )
-        })}
+        </div>
       </div>
     </div>
   )
