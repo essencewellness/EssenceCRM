@@ -72,7 +72,7 @@ export default async function FinanceiroPage({
     ? { pack: { OR: [{ terapeutaId: alvo }, ...(alvo === idBea ? [{ terapeutaId: null }] : [])] } }
     : {}
 
-  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, vendasVoucherRaw, pagamentosPackMesRaw, repassesRaw, repassesVoucherRaw] = await Promise.all([
+  const [sessoesRaw, receitaAllTime, vendasVoucherAllTime, pagamentosPackAllTime, vendasVoucherRaw, pagamentosPackMesRaw, repassesRaw, repassesVoucherRaw, repassesPackRaw] = await Promise.all([
     prisma.sessao.findMany({
       // Só o que tem relevância financeira: a sessão aconteceu, OU já tem
       // dinheiro registado (pagamento adiantado, ou paga e cancelada depois).
@@ -164,6 +164,7 @@ export default async function FinanceiroPage({
       where: { ...filtroPack, criadoEm: { gte: inicio, lt: fim } },
       select: {
         id: true, valor: true, metodoPagamento: true, notas: true, criadoEm: true,
+        repasseNecessario: true, repasseFeito: true,
         pack: { select: { id: true, servico: { select: { nome: true } }, cliente: { select: { id: true, nome: true } }, clienteNomeArquivado: true } },
       },
       orderBy: { criadoEm: "desc" },
@@ -187,6 +188,17 @@ export default async function FinanceiroPage({
         compradorNome: true,
       },
       orderBy: { dataCompra: "asc" },
+    }),
+    // O mesmo, mas para pagamentos de pack (ver PackPagamento.repasseNecessario,
+    // adicionado junto com este mesmo fix — packs nunca eram considerados no
+    // repasse, mesmo quando pagos por MBWay a favor da Cristina).
+    prisma.packPagamento.findMany({
+      where: { repasseNecessario: true, repasseFeito: false },
+      select: {
+        id: true, valor: true, metodoPagamento: true, criadoEm: true,
+        pack: { select: { servico: { select: { nome: true } }, cliente: { select: { id: true, nome: true } }, clienteNomeArquivado: true } },
+      },
+      orderBy: { criadoEm: "asc" },
     }),
   ])
 
@@ -250,8 +262,8 @@ export default async function FinanceiroPage({
     estadoPagamento: "pago",
     valorPago: String(pg.valor),
     metodoPagamento: pg.metodoPagamento,
-    repasseNecessario: false,
-    repasseFeito: false,
+    repasseNecessario: pg.repasseNecessario,
+    repasseFeito: pg.repasseFeito,
     cliente: pg.pack.cliente,
     clienteNomeArquivado: pg.pack.clienteNomeArquivado,
   }))
@@ -280,7 +292,19 @@ export default async function FinanceiroPage({
     metodoPagamento: r.metodoPagamento,
     cliente: { id: `voucher-${r.id}`, nome: r.compradorNome },
   }))
-  const repasses: RepasseRow[] = [...repassesSessoes, ...repassesVoucher]
+  // Prefixo "pack-" pelo mesmo motivo que "voucher-" acima — marcarRepasseFeito
+  // (actions.ts) distingue pelo prefixo. Packs nunca são "a dois", por isso
+  // valorRepasse fica sempre null — valorDevido() cai para o valorPago cheio.
+  const repassesPack: RepasseRow[] = repassesPackRaw.map(pg => ({
+    id: `pack-${pg.id}`,
+    data: pg.criadoEm.toISOString(),
+    servico: `Pack — ${pg.pack.servico?.nome ?? "Massagens"}`,
+    valorPago: String(pg.valor),
+    valorRepasse: null,
+    metodoPagamento: pg.metodoPagamento,
+    cliente: pg.pack.cliente ?? { id: `pack-${pg.id}`, nome: pg.pack.clienteNomeArquivado ?? "Cliente eliminada" },
+  }))
+  const repasses: RepasseRow[] = [...repassesSessoes, ...repassesVoucher, ...repassesPack]
     .sort((a, b) => a.data.localeCompare(b.data))
   const totalRepasses = repasses.reduce((soma, r) => soma + valorDevido(r), 0)
 

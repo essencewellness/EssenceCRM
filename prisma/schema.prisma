@@ -619,6 +619,14 @@ model PackPagamento {
   notas           String?
   criadoEm        DateTime @default(now())
 
+  // Repasse à Cristina — MBWay cai sempre na conta da Bea. Mesmos campos e
+  // mesma regra usados em Sessao/GiftCard (ver lib/repasses.ts); packs nunca
+  // são "a dois" (Pack.terapeutaId é único), por isso não há valorRepasse
+  // parcial aqui — o repasse é sempre o valor total do pagamento.
+  repasseNecessario Boolean   @default(false)
+  repasseFeito      Boolean   @default(false)
+  repasseFeitoEm    DateTime?
+
   pack Pack @relation(fields: [packId], references: [id], onDelete: Cascade)
 
   @@index([packId])

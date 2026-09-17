@@ -103,8 +103,9 @@ export async function atualizarPagamento(
 }
 
 // ── Repasse à Cristina (MBWay cai sempre na conta da Bea) ─────
-// id vem prefixado "voucher-" quando é um repasse de venda de voucher (ver
-// linhasVoucher/repassesVoucher em page.tsx) — mesmo padrão já usado nas
+// id vem prefixado "voucher-"/"pack-" quando é um repasse de venda de
+// voucher ou de pagamento de pack (ver linhasVoucher/linhasPack e
+// repassesVoucher/repassesPack em page.tsx) — mesmo padrão já usado nas
 // linhas de movimentos do mês, para nunca colidir com um id de Sessao.
 export async function marcarRepasseFeito(id: string) {
   await verificarSessao()
@@ -112,6 +113,11 @@ export async function marcarRepasseFeito(id: string) {
   if (id.startsWith("voucher-")) {
     await prisma.giftCard.update({
       where: { id: id.slice("voucher-".length) },
+      data: { repasseFeito: true, repasseFeitoEm: new Date() },
+    })
+  } else if (id.startsWith("pack-")) {
+    await prisma.packPagamento.update({
+      where: { id: id.slice("pack-".length) },
       data: { repasseFeito: true, repasseFeitoEm: new Date() },
     })
   } else {

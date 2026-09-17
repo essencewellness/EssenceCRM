@@ -15,6 +15,7 @@ import { encontrarConflitoAgenda, ConflitoAgendaError } from "@/lib/conflito-age
 import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
+import { calcularRepasse } from "@/lib/repasses"
 
 // Apagamento DEFINITIVO do cliente (hard delete). Mensagens, etiquetas,
 // observações, preços e portal token continuam em cascata — mas SESSÕES e
@@ -535,6 +536,15 @@ export async function registarPagamentoPack(
     // ficar a 349.9999999 em vez de 350, e "pago" nunca acontecia.
     const novoEstado = novoValorPago >= valorTotalNum - 0.01 ? "pago" : novoValorPago > 0 ? "parcial" : "pendente"
 
+    // Mesma regra usada em Sessao/GiftCard (lib/repasses.ts) — packs nunca
+    // são "a dois", por isso valorRepasse não se aplica aqui.
+    const { repasseNecessario } = calcularRepasse({
+      terapeutaId: pack.terapeutaId,
+      terapeuta2Id: null,
+      metodoPagamento: dados.metodoPagamento ?? null,
+      valorPago: dados.valor,
+    })
+
     await prisma.$transaction([
       prisma.packPagamento.create({
         data: {
@@ -542,6 +552,7 @@ export async function registarPagamentoPack(
           valor: dados.valor,
           metodoPagamento: dados.metodoPagamento ?? null,
           notas: dados.notas ?? null,
+          repasseNecessario,
         },
       }),
       prisma.pack.update({
