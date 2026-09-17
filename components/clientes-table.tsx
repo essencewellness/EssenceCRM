@@ -233,19 +233,25 @@ export function ClientesTable({ clientes, todasEtiquetas = [], templates = [], p
 
   return (
     <>
-      <table style={{
-        width: "100%", borderCollapse: "collapse",
-        backgroundColor: "var(--nuit-overlay)", borderRadius: "2px",
-        border: "1px solid rgba(212,184,134,0.16)",
-        overflow: "hidden",
-      }}>
-        <ClientesTableFragment
-          clientes={clientes}
-          selecionados={selecionados}
-          onToggle={toggleCliente}
-          onToggleTodos={toggleTodos}
-        />
-      </table>
+      {/* overflowX: o scroll horizontal fica preso à tabela, nunca à página
+          inteira — sem isto, em ecrãs de portátil (~1366px) as 7 colunas não
+          cabem e a barra de scroll aparecia no fundo da página toda, junto
+          com a vertical do <main>, dando a sensação de "barras em todo lado". */}
+      <div style={{ overflowX: "auto" }}>
+        <table style={{
+          width: "100%", borderCollapse: "collapse",
+          backgroundColor: "var(--nuit-overlay)", borderRadius: "2px",
+          border: "1px solid rgba(212,184,134,0.16)",
+          minWidth: "760px",
+        }}>
+          <ClientesTableFragment
+            clientes={clientes}
+            selecionados={selecionados}
+            onToggle={toggleCliente}
+            onToggleTodos={toggleTodos}
+          />
+        </table>
+      </div>
       <BulkActionsBar
         selecionados={selecionados}
         etiquetas={todasEtiquetas}
