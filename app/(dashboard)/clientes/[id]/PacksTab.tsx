@@ -7,7 +7,7 @@
 // metade na 5.ª — regra do site).
 import { useEffect, useRef, useState, useTransition } from "react"
 import { createPortal } from "react-dom"
-import { Calendar, CreditCard, Link2, Plus, Trash2, Unlink, X } from "lucide-react"
+import { Calendar, ChevronDown, ChevronRight, CreditCard, Link2, Plus, Trash2, Unlink, X } from "lucide-react"
 import { NomeServico } from "@/components/NomeServico"
 import { criarPack, registarPagamentoPack, eliminarPack, ligarSessaoAoPack, desligarSessaoDoPack } from "./actions"
 import { formatDate } from "@/lib/utils"
@@ -552,6 +552,7 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, sessoesDisponive
 }) {
   const [modalAberto, setModalAberto] = useState<{ valor: number; nota?: string } | null>(null)
   const [ligarAberto, setLigarAberto] = useState(false)
+  const [sessoesAbertas, setSessoesAbertas] = useState(false)
   const [desligandoId, setDesligandoId] = useState<string | null>(null)
   const [confirmarApagar, setConfirmarApagar] = useState(false)
   const [apagando, startApagar] = useTransition()
@@ -726,34 +727,54 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, sessoesDisponive
         )}
 
         {/* Sessões já ligadas a este pack — inclui as que vieram do link
-            Calendly e as ligadas manualmente aqui. Desligar corrige um
-            engano sem apagar a sessão nem o pack. */}
+            Calendly e as ligadas manualmente aqui. Escondidas por omissão
+            (um Pack 10 quase cheio não devia empurrar o cartão todo para
+            baixo) — clicar no resumo abre a lista completa. Desligar
+            corrige um engano sem apagar a sessão nem o pack. */}
         {pack.sessoesLigadas.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            {pack.sessoesLigadas.map(s => (
-              <div key={s.id} style={{
-                display: "flex", alignItems: "center", gap: "8px",
-                fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)",
-              }}>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  {formatDate(s.data)} · <NomeServico nome={s.servico ?? "Serviço por confirmar"} />
-                </span>
-                <button
-                  onClick={() => desligarSessao(s.id)}
-                  disabled={desligando}
-                  title="Desligar do pack"
-                  aria-label="Desligar sessão do pack"
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: "3px",
-                    background: "none", border: "none", padding: "2px",
-                    color: "rgba(176,96,80,0.7)", cursor: desligando ? "wait" : "pointer",
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))",
-                  }}
-                >
-                  <Unlink size={11} /> {desligando && desligandoId === s.id ? "…" : ""}
-                </button>
+          <div>
+            <button
+              onClick={() => setSessoesAbertas(a => !a)}
+              aria-expanded={sessoesAbertas}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "4px",
+                background: "none", border: "none", padding: 0, cursor: "pointer",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))",
+                color: "var(--muted-foreground)", textDecoration: "underline", textUnderlineOffset: "2px",
+              }}
+            >
+              {sessoesAbertas ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              {pack.sessoesLigadas.length === 1 ? "1 sessão ligada" : `${pack.sessoesLigadas.length} sessões ligadas`}
+            </button>
+
+            {sessoesAbertas && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "8px" }}>
+                {pack.sessoesLigadas.map(s => (
+                  <div key={s.id} style={{
+                    display: "flex", alignItems: "center", gap: "8px",
+                    fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)",
+                  }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      {formatDate(s.data)} · <NomeServico nome={s.servico ?? "Serviço por confirmar"} />
+                    </span>
+                    <button
+                      onClick={() => desligarSessao(s.id)}
+                      disabled={desligando}
+                      title="Desligar do pack"
+                      aria-label="Desligar sessão do pack"
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: "3px",
+                        background: "none", border: "none", padding: "2px",
+                        color: "rgba(176,96,80,0.7)", cursor: desligando ? "wait" : "pointer",
+                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))",
+                      }}
+                    >
+                      <Unlink size={11} /> {desligando && desligandoId === s.id ? "…" : ""}
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
