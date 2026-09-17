@@ -610,3 +610,102 @@ export async function eliminarPack(packId: string, clienteId: string) {
   revalidatePath("/financeiro")
   return { ok: true as const }
 }
+
+// Ligar uma sessão já realizada (nascida fora do fluxo normal de marcação
+// por pack — ex: 1ª sessão marcada directamente, pack só comprado depois)
+// a um pack existente. Conta como uma das sessões do pack, tal como se
+// tivesse vindo do link Calendly com o pack já ligado.
+export async function ligarSessaoAoPack(
+  sessaoId: string,
+  packId: string,
+  clienteId: string
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  try {
+    const session = await auth()
+    if (!session?.user) throw new Error("Não autorizado")
+
+    const [sessao, pack] = await Promise.all([
+      prisma.sessao.findUnique({
+        where: { id: sessaoId },
+        select: { id: true, clienteId: true, estado: true, packId: true },
+      }),
+      prisma.pack.findUnique({
+        where: { id: packId },
+        select: { id: true, clienteId: true, totalSessoes: true, sessoesUsadas: true },
+      }),
+    ])
+    if (!sessao || sessao.clienteId !== clienteId) return { ok: false, erro: "Sessão não encontrada" }
+    if (!pack || pack.clienteId !== clienteId) return { ok: false, erro: "Pack não encontrado" }
+    if (sessao.estado !== "realizada") return { ok: false, erro: "Só é possível ligar sessões já realizadas" }
+    if (sessao.packId) return { ok: false, erro: "Esta sessão já está ligada a outro pack" }
+    if (pack.sessoesUsadas >= pack.totalSessoes) return { ok: false, erro: "Este pack já não tem sessões por gastar" }
+
+    const novasSessoesUsadas = pack.sessoesUsadas + 1
+    await prisma.$transaction([
+      prisma.sessao.update({ where: { id: sessaoId }, data: { packId } }),
+      prisma.pack.update({
+        where: { id: packId },
+        data: {
+          sessoesUsadas: novasSessoesUsadas,
+          // Fecha o pack sozinho quando esgota — mesma regra do webhook Calendly.
+          ...(novasSessoesUsadas >= pack.totalSessoes ? { ativo: false } : {}),
+        },
+      }),
+    ])
+
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "sessao.ligada_a_pack",
+      entidade: "Sessao",
+      entidadeId: sessaoId,
+      detalhe: { packId },
+    })
+
+    revalidatePath(`/clientes/${clienteId}`)
+    return { ok: true }
+  } catch (e) {
+    console.error("ligarSessaoAoPack:", e)
+    return { ok: false, erro: "Erro ao ligar a sessão ao pack. Tenta novamente." }
+  }
+}
+
+// Desfaz a ligação — corrige um engano sem apagar a sessão nem o pack.
+// Reabre o pack (ativo: true) se tinha fechado sozinho por ter esgotado.
+export async function desligarSessaoDoPack(
+  sessaoId: string,
+  packId: string,
+  clienteId: string
+): Promise<{ ok: true } | { ok: false; erro: string }> {
+  try {
+    const session = await auth()
+    if (!session?.user) throw new Error("Não autorizado")
+
+    const [sessao, pack] = await Promise.all([
+      prisma.sessao.findUnique({ where: { id: sessaoId }, select: { id: true, clienteId: true, packId: true } }),
+      prisma.pack.findUnique({ where: { id: packId }, select: { id: true, clienteId: true, sessoesUsadas: true } }),
+    ])
+    if (!sessao || sessao.clienteId !== clienteId) return { ok: false, erro: "Sessão não encontrada" }
+    if (!pack || pack.clienteId !== clienteId) return { ok: false, erro: "Pack não encontrado" }
+    if (sessao.packId !== packId) return { ok: false, erro: "Esta sessão não está ligada a este pack" }
+
+    const novasSessoesUsadas = Math.max(0, pack.sessoesUsadas - 1)
+    await prisma.$transaction([
+      prisma.sessao.update({ where: { id: sessaoId }, data: { packId: null } }),
+      prisma.pack.update({ where: { id: packId }, data: { sessoesUsadas: novasSessoesUsadas, ativo: true } }),
+    ])
+
+    auditar({
+      quem: session.user.email ?? "dashboard",
+      acao: "sessao.desligada_de_pack",
+      entidade: "Sessao",
+      entidadeId: sessaoId,
+      detalhe: { packId },
+    })
+
+    revalidatePath(`/clientes/${clienteId}`)
+    return { ok: true }
+  } catch (e) {
+    console.error("desligarSessaoDoPack:", e)
+    return { ok: false, erro: "Erro ao desligar a sessão do pack. Tenta novamente." }
+  }
+}

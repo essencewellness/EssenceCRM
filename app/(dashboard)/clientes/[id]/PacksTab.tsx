@@ -7,9 +7,9 @@
 // metade na 5.ª — regra do site).
 import { useEffect, useRef, useState, useTransition } from "react"
 import { createPortal } from "react-dom"
-import { Calendar, CreditCard, Plus, Trash2, X } from "lucide-react"
+import { Calendar, CreditCard, Link2, Plus, Trash2, Unlink, X } from "lucide-react"
 import { NomeServico } from "@/components/NomeServico"
-import { criarPack, registarPagamentoPack, eliminarPack } from "./actions"
+import { criarPack, registarPagamentoPack, eliminarPack, ligarSessaoAoPack, desligarSessaoDoPack } from "./actions"
 import { formatDate } from "@/lib/utils"
 import { useToast } from "@/components/ui/toast-nuit"
 
@@ -54,6 +54,11 @@ const METODO_LABEL: Record<string, string> = {
 export interface ServicoOpcao { id: string; nome: string }
 export interface TerapeutaOpcao { id: string; nome: string }
 export interface PagamentoPack { id: string; valor: number; metodoPagamento: string | null; notas: string | null; criadoEm: string }
+// Sessão já realizada — candidata a ligar a um pack (não veio da marcação
+// com o pack já ligado, ex: 1ª sessão marcada antes de a cliente decidir
+// comprar o pack) ou já ligada a um pack (mostrada no cartão, com opção
+// de desligar caso tenha sido um engano).
+export interface SessaoLigavel { id: string; data: string; servico: string | null; preco: number | null }
 export interface PackDoCliente {
   id: string
   // null = pack de massagens — a cliente escolhe o ritual (Essência Plena,
@@ -68,6 +73,7 @@ export interface PackDoCliente {
   ativo: boolean
   terapeuta: { name: string | null } | null
   pagamentos: PagamentoPack[]
+  sessoesLigadas: SessaoLigavel[]
 }
 // Catálogo fixo — preços tirados diretamente de
 // site/packs-massagens/index.html e site/packs-drenagem/index.html (o
@@ -231,6 +237,123 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
             {pending ? "A guardar…" : "Guardar pagamento"}
           </button>
         </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+// ── Modal: ligar sessão já realizada a este pack ────────────────────────
+// Cenário real (pedido do Nuno): cliente nova marca uma sessão avulsa
+// (não veio de um link com pack), faz a sessão, e SÓ DEPOIS compra o pack
+// — quer que essa sessão já feita conte como uma das do pack, em vez de
+// "desaparecer" e o pack começar do zero.
+function LigarSessaoModal({ pack, clienteId, sessoesDisponiveis, onFechar }: {
+  pack: PackDoCliente
+  clienteId: string
+  sessoesDisponiveis: SessaoLigavel[]
+  onFechar: () => void
+}) {
+  const [pending, startTransition] = useTransition()
+  const [ligandoId, setLigandoId] = useState<string | null>(null)
+  const [erro, setErro] = useState("")
+  const { toast } = useToast()
+  const focoAnteriorRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    focoAnteriorRef.current = document.activeElement as HTMLElement
+    function aoTeclado(e: KeyboardEvent) { if (e.key === "Escape") onFechar() }
+    window.addEventListener("keydown", aoTeclado)
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", aoTeclado)
+      document.body.style.overflow = ""
+      focoAnteriorRef.current?.focus()
+    }
+  }, [onFechar])
+
+  function ligar(sessaoId: string) {
+    setErro("")
+    setLigandoId(sessaoId)
+    startTransition(async () => {
+      const res = await ligarSessaoAoPack(sessaoId, pack.id, clienteId)
+      setLigandoId(null)
+      if (!res.ok) { setErro(res.erro); return }
+      toast("Sessão ligada ao pack.", "success")
+      onFechar()
+    })
+  }
+
+  if (typeof document === "undefined") return null
+
+  return createPortal(
+    <div
+      role="dialog" aria-modal="true" aria-label={`Ligar sessão ao pack de ${nomePack(pack)}`}
+      style={{
+        position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
+        backgroundColor: "rgba(9,11,18,0.68)", backdropFilter: "blur(2px)", padding: "20px",
+      }}
+      onClick={onFechar}
+    >
+      <div onClick={e => e.stopPropagation()} style={{
+        width: "100%", maxWidth: "420px", maxHeight: "calc(100vh - 64px)", overflowY: "auto",
+        backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.28)",
+        borderRadius: "14px", padding: "22px", boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "calc(17px * var(--ui-font-scale))", fontWeight: 400 }}>
+            Ligar sessão ao pack
+          </h2>
+          <button onClick={onFechar} aria-label="Fechar" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
+            <X size={18} />
+          </button>
+        </div>
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--muted-foreground)", marginBottom: "16px" }}>
+          <NomeServico nome={nomePack(pack)} /> · escolhe uma sessão já realizada que ainda não está ligada a nenhum pack.
+        </p>
+
+        {sessoesDisponiveis.length === 0 ? (
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
+            Sem sessões realizadas por ligar — todas as sessões desta cliente já estão contabilizadas nalgum pack.
+          </p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {sessoesDisponiveis.map(s => (
+              <div key={s.id} style={{
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "9px 12px", borderRadius: "8px",
+                border: "1px solid rgba(212,184,134,0.16)", backgroundColor: "var(--nuit-overlay)",
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12.5px * var(--ui-font-scale))", color: CREAM }}>
+                    {formatDate(s.data)}
+                  </p>
+                  <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)" }}>
+                    <NomeServico nome={s.servico ?? "Serviço por confirmar"} />
+                    {s.preco !== null && <> · €{s.preco.toFixed(2)}</>}
+                  </p>
+                </div>
+                <button
+                  onClick={() => ligar(s.id)}
+                  disabled={pending}
+                  className={pending ? undefined : "btn-lift"}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "5px",
+                    padding: "6px 12px", borderRadius: "100px", border: "none",
+                    backgroundColor: GOLD, color: "var(--primary-foreground)", fontWeight: 700,
+                    fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
+                    cursor: pending ? "wait" : "pointer", opacity: pending && ligandoId !== s.id ? 0.5 : 1,
+                    flexShrink: 0,
+                  }}
+                >
+                  <Link2 size={12} /> {pending && ligandoId === s.id ? "A ligar…" : "Ligar"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {erro && <p style={{ color: "var(--destructive)", fontSize: "calc(12px * var(--ui-font-scale))", marginTop: "12px" }}>{erro}</p>}
       </div>
     </div>,
     document.body
@@ -423,12 +546,16 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
 }
 
 // ── Cartão de um pack ────────────────────────────────────────────────
-function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
-  pack: PackDoCliente; clienteId: string; clienteNome: string; clienteEmail: string | null; index: number
+function PackCard({ pack, clienteId, clienteNome, clienteEmail, sessoesDisponiveis, index }: {
+  pack: PackDoCliente; clienteId: string; clienteNome: string; clienteEmail: string | null
+  sessoesDisponiveis: SessaoLigavel[]; index: number
 }) {
   const [modalAberto, setModalAberto] = useState<{ valor: number; nota?: string } | null>(null)
+  const [ligarAberto, setLigarAberto] = useState(false)
+  const [desligandoId, setDesligandoId] = useState<string | null>(null)
   const [confirmarApagar, setConfirmarApagar] = useState(false)
   const [apagando, startApagar] = useTransition()
+  const [desligando, startDesligar] = useTransition()
   const { toast } = useToast()
   const restantes = pack.totalSessoes - pack.sessoesUsadas
   const pct = Math.round((pack.sessoesUsadas / pack.totalSessoes) * 100)
@@ -459,6 +586,16 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
         toast("Erro ao apagar o pack. Tenta novamente.", "error")
         setConfirmarApagar(false)
       }
+    })
+  }
+
+  function desligarSessao(sessaoId: string) {
+    setDesligandoId(sessaoId)
+    startDesligar(async () => {
+      const res = await desligarSessaoDoPack(sessaoId, pack.id, clienteId)
+      setDesligandoId(null)
+      if (!res.ok) { toast(res.erro, "error"); return }
+      toast("Sessão desligada do pack.", "success")
     })
   }
   // "2x" só faz sentido oferecer o atalho enquanto ainda não há nada pago
@@ -559,38 +696,89 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
             marcação que vier daqui já chega ao webhook a saber a que pack
             pertence, sem depender de nomes. */}
         {pack.ativo && restantes > 0 && (
-          linkCalendly ? (
-            <button onClick={copiarLinkCalendly} className="btn-lift" style={{
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: pack.sessoesLigadas.length > 0 ? "10px" : 0 }}>
+            {linkCalendly ? (
+              <button onClick={copiarLinkCalendly} className="btn-lift" style={{
+                display: "inline-flex", alignItems: "center", gap: "6px",
+                fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, padding: "6px 12px", borderRadius: "100px",
+                border: "1px solid rgba(212,184,134,0.3)", backgroundColor: "transparent", color: GOLD,
+                cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)",
+              }}>
+                <Calendar size={12} /> Copiar link Calendly
+              </button>
+            ) : (
+              <span style={{ fontSize: "calc(10.5px * var(--ui-font-scale))", color: "var(--muted-foreground)", fontStyle: "italic" }}>
+                Link Calendly de massagens ainda por configurar
+              </span>
+            )}
+            {/* Sessão feita antes de a cliente comprar o pack (marcação
+                avulsa, não veio do link com o pack) — liga-a manualmente
+                em vez de ficar de fora da contagem. */}
+            <button onClick={() => setLigarAberto(true)} className="btn-lift" style={{
               display: "inline-flex", alignItems: "center", gap: "6px",
               fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, padding: "6px 12px", borderRadius: "100px",
               border: "1px solid rgba(212,184,134,0.3)", backgroundColor: "transparent", color: GOLD,
               cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)",
             }}>
-              <Calendar size={12} /> Copiar link Calendly
+              <Link2 size={12} /> Ligar sessão já feita
             </button>
-          ) : (
-            <span style={{ fontSize: "calc(10.5px * var(--ui-font-scale))", color: "var(--muted-foreground)", fontStyle: "italic" }}>
-              Link Calendly de massagens ainda por configurar
-            </span>
-          )
+          </div>
+        )}
+
+        {/* Sessões já ligadas a este pack — inclui as que vieram do link
+            Calendly e as ligadas manualmente aqui. Desligar corrige um
+            engano sem apagar a sessão nem o pack. */}
+        {pack.sessoesLigadas.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {pack.sessoesLigadas.map(s => (
+              <div key={s.id} style={{
+                display: "flex", alignItems: "center", gap: "8px",
+                fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)",
+              }}>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  {formatDate(s.data)} · <NomeServico nome={s.servico ?? "Serviço por confirmar"} />
+                </span>
+                <button
+                  onClick={() => desligarSessao(s.id)}
+                  disabled={desligando}
+                  title="Desligar do pack"
+                  aria-label="Desligar sessão do pack"
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "3px",
+                    background: "none", border: "none", padding: "2px",
+                    color: "rgba(176,96,80,0.7)", cursor: desligando ? "wait" : "pointer",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))",
+                  }}
+                >
+                  <Unlink size={11} /> {desligando && desligandoId === s.id ? "…" : ""}
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
       {modalAberto && (
         <PagamentoModal pack={pack} clienteId={clienteId} valorSugerido={modalAberto.valor} notaSugerida={modalAberto.nota} onFechar={() => setModalAberto(null)} />
       )}
+      {ligarAberto && (
+        <LigarSessaoModal pack={pack} clienteId={clienteId} sessoesDisponiveis={sessoesDisponiveis} onFechar={() => setLigarAberto(false)} />
+      )}
     </>
   )
 }
 
 // ── Aba completa ─────────────────────────────────────────────────────
-export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos, terapeutas }: {
+export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos, terapeutas, sessoesDisponiveis }: {
   clienteId: string
   clienteNome: string
   clienteEmail: string | null
   packs: PackDoCliente[]
   servicos: ServicoOpcao[]
   terapeutas: TerapeutaOpcao[]
+  // Sessões já realizadas desta cliente, ainda sem pack nenhum — candidatas
+  // a "Ligar sessão já feita" em qualquer um dos packs abaixo.
+  sessoesDisponiveis: SessaoLigavel[]
 }) {
   const [criarAberto, setCriarAberto] = useState(false)
 
@@ -620,7 +808,7 @@ export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {packs.map((p, i) => (
-              <PackCard key={p.id} pack={p} clienteId={clienteId} clienteNome={clienteNome} clienteEmail={clienteEmail} index={i} />
+              <PackCard key={p.id} pack={p} clienteId={clienteId} clienteNome={clienteNome} clienteEmail={clienteEmail} sessoesDisponiveis={sessoesDisponiveis} index={i} />
             ))}
           </div>
         )}

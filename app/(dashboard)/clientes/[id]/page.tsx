@@ -781,9 +781,26 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     notas: pg.notas,
                     criadoEm: pg.criadoEm.toISOString(),
                   })),
+                  sessoesLigadas: cliente.sessoes
+                    .filter(s => s.packId === p.id && !s.apagadoEm)
+                    .map(s => ({
+                      id: s.id, data: s.data.toISOString(), servico: s.servico,
+                      preco: s.preco !== null ? Number(s.preco) : null,
+                    })),
                 }))}
                 servicos={servicosCatalogo}
                 terapeutas={terapeutas.map(t => ({ id: t.id, nome: t.name ?? t.username ?? "—" }))}
+                // Sessões já realizadas, sem pack nenhum ligado ainda — ex: a
+                // 1ª sessão foi marcada avulsa (não veio de um link com pack)
+                // e só depois a cliente comprou o pack (pedido do Nuno,
+                // 2026-09-17). Sem isto, essa sessão ficava sempre de fora
+                // da contagem do pack, mesmo tendo sido paga como tal.
+                sessoesDisponiveis={cliente.sessoes
+                  .filter(s => s.estado === "realizada" && !s.packId && !s.apagadoEm)
+                  .map(s => ({
+                    id: s.id, data: s.data.toISOString(), servico: s.servico,
+                    preco: s.preco !== null ? Number(s.preco) : null,
+                  }))}
               />
             ),
           },
