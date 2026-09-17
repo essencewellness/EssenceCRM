@@ -106,6 +106,32 @@ async function reporNaFilaAction(formData: FormData) {
   revalidatePath("/mensagens");
 }
 
+// Cancelar uma mensagem já em fila (ou falhada) — "rejeitada" é o mesmo
+// estado terminal usado ao recusar em Pendentes, o motor de envio (N8N)
+// só consulta "em_fila" (ver obterMensagensMaduras em lib/fila-envio.ts),
+// por isso sair desse estado já é suficiente para nunca ser enviada.
+// Corrida rara: se já tiver disparado o webhook de envio quase-instantâneo
+// (1ª mensagem de um lote sem hora escolhida) mesmo antes de a Bea
+// cancelar, o N8N pode já ter recebido o pedido — mesmo tipo de corrida
+// já aceite noutros pontos do sistema (ver comentário em aprovarEAgendar).
+async function cancelarFilaAction(formData: FormData) {
+  "use server";
+  const ctx = await verificarPodeAprovarMensagens();
+
+  const id = formData.get("id") as string;
+  await prisma.mensagemIA.update({
+    where: { id },
+    data: { estado: "rejeitada", enviarApos: null },
+  });
+  auditar({
+    quem: ctx.username || "dashboard",
+    acao: "mensagem.cancelada_fila",
+    entidade: "MensagemIA",
+    entidadeId: id,
+  });
+  revalidatePath("/mensagens");
+}
+
 // ── Page ───────────────────────────────────────────────────────
 
 interface PageProps {
@@ -395,8 +421,27 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                     </p>
                   </div>
 
-                  {falhou && (
-                    <form action={reporNaFilaAction}>
+                  <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                    {falhou && (
+                      <form action={reporNaFilaAction}>
+                        <input type="hidden" name="id" value={m.id} />
+                        <button
+                          type="submit"
+                          className="cursor-pointer transition-opacity hover:opacity-80"
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "6px",
+                            padding: "7px 14px", borderRadius: "3px",
+                            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
+                            color: CHAMPAGNE, backgroundColor: "rgba(185,160,122,0.08)",
+                            border: "1px solid rgba(185,160,122,0.30)",
+                          }}
+                        >
+                          <RotateCcw size={12} />
+                          Tentar de novo
+                        </button>
+                      </form>
+                    )}
+                    <form action={cancelarFilaAction}>
                       <input type="hidden" name="id" value={m.id} />
                       <button
                         type="submit"
@@ -405,15 +450,15 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                           display: "inline-flex", alignItems: "center", gap: "6px",
                           padding: "7px 14px", borderRadius: "3px",
                           fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
-                          color: CHAMPAGNE, backgroundColor: "rgba(185,160,122,0.08)",
-                          border: "1px solid rgba(185,160,122,0.30)",
+                          color: TERRA, backgroundColor: "rgba(180,117,106,0.08)",
+                          border: "1px solid rgba(180,117,106,0.30)",
                         }}
                       >
-                        <RotateCcw size={12} />
-                        Tentar de novo
+                        <XCircle size={12} />
+                        Cancelar
                       </button>
                     </form>
-                  )}
+                  </div>
                 </div>
               );
             })
