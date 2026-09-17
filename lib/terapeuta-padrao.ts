@@ -36,7 +36,17 @@ export async function mapaTerapeutasPrincipais(clienteIds?: string[]): Promise<M
   if (clienteIds && clienteIds.length === 0) return new Map();
 
   const idPadrao = await getTerapeutaPrincipalPadraoId();
-  const semTerapeutaAtiva = !idPadrao;
+  if (!idPadrao) return new Map();
+
+  // "alvo" ancora o conjunto de clientes que TEM de aparecer no mapa, mesmo
+  // sem nenhuma sessão realizada ainda (ex: um lead) — sem isto, um cliente
+  // sem sessões desaparecia silenciosamente do filtro ?terapeuta=<id> em vez
+  // de cair no padrão (Bea), apesar de aparecer normalmente sem filtro
+  // nenhum. Apanhado ao testar o filtro contra um cliente lead sem sessões,
+  // numa branch Neon isolada.
+  const alvo = clienteIds
+    ? Prisma.sql`(VALUES ${Prisma.join(clienteIds.map((id) => Prisma.sql`(${id}::text)`))}) AS alvo("clienteId")`
+    : Prisma.sql`(SELECT id AS "clienteId" FROM "Cliente" WHERE "apagadoEm" IS NULL) AS alvo`;
 
   // COALESCE(terapeutaId, idPadrao): Sessao.terapeutaId null é convenção
   // "da Bea por omissão" (ver prisma/schema.prisma, comentário do campo).
@@ -48,41 +58,24 @@ export async function mapaTerapeutasPrincipais(clienteIds?: string[]): Promise<M
   // também não resolve isto, testado e confirmado contra uma branch Neon
   // isolada). Agrupar por "terapeuta" como COLUNA real da CTE evita o
   // problema por completo.
-  const linhas = clienteIds
-    ? await prisma.$queryRaw<{ clienteId: string; terapeuta: string }[]>`
-        WITH sessoes AS (
-          SELECT "clienteId", COALESCE("terapeutaId", ${idPadrao}) AS terapeuta, data
-          FROM "Sessao"
-          WHERE estado = 'realizada' AND "clienteId" IN (${Prisma.join(clienteIds)})
-        ), contagens AS (
-          SELECT "clienteId", terapeuta, COUNT(*) AS total, MIN(data) AS primeira_data
-          FROM sessoes
-          GROUP BY "clienteId", terapeuta
-        ), ranked AS (
-          SELECT "clienteId", terapeuta,
-                 ROW_NUMBER() OVER (PARTITION BY "clienteId" ORDER BY total DESC, primeira_data ASC) AS rn
-          FROM contagens
-        )
-        SELECT "clienteId", terapeuta FROM ranked WHERE rn = 1
-      `
-    : semTerapeutaAtiva
-      ? []
-      : await prisma.$queryRaw<{ clienteId: string; terapeuta: string }[]>`
-        WITH sessoes AS (
-          SELECT "clienteId", COALESCE("terapeutaId", ${idPadrao}) AS terapeuta, data
-          FROM "Sessao"
-          WHERE estado = 'realizada' AND "clienteId" IS NOT NULL
-        ), contagens AS (
-          SELECT "clienteId", terapeuta, COUNT(*) AS total, MIN(data) AS primeira_data
-          FROM sessoes
-          GROUP BY "clienteId", terapeuta
-        ), ranked AS (
-          SELECT "clienteId", terapeuta,
-                 ROW_NUMBER() OVER (PARTITION BY "clienteId" ORDER BY total DESC, primeira_data ASC) AS rn
-          FROM contagens
-        )
-        SELECT "clienteId", terapeuta FROM ranked WHERE rn = 1
-      `;
+  const linhas = await prisma.$queryRaw<{ clienteId: string; terapeuta: string }[]>`
+    WITH alvo AS (SELECT "clienteId" FROM ${alvo}),
+    sessoes AS (
+      SELECT "clienteId", COALESCE("terapeutaId", ${idPadrao}) AS terapeuta, data
+      FROM "Sessao"
+      WHERE estado = 'realizada' AND "clienteId" IN (SELECT "clienteId" FROM alvo)
+    ), contagens AS (
+      SELECT "clienteId", terapeuta, COUNT(*) AS total, MIN(data) AS primeira_data
+      FROM sessoes
+      GROUP BY "clienteId", terapeuta
+    ), ranked AS (
+      SELECT "clienteId", terapeuta,
+             ROW_NUMBER() OVER (PARTITION BY "clienteId" ORDER BY total DESC, primeira_data ASC) AS rn
+      FROM contagens
+    )
+    SELECT alvo."clienteId", COALESCE(ranked.terapeuta, ${idPadrao}) AS terapeuta
+    FROM alvo LEFT JOIN ranked ON ranked."clienteId" = alvo."clienteId" AND ranked.rn = 1
+  `;
 
   return new Map(linhas.map((l) => [l.clienteId, l.terapeuta]));
 }
