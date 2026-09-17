@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   LayoutDashboard, Users, UserPlus, CheckSquare,
   MessageSquare, MessageSquareHeart, Menu, X,
-  Calendar, BarChart2, Settings, Shield, Star, Megaphone, FileText, LogOut, Gift,
+  Calendar, CalendarDays, BarChart2, Settings, Shield, Star, Megaphone, FileText, LogOut, Gift,
 } from "lucide-react"
 import { ThemeToggle } from "@/components/theme/ThemeToggle"
 
@@ -18,6 +18,7 @@ const MAIN_ITEMS = [
 
 const ALL_ITEMS = [
   { href: "/leads",         label: "Leads",         icon: UserPlus },
+  { href: "/agenda",        label: "Agenda",        icon: CalendarDays },
   { href: "/feedback",      label: "Feedback",      icon: MessageSquareHeart },
   { href: "/sessoes",       label: "Sessões",       icon: Calendar },
   { href: "/pipeline",      label: "Pipeline",      icon: BarChart2 },

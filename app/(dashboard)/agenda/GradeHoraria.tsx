@@ -1,7 +1,8 @@
 // Grelha horária estilo Google Calendar — dias em colunas, horas no eixo
 // vertical, cada sessão desenhada como um bloco posicionado e dimensionado
 // pela hora/duração reais. Sem interatividade própria (server component) —
-// cada bloco é um <a> normal para o perfil do cliente.
+// cada bloco é um Link normal para o perfil do cliente.
+import Link from "next/link"
 import { inicioDiaLisboaDe, horaMinutoAtualLisboa, componentesDataLisboa } from "@/lib/data-lisboa"
 
 const HORA_INICIO = 7
@@ -125,11 +126,9 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
               const altura = Math.max(22, (s.duracao ?? 60) * (PX_HORA / 60) - 2)
               const cor = ESTADO_BORDA[s.estado] ?? "var(--nuit-bone-soft)"
               return (
-                <a
+                <Link
                   key={s.id}
                   href={`/clientes/${s.clienteId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   title={`${s.hora ?? ""} · ${s.clienteNome} · ${s.servico ?? ""}`}
                   style={{
                     position: "absolute", top: `${top}px`, left: "3px", right: "3px", height: `${altura}px`,
@@ -148,7 +147,7 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
                       {s.servico ?? "—"}
                     </span>
                   )}
-                </a>
+                </Link>
               )
             })}
           </div>

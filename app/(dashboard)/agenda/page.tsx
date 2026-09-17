@@ -103,12 +103,10 @@ export default async function AgendaPage({
   const anterior = deslocarData(vista, dataRef, -1)
   const seguinte = deslocarData(vista, dataRef, 1)
 
-  // A /agenda é a mini-app partilhada do ecrã principal do iPad — ao contrário
-  // das outras abas, o toggle Beatriz/Cristina fica sempre visível aqui,
-  // independentemente de quem tem sessão iniciada (pedido directo do Nuno,
-  // 2026-08-25): é a rotina de recepção, não a vista privada de uma terapeuta.
-  // Por isso não passa por getFiltrosTerapeuta() (que força alvo=próprio
-  // utilizador para não-admin) — o filtro vem sempre de ?terapeuta=.
+  // Toggle Beatriz/Cristina sempre visível aqui, independentemente de quem
+  // tem sessão iniciada (pedido directo do Nuno, 2026-08-25): é a rotina de
+  // recepção, não a vista privada de uma terapeuta. Por isso não passa por
+  // getFiltrosTerapeuta() — o filtro vem sempre de ?terapeuta=.
   const terapeutas = await listarTerapeutas()
   const alvo = terapeutaParam || null
   // Mesma regra do Financeiro: a receita/agenda pertence a quem REALMENTE
@@ -362,21 +360,14 @@ export default async function AgendaPage({
                   } as const
 
                   return s.cliente ? (
-                    // Abre o perfil do cliente no CRM completo numa aba/janela
-                    // nova — não há forma de uma página web "lançar" outra app
-                    // instalada no ecrã principal do iPad; isto é o mais
-                    // próximo possível (o sistema decide se reaproveita uma
-                    // aba do CRM já aberta ou abre Safari numa nova).
-                    <a
+                    <Link
                       key={s.id}
                       href={`/clientes/${s.clienteId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="row-hover"
                       style={linhaStyle}
                     >
                       {conteudo}
-                    </a>
+                    </Link>
                   ) : (
                     <div key={s.id} style={{ ...linhaStyle, cursor: "default" }}>
                       {conteudo}

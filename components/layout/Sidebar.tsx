@@ -2,7 +2,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard, Users, UserPlus, Calendar, CheckSquare,
+  LayoutDashboard, Users, UserPlus, Calendar, CalendarDays, CheckSquare,
   MessageSquare, MessageSquareHeart, Megaphone, FileText,
   BarChart2, Star, Shield, Settings, ChevronRight, LogOut, Gift,
   Sun, Moon,
@@ -28,6 +28,7 @@ const grupos: NavGroup[] = [
       { href: "/",          label: "Dashboard",  icon: LayoutDashboard },
       { href: "/clientes",  label: "Clientes",   icon: Users },
       { href: "/leads",     label: "Leads",      icon: UserPlus },
+      { href: "/agenda",    label: "Agenda",     icon: CalendarDays },
       { href: "/sessoes",   label: "Sessões",    icon: Calendar },
       { href: "/tarefas",   label: "Tarefas",    icon: CheckSquare },
     ],

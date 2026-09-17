@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { motion, AnimatePresence } from "motion/react"
 import type { SessaoGrade } from "./GradeHoraria"
 
@@ -27,10 +28,8 @@ const CELULA_VARIANTS = {
 
 function Chip({ s, compacto = false }: { s: SessaoGrade; compacto?: boolean }) {
   return (
-    <a
+    <Link
       href={`/clientes/${s.clienteId}`}
-      target="_blank"
-      rel="noopener noreferrer"
       title={`${s.hora ?? ""} · ${s.clienteNome} · ${s.servico ?? ""}`}
       className="agenda-chip"
       style={{
@@ -44,7 +43,7 @@ function Chip({ s, compacto = false }: { s: SessaoGrade; compacto?: boolean }) {
       }}
     >
       <strong style={{ fontWeight: 700, color: "var(--nuit-bone)" }}>{s.hora}</strong> {s.clienteNome}
-    </a>
+    </Link>
   )
 }
 
