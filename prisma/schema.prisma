@@ -781,6 +781,7 @@ model GiftCard {
   @@index([sessaoId])
   @@index([terapeutaId])
   @@index([terapeuta2Id])
+  @@index([clienteId])
   @@index([compradorClienteId])
 }
 
