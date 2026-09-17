@@ -101,7 +101,7 @@ function compararCodigo(a: string, b: string) {
 
 const rotulo: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em",
+  fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em",
   textTransform: "uppercase", color: "var(--nuit-bone-soft)",
   opacity: 0.75,
 }
@@ -114,7 +114,7 @@ function Chip({ estado }: { estado: string }) {
       padding: "5px 11px", borderRadius: "100px",
       backgroundColor: e.bg, border: `1px solid ${e.cor}44`,
       fontFamily: "var(--font-sans, sans-serif)",
-      fontSize: "11px", fontWeight: 600, letterSpacing: "0.04em",
+      fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.04em",
       color: e.cor, whiteSpace: "nowrap",
     }}>
       <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: e.cor }} />
@@ -128,7 +128,7 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
     <div style={{ display: "flex", flexDirection: "column", gap: "5px", minWidth: 0 }}>
       <span style={rotulo}>{label}</span>
       <span style={{
-        fontFamily: "var(--font-body, sans-serif)", fontSize: "14px",
+        fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))",
         color: "var(--nuit-bone)", lineHeight: 1.45,
         overflow: "hidden", textOverflow: "ellipsis",
       }}>
@@ -142,7 +142,7 @@ const inputStyle: React.CSSProperties = {
   width: "100%", padding: "11px 13px",
   borderRadius: "8px", border: "1px solid rgba(212,184,134,0.22)",
   backgroundColor: "var(--nuit-deep)", color: "var(--nuit-bone)",
-  fontFamily: "var(--font-body, sans-serif)", fontSize: "16px",
+  fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(16px * var(--ui-font-scale))",
   outline: "none", transition: "border-color var(--dur-fast) var(--ease-out)",
 }
 
@@ -153,7 +153,7 @@ function CampoForm({ label, hint, children }: { label: string; hint?: string; ch
       {children}
       {hint && (
         <span style={{
-          fontFamily: "var(--font-body)", fontSize: "12px",
+          fontFamily: "var(--font-body)", fontSize: "calc(12px * var(--ui-font-scale))",
           color: "var(--nuit-bone-soft)", opacity: 0.7,
         }}>{hint}</span>
       )}
@@ -297,7 +297,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
               <ChevronLeft size={15} aria-hidden="true" />
             </button>
             <span aria-live="polite" style={{
-              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15.5px",
+              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15.5px * var(--ui-font-scale))",
               color: "var(--nuit-bone)", textTransform: "capitalize",
             }}>
               {mes.toLocaleDateString("pt-PT", { month: "long", year: "numeric" })}
@@ -313,7 +313,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
             {DIAS_SEMANA.map(d => (
               <span key={d} style={{
                 textAlign: "center", padding: "5px 0",
-                fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700,
+                fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700,
                 letterSpacing: "0.1em", textTransform: "uppercase",
                 color: "var(--nuit-champagne-soft)", opacity: 0.65,
               }}>
@@ -337,7 +337,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
                   aria-current={eHoje ? "date" : undefined}
                   style={{
                     aspectRatio: "1", borderRadius: "8px", cursor: "pointer",
-                    fontFamily: "var(--font-body)", fontSize: "13px",
+                    fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     backgroundColor: escolhida ? "var(--nuit-champagne)" : "transparent",
                     border: eHoje && !escolhida ? "1px solid rgba(212,184,134,0.55)" : "1px solid transparent",
@@ -365,7 +365,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
             <button type="button" onClick={() => { const h = new Date(); setMes(new Date(h.getFullYear(), h.getMonth(), 1)); escolher(h) }}
               style={{
                 background: "none", border: "none", cursor: "pointer", padding: "3px 2px",
-                fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
+                fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                 color: "var(--nuit-champagne)",
               }}>
               Hoje
@@ -374,7 +374,7 @@ function SeletorData({ valor, onMudar, permitirLimpar = false }: {
               <button type="button" onClick={() => { onMudar(""); setAberto(false) }}
                 style={{
                   background: "none", border: "none", cursor: "pointer", padding: "3px 2px",
-                  fontFamily: "var(--font-sans)", fontSize: "12px",
+                  fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))",
                   color: "var(--nuit-bone-soft)",
                 }}>
                 Limpar
@@ -502,7 +502,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
         }}>
           {seleccionado && !aberto && (
             <span style={{
-              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))",
               color: "var(--nuit-champagne)",
             }}>
               {seleccionado.precoBase}€
@@ -541,7 +541,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
           {encontrados.length === 0 && (
             <li style={{
               padding: "16px 12px", textAlign: "center",
-              fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
+              fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               Sem correspondência — podes escrever à mão.
             </li>
@@ -551,7 +551,7 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
             <li key={grupo} role="presentation">
               <div style={{
                 padding: "9px 10px 5px",
-                fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700,
+                fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700,
                 letterSpacing: "0.18em", textTransform: "uppercase",
                 color: "var(--nuit-champagne-soft)", opacity: 0.8,
               }}>
@@ -579,13 +579,13 @@ function SeletorExperiencia({ servicos, valor, onEscolher }: {
                     >
                       <span style={{
                         flex: 1, minWidth: 0,
-                        fontFamily: "var(--font-body)", fontSize: "13.5px",
+                        fontFamily: "var(--font-body)", fontSize: "calc(13.5px * var(--ui-font-scale))",
                         color: "var(--nuit-bone)",
                       }}>
                         <NomeServico nome={s.nome} />
                       </span>
                       <span style={{
-                        fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+                        fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))",
                         color: destacado ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
                         flexShrink: 0,
                       }}>
@@ -622,7 +622,7 @@ function Botao({ variante = "primario", children, ...props }: {
         color: primario ? "var(--nuit-midnight)" : "var(--nuit-bone-soft)",
         border: primario ? "1px solid var(--nuit-champagne)" : "1px solid rgba(212,184,134,0.28)",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "13px", fontWeight: 600, letterSpacing: "0.03em",
+        fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.03em",
         cursor: props.disabled ? "default" : "pointer",
         opacity: props.disabled ? 0.55 : 1,
         transition: "all var(--dur-fast) var(--ease-out)",
@@ -676,11 +676,11 @@ function Painel({ titulo, sub, onFechar, children }: {
           <div>
             <h2 style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "21px", color: "var(--nuit-bone)", lineHeight: 1.2,
+              fontSize: "calc(21px * var(--ui-font-scale))", color: "var(--nuit-bone)", lineHeight: 1.2,
             }}>{titulo}</h2>
             {sub && (
               <p style={{
-                fontFamily: "var(--font-body)", fontSize: "13px",
+                fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))",
                 color: "var(--nuit-bone-soft)", marginTop: "5px",
               }}>{sub}</p>
             )}
@@ -742,7 +742,7 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
             border: `2px solid ${e.cor}`, borderRadius: "4px",
             color: e.cor, opacity: 0.34,
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 800, letterSpacing: "0.24em",
+            fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 800, letterSpacing: "0.24em",
             textTransform: "uppercase", whiteSpace: "nowrap",
             pointerEvents: "none",
           }}
@@ -762,7 +762,7 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
       }}>
         <span style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "19px", letterSpacing: "0.055em",
+          fontSize: "calc(19px * var(--ui-font-scale))", letterSpacing: "0.055em",
           color: fechado ? "var(--nuit-bone-soft)" : "var(--nuit-champagne)",
           whiteSpace: "nowrap",
         }}>
@@ -777,7 +777,7 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
           <div style={{ minWidth: 0 }}>
             <span style={rotulo}>Experiência</span>
             <p style={{
-              fontFamily: "var(--font-body, sans-serif)", fontSize: "15px",
+              fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(15px * var(--ui-font-scale))",
               color: "var(--nuit-bone)", lineHeight: 1.4, marginTop: "5px",
             }}>
               <NomeServico nome={v.servicoNome} />
@@ -785,9 +785,9 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
           </div>
           <span style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "25px", color: "var(--nuit-bone)", lineHeight: 1, whiteSpace: "nowrap",
+            fontSize: "calc(25px * var(--ui-font-scale))", color: "var(--nuit-bone)", lineHeight: 1, whiteSpace: "nowrap",
           }}>
-            {v.valorPago.toFixed(0)}<span style={{ fontSize: "15px", color: "var(--nuit-champagne-soft)", marginLeft: "2px" }}>€</span>
+            {v.valorPago.toFixed(0)}<span style={{ fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-champagne-soft)", marginLeft: "2px" }}>€</span>
           </span>
         </div>
 
@@ -807,7 +807,7 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
         }}>
           <span style={{
             display: "inline-flex", alignItems: "center", gap: "6px",
-            fontFamily: "var(--font-body)", fontSize: "12.5px",
+            fontFamily: "var(--font-body)", fontSize: "calc(12.5px * var(--ui-font-scale))",
             color: aExpirar ? "#c9756a" : "var(--nuit-bone-soft)",
             fontWeight: aExpirar ? 600 : 400,
           }}>
@@ -832,7 +832,7 @@ function Cartao({ v, onEditar }: { v: Voucher; onEditar: () => void }) {
               backgroundColor: hover ? "rgba(212,184,134,0.10)" : "transparent",
               border: "1px solid rgba(212,184,134,0.22)",
               color: "var(--nuit-champagne-soft)",
-              fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
+              fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
               cursor: "pointer", transition: "background-color var(--dur-fast)",
               flexShrink: 0,
             }}
@@ -1017,7 +1017,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             value={linkAtual}
             rows={3}
             onFocus={e => e.currentTarget.select()}
-            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "12.5px" }}
+            style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "calc(12.5px * var(--ui-font-scale))" }}
           />
         </CampoForm>
 
@@ -1045,7 +1045,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
               padding: "11px 16px", borderRadius: "8px",
               border: "1px solid rgba(212,184,134,0.30)",
               color: "var(--nuit-champagne)", textDecoration: "none",
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13.5px * var(--ui-font-scale))", fontWeight: 600,
             }}
           >
             Pré-visualizar
@@ -1059,7 +1059,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             <option value="">Beatriz (por omissão)</option>
             {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
           </select>
-          <p style={{ fontSize: "11px", color: "var(--muted-foreground)", margin: "6px 0 0", lineHeight: 1.5 }}>
+          <p style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)", margin: "6px 0 0", lineHeight: 1.5 }}>
             Onde este valor entra no Financeiro. Muda para a Cristina quando for ela a fazer a sessão.
           </p>
         </CampoForm>
@@ -1074,7 +1074,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             <option value="stripe">Stripe</option>
           </select>
           {v.repasseNecessario && (
-            <p style={{ fontSize: "11px", color: v.repasseFeito ? "var(--muted-foreground)" : "#d48c45", margin: "6px 0 0", lineHeight: 1.5 }}>
+            <p style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: v.repasseFeito ? "var(--muted-foreground)" : "#d48c45", margin: "6px 0 0", lineHeight: 1.5 }}>
               {v.repasseFeito ? "Repasse já feito." : `Repasse pendente à Cristina${v.valorRepasse ? ` (€${v.valorRepasse.toFixed(2)})` : ""}.`}
             </p>
           )}
@@ -1112,7 +1112,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
                 padding: "9px 16px", borderRadius: "8px",
                 border: "1px solid rgba(201,117,106,0.35)",
                 backgroundColor: "transparent", color: "#c9756a",
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600,
                 cursor: "pointer",
               }}
             >
@@ -1120,7 +1120,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
             </button>
           ) : (
             <>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.5 }}>
                 Isto apaga o voucher <strong style={{ color: "var(--nuit-bone)" }}>{v.codigo}</strong> por
                 completo e não há como desfazer. Para confirmar, escreve o código ou o nome do comprador
                 (<strong style={{ color: "var(--nuit-bone)" }}>{v.compradorNome}</strong>) abaixo.
@@ -1140,7 +1140,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
                     display: "inline-flex", alignItems: "center", gap: "8px",
                     padding: "9px 16px", borderRadius: "8px", border: "none",
                     backgroundColor: "#c9756a", color: "var(--nuit-midnight)",
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 700,
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 700,
                     cursor: confirmaCorreto && !apagando ? "pointer" : "default",
                     opacity: confirmaCorreto && !apagando ? 1 : 0.5,
                   }}
@@ -1153,7 +1153,7 @@ function FormEditar({ v, servicos, terapeutas, onFechar }: { v: Voucher; servico
                     padding: "9px 16px", borderRadius: "8px",
                     border: "1px solid rgba(212,184,134,0.22)", background: "transparent",
                     color: "var(--nuit-bone-soft)",
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                     cursor: "pointer",
                   }}
                 >
@@ -1198,7 +1198,7 @@ function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) 
         border: "1px solid rgba(139,176,143,0.30)",
       }}>
         <Check size={17} style={{ color: "#8bb08f", flexShrink: 0 }} />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: "calc(13.5px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
           Voucher criado e registado. Falta só enviá-lo.
         </span>
       </div>
@@ -1209,7 +1209,7 @@ function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) 
           value={link}
           rows={3}
           onFocus={e => e.currentTarget.select()}
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "12.5px" }}
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, fontSize: "calc(12.5px * var(--ui-font-scale))" }}
         />
       </CampoForm>
 
@@ -1226,7 +1226,7 @@ function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) 
             padding: "11px 16px", borderRadius: "8px",
             border: "1px solid rgba(212,184,134,0.30)",
             color: "var(--nuit-champagne)", textDecoration: "none",
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13.5px * var(--ui-font-scale))", fontWeight: 600,
           }}
         >
           Pré-visualizar
@@ -1240,7 +1240,7 @@ function LinkPronto({ link, onFechar }: { link: string; onFechar: () => void }) 
             padding: "11px 16px", borderRadius: "8px",
             border: "1px solid rgba(139,176,143,0.35)",
             color: "#8bb08f", textDecoration: "none",
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", fontWeight: 600,
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13.5px * var(--ui-font-scale))", fontWeight: 600,
           }}
         >
           Enviar por WhatsApp
@@ -1429,7 +1429,7 @@ function FormCriar({ tipoInicial, sugestaoCodigo, servicos, terapeutas, onFechar
           }}>
             <CalendarCheck size={16} style={{ color: "var(--nuit-champagne)", flexShrink: 0 }} />
             <span style={{
-              fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone-soft)",
+              fontFamily: "var(--font-body)", fontSize: "calc(13.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               Válido até{" "}
               <strong style={{ color: "var(--nuit-champagne)", fontWeight: 600 }}>{validadeCalculada}</strong>
@@ -1571,12 +1571,12 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
         <div>
           <h1 style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "27px", color: "var(--nuit-bone)", lineHeight: 1.15,
+            fontSize: "calc(27px * var(--ui-font-scale))", color: "var(--nuit-bone)", lineHeight: 1.15,
           }}>
             Vouchers
           </h1>
           <p style={{
-            fontFamily: "var(--font-body)", fontSize: "14px",
+            fontFamily: "var(--font-body)", fontSize: "calc(14px * var(--ui-font-scale))",
             color: "var(--nuit-bone-soft)", marginTop: "7px",
           }}>
             {contas.porMarcar} por marcar · {contas.valor.toFixed(0)} € em aberto
@@ -1611,7 +1611,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
                 padding: "10px 20px", borderRadius: "8px", border: "none",
                 backgroundColor: on ? "rgba(212,184,134,0.13)" : "transparent",
                 color: on ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
-                fontFamily: "var(--font-sans)", fontSize: "13.5px",
+                fontFamily: "var(--font-sans)", fontSize: "calc(13.5px * var(--ui-font-scale))",
                 fontWeight: on ? 600 : 500, cursor: "pointer",
                 transition: "all var(--dur-fast) var(--ease-out)",
               }}
@@ -1619,7 +1619,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
               <Icon size={15} />
               {label}
               <span style={{
-                fontSize: "11px", padding: "2px 7px", borderRadius: "100px",
+                fontSize: "calc(11px * var(--ui-font-scale))", padding: "2px 7px", borderRadius: "100px",
                 backgroundColor: on ? "rgba(212,184,134,0.18)" : "rgba(212,184,134,0.08)",
                 color: on ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
               }}>{n}</span>
@@ -1656,7 +1656,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
                   border: `1px solid ${on ? "rgba(212,184,134,0.45)" : alerta ? "rgba(201,117,106,0.35)" : "rgba(212,184,134,0.15)"}`,
                   backgroundColor: on ? "rgba(212,184,134,0.12)" : "transparent",
                   color: on ? "var(--nuit-champagne)" : alerta ? "#c9756a" : "var(--nuit-bone-soft)",
-                  fontFamily: "var(--font-sans)", fontSize: "12.5px",
+                  fontFamily: "var(--font-sans)", fontSize: "calc(12.5px * var(--ui-font-scale))",
                   fontWeight: on || alerta ? 600 : 500,
                   cursor: "pointer", whiteSpace: "nowrap",
                   opacity: n === 0 && !on ? 0.45 : 1,
@@ -1665,7 +1665,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
               >
                 {label}
                 <span style={{
-                  fontSize: "11px", fontWeight: 600,
+                  fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                   padding: "1px 6px", borderRadius: "100px",
                   backgroundColor: on ? "rgba(212,184,134,0.20)" : "rgba(212,184,134,0.08)",
                 }}>{n}</span>
@@ -1687,13 +1687,13 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
                   <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: g.cor, flexShrink: 0 }} />
                   <h2 style={{
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "11px", fontWeight: 700, letterSpacing: "0.2em",
+                    fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.2em",
                     textTransform: "uppercase", color: g.cor, whiteSpace: "nowrap",
                   }}>
                     {g.plural}
                   </h2>
                   <span style={{
-                    fontFamily: "var(--font-sans)", fontSize: "11.5px",
+                    fontFamily: "var(--font-sans)", fontSize: "calc(11.5px * var(--ui-font-scale))",
                     color: "var(--nuit-bone-soft)", opacity: 0.7,
                   }}>
                     {g.itens.length}
@@ -1714,7 +1714,7 @@ export function VouchersClient({ vouchers, servicos, terapeutas }: { vouchers: V
         }}>
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic",
-            fontSize: "17px", color: "var(--nuit-bone-soft)",
+            fontSize: "calc(17px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>
             {estado === "ativo" && !busca
               ? "Nenhum voucher por marcar — está tudo tratado."

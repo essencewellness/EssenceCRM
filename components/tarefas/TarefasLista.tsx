@@ -129,7 +129,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeut
     <div className="space-y-6">
       <TarefaForm clienteId={clienteId} onCreated={onRefresh} terapeutas={terapeutas} />
       {total === 0 && (
-        <p style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
+        <p style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
           Sem tarefas pendentes — {concluidas.length + canceladas.length === 1 ? "há uma tarefa" : `há ${concluidas.length + canceladas.length} tarefas`} já fechada{concluidas.length + canceladas.length === 1 ? "" : "s"} abaixo.
         </p>
       )}
@@ -138,7 +138,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeut
         const meta = GRUPO_META[key as keyof typeof GRUPO_META]
         return (
           <div key={key}>
-            <h3 style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: meta.cor, fontFamily: "var(--font-sans, sans-serif)" }}>
+            <h3 style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: meta.cor, fontFamily: "var(--font-sans, sans-serif)" }}>
               {meta.label} ({itens.length})
             </h3>
             <div className="space-y-2">
@@ -156,7 +156,7 @@ export function TarefasLista({ tarefas, onRefresh, onUpdate, clienteId, terapeut
         if (itens.length === 0) return null
         return (
           <div key={label} style={{ opacity: 0.7 }}>
-            <h3 style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: cor, fontFamily: "var(--font-sans, sans-serif)" }}>
+            <h3 style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: "8px", color: cor, fontFamily: "var(--font-sans, sans-serif)" }}>
               {label} ({itens.length})
             </h3>
             <div className="space-y-2">

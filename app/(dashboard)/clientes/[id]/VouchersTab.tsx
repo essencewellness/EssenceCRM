@@ -40,7 +40,7 @@ function Chip({ estado }: { estado: string }) {
       padding: "4px 10px", borderRadius: "100px",
       backgroundColor: e.bg, border: `1px solid ${e.cor}44`,
       fontFamily: "var(--font-sans, sans-serif)",
-      fontSize: "11px", fontWeight: 600, color: e.cor, whiteSpace: "nowrap",
+      fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: e.cor, whiteSpace: "nowrap",
     }}>
       <span style={{ width: "5px", height: "5px", borderRadius: "50%", backgroundColor: e.cor }} />
       {e.label}
@@ -66,14 +66,14 @@ function Linha({ v, papel }: { v: VoucherDoCliente; papel: "comprou" | "recebeu"
           : <CreditCard size={15} color="rgba(212,184,134,0.55)" aria-hidden="true" />}
         <div style={{ minWidth: 0 }}>
           <div style={{
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
             color: "var(--nuit-bone)", fontWeight: 600,
           }}>
             {v.codigo}
             <span style={{ fontWeight: 400, color: "var(--muted-foreground)" }}> · {v.servicoNome}</span>
           </div>
           <div style={{
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))",
             color: "var(--muted-foreground)", marginTop: "3px",
           }}>
             {formatarData(v.dataCompra)} · {contraparte}
@@ -84,7 +84,7 @@ function Linha({ v, papel }: { v: VoucherDoCliente; papel: "comprou" | "recebeu"
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
         <Chip estado={v.estado} />
         <span style={{
-          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))",
           color: "var(--nuit-bone)", minWidth: "62px", textAlign: "right",
         }}>
           €{v.valorPago.toFixed(2)}
@@ -115,13 +115,13 @@ function Bloco({ titulo, sub, vouchers, papel }: {
       }}>
         <div>
           <h3 style={{
-            fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px",
+            fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))",
             color: "var(--nuit-bone)", fontWeight: 400,
           }}>
             {titulo} <span style={{ color: "rgba(212,184,134,0.5)" }}>({vouchers.length})</span>
           </h3>
           <p style={{
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))",
             color: "var(--muted-foreground)", marginTop: "3px",
           }}>
             {sub}
@@ -129,7 +129,7 @@ function Bloco({ titulo, sub, vouchers, papel }: {
         </div>
         {papel === "comprou" && (
           <span style={{
-            fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "17px",
+            fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(17px * var(--ui-font-scale))",
             color: "var(--nuit-champagne)", whiteSpace: "nowrap",
           }}>
             €{total.toFixed(2)}
@@ -155,7 +155,7 @@ export function VouchersTab({ comprados, recebidos }: {
       }}>
         <Gift size={22} color="rgba(212,184,134,0.3)" aria-hidden="true" style={{ margin: "0 auto 10px" }} />
         <p style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
           color: "var(--muted-foreground)", lineHeight: 1.6,
         }}>
           Sem vouchers associados.

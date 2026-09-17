@@ -385,13 +385,13 @@ export default async function FinanceiroPage({
         <div>
           <h1 style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            color: CREAM, fontSize: "26px", fontWeight: 400, letterSpacing: "0.02em",
+            color: CREAM, fontSize: "calc(26px * var(--ui-font-scale))", fontWeight: 400, letterSpacing: "0.02em",
           }}>
             Financeiro
           </h1>
           <p style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            color: "rgba(212,184,134,0.55)", fontSize: "13px", marginTop: "4px", textTransform: "capitalize",
+            color: "rgba(212,184,134,0.55)", fontSize: "calc(13px * var(--ui-font-scale))", marginTop: "4px", textTransform: "capitalize",
           }}>
             {label}{ehMesAtual ? " · mês atual" : ""}
           </p>
@@ -400,7 +400,7 @@ export default async function FinanceiroPage({
           <MesLink href={`/financeiro?mes=${prevMes}`} aria-label="Mês anterior"><ChevronLeft size={16} /></MesLink>
           {!ehMesAtual && (
             <Link href="/financeiro" style={{
-              fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "12px",
+              fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
               color: GOLD, textDecoration: "none", padding: "0 8px",
             }}>
               Hoje
@@ -429,10 +429,10 @@ export default async function FinanceiroPage({
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(porMetodo).map(([metodo, valor]) => (
               <div key={metodo} style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "11px", marginBottom: "6px" }}>
+                <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "calc(11px * var(--ui-font-scale))", marginBottom: "6px" }}>
                   {METODO_LABEL_PT[metodo] ?? metodo}
                 </div>
-                <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "20px", fontWeight: 400 }}>
+                <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400 }}>
                   €{valor.toFixed(2)}
                 </div>
               </div>
@@ -444,7 +444,7 @@ export default async function FinanceiroPage({
           <SectionTitle>Top clientes por receita</SectionTitle>
           <div style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderRadius: "10px", overflow: "hidden" }}>
             {topReceita.length === 0 && (
-              <p style={{ padding: "20px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "13px" }}>
+              <p style={{ padding: "20px", fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))" }}>
                 Ainda sem receita registada.
               </p>
             )}
@@ -455,14 +455,14 @@ export default async function FinanceiroPage({
                 borderBottom: i < topReceita.length - 1 ? `1px solid ${BORDER}` : "none",
               }}>
                 <span style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: i < 3 ? GOLD : "var(--muted-foreground)", width: "16px", fontWeight: 700 }}>
+                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: i < 3 ? GOLD : "var(--muted-foreground)", width: "16px", fontWeight: 700 }}>
                     {i + 1}
                   </span>
-                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "13px", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {c.nome}
                   </span>
                 </span>
-                <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "14px", color: GOLD, flexShrink: 0 }}>
+                <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(14px * var(--ui-font-scale))", color: GOLD, flexShrink: 0 }}>
                   €{c.receita.toFixed(2)}
                 </span>
               </Link>
@@ -498,7 +498,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 style={{
       fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(212,184,134,0.55)",
-      fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em",
+      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.22em",
       textTransform: "uppercase", marginBottom: "12px",
     }}>
       {children}
@@ -519,13 +519,13 @@ function KpiCard({ label, valor, tipo, urgente }: { label: string; valor: string
 
   return (
     <div style={{ backgroundColor: CARD_BG, border: `1px solid ${borderColor}`, borderRadius: "10px", padding: "18px 16px" }}>
-      <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "11px", marginBottom: "8px" }}>
+      <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "var(--muted-foreground)", fontSize: "calc(11px * var(--ui-font-scale))", marginBottom: "8px" }}>
         {label}
       </div>
       {/* value-pulse só quando urgente=true (ex: há mesmo por cobrar) — nunca
           pulsa em permanência, senão perde o significado (skill 21st-ui-explore,
           direção "Camada Ambiente": movimento liga-se ao negócio, não decora). */}
-      <div className={urgente ? "value-pulse" : undefined} style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: valorColor, fontSize: "24px", fontWeight: 400 }}>
+      <div className={urgente ? "value-pulse" : undefined} style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: valorColor, fontSize: "calc(24px * var(--ui-font-scale))", fontWeight: 400 }}>
         {valor}
       </div>
     </div>

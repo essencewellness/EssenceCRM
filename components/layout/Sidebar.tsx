@@ -128,19 +128,19 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
           }}>
             <span style={{
               fontFamily: "var(--font-heading, serif)",
-              fontSize: "13px", color: "var(--nuit-champagne)",
+              fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-champagne)",
               letterSpacing: "-0.01em",
             }}>EW</span>
           </div>
           <div>
             <div style={{
               fontFamily: "var(--font-heading, serif)",
-              fontSize: "14px", color: "var(--nuit-bone)",
+              fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)",
               letterSpacing: "-0.005em", lineHeight: 1.1,
             }}>Essence</div>
             <div style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", color: "var(--nuit-champagne)",
+              fontSize: "calc(9px * var(--ui-font-scale))", color: "var(--nuit-champagne)",
               letterSpacing: "0.32em", textTransform: "uppercase",
               fontWeight: 500, marginTop: "2px",
             }}>Wellness · CRM</div>
@@ -155,7 +155,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
             <div style={{
               padding: "0 16px 8px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", fontWeight: 500,
+              fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500,
               letterSpacing: "0.32em", textTransform: "uppercase",
               color: "var(--nuit-bone-soft)",
             }}>
@@ -203,7 +203,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                   <span style={{
                     flex: 1,
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "12.5px",
+                    fontSize: "calc(12.5px * var(--ui-font-scale))",
                     // Peso fixo (não varia com o estado activo) — antes o
                     // font-weight saltava 400→500 instantaneamente ao mudar
                     // de página, o que não anima de forma fiável entre
@@ -222,7 +222,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                       display: "flex", alignItems: "center", justifyContent: "center",
                       minWidth: "18px", height: "18px", padding: "0 4px",
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9px", fontWeight: 600,
+                      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                       backgroundColor: "var(--nuit-champagne)",
                       color: "var(--nuit-midnight)",
                     }}>
@@ -261,7 +261,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
               ? <Sun size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />
               : <Moon size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />}
             <span style={{
-              flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "12.5px",
+              flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12.5px * var(--ui-font-scale))",
               fontWeight: 400, color: "var(--nuit-bone-soft)", letterSpacing: "0.01em",
             }}>
               {claro ? "Modo claro" : "Modo escuro"}
@@ -282,7 +282,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
             >
               <LogOut size={14} style={{ color: "var(--nuit-smoke)", flexShrink: 0, strokeWidth: 1.5 }} />
               <span style={{
-                flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "12.5px",
+                flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12.5px * var(--ui-font-scale))",
                 fontWeight: 400, color: "var(--nuit-bone-soft)", letterSpacing: "0.01em",
               }}>
                 Sair

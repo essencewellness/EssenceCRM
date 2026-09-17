@@ -60,7 +60,7 @@ function SeletorHora({ value, onChange }: { value: string; onChange: (v: string)
         onChange={(e) => onChange(e.target.value)}
         aria-label="Agendar hora de envio desta mensagem"
         style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))",
           color: value ? "var(--nuit-bone)" : "#9d9d9a",
           backgroundColor: "transparent", border: "none", outline: "none",
           colorScheme: "dark", width: "132px",
@@ -75,7 +75,7 @@ function SeletorHora({ value, onChange }: { value: string; onChange: (v: string)
             display: "inline-flex", alignItems: "center", justifyContent: "center",
             width: "16px", height: "16px", borderRadius: "50%",
             border: "none", backgroundColor: "rgba(255,255,255,0.12)",
-            color: "#e5e5e2", cursor: "pointer", fontSize: "10px", lineHeight: 1, padding: 0,
+            color: "#e5e5e2", cursor: "pointer", fontSize: "calc(10px * var(--ui-font-scale))", lineHeight: 1, padding: 0,
           }}
         >
           ×
@@ -106,7 +106,7 @@ function BotaoAprovar({ onClick, disabled, pending, agendado }: { onClick: () =>
       style={{
         display: "inline-flex", alignItems: "center", gap: "6px",
         padding: "8px 16px", borderRadius: "3px",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
         color: "#fdfaf1",
         backgroundColor: sucesso ? "#3d8b3d" : SAGE,
         border: "none", cursor: disabled ? "default" : "pointer",
@@ -164,7 +164,7 @@ function TudoFeitoState() {
         transition={{ delay: 0.35 }}
         style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontStyle: "italic", fontSize: "18px", color: "#6fcf97",
+          fontStyle: "italic", fontSize: "calc(18px * var(--ui-font-scale))", color: "#6fcf97",
           marginTop: "16px",
         }}
       >
@@ -176,7 +176,7 @@ function TudoFeitoState() {
         transition={{ delay: 0.48 }}
         style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "var(--nuit-bone-soft)", marginTop: "8px",
+          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "8px",
         }}
       >
         As mensagens estão na fila e saem espaçadas automaticamente.
@@ -303,10 +303,10 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
               border: `1px dashed rgba(185,160,122,0.35)`,
             }}
           >
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "16px", color: "var(--nuit-bone-soft)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(16px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               Nenhuma mensagem pendente
             </p>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "6px" }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "6px" }}>
               Assim que a IA gerar novas mensagens, aparecem aqui para aprovares.
             </p>
           </motion.div>
@@ -343,7 +343,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 }}
-            style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone)", fontWeight: 500 }}
+            style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone)", fontWeight: 500 }}
           >
             {selecionadas.size === 0
               ? "Selecionar todas"
@@ -352,7 +352,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
         </label>
 
         <span style={{
-          flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+          flex: 1, fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))",
           color: "#9d9d9a", textAlign: "right",
         }}>
           A hora de cada mensagem agenda-se no próprio cartão
@@ -369,7 +369,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
             padding: "10px 20px", border: "none", borderRadius: "3px",
             backgroundColor: "var(--nuit-champagne)", color: INK,
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 600,
+            fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
             letterSpacing: "0.18em", textTransform: "uppercase",
             opacity: selecionadas.size === 0 || bulkPending ? 0.35 : 1,
             cursor: selecionadas.size === 0 || bulkPending ? "default" : "pointer",
@@ -452,7 +452,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                     style={{
                       width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 700,
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 700,
                       backgroundColor: "rgba(185,160,122,0.10)", color: CHAMPAGNE,
                       border: "1px solid rgba(185,160,122,0.28)",
                     }}
@@ -464,7 +464,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px" }}>
                       <a
                         href={`/clientes/${m.clienteId}`}
-                        style={{ fontFamily: "var(--font-sans, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)", textDecoration: "none" }}
+                        style={{ fontFamily: "var(--font-sans, sans-serif)", fontWeight: 700, fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)", textDecoration: "none" }}
                       >
                         {m.clienteNome}
                       </a>
@@ -476,7 +476,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                           transition={{ type: "spring", stiffness: 400, damping: 22 }}
                           style={{
                             padding: "2px 8px", borderRadius: "100px",
-                            fontSize: "10px", fontWeight: 600,
+                            fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                             fontFamily: "var(--font-sans, sans-serif)",
                             color: e.cor, backgroundColor: e.cor + "18",
                             border: `1px solid ${e.cor}30`,
@@ -494,7 +494,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                             transition={{ type: "spring", stiffness: 400, damping: 22 }}
                             style={{
                               padding: "2px 8px", borderRadius: "100px",
-                              fontSize: "10px", fontWeight: 600,
+                              fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                               fontFamily: "var(--font-sans, sans-serif)",
                               color: CHAMPAGNE, backgroundColor: "rgba(185,160,122,0.12)",
                               border: "1px solid rgba(185,160,122,0.30)",
@@ -506,13 +506,13 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                       </AnimatePresence>
                     </div>
                     {m.motivo && (
-                      <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#9d9d9a", marginTop: "3px" }}>
+                      <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#9d9d9a", marginTop: "3px" }}>
                         {m.motivo}
                       </p>
                     )}
                   </div>
 
-                  <span style={{ flexShrink: 0, fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#b5b5b2" }}>
+                  <span style={{ flexShrink: 0, fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#b5b5b2" }}>
                     {m.geradaEm}
                   </span>
                 </div>
@@ -533,7 +533,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                         autoFocus
                         style={{
                           width: "100%", padding: "12px 14px",
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13.5px", lineHeight: 1.65,
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13.5px * var(--ui-font-scale))", lineHeight: 1.65,
                           color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)",
                           border: `1px solid rgba(185,160,122,0.6)`, borderRadius: "8px",
                           resize: "vertical",
@@ -553,12 +553,12 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                           border: "1px solid rgba(95,122,95,0.18)",
                           borderRadius: "10px 10px 2px 10px",
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "13.5px", lineHeight: 1.65, color: "#22301f",
+                          fontSize: "calc(13.5px * var(--ui-font-scale))", lineHeight: 1.65, color: "#22301f",
                           whiteSpace: "pre-wrap",
                         }}
                       >
                         {textoDe(m)}
-                        <div style={{ textAlign: "right", fontSize: "10px", color: "rgba(34,48,31,0.65)", marginTop: "4px" }}>
+                        <div style={{ textAlign: "right", fontSize: "calc(10px * var(--ui-font-scale))", color: "rgba(34,48,31,0.65)", marginTop: "4px" }}>
                           {m.telefone ?? "sem número"} · WhatsApp
                         </div>
                       </motion.div>
@@ -588,7 +588,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                     style={{
                       display: "inline-flex", alignItems: "center", gap: "6px",
                       padding: "8px 16px", borderRadius: "3px",
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                       color: CHAMPAGNE, backgroundColor: "rgba(185,160,122,0.08)",
                       border: "1px solid rgba(185,160,122,0.30)", cursor: "pointer",
                     }}
@@ -606,7 +606,7 @@ export function MensagensBulk({ mensagens, aprovarBulkAction, rejeitarAction }: 
                     style={{
                       display: "inline-flex", alignItems: "center", gap: "6px",
                       padding: "8px 16px", borderRadius: "3px",
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                       color: TERRA, backgroundColor: "rgba(176,96,80,0.07)",
                       border: "1px solid rgba(176,96,80,0.22)",
                       opacity: pending ? 0.4 : 1, cursor: pending ? "default" : "pointer",

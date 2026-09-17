@@ -56,7 +56,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
           border: "1px solid rgba(176,96,80,0.25)",
           color: "rgba(176,96,80,0.6)",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", fontWeight: 600, letterSpacing: "0.04em",
+          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.04em",
           cursor: "pointer", transition: "all 150ms",
         }}
         className="hover:bg-[rgba(176,96,80,0.06)] hover:border-[rgba(176,96,80,0.5)] hover:text-[var(--destructive)]"
@@ -108,7 +108,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
 
             <h2 id="apagar-titulo" style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
+              fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
               marginBottom: "8px",
             }}>
               Apagar contacto
@@ -116,7 +116,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
 
             <p style={{
               fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
+              fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
               marginBottom: "20px",
             }}>
               Esta ação é <strong>irreversível</strong> — o contacto é apagado definitivamente da base de dados.
@@ -126,7 +126,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
             <div style={{ marginBottom: "20px" }}>
               <label htmlFor="confirm-nome" style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em",
+                fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em",
                 color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 display: "block", marginBottom: "8px",
               }}>
@@ -145,7 +145,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
                   border: `1px solid ${confirmado ? "rgba(160,169,150,0.6)" : "rgba(212,184,134,0.22)"}`,
                   backgroundColor: confirmado ? "rgba(160,169,150,0.05)" : "var(--nuit-midnight)",
                   fontFamily: "var(--font-body, sans-serif)",
-                  fontSize: "14px", color: "var(--nuit-bone)",
+                  fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)",
                   outline: "none", boxSizing: "border-box",
                   transition: "border-color 150ms",
                 }}
@@ -162,7 +162,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
               }}>
                 <p style={{
                   fontFamily: "var(--font-body, sans-serif)",
-                  fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+                  fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
                 }}>
                   Este contacto tem <strong>{partes}</strong>. Ficam preservados no
                   histórico financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligados
@@ -192,7 +192,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
                 />
                 <span style={{
                   fontFamily: "var(--font-body, sans-serif)",
-                  fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+                  fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
                 }}>
                   Apagar também {partes} <strong>de vez</strong> — não fica nenhum registo, nem no
                   financeiro. Só faz sentido para dados de teste, sem valor financeiro real.
@@ -209,7 +209,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
                   backgroundColor: "transparent",
                   border: "1px solid rgba(212,184,134,0.20)",
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", fontWeight: 600, color: "var(--nuit-bone-soft)",
+                  fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone-soft)",
                   cursor: "pointer",
                 }}
               >
@@ -223,7 +223,7 @@ export function DeleteClienteButton({ clienteId, primeiroNome, sessoesCount, pac
                   backgroundColor: confirmado ? "var(--destructive)" : "rgba(176,96,80,0.12)",
                   border: "none",
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", fontWeight: 600,
+                  fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                   color: confirmado ? "#ffffff" : "rgba(176,96,80,0.4)",
                   cursor: confirmado ? "pointer" : "not-allowed",
                   transition: "all 150ms",

@@ -122,7 +122,7 @@ function EstadoPagamentoBadge({ estado }: { estado: string }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: "100px",
-      fontSize: "10px", fontWeight: 700, color: cfg.color, backgroundColor: cfg.bg,
+      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, color: cfg.color, backgroundColor: cfg.bg,
       fontFamily: "var(--font-sans, sans-serif)",
     }}>
       {cfg.label}
@@ -188,7 +188,7 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
         boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "17px", fontWeight: 400 }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "calc(17px * var(--ui-font-scale))", fontWeight: 400 }}>
             Registar pagamento
           </h2>
           <button onClick={onFechar} aria-label="Fechar" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
@@ -196,35 +196,35 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
           </button>
         </div>
 
-        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--muted-foreground)", marginBottom: "16px" }}>
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--muted-foreground)", marginBottom: "16px" }}>
           <NomeServico nome={nomePack(pack)} /> · falta €{(pack.valorTotal - pack.valorPago).toFixed(2)} de €{pack.valorTotal.toFixed(2)}
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div>
-            <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Valor (€)</label>
+            <label style={{ display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Valor (€)</label>
             <input ref={primeiroCampoRef} type="number" step="0.01" min="0.01" value={valor} onChange={e => setValor(e.target.value)}
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
           </div>
           <div>
-            <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Método</label>
+            <label style={{ display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Método</label>
             <select value={metodo} onChange={e => setMetodo(e.target.value)}
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }}>
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }}>
               {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Nota (opcional)</label>
+            <label style={{ display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Nota (opcional)</label>
             <input type="text" value={notas} onChange={e => setNotas(e.target.value)} placeholder="ex: 1ª parcela"
-              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
           </div>
 
-          {erro && <p style={{ color: "var(--destructive)", fontSize: "12px" }}>{erro}</p>}
+          {erro && <p style={{ color: "var(--destructive)", fontSize: "calc(12px * var(--ui-font-scale))" }}>{erro}</p>}
 
           <button onClick={submeter} disabled={pending} className={pending ? undefined : "btn-lift"}
             style={{
               marginTop: "6px", padding: "11px", borderRadius: "8px", border: "none",
-              backgroundColor: GOLD, color: "var(--primary-foreground)", fontWeight: 700, fontSize: "13px",
+              backgroundColor: GOLD, color: "var(--primary-foreground)", fontWeight: 700, fontSize: "calc(13px * var(--ui-font-scale))",
               cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1, minHeight: "44px",
               fontFamily: "var(--font-sans, sans-serif)",
             }}>
@@ -308,11 +308,11 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
   }
 
   const labelStyle: React.CSSProperties = {
-    display: "block", fontSize: "10.5px", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em",
+    display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em",
     textTransform: "uppercase", marginBottom: "5px",
   }
   const opcaoStyle = (ativa: boolean): React.CSSProperties => ({
-    flex: 1, padding: "10px 8px", borderRadius: "7px", fontSize: "12px", fontWeight: 600, cursor: "pointer",
+    flex: 1, padding: "10px 8px", borderRadius: "7px", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, cursor: "pointer",
     fontFamily: "var(--font-sans, sans-serif)", textAlign: "center",
     border: ativa ? "1px solid rgba(212,184,134,0.5)" : "1px solid rgba(212,184,134,0.14)",
     backgroundColor: ativa ? "rgba(212,184,134,0.12)" : "transparent",
@@ -332,7 +332,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
         borderRadius: "14px", padding: "24px", boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "18px" }}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "18px", fontWeight: 400 }}>Novo Pack</h2>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", color: CREAM, fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400 }}>Novo Pack</h2>
           <button onClick={onFechar} aria-label="Fechar" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
             <X size={18} />
           </button>
@@ -345,14 +345,14 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
               {PRESETS.map((p, i) => (
                 <button key={p.label} type="button" ref={i === 0 ? primeiroCampoRef : undefined} onClick={() => escolherPreset(i)}
                   style={{
-                    padding: "9px 8px", borderRadius: "7px", fontSize: "11.5px", fontWeight: 600, cursor: "pointer",
+                    padding: "9px 8px", borderRadius: "7px", fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600, cursor: "pointer",
                     fontFamily: "var(--font-sans, sans-serif)", textAlign: "left",
                     border: presetAtivo === i ? "1px solid rgba(212,184,134,0.5)" : "1px solid rgba(212,184,134,0.14)",
                     backgroundColor: presetAtivo === i ? "rgba(212,184,134,0.12)" : "transparent",
                     color: presetAtivo === i ? GOLD : CREAM,
                   }}>
                   {p.label}
-                  <div style={{ fontSize: "10px", fontWeight: 400, color: "var(--muted-foreground)", marginTop: "2px" }}>
+                  <div style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 400, color: "var(--muted-foreground)", marginTop: "2px" }}>
                     €{p.valorTotal} · €{(p.valorTotal / p.totalSessoes).toFixed(0)}/sessão
                   </div>
                 </button>
@@ -364,7 +364,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
             <label style={labelStyle}>Terapeuta</label>
             <select value={terapeutaId} onChange={e => setTerapeutaId(e.target.value)} style={{
               width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-              borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px",
+              borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))",
               fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
             }}>
               <option value="">Escolhe a terapeuta</option>
@@ -384,7 +384,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
                 </button>
               </div>
               {pagamento === "2x" && (
-                <p style={{ fontSize: "11px", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+                <p style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
                   Regista-se a 1ª parcela agora (€{(preset.valorTotal / 2).toFixed(2)}); a 2ª fica pendente para a 5ª sessão, no cartão do pack.
                 </p>
               )}
@@ -396,7 +396,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
               <label style={labelStyle}>Método de pagamento{pagamento === "2x" ? " (1ª parcela)" : ""}</label>
               <select value={metodo} onChange={e => setMetodo(e.target.value)} style={{
                 width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
-                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "16px",
+                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))",
                 fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
               }}>
                 {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -404,12 +404,12 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
             </div>
           )}
 
-          {erro && <p style={{ color: "var(--destructive)", fontSize: "12px" }}>{erro}</p>}
+          {erro && <p style={{ color: "var(--destructive)", fontSize: "calc(12px * var(--ui-font-scale))" }}>{erro}</p>}
 
           <button onClick={submeter} disabled={pending} className={pending ? undefined : "btn-lift"}
             style={{
               padding: "12px", borderRadius: "9px", border: "none", backgroundColor: GOLD,
-              color: "var(--primary-foreground)", fontWeight: 700, fontSize: "13.5px",
+              color: "var(--primary-foreground)", fontWeight: 700, fontSize: "calc(13.5px * var(--ui-font-scale))",
               cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1, minHeight: "44px",
               fontFamily: "var(--font-sans, sans-serif)",
             }}>
@@ -481,16 +481,16 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
         animation: "riseOnly var(--dur-med) var(--ease-out) both", animationDelay: `${Math.min(index, 10) * 26}ms`,
       }}>
         <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "8px" }}>
-          <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: CREAM, flex: 1 }}>
+          <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", color: CREAM, flex: 1 }}>
             <NomeServico nome={nomePack(pack)} />
           </span>
           <span style={{
-            fontSize: "10px", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",
+            fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600, padding: "2px 8px", borderRadius: "100px",
             background: pack.ativo ? "rgba(74,124,89,0.12)" : "rgba(160,100,80,0.1)",
             color: pack.ativo ? "#4a7c59" : "#a06450",
           }}>{pack.ativo ? "Ativo" : "Terminado"}</span>
           <EstadoPagamentoBadge estado={pack.estadoPagamento} />
-          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: GOLD }}>
+          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: GOLD }}>
             €{pack.valorTotal.toFixed(2)}
           </span>
           <button
@@ -505,7 +505,7 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
               borderRadius: "100px", border: "1px solid rgba(176,96,80,0.25)",
               backgroundColor: confirmarApagar ? "rgba(176,96,80,0.12)" : "transparent",
               color: "rgba(176,96,80,0.7)", cursor: apagando ? "wait" : "pointer",
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "10.5px", fontWeight: 700,
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10.5px * var(--ui-font-scale))", fontWeight: 700,
             }}
           >
             <Trash2 size={12} />
@@ -517,39 +517,39 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
           <div style={{ flex: 1, height: "6px", borderRadius: "3px", background: "rgba(212,184,134,0.1)", overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${pct}%`, background: pack.ativo ? "var(--nuit-sage)" : GOLD, borderRadius: "3px", transition: "width 0.3s" }} />
           </div>
-          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>
             {pack.sessoesUsadas}/{pack.totalSessoes} sessões · {restantes} restantes
           </span>
         </div>
 
-        <div style={{ fontSize: "11.5px", color: "var(--muted-foreground)", marginBottom: "10px" }}>
+        <div style={{ fontSize: "calc(11.5px * var(--ui-font-scale))", color: "var(--muted-foreground)", marginBottom: "10px" }}>
           {pack.terapeuta?.name ?? "Beatriz Leão"}
           {pack.descricao && <> · {pack.descricao}</>}
         </div>
 
         {pack.estadoPagamento !== "pago" && (
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "11.5px", color: "var(--destructive)" }}>Falta €{falta.toFixed(2)}</span>
+            <span style={{ fontSize: "calc(11.5px * var(--ui-font-scale))", color: "var(--destructive)" }}>Falta €{falta.toFixed(2)}</span>
             {sugestao2x ? (
               <button onClick={() => setModalAberto({ valor: sugestao2x.valor, nota: sugestao2x.nota })} className="btn-lift"
-                style={{ fontSize: "11px", fontWeight: 700, padding: "5px 11px", borderRadius: "100px", border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)", cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)" }}>
+                style={{ fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, padding: "5px 11px", borderRadius: "100px", border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)", cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)" }}>
                 Registar {sugestao2x.nota} (€{sugestao2x.valor.toFixed(2)})
               </button>
             ) : (
               <button onClick={() => setModalAberto({ valor: falta })} className="btn-lift"
-                style={{ fontSize: "11px", fontWeight: 700, padding: "5px 11px", borderRadius: "100px", border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)", cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)" }}>
+                style={{ fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, padding: "5px 11px", borderRadius: "100px", border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)", cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)" }}>
                 Registar pagamento
               </button>
             )}
             {pack.pagamentos.length > 0 && (
-              <span style={{ fontSize: "10.5px", color: "var(--muted-foreground)" }}>
+              <span style={{ fontSize: "calc(10.5px * var(--ui-font-scale))", color: "var(--muted-foreground)" }}>
                 {pack.pagamentos.length === 1 ? "1 pagamento já registado" : `${pack.pagamentos.length} pagamentos já registados`}
               </span>
             )}
           </div>
         )}
         {pack.estadoPagamento === "pago" && pack.pagamentos.length > 0 && (
-          <p style={{ fontSize: "11px", color: "var(--muted-foreground)", marginBottom: pack.ativo && restantes > 0 ? "10px" : 0 }}>
+          <p style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)", marginBottom: pack.ativo && restantes > 0 ? "10px" : 0 }}>
             <CreditCard size={11} style={{ verticalAlign: "-1px", marginRight: "4px" }} />
             Pago{pack.pagamentos.length > 1 ? ` em ${pack.pagamentos.length}x` : ""} · última em {formatDate(pack.pagamentos[pack.pagamentos.length - 1]!.criadoEm)}
           </p>
@@ -562,14 +562,14 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, index }: {
           linkCalendly ? (
             <button onClick={copiarLinkCalendly} className="btn-lift" style={{
               display: "inline-flex", alignItems: "center", gap: "6px",
-              fontSize: "11px", fontWeight: 700, padding: "6px 12px", borderRadius: "100px",
+              fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, padding: "6px 12px", borderRadius: "100px",
               border: "1px solid rgba(212,184,134,0.3)", backgroundColor: "transparent", color: GOLD,
               cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)",
             }}>
               <Calendar size={12} /> Copiar link Calendly
             </button>
           ) : (
-            <span style={{ fontSize: "10.5px", color: "var(--muted-foreground)", fontStyle: "italic" }}>
+            <span style={{ fontSize: "calc(10.5px * var(--ui-font-scale))", color: "var(--muted-foreground)", fontStyle: "italic" }}>
               Link Calendly de massagens ainda por configurar
             </span>
           )
@@ -600,13 +600,13 @@ export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
-            <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>
+            <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>
               Packs de Sessões
             </h2>
           </div>
           <button onClick={() => setCriarAberto(true)} className="btn-lift" style={{
             display: "inline-flex", alignItems: "center", gap: "6px", padding: "7px 14px", borderRadius: "6px",
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600, letterSpacing: "0.02em",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.02em",
             cursor: "pointer", border: "1px solid rgba(212,184,134,0.3)", backgroundColor: "transparent", color: GOLD,
           }}>
             <Plus size={13} /> Criar Pack
@@ -614,7 +614,7 @@ export function PacksTab({ clienteId, clienteNome, clienteEmail, packs, servicos
         </div>
 
         {packs.length === 0 ? (
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
             Sem packs activos para este cliente.
           </p>
         ) : (

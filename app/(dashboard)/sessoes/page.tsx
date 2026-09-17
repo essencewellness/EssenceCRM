@@ -103,14 +103,14 @@ export default async function SessoesPage({ searchParams }: PageProps) {
       {/* Cabeçalho */}
       <div style={{ marginBottom: "28px" }}>
         <p style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))",
           fontWeight: 500, letterSpacing: "0.32em", textTransform: "uppercase",
           color: "var(--nuit-champagne-soft)", marginBottom: "6px",
         }}>
           Essence Wellness · CRM
         </p>
         <h1 style={{
-          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
+          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))",
           fontWeight: 400, color: "var(--nuit-bone)", letterSpacing: "-0.005em",
         }}>
           Sessões
@@ -132,13 +132,13 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <span style={{
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))",
                 fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
               }}>{label}</span>
               {icon}
             </div>
             <p style={{
-              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "28px",
+              fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(28px * var(--ui-font-scale))",
               fontWeight: 400, color: "var(--nuit-bone)",
             }}>{value}</p>
           </StaggerItem>
@@ -151,7 +151,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           const ativo = (dataFiltro ?? "") === key;
           return (
             <Link key={key} href={buildUrl({ data: key })} style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
               border: ativo ? "1px solid var(--nuit-champagne-soft)" : "1px solid rgba(212,184,134,0.16)",
               color: ativo ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
@@ -165,7 +165,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
           const ativo = (estadoFiltro ?? "") === key;
           return (
             <Link key={key} href={buildUrl({ estado: key })} style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
               padding: "5px 12px", borderRadius: "100px", textDecoration: "none",
               border: ativo ? "1px solid var(--nuit-champagne-soft)" : "1px solid rgba(212,184,134,0.16)",
               color: ativo ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
@@ -189,7 +189,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             <Calendar size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic",
-              fontSize: "14px", color: "var(--nuit-bone-soft)",
+              fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               Nenhuma sessão encontrada.
             </p>
@@ -205,7 +205,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
             }}>
               {["Data", "Cliente", "Serviço", "Terapeuta", "Estado"].map((col) => (
                 <span key={col} style={{
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))",
                   fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)",
                   textTransform: "uppercase",
                 }}>{col}</span>
@@ -232,7 +232,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                 className={clienteApagado ? undefined : "row-hover"}
                 >
                   <span style={{
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
                     color: isHoje ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
                     fontWeight: isHoje ? 600 : 400,
                   }}>
@@ -244,14 +244,14 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
                   <div>
                     <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                       fontWeight: 600, color: clienteApagado ? "var(--nuit-bone-soft)" : "var(--nuit-bone)",
                     }}>
                       {sessao.cliente?.nome ?? sessao.clienteNomeArquivado ?? "Cliente eliminada"}
                     </span>
                     {sessao.cliente?.telefone && (
                       <span style={{
-                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))",
                         color: "var(--nuit-bone-soft)", marginLeft: "8px",
                       }}>
                         {sessao.cliente.telefone}
@@ -260,14 +260,14 @@ export default async function SessoesPage({ searchParams }: PageProps) {
                   </div>
 
                   <span style={{
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
                     color: "var(--nuit-bone-soft)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>
                     {sessao.servico ?? "—"}
                   </span>
 
                   <span style={{
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
                     color: "var(--nuit-bone-soft)", textTransform: "capitalize",
                   }}>
                     {sessao.user?.name ?? "-"}
@@ -275,7 +275,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
                   <span style={{
                     padding: "3px 8px", borderRadius: "0px",
-                    fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+                    fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
                     fontFamily: "var(--font-sans, sans-serif)",
                     color: cfg.color, backgroundColor: cfg.bg,
                     border: `1px solid ${cfg.color}44`,
@@ -306,7 +306,7 @@ export default async function SessoesPage({ searchParams }: PageProps) {
 
       {sessoes.length === 100 && (
         <p style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))",
           color: "var(--nuit-bone-soft)", textAlign: "center", marginTop: "16px",
         }}>
           A mostrar as últimas 100 sessões. Usa os filtros para refinar.

@@ -22,15 +22,15 @@ export default function GlobalError({
       <body style={{ backgroundColor: "var(--nuit-midnight)", color: "var(--nuit-bone)", fontFamily: "sans-serif" }}>
         <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "9px", letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--nuit-champagne)", marginBottom: "14px" }}>
+            <p style={{ fontSize: "calc(9px * var(--ui-font-scale))", letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--nuit-champagne)", marginBottom: "14px" }}>
               Essence Wellness · CRM
             </p>
-            <h1 style={{ fontSize: "22px", marginBottom: "10px" }}>Ocorreu um erro grave</h1>
-            <p style={{ fontSize: "13px", color: "var(--nuit-bone-soft)", marginBottom: "20px" }}>
+            <h1 style={{ fontSize: "calc(22px * var(--ui-font-scale))", marginBottom: "10px" }}>Ocorreu um erro grave</h1>
+            <p style={{ fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginBottom: "20px" }}>
               A aplicação encontrou um problema inesperado. Recarrega a página.
             </p>
             {error.digest && (
-              <p style={{ fontSize: "10px", color: "var(--nuit-bone-soft)", wordBreak: "break-all" }}>
+              <p style={{ fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", wordBreak: "break-all" }}>
                 Referência: {error.digest}
               </p>
             )}

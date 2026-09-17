@@ -98,17 +98,17 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
               }}>
                 <span style={{
                   fontFamily: "var(--font-heading, serif)",
-                  fontSize: "11px", color: "var(--nuit-champagne)",
+                  fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-champagne)",
                 }}>EW</span>
               </div>
               <div>
                 <div style={{
                   fontFamily: "var(--font-heading, serif)",
-                  fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.1,
+                  fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)", lineHeight: 1.1,
                 }}>Essence</div>
                 <div style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "8px", color: "var(--nuit-champagne)",
+                  fontSize: "calc(8px * var(--ui-font-scale))", color: "var(--nuit-champagne)",
                   letterSpacing: "0.32em", textTransform: "uppercase", marginTop: "2px",
                 }}>Wellness · CRM</div>
               </div>
@@ -159,7 +159,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                   <span style={{
                     flex: 1,
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "13px",
+                    fontSize: "calc(13px * var(--ui-font-scale))",
                     fontWeight: active ? 500 : 400,
                     color: active ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                   }}>
@@ -170,7 +170,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       minWidth: "18px", height: "18px", padding: "0 4px",
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9px", fontWeight: 600,
+                      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                       backgroundColor: "var(--nuit-champagne)",
                       color: "var(--nuit-midnight)",
                     }}>
@@ -202,7 +202,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                 <LogOut size={15} style={{ color: "var(--nuit-smoke)", strokeWidth: 1.5, flexShrink: 0 }} />
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "13px", fontWeight: 400,
+                  fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 400,
                   color: "var(--nuit-bone-soft)",
                 }}>
                   Terminar sessão
@@ -251,7 +251,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                       position: "absolute", top: "-4px", right: "-6px",
                       width: "16px", height: "16px",
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "8px", fontWeight: 700,
+                      fontSize: "calc(8px * var(--ui-font-scale))", fontWeight: 700,
                       backgroundColor: "var(--nuit-champagne)",
                       color: "var(--nuit-midnight)",
                       display: "flex", alignItems: "center", justifyContent: "center",
@@ -262,7 +262,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                 </div>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "9px", fontWeight: active ? 500 : 400,
+                  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: active ? 500 : 400,
                   letterSpacing: "0.04em",
                 }}>
                   {item.label}
@@ -282,7 +282,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
             <Menu size={20} style={{ strokeWidth: 1.5 }} />
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", fontWeight: 400, letterSpacing: "0.04em",
+              fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 400, letterSpacing: "0.04em",
             }}>Menu</span>
           </button>
         </div>

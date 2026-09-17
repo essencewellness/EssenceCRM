@@ -83,7 +83,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 >
                   <Icon size={16} color={cfg.color} style={{ flexShrink: 0, display: "block" }} />
                 </motion.div>
-                <span style={{ color: "var(--nuit-bone)", fontSize: "13px", flex: 1, lineHeight: 1.45 }}>
+                <span style={{ color: "var(--nuit-bone)", fontSize: "calc(13px * var(--ui-font-scale))", flex: 1, lineHeight: 1.45 }}>
                   {t.message}
                 </span>
                 <motion.button

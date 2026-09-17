@@ -28,7 +28,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
 
   const labelStyle: React.CSSProperties = {
     fontFamily: "var(--font-sans, sans-serif)",
-    fontSize: "10px", fontWeight: 600,
+    fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
     letterSpacing: "0.24em", textTransform: "uppercase",
     color: "var(--nuit-bone-soft)", display: "block", marginBottom: "6px",
   };
@@ -39,7 +39,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
     border: "1px solid #e0d8cc",
     borderRadius: "3px",
     fontFamily: "var(--font-sans, sans-serif)",
-    fontSize: "14px", color: "var(--nuit-midnight)",
+    fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-midnight)",
     outline: "none",
   };
 
@@ -96,7 +96,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
 
   const tituloSecao: React.CSSProperties = {
     fontFamily: "var(--font-heading, Georgia, serif)",
-    fontSize: "15px", color: "var(--nuit-midnight)",
+    fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-midnight)",
     fontWeight: 400, marginBottom: "20px",
     paddingBottom: "12px",
     borderBottom: "1px solid #e8e2d9",
@@ -126,8 +126,8 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
               style={inputStyle}
             />
           </div>
-          {erroPerfil && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px" }}>{erroPerfil}</p>}
-          {mensagemPerfil && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px" }}>{mensagemPerfil}</p>}
+          {erroPerfil && <p style={{ color: "var(--destructive)", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "12px" }}>{erroPerfil}</p>}
+          {mensagemPerfil && <p style={{ color: "#7a9e7e", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "12px" }}>{mensagemPerfil}</p>}
           <button
             type="submit"
             disabled={loadingPerfil}
@@ -136,7 +136,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
               border: "none", borderRadius: "3px",
               padding: "10px 20px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px", fontWeight: 600,
+              fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
               letterSpacing: "0.24em", textTransform: "uppercase",
               cursor: loadingPerfil ? "not-allowed" : "pointer",
               opacity: loadingPerfil ? 0.6 : 1,
@@ -177,8 +177,8 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
             style={inputStyle}
           />
         </div>
-        {erroPassword && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "12px" }}>{erroPassword}</p>}
-        {mensagemPassword && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "12px" }}>{mensagemPassword}</p>}
+        {erroPassword && <p style={{ color: "var(--destructive)", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "12px" }}>{erroPassword}</p>}
+        {mensagemPassword && <p style={{ color: "#7a9e7e", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "12px" }}>{mensagemPassword}</p>}
         <button
           type="submit"
           disabled={loadingPassword}
@@ -187,7 +187,7 @@ export function PerfilForm({ nomeInicial, emailInicial, obrigatorio }: PerfilFor
             border: "none", borderRadius: "3px",
             padding: "10px 20px",
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 600,
+            fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
             letterSpacing: "0.24em", textTransform: "uppercase",
             cursor: loadingPassword ? "not-allowed" : "pointer",
             opacity: loadingPassword ? 0.6 : 1,

@@ -39,7 +39,7 @@ export function ConfiguracoesNav({ isAdmin }: { isAdmin: boolean }) {
             href={href}
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "13px",
+              fontSize: "calc(13px * var(--ui-font-scale))",
               fontWeight: isActive ? 600 : 400,
               color: isActive ? "var(--nuit-midnight)" : "#9d9d9a",
               padding: "8px 14px",

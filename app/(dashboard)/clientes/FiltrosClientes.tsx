@@ -113,7 +113,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {Object.entries(etiquetasPorTipo).map(([tipo, tags]) => (
         <div key={tipo} style={{ marginBottom: "10px" }}>
           <p style={{
-            fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em",
+            fontSize: "calc(8.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
             textTransform: "uppercase", color: "#9d9d9a",
             fontFamily: "var(--font-sans, sans-serif)", marginBottom: "6px",
           }}>
@@ -129,7 +129,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                   style={{
                     display: "inline-flex", alignItems: "center", gap: "5px",
                     padding: "4px 10px", borderRadius: "100px", cursor: "pointer",
-                    fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
+                    fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                     color: tag.cor,
                     backgroundColor: ativo ? `${tag.cor}20` : "transparent",
                     border: `1px solid ${ativo ? tag.cor : tag.cor + "55"}`,
@@ -148,7 +148,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {/* Toggle AND/OR para etiquetas — só visível quando há 2+ etiquetas selecionadas */}
       {etiquetasFiltro.length >= 2 && (
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-          <span style={{ fontSize: "10px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)" }}>
+          <span style={{ fontSize: "calc(10px * var(--ui-font-scale))", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)" }}>
             Mostrar clientes com
           </span>
           <button
@@ -156,7 +156,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             style={{
               display: "inline-flex", alignItems: "center", gap: "4px",
               padding: "3px 10px", borderRadius: "100px", cursor: "pointer",
-              fontSize: "10px", fontWeight: 700, fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, fontFamily: "var(--font-sans, sans-serif)",
               letterSpacing: "0.08em",
               color: etiquetasModo === "and" ? "#ffffff" : "#7a9e7e",
               backgroundColor: etiquetasModo === "and" ? "#7a9e7e" : "transparent",
@@ -172,7 +172,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {/* Filtro de estado CRM */}
       <div style={{ marginBottom: "10px" }}>
         <p style={{
-          fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(8.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           textTransform: "uppercase", color: "#9d9d9a",
           fontFamily: "var(--font-sans, sans-serif)", marginBottom: "6px",
         }}>Estado CRM</p>
@@ -186,7 +186,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 style={{
                   display: "inline-flex", alignItems: "center", gap: "5px",
                   padding: "4px 10px", borderRadius: "100px", cursor: "pointer",
-                  fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
+                  fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                   color: cfg.cor,
                   backgroundColor: ativo ? cfg.bg : "transparent",
                   border: `1px solid ${ativo ? cfg.border : cfg.cor + "30"}`,
@@ -204,7 +204,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {/* Filtro de inactividade */}
       <div style={{ marginBottom: "14px" }}>
         <p style={{
-          fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(8.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           textTransform: "uppercase", color: "#9d9d9a",
           fontFamily: "var(--font-sans, sans-serif)", marginBottom: "6px",
         }}>Inactividade</p>
@@ -217,7 +217,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                 onClick={() => atualizar({ etiquetas: etiquetasFiltro, estados: estadosFiltro, inativo: value })}
                 style={{
                   padding: "4px 12px", borderRadius: "100px", cursor: "pointer",
-                  fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
+                  fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                   color: ativo ? "var(--nuit-champagne-soft)" : "#9d9d9a",
                   backgroundColor: ativo ? "rgba(185,160,122,0.10)" : "transparent",
                   border: `1px solid ${ativo ? "rgba(185,160,122,0.40)" : "rgba(157,157,154,0.25)"}`,
@@ -235,7 +235,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
       {temFiltros && (
         <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", backgroundColor: "rgba(185,160,122,0.06)", borderRadius: "6px", border: "1px solid rgba(185,160,122,0.20)" }}>
           <Zap size={13} color="var(--nuit-champagne-soft)" />
-          <span style={{ fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", flex: 1 }}>
+          <span style={{ fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", flex: 1 }}>
             <strong style={{ color: "var(--nuit-bone)" }}>{totalResultados}</strong> cliente{totalResultados !== 1 ? "s" : ""} encontrada{totalResultados !== 1 ? "s" : ""}
           </span>
           <button
@@ -243,7 +243,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             disabled={totalResultados === 0}
             style={{
               padding: "6px 14px", borderRadius: "4px", cursor: totalResultados > 0 ? "pointer" : "not-allowed",
-              fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
+              fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
               letterSpacing: "0.06em", textTransform: "uppercase",
               color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", border: "none",
               opacity: totalResultados > 0 ? 1 : 0.5,
@@ -255,7 +255,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             onClick={limparTudo}
             style={{
               padding: "6px 10px", borderRadius: "4px", cursor: "pointer",
-              fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
+              fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
               color: "var(--nuit-bone-soft)", backgroundColor: "transparent", border: "1px solid rgba(212,184,134,0.20)",
             }}
           >
@@ -280,27 +280,27 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             {resultado ? (
               /* Estado de sucesso */
               <>
-                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "var(--nuit-bone)", marginBottom: "12px" }}>
+                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(20px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "12px" }}>
                   Campanha criada!
                 </h3>
-                <p style={{ fontSize: "14px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
+                <p style={{ fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-body, sans-serif)", marginBottom: "8px" }}>
                   <strong style={{ color: "var(--nuit-bone)" }}>{resultado.totalCriadas}</strong> mensagens criadas e aguardam aprovação.
                 </p>
                 {resultado.totalExcluidas > 0 && (
-                  <p style={{ fontSize: "12px", color: "var(--destructive)", fontFamily: "var(--font-sans, sans-serif)" }}>
+                  <p style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--destructive)", fontFamily: "var(--font-sans, sans-serif)" }}>
                     ⚕ {resultado.totalExcluidas} cliente{resultado.totalExcluidas > 1 ? "s excluídas" : " excluída"} (restrição de saúde)
                   </p>
                 )}
                 <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                   <button
                     onClick={() => { setModalCampanha(false); setResultado(null); setNomeCampanha(""); setTemplateId(""); setMensagemTexto("") }}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Fechar
                   </button>
                   <a
                     href="/mensagens"
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: "pointer", textAlign: "center", textDecoration: "none" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: "pointer", textAlign: "center", textDecoration: "none" }}
                   >
                     Ver mensagens
                   </a>
@@ -309,25 +309,25 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
             ) : (
               /* Formulário */
               <>
-                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: "var(--nuit-bone)", marginBottom: "18px" }}>
+                <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(20px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "18px" }}>
                   Nova campanha
                 </h3>
 
                 <div style={{ marginBottom: "14px" }}>
-                  <label style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
+                  <label style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
                     Nome da campanha
                   </label>
                   <input
                     value={nomeCampanha}
                     onChange={e => setNomeCampanha(e.target.value)}
                     placeholder="Ex.: Campanha Junho — Massagem de Casal"
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
 
                 {/* Canal de envio */}
                 <div style={{ marginBottom: "14px" }}>
-                  <label style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
+                  <label style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
                     Canal
                   </label>
                   <div style={{ display: "flex", gap: "8px" }}>
@@ -338,7 +338,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                         onClick={() => setCanal(opcao)}
                         style={{
                           flex: 1, padding: "8px", borderRadius: "4px", cursor: "pointer",
-                          fontSize: "12px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
                           textTransform: "capitalize",
                           color: canal === opcao ? "#fff" : "var(--nuit-bone-soft)",
                           backgroundColor: canal === opcao ? "var(--nuit-champagne-soft)" : "transparent",
@@ -353,7 +353,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
 
                 {/* Origem da mensagem: template pronto ou texto escrito na hora */}
                 <div style={{ marginBottom: "10px" }}>
-                  <label style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
+                  <label style={{ fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", display: "block", marginBottom: "6px" }}>
                     Mensagem
                   </label>
                   <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
@@ -367,7 +367,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                         onClick={() => setModoMensagem(opcao.value)}
                         style={{
                           flex: 1, padding: "7px", borderRadius: "4px", cursor: "pointer",
-                          fontSize: "11.5px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
                           color: modoMensagem === opcao.value ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
                           backgroundColor: modoMensagem === opcao.value ? "rgba(185,160,122,0.10)" : "transparent",
                           border: `1px solid ${modoMensagem === opcao.value ? "rgba(185,160,122,0.40)" : "rgba(212,184,134,0.20)"}`,
@@ -382,7 +382,7 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                     <select
                       value={templateId}
                       onChange={e => setTemplateId(e.target.value)}
-                      style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", outline: "none", backgroundColor: "var(--nuit-midnight)" }}
+                      style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", outline: "none", backgroundColor: "var(--nuit-midnight)" }}
                     >
                       <option value="">Seleccionar template…</option>
                       {templates.map(t => (
@@ -396,30 +396,30 @@ export function FiltrosClientes({ todasEtiquetas, templates, totalResultados, et
                         onChange={e => setMensagemTexto(e.target.value)}
                         placeholder="Escreve a mensagem — usa {{nome}} para o primeiro nome da cliente"
                         rows={4}
-                        style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "14px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box", resize: "vertical" }}
+                        style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid rgba(212,184,134,0.22)", fontSize: "calc(14px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)", backgroundColor: "var(--nuit-midnight)", outline: "none", boxSizing: "border-box", resize: "vertical" }}
                       />
-                      <p style={{ fontSize: "11px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", marginTop: "6px" }}>
+                      <p style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", marginTop: "6px" }}>
                         Usa <code>{"{{nome}}"}</code> onde quiseres o primeiro nome de cada cliente.
                       </p>
                     </>
                   )}
                 </div>
 
-                <p style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", margin: "8px 0 18px" }}>
+                <p style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", margin: "8px 0 18px" }}>
                   {totalResultados} cliente{totalResultados !== 1 ? "s" : ""} receberá{totalResultados !== 1 ? "m" : ""} esta mensagem, como <strong>pendente</strong> em /mensagens (clientes com restrições de saúde serão excluídas automaticamente).
                 </p>
 
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
                     onClick={() => setModalCampanha(false)}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone-soft)", cursor: "pointer", backgroundColor: "transparent" }}
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleCriarCampanha}
                     disabled={!nomeCampanha.trim() || !mensagemValida || isPending}
-                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "13px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: nomeCampanha.trim() && mensagemValida ? "pointer" : "not-allowed", opacity: nomeCampanha.trim() && mensagemValida ? 1 : 0.5 }}
+                    style={{ flex: 1, padding: "9px", borderRadius: "4px", fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)", cursor: nomeCampanha.trim() && mensagemValida ? "pointer" : "not-allowed", opacity: nomeCampanha.trim() && mensagemValida ? 1 : 0.5 }}
                   >
                     {isPending ? "A criar…" : "Criar campanha"}
                   </button>

@@ -91,7 +91,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
         <FileText size={13} color="var(--nuit-champagne-soft)" />
         <span style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700,
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700,
           letterSpacing: "0.16em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
         }}>
           Resumo da Sessão
@@ -99,7 +99,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
       </div>
 
       {temCabecalho && (
-        <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", margin: "0 0 12px", lineHeight: 1.6 }}>
+        <p style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", margin: "0 0 12px", lineHeight: 1.6 }}>
           {sessao.estadoEmocional && <>Chegou <strong style={{ color: "var(--nuit-bone)", fontWeight: 600 }}>{sessao.estadoEmocional}</strong>. </>}
           {aromaTipo && <>Aroma: <strong style={{ color: "var(--nuit-bone)", fontWeight: 600 }}>{aromaTipo}</strong>{aromaDetalhe ? ` (${aromaDetalhe})` : ""}.</>}
         </p>
@@ -107,7 +107,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
 
       {sessao.resumoSessao && (
         <p style={{
-          fontFamily: "var(--font-body)", fontSize: "14px", color: "var(--nuit-bone-soft)",
+          fontFamily: "var(--font-body)", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           lineHeight: 1.75, whiteSpace: "pre-wrap",
           margin: clinicas || pessoais ? "0 0 14px" : 0,
         }}>
@@ -117,7 +117,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
 
       {clinicas && (
         <p style={{
-          fontFamily: "var(--font-body)", fontSize: "13.5px", color: "var(--nuit-bone-soft)",
+          fontFamily: "var(--font-body)", fontSize: "calc(13.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           lineHeight: 1.7, whiteSpace: "pre-wrap",
           margin: pessoais ? "0 0 10px" : 0,
         }}>
@@ -127,7 +127,7 @@ function ResumoSessaoBlock({ sessao }: { sessao: Sessao }) {
 
       {pessoais && (
         <p style={{
-          fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-bone-soft)",
+          fontFamily: "var(--font-body)", fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           lineHeight: 1.7, whiteSpace: "pre-wrap", fontStyle: "italic", margin: 0,
         }}>
           <strong style={{ fontStyle: "normal", fontWeight: 600 }}>Pessoal: </strong>{pessoais}
@@ -150,7 +150,7 @@ function formatarAroma(texto: string) {
     <>
       {tipo}
       <div style={{
-        fontSize: "11.5px", color: "var(--nuit-bone-soft)", marginTop: "3px",
+        fontSize: "calc(11.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "3px",
         whiteSpace: "pre-wrap", lineHeight: 1.5, fontStyle: "normal",
       }}>
         {detalhe}
@@ -173,7 +173,7 @@ function SessaoEstadoBadge({ estado }: { estado: string }) {
     <span style={{
       display: "inline-flex", alignItems: "center", gap: "5px",
       padding: "3px 9px", borderRadius: "100px",
-      fontSize: "10px", fontWeight: 600,
+      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
       fontFamily: "var(--font-sans, sans-serif)",
       color: cfg.color, backgroundColor: cfg.bg,
       border: `1px solid ${cfg.color}30`,
@@ -189,14 +189,14 @@ function DetailItem({ label, value }: { label: string; value: string | null | un
     <div>
       <p style={{
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+        fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
         color: "var(--nuit-bone-soft)", textTransform: "uppercase", marginBottom: "4px",
       }}>
         {label}
       </p>
       <p style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "13px", color: "var(--nuit-bone)",
+        fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
         whiteSpace: "pre-line",
       }}>
         {value ?? "—"}
@@ -232,7 +232,7 @@ function EditableDetailBlock({ title, icon: Icon, value, color, placeholder, onS
         </div>
         <span style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone)",
+          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)",
           letterSpacing: "0.02em",
         }}>
           {title}
@@ -244,7 +244,7 @@ function EditableDetailBlock({ title, icon: Icon, value, color, placeholder, onS
         type="textarea"
         value={value}
         placeholder={placeholder}
-        valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.7 }}
+        valueStyle={{ fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.7 }}
         onSave={onSave}
       />
     </div>
@@ -280,7 +280,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
   )
   if (!temConteudo) return null
 
-  const rotulo = { fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" as const, marginBottom: "10px" }
+  const rotulo = { fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase" as const, marginBottom: "10px" }
 
   return (
     <div style={{
@@ -292,7 +292,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
         <Sparkles size={13} color="var(--nuit-champagne-soft)" />
         <p style={{ ...rotulo, marginBottom: 0, color: "var(--nuit-champagne-soft)" }}>Ficha da terapeuta (gerada por IA)</p>
         {b.tipo_cliente && (
-          <span style={{ marginLeft: "auto", fontSize: "10px", fontWeight: 600, color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
+          <span style={{ marginLeft: "auto", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
             {b.tipo_cliente}{b.contagem_visitas ? ` · ${b.contagem_visitas}ª visita` : ""}
           </span>
         )}
@@ -301,10 +301,10 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
       {b.alertas && (
         <div style={{
           borderLeft: "2px solid var(--destructive)", backgroundColor: "rgba(176,96,80,0.08)",
-          color: "var(--destructive)", padding: "12px 14px", fontSize: "13px", lineHeight: 1.6,
+          color: "var(--destructive)", padding: "12px 14px", fontSize: "calc(13px * var(--ui-font-scale))", lineHeight: 1.6,
           marginBottom: "16px",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px", fontFamily: "var(--font-sans)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             <AlertTriangle size={12} /> Alertas de segurança
           </div>
           {b.alertas}
@@ -323,16 +323,16 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
               <div key={i} style={{ backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.14)", borderRadius: "8px", padding: "10px 12px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
                   <MapPin size={11} color="var(--nuit-champagne-soft)" />
-                  <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "13.5px", color: "var(--nuit-bone)" }}>{z.zona}</span>
+                  <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(13.5px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>{z.zona}</span>
                 </div>
                 {(z.prioridade || z.motivo) && (
-                  <div style={{ fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "4px" }}>
+                  <div style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginBottom: "4px" }}>
                     {z.prioridade && <strong style={{ color: "var(--nuit-champagne-soft)" }}>{z.prioridade}</strong>}
                     {z.prioridade && z.motivo ? " · " : ""}
                     {z.motivo}
                   </div>
                 )}
-                {z.abordagem && <div style={{ fontSize: "12.5px", color: "var(--nuit-bone-soft)" }}>{z.abordagem}</div>}
+                {z.abordagem && <div style={{ fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{z.abordagem}</div>}
               </div>
             ))}
           </div>
@@ -344,7 +344,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
           <p style={rotulo}>Recomendações</p>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             {b.recomendacoes.map((r, i) => (
-              <div key={i} style={{ display: "flex", gap: "8px", fontSize: "12.5px", color: "var(--nuit-bone-soft)", lineHeight: 1.6 }}>
+              <div key={i} style={{ display: "flex", gap: "8px", fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6 }}>
                 <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", color: "var(--nuit-champagne-soft)", flexShrink: 0 }}>{i + 1}.</span>
                 <span>{r}</span>
               </div>
@@ -356,7 +356,7 @@ function FichaTerapeutaSection({ briefingJson }: { briefingJson: unknown }) {
       {b.nota_proxima_visita && (
         <div>
           <p style={rotulo}>Nota para próxima visita</p>
-          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", fontStyle: "italic", lineHeight: 1.6 }}>
+          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontStyle: "italic", lineHeight: 1.6 }}>
             {b.nota_proxima_visita}
           </p>
         </div>
@@ -394,11 +394,11 @@ function HistoricoServicos({ sessoes }: { sessoes: Sessao[] }) {
             border: "1px solid rgba(212,184,134,0.22)",
           }}
         >
-          <span style={{ fontFamily: "var(--font-body)", fontSize: "12.5px", color: "var(--nuit-bone)" }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
             {nome}
           </span>
           <span style={{
-            fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700,
+            fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
             color: "var(--nuit-champagne-soft)",
             backgroundColor: "rgba(212,184,134,0.16)",
             borderRadius: "100px", padding: "1px 7px",
@@ -508,7 +508,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
           <CalendarDays size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
+            fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>
             Nenhuma sessão registada
           </p>
@@ -532,7 +532,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
               {["Data", "Hora", "Serviço", "Terapeuta", "Preço", "Estado"].map(h => (
                 <TableHead key={h} style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em",
+                  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em",
                   color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>
                   {h}
@@ -556,19 +556,19 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                   }
                 }}
               >
-                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "13px", fontWeight: 700, color: "var(--nuit-bone)" }}>
+                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)" }}>
                   {formatDate(sessao.data as Date)}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>
+                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                   {sessao.hora ?? "—"}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)" }}>
+                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
                   {sessao.servico ?? "—"}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--nuit-bone-soft)" }}>
+                <TableCell style={{ fontFamily: "var(--font-body)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                   {sessao.terapeuta ?? "-"}
                 </TableCell>
-                <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)", textAlign: "right" }}>
+                <TableCell style={{ fontFamily: "var(--font-sans)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne-soft)", textAlign: "right" }}>
                   {formatCurrency(sessao.preco ?? 0)}
                 </TableCell>
                 <TableCell>
@@ -629,7 +629,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       disabled={isPending}
                       aria-label="Estado da sessão"
                       style={{
-                        fontSize: "16px", fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                         fontWeight: 600, letterSpacing: "0.02em",
                         padding: "3px 8px", borderRadius: "6px",
                         backgroundColor: "rgba(212,184,134,0.08)",
@@ -648,7 +648,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       ))}
                     </select>
                     {isPending && (
-                      <span style={{ fontSize: "10px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
+                      <span style={{ fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans)" }}>
                         A guardar…
                       </span>
                     )}
@@ -661,14 +661,14 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       placeholder="Sessão"
                       valueStyle={{
                         fontFamily: "var(--font-heading, Georgia, serif)",
-                        fontSize: "22px", fontWeight: 400, color: "var(--nuit-bone)",
+                        fontSize: "calc(22px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
                       }}
                       onSave={(v) => atualizarCampoSessao(sessaoAberta.id, clienteId, "servico", v)}
                     />
                   </div>
                   <p style={{
                     fontFamily: "var(--font-body, sans-serif)",
-                    fontSize: "13px", color: "var(--nuit-bone-soft)",
+                    fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                   }}>
                     {formatDate(sessaoAberta.data as Date)}
                     {sessaoAberta.hora ? ` · ${sessaoAberta.hora}` : ""}
@@ -693,14 +693,14 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                     </button>
                   ) : (
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ fontSize: "11px", color: "var(--destructive)", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
+                      <span style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--destructive)", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                         Eliminar?
                       </span>
                       <button
                         onClick={apagarSessao}
                         disabled={isPending}
                         style={{
-                          padding: "4px 10px", fontSize: "10px", fontWeight: 700,
+                          padding: "4px 10px", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700,
                           fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
                           background: "var(--destructive)", color: "#fff", border: "none",
                           borderRadius: "4px", cursor: "pointer",
@@ -712,7 +712,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       <button
                         onClick={() => setConfirmarEliminar(false)}
                         style={{
-                          padding: "4px 10px", fontSize: "10px", fontWeight: 600,
+                          padding: "4px 10px", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                           fontFamily: "var(--font-sans)", letterSpacing: "0.08em",
                           background: "transparent", color: "var(--nuit-bone-soft)",
                           border: "1px solid rgba(212,184,134,0.22)", borderRadius: "4px",
@@ -826,7 +826,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       padding: "9px 16px", borderRadius: "8px",
                       backgroundColor: "rgba(185,160,122,0.08)",
                       border: "1px solid rgba(185,160,122,0.25)",
-                      fontSize: "12px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
+                      fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                       textDecoration: "none",
                       fontFamily: "var(--font-sans)",
                       width: "fit-content",
@@ -868,7 +868,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                       backgroundColor: "rgba(185,160,122,0.04)",
                     }}>
                       <p style={{
-                        fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                        fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                         letterSpacing: "0.18em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
                         marginBottom: "14px",
                       }}>
@@ -893,7 +893,7 @@ export function SessoesTab({ sessoes, clienteId, terapeutas }: Props) {
                     backgroundColor: "rgba(138,155,176,0.05)",
                   }}>
                     <p style={{
-                      fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                      fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                       letterSpacing: "0.18em", color: "#8a9bb0", textTransform: "uppercase",
                       marginBottom: "14px",
                     }}>

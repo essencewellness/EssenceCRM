@@ -20,7 +20,7 @@ function AvatarCliente({ nome, posicao, cor }: { nome: string; posicao?: number;
         width: "38px", height: "38px", borderRadius: "50%", flexShrink: 0,
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "12px", fontWeight: 700,
+        fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 700,
         backgroundColor: cor ? cor + "18" : "rgba(185,160,122,0.10)",
         color: cor ?? "var(--nuit-champagne-soft)",
         border: `1.5px solid ${cor ? cor + "30" : "rgba(185,160,122,0.28)"}`,
@@ -32,7 +32,7 @@ function AvatarCliente({ nome, posicao, cor }: { nome: string; posicao?: number;
           position: "absolute", top: "-6px", right: "-6px",
           width: "16px", height: "16px", borderRadius: "50%",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: "8px", fontWeight: 800,
+          fontSize: "calc(8px * var(--ui-font-scale))", fontWeight: 800,
           fontFamily: "var(--font-sans, sans-serif)",
           backgroundColor: medalColors[posicao - 1] ?? "#9d9d9a",
           color: posicao === 1 ? "var(--nuit-midnight)" : "#ffffff",
@@ -55,19 +55,19 @@ function CanalIcon({ canal }: { canal: string | null }) {
   const isWhatsApp = canal.toLowerCase().includes("whatsapp");
   const isEmail = canal.toLowerCase().includes("email");
   if (isWhatsApp) return (
-    <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "#9d9d9a" }}>
+    <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "#9d9d9a" }}>
       <MessageCircle size={10} color="var(--nuit-sage)" />
       WhatsApp
     </span>
   );
   if (isEmail) return (
-    <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "#6d6d6d" }}>
+    <span style={{ display: "flex", alignItems: "center", gap: "3px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "#6d6d6d" }}>
       <Mail size={10} color="var(--nuit-sage)" />
       Email
     </span>
   );
   return (
-    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "#9d9d9a" }}>
+    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "#9d9d9a" }}>
       {canal}
     </span>
   );
@@ -89,7 +89,7 @@ function EstadoBadgeMini({ estado }: { estado: string }) {
   return (
     <span style={{
       padding: "3px 8px", borderRadius: "0px",
-      fontSize: "9px", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
+      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
       fontFamily: "var(--font-sans, sans-serif)", color: cfg.color, backgroundColor: cfg.bg,
       border: cfg.bg === "var(--nuit-champagne)" ? "none" : `1px solid ${cfg.color}44`,
     }}>
@@ -184,17 +184,17 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
               <span style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+                fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
                 color: "#9d9d9a", textTransform: "uppercase",
               }}>{label}</span>
               {icon}
             </div>
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
+              fontSize: "calc(26px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>{value}</p>
-            <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "#9d9d9a", marginTop: "4px" }}>{desc}</p>
+            <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#9d9d9a", marginTop: "4px" }}>{desc}</p>
           </div>
         ))}
       </div>
@@ -218,7 +218,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
               padding: "10px 12px", borderRadius: "0px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
               color: tab === key ? "var(--nuit-champagne-soft)" : "#9d9d9a",
               backgroundColor: tab === key ? "rgba(185,160,122,0.07)" : "transparent",
               borderBottom: tab === key ? "1px solid var(--nuit-champagne-soft)" : "1px solid transparent",
@@ -245,7 +245,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
           {clientesPorValor.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "52px" }}>
               <TrendingUp size={32} color="#ddd6c4" style={{ marginBottom: "12px" }} />
-              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px", color: "#9d9d9a" }}>
+              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "#9d9d9a" }}>
                 Ainda não há dados de faturação.
               </p>
             </div>
@@ -279,12 +279,12 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         <AvatarCliente nome={cliente.nome} posicao={i + 1} cor={primEtiqueta?.cor} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)" }}>
+                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
                               {cliente.nome}
                             </span>
                             <EstadoBadgeMini estado={cliente.estado} />
                             {cliente.etiquetas.slice(0, 2).map(({ etiqueta }) => (
-                              <span key={etiqueta.id} style={{ padding: "1px 7px", borderRadius: "100px", fontSize: "9px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)", color: etiqueta.cor, backgroundColor: etiqueta.cor + "18", border: `1px solid ${etiqueta.cor}30` }}>
+                              <span key={etiqueta.id} style={{ padding: "1px 7px", borderRadius: "100px", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)", color: etiqueta.cor, backgroundColor: etiqueta.cor + "18", border: `1px solid ${etiqueta.cor}30` }}>
                                 {etiqueta.nome}
                               </span>
                             ))}
@@ -296,20 +296,20 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           />
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
-                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{cliente.totalSessoes} sess.</p>
+                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(15px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{cliente.totalSessoes} sess.</p>
                         </div>
                         <div className="hidden sm:block" style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>última sessão</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
-                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
                       </div>
                     </div>
                   </Link>
@@ -333,7 +333,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
           {clientesPorSessoes.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "52px" }}>
               <Star size={32} color="#ddd6c4" style={{ marginBottom: "12px" }} />
-              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px", color: "#9d9d9a" }}>
+              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "#9d9d9a" }}>
                 Ainda não há sessões registadas.
               </p>
             </div>
@@ -362,7 +362,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         <AvatarCliente nome={cliente.nome} posicao={i + 1} cor={primEtiqueta?.cor} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)" }}>{cliente.nome}</span>
+                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>{cliente.nome}</span>
                             <EstadoBadgeMini estado={cliente.estado} />
                           </div>
                           <AnimatedProgress
@@ -372,20 +372,20 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                           />
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
-                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "15px", fontWeight: 700, color: "var(--nuit-bone)" }}>{cliente.totalSessoes} sess.</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
+                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(15px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)" }}>{cliente.totalSessoes} sess.</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{formatCurrency(Number(cliente.totalGasto))}</p>
                         </div>
                         <div className="hidden sm:block" style={{ flexShrink: 0, textAlign: "right", minWidth: "90px" }}>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>última sessão</p>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>última sessão</p>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{formatDate(cliente.ultimaSessao)}</p>
                         </div>
-                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px", flexWrap: "wrap" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{dias === 0 ? "sessão hoje" : `há ${dias} dias`}</span>}
                       </div>
                     </div>
                   </Link>
@@ -411,7 +411,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
               }}
             >
               <Users size={22} color="var(--nuit-sage)" opacity={0.6} style={{ marginBottom: "16px" }} />
-              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "#6d6d6d" }}>
+              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "#6d6d6d" }}>
                 Nenhuma cliente em risco de abandono.
               </p>
             </div>
@@ -421,7 +421,7 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                 className="anim-fade-down"
                 style={{
                   fontFamily: "var(--font-body, sans-serif)",
-                  fontSize: "12px", color: "#9d9d9a", marginBottom: "4px",
+                  fontSize: "calc(12px * var(--ui-font-scale))", color: "#9d9d9a", marginBottom: "4px",
                   animationDelay: "0.55s",
                 }}
               >
@@ -454,31 +454,31 @@ export default async function TopClientesPage({ searchParams }: PageProps) {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "14px", color: "var(--nuit-bone)" }}>{cliente.nome}</span>
+                            <span style={{ fontFamily: "var(--font-body, sans-serif)", fontWeight: 700, fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>{cliente.nome}</span>
                             <EstadoBadgeMini estado={cliente.estado} />
                           </div>
-                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", marginTop: "3px" }}>
+                          <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "3px" }}>
                             {cliente.telefone ?? "sem telefone"} · {cliente.totalSessoes} sessões
                           </p>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
                           {dias === 9999 ? (
-                            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 700, color: "var(--destructive)" }}>Nunca teve sessão</p>
+                            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 700, color: "var(--destructive)" }}>Nunca teve sessão</p>
                           ) : (
                             <>
-                              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 700, color: urgente ? "var(--destructive)" : "var(--nuit-champagne)" }}>{dias} dias</p>
-                              <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>sem sessão</p>
+                              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 700, color: urgente ? "var(--destructive)" : "var(--nuit-champagne)" }}>{dias} dias</p>
+                              <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>sem sessão</p>
                             </>
                           )}
                         </div>
-                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                        <span className="hidden sm:flex" style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-champagne)", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                           Ver perfil →
                         </span>
                       </div>
                       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px", marginTop: "8px", paddingLeft: "52px" }}>
                         {cliente.canalPreferido && <CanalIcon canal={cliente.canalPreferido} />}
-                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 600, color: "var(--destructive)" }}>Sem sessão há {dias} dias</span>}
-                        {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", fontStyle: "italic" }}>{notasTrunc}</span>}
+                        {dias !== 9999 && <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600, color: "var(--destructive)" }}>Sem sessão há {dias} dias</span>}
+                        {notasTrunc && <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontStyle: "italic" }}>{notasTrunc}</span>}
                       </div>
                     </div>
                   </Link>

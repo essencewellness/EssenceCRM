@@ -89,7 +89,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
         style={{
           display: "inline-flex", alignItems: "center", gap: "6px",
           padding: "5px 12px 5px 10px", borderRadius: "100px",
-          fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em",
+          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.05em",
           fontFamily: "var(--font-sans, sans-serif)",
           cursor: isPending ? "wait" : "pointer",
           transition: "box-shadow 200ms",
@@ -107,7 +107,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
               display: "inline-flex", alignItems: "center", gap: "6px",
               padding: "5px 12px 5px 10px", borderRadius: "100px",
               color: cfg.cor, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`,
-              fontSize: "11px", fontWeight: 600, letterSpacing: "0.05em",
+              fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.05em",
               fontFamily: "var(--font-sans, sans-serif)",
               opacity: isPending ? 0.7 : 1,
             }}
@@ -172,7 +172,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
                 style={{
                   display: "flex", alignItems: "center", gap: "8px",
                   width: "100%", padding: "8px 12px",
-                  fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
+                  fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                   color: estado === estadoLocal ? c.cor : "var(--nuit-bone-soft)",
                   backgroundColor: estado === estadoLocal ? c.bg : "transparent",
                   border: "none", cursor: "pointer", textAlign: "left",
@@ -187,7 +187,7 @@ export function EstadoEditor({ clienteId, estadoAtual }: Props) {
                   <motion.span
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    style={{ marginLeft: "auto", fontSize: "10px", color: c.cor }}
+                    style={{ marginLeft: "auto", fontSize: "calc(10px * var(--ui-font-scale))", color: c.cor }}
                   >
                     ✓
                   </motion.span>

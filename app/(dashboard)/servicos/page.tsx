@@ -18,10 +18,10 @@ export default async function ServicosPage() {
 
   return (
     <div style={{ maxWidth: "720px", margin: "0 auto" }}>
-      <h1 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px", color: "var(--nuit-bone)", marginBottom: "8px" }}>
+      <h1 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(22px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "8px" }}>
         Catálogo de Serviços
       </h1>
-      <p style={{ color: "var(--nuit-bone-soft)", fontSize: "13px", marginBottom: "28px" }}>
+      <p style={{ color: "var(--nuit-bone-soft)", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "28px" }}>
         Gerir serviços, preços base e disponibilidade.
       </p>
 
@@ -31,7 +31,7 @@ export default async function ServicosPage() {
           <tr style={{ borderBottom: "1px solid rgba(212,184,134,0.16)" }}>
             {["Serviço", "Duração", "Preço Base", "Estado", ""].map(h => (
               <th key={h} style={{
-                textAlign: "left", padding: "8px 12px", fontSize: "11px",
+                textAlign: "left", padding: "8px 12px", fontSize: "calc(11px * var(--ui-font-scale))",
                 color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 letterSpacing: "0.08em", backgroundColor: "rgba(212,184,134,0.06)",
               }}>{h}</th>
@@ -41,12 +41,12 @@ export default async function ServicosPage() {
         <tbody>
           {servicos.map(s => (
             <tr key={s.id} style={{ borderBottom: "1px solid rgba(212,184,134,0.10)", opacity: s.ativo ? 1 : 0.45 }}>
-              <td style={{ padding: "10px 12px", fontSize: "14px", color: "var(--nuit-bone)", fontWeight: 500 }}><NomeServico nome={s.nome} /></td>
-              <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
-              <td style={{ padding: "10px 12px", fontSize: "13px", color: "var(--nuit-champagne-soft)", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
+              <td style={{ padding: "10px 12px", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)", fontWeight: 500 }}><NomeServico nome={s.nome} /></td>
+              <td style={{ padding: "10px 12px", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
+              <td style={{ padding: "10px 12px", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-champagne-soft)", fontWeight: 600 }}>€{Number(s.precoBase).toFixed(2)}</td>
               <td style={{ padding: "10px 12px" }}>
                 <span style={{
-                  fontSize: "11px", fontWeight: 600, padding: "3px 8px", borderRadius: "20px",
+                  fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, padding: "3px 8px", borderRadius: "20px",
                   background: s.ativo ? "rgba(122,158,126,0.12)" : "rgba(176,96,80,0.10)",
                   color: s.ativo ? "#7a9e7e" : "var(--destructive)",
                 }}>
@@ -58,7 +58,7 @@ export default async function ServicosPage() {
                   <button type="submit" style={{
                     padding: "5px 12px", borderRadius: "8px",
                     border: `1px solid ${s.ativo ? "rgba(176,96,80,0.30)" : "rgba(122,158,126,0.30)"}`,
-                    fontWeight: 600, fontSize: "12px", cursor: "pointer",
+                    fontWeight: 600, fontSize: "calc(12px * var(--ui-font-scale))", cursor: "pointer",
                     background: "transparent",
                     color: s.ativo ? "var(--destructive)" : "#7a9e7e",
                   }}>
@@ -70,7 +70,7 @@ export default async function ServicosPage() {
           ))}
           {servicos.length === 0 && (
             <tr>
-              <td colSpan={5} style={{ padding: "24px 12px", textAlign: "center", color: "var(--nuit-bone-soft)", fontSize: "13px" }}>
+              <td colSpan={5} style={{ padding: "24px 12px", textAlign: "center", color: "var(--nuit-bone-soft)", fontSize: "calc(13px * var(--ui-font-scale))" }}>
                 Nenhum serviço registado ainda.
               </td>
             </tr>

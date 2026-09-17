@@ -169,7 +169,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
               style={{
                 paddingLeft: "36px", backgroundColor: "var(--nuit-deep)",
                 border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone)",
-                fontSize: "13px", fontFamily: "var(--font-body, sans-serif)",
+                fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-body, sans-serif)",
                 borderRadius: "0px", height: "38px", boxShadow: "none",
               }}
               className="placeholder:text-[var(--nuit-bone-soft)] focus-visible:ring-[var(--nuit-champagne-soft)]/30 focus-visible:border-[var(--nuit-champagne-soft)]/60"
@@ -191,7 +191,7 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
                   style={{
                     display: "inline-flex", alignItems: "center",
                     height: "38px", padding: "0 14px", borderRadius: "0px",
-                    fontSize: "9.5px", letterSpacing: "0.24em", textTransform: "uppercase",
+                    fontSize: "calc(9.5px * var(--ui-font-scale))", letterSpacing: "0.24em", textTransform: "uppercase",
                     fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                     transition: "all 150ms",
                     color: isActive ? "var(--nuit-champagne-soft)" : "var(--nuit-bone-soft)",
@@ -227,11 +227,11 @@ export default async function ClientesPage({ searchParams }: ClientesPageProps) 
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <Users size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               Nenhum cliente encontrado
             </p>
             {(q || estado || temFiltrosAvancados) && (
-              <Link href="/clientes" style={{ marginTop: "12px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-champagne-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>
+              <Link href="/clientes" style={{ marginTop: "12px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-champagne-soft)", textDecoration: "underline", textUnderlineOffset: "3px" }}>
                 Limpar filtros
               </Link>
             )}

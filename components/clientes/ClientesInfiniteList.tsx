@@ -103,7 +103,7 @@ export function ClientesInfiniteList({
       )}
 
       {!temMais && clientes.length > 0 && (
-        <p style={{ textAlign: "center", fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", padding: "16px 0" }}>
+        <p style={{ textAlign: "center", fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)", padding: "16px 0" }}>
           {clientes.length} cliente{clientes.length !== 1 ? "s" : ""} no total
         </p>
       )}

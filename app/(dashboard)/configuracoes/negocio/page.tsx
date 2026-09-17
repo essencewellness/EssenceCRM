@@ -14,14 +14,14 @@ export default async function ConfigNegocioPage() {
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "20px", fontWeight: 400, color: "var(--nuit-bone)",
+          fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
           marginBottom: "6px",
         }}>
           Negócio & Automações
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
+          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
         }}>
           Dados do negócio e configurações globais de automação.
         </p>

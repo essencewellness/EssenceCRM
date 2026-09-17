@@ -57,7 +57,7 @@ function PagamentoBadge({ estado }: { estado: string }) {
       display: "inline-flex", alignItems: "center",
       padding: "4px 10px", borderRadius: "100px",
       backgroundColor: s.bg, color: s.color, border: `1px solid ${s.border}`,
-      fontSize: "11.5px", fontWeight: 600,
+      fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600,
       fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
       whiteSpace: "nowrap",
     }}>
@@ -72,7 +72,7 @@ const fieldStyle = {
   borderRadius: "8px",
   color: CREAM,
   padding: "11px 12px",
-  fontSize: "14px",
+  fontSize: "calc(14px * var(--ui-font-scale))",
   fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
   outline: "none",
   width: "100%",
@@ -106,7 +106,7 @@ function SegmentedEstado({ valor, onChange }: { valor: string; onChange: (v: typ
             style={{
               padding: "10px 6px", borderRadius: "8px", cursor: "pointer",
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-              fontSize: "12.5px", fontWeight: 600,
+              fontSize: "calc(12.5px * var(--ui-font-scale))", fontWeight: 600,
               backgroundColor: ativo ? cor.bg : "transparent",
               border: `1.5px solid ${ativo ? cor.border : BORDER}`,
               color: ativo ? cor.color : "var(--muted-foreground)",
@@ -127,7 +127,7 @@ function SegmentedEstado({ valor, onChange }: { valor: string; onChange: (v: typ
 function Rotulo({ children }: { children: React.ReactNode }) {
   return (
     <p style={{
-      margin: "0 0 6px", fontSize: "10.5px", color: "rgba(212,184,134,0.55)",
+      margin: "0 0 6px", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)",
       letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700,
       fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
     }}>
@@ -213,13 +213,13 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "18px" }}>
           <div>
             <h2 style={{
-              margin: 0, fontSize: "16px", fontWeight: 600, color: CREAM,
+              margin: 0, fontSize: "calc(16px * var(--ui-font-scale))", fontWeight: 600, color: CREAM,
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             }}>
               {sessao.cliente?.nome ?? "Cliente eliminada"}
             </h2>
             <p style={{
-              margin: "3px 0 0", fontSize: "12.5px", color: "var(--muted-foreground)",
+              margin: "3px 0 0", fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--muted-foreground)",
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             }}>
               {sessao.servico ?? "Sessão"} · {new Date(sessao.data).toLocaleDateString("pt-PT")}
@@ -253,7 +253,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
                   <div style={{ position: "relative" }}>
                     <span style={{
                       position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)",
-                      color: GOLD, fontSize: "14px", fontWeight: 600, pointerEvents: "none",
+                      color: GOLD, fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 600, pointerEvents: "none",
                     }}>
                       €
                     </span>
@@ -294,7 +294,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
                 <p style={{
                   margin: 0, padding: "10px 12px", borderRadius: "8px",
                   backgroundColor: "rgba(212,184,134,0.06)",
-                  fontSize: "12px", color: "var(--muted-foreground)", lineHeight: 1.5,
+                  fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--muted-foreground)", lineHeight: 1.5,
                   fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                 }}>
                   Voucher já pago pela compradora — sem valor a registar agora.
@@ -307,7 +307,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
             <button
               onClick={onFechar}
               style={{
-                flex: 1, padding: "12px", borderRadius: "9px", fontSize: "13.5px",
+                flex: 1, padding: "12px", borderRadius: "9px", fontSize: "calc(13.5px * var(--ui-font-scale))",
                 border: `1px solid ${BORDER}`, background: "transparent",
                 color: "var(--muted-foreground)", cursor: "pointer", fontWeight: 600,
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)", minHeight: "44px",
@@ -321,7 +321,7 @@ function PagamentoModal({ sessao, onFechar }: { sessao: SessaoRow; onFechar: () 
               disabled={pending}
               className={pending ? undefined : "btn-lift"}
               style={{
-                flex: 1.4, padding: "12px", borderRadius: "9px", fontSize: "13.5px",
+                flex: 1.4, padding: "12px", borderRadius: "9px", fontSize: "calc(13.5px * var(--ui-font-scale))",
                 border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
                 cursor: pending ? "wait" : "pointer", fontWeight: 700,
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
@@ -381,7 +381,7 @@ export function TabelaSessoesPagamento({
       }}>
         <p style={{
           fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-          color: "var(--muted-foreground)", fontSize: "13px",
+          color: "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))",
         }}>
           Sem sessões em {mesLabel}.
         </p>
@@ -402,7 +402,7 @@ export function TabelaSessoesPagamento({
                 padding: "12px 16px",
                 textAlign: i === 5 ? "right" : "left",
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                fontSize: "10px", fontWeight: 700,
+                fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700,
                 letterSpacing: "0.14em", color: "rgba(212,184,134,0.45)",
                 textTransform: "uppercase", whiteSpace: "nowrap",
               }}>
@@ -414,18 +414,18 @@ export function TabelaSessoesPagamento({
         <tbody>
           {visiveis.map((s, i) => (
             <tr key={s.id} style={{ borderBottom: i < visiveis.length - 1 ? `1px solid ${BORDER}` : "none" }}>
-              <td style={{ padding: "12px 16px", color: s.cliente ? CREAM : "var(--muted-foreground)", fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
+              <td style={{ padding: "12px 16px", color: s.cliente ? CREAM : "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 500, whiteSpace: "nowrap" }}>
                 {s.cliente?.nome ?? s.clienteNomeArquivado ?? "Cliente eliminada"}
                 {!s.cliente && (
-                  <span style={{ marginLeft: "6px", fontSize: "10px", opacity: 0.6 }} title="O contacto foi apagado — esta receita fica preservada no histórico">
+                  <span style={{ marginLeft: "6px", fontSize: "calc(10px * var(--ui-font-scale))", opacity: 0.6 }} title="O contacto foi apagado — esta receita fica preservada no histórico">
                     (contacto apagado)
                   </span>
                 )}
               </td>
-              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "13px" }}>
+              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))" }}>
                 {s.servico ?? "—"}
               </td>
-              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "13px", whiteSpace: "nowrap" }}>
+              <td style={{ padding: "12px 16px", color: "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))", whiteSpace: "nowrap" }}>
                 {new Date(s.data).toLocaleDateString("pt-PT")}
               </td>
               <td style={{ padding: "12px 16px" }}>
@@ -436,7 +436,7 @@ export function TabelaSessoesPagamento({
                       padding: "4px 10px", borderRadius: "100px",
                       backgroundColor: "rgba(212,184,134,0.12)", color: GOLD,
                       border: "1px solid rgba(212,184,134,0.3)",
-                      fontSize: "11.5px", fontWeight: 600,
+                      fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600,
                       fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                       whiteSpace: "nowrap",
                     }}>
@@ -449,7 +449,7 @@ export function TabelaSessoesPagamento({
                     <span title="A repassar à Cristina" style={{
                       display: "inline-flex", alignItems: "center", gap: "4px", padding: "3px 8px",
                       borderRadius: "100px", backgroundColor: "rgba(212,140,50,0.12)", color: "#d48c45",
-                      fontSize: "10.5px", fontWeight: 600, fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
+                      fontSize: "calc(10.5px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                     }}>
                       <Clock size={11} aria-hidden="true" />
                       Repassar
@@ -462,7 +462,7 @@ export function TabelaSessoesPagamento({
                   // Venda de voucher: o dinheiro já entrou na compra, não há
                   // pagamento por registar nem nada para editar aqui.
                   <span style={{
-                    color: "var(--muted-foreground)", fontSize: "11.5px",
+                    color: "var(--muted-foreground)", fontSize: "calc(11.5px * var(--ui-font-scale))",
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                   }}>
                     {s.voucherCodigo}
@@ -472,7 +472,7 @@ export function TabelaSessoesPagamento({
                   // preservada, mas já não há nada aqui para editar (o
                   // endpoint recusa PATCH numa sessão sem cliente).
                   <span style={{
-                    color: "var(--muted-foreground)", fontSize: "11.5px",
+                    color: "var(--muted-foreground)", fontSize: "calc(11.5px * var(--ui-font-scale))",
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                   }}>
                     —
@@ -487,7 +487,7 @@ export function TabelaSessoesPagamento({
                       padding: "8px 12px", borderRadius: "8px", minHeight: "36px",
                       backgroundColor: "rgba(111,207,151,0.10)",
                       border: "1px solid rgba(111,207,151,0.35)",
-                      color: "#6fcf97", fontSize: "12px", fontWeight: 600,
+                      color: "#6fcf97", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                       cursor: pendingRapido && marcandoId === s.id ? "wait" : "pointer",
                       fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                       whiteSpace: "nowrap",
@@ -506,7 +506,7 @@ export function TabelaSessoesPagamento({
                       display: "inline-flex", alignItems: "center", gap: "5px",
                       padding: "8px 10px", borderRadius: "8px", minHeight: "36px",
                       background: "transparent", border: `1px solid ${BORDER}`,
-                      color: "rgba(212,184,134,0.75)", fontSize: "12px", fontWeight: 500,
+                      color: "rgba(212,184,134,0.75)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 500,
                       cursor: "pointer", fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                     }}
                   >
@@ -516,7 +516,7 @@ export function TabelaSessoesPagamento({
                 )}
               </td>
               <td style={{ padding: "12px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
-                <div style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
+                <div style={{ color: "var(--muted-foreground)", fontSize: "calc(13px * var(--ui-font-scale))" }}>
                   {s.valorPago
                     ? `€${Number(s.valorPago).toFixed(2)}`
                     : s.preco
@@ -524,7 +524,7 @@ export function TabelaSessoesPagamento({
                     : "—"}
                 </div>
                 {s.metodoPagamento && (
-                  <div style={{ color: "var(--muted-foreground)", fontSize: "10.5px", marginTop: "2px" }}>
+                  <div style={{ color: "var(--muted-foreground)", fontSize: "calc(10.5px * var(--ui-font-scale))", marginTop: "2px" }}>
                     {METODO_LABEL[s.metodoPagamento] ?? s.metodoPagamento}
                   </div>
                 )}
@@ -540,7 +540,7 @@ export function TabelaSessoesPagamento({
             onClick={() => setMostrarTodos(v => !v)}
             style={{
               background: "transparent", border: "none", cursor: "pointer",
-              color: "rgba(212,184,134,0.75)", fontSize: "12px", fontWeight: 600,
+              color: "rgba(212,184,134,0.75)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
               textDecoration: "underline", textUnderlineOffset: "3px",
             }}

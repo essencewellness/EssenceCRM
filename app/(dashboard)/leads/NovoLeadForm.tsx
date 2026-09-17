@@ -45,7 +45,7 @@ export function NovoLeadForm() {
         style={{
           display: "inline-flex", alignItems: "center", gap: "8px",
           height: "38px", padding: "0 16px",
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700,
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
           letterSpacing: "0.14em", textTransform: "uppercase",
           color: "var(--nuit-midnight)", backgroundColor: GOLD, border: `1px solid ${GOLD}`,
           cursor: "pointer",
@@ -69,35 +69,35 @@ export function NovoLeadForm() {
               style={{ width: "100%", maxWidth: "420px", backgroundColor: "var(--nuit-midnight)", border: "1px solid rgba(212,184,134,0.20)", borderRadius: "2px", padding: "24px" }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
-                <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px", color: "var(--nuit-bone)" }}>Adicionar lead</h2>
+                <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(18px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>Adicionar lead</h2>
                 <button onClick={() => setAberto(false)} style={{ color: "var(--nuit-smoke)", cursor: "pointer" }}><X size={16} /></button>
               </div>
 
-              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", marginBottom: "18px", lineHeight: 1.6 }}>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginBottom: "18px", lineHeight: 1.6 }}>
                 Para quando alguém pergunta pelo WhatsApp/Instagram e depois não diz mais nada — guarda o contacto na mesma.
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Nome *
                   <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Nome da pessoa" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Telefone
                   <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="+351 9XX XXX XXX" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Email
                   <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@exemplo.com" style={inputStyle} />
                 </label>
-                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                <label style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   Como chegou até nós
                   <Input value={origem} onChange={(e) => setOrigem(e.target.value)} placeholder="ex: Instagram, perguntou no balcão…" style={inputStyle} />
                 </label>
               </div>
 
               {erro && (
-                <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--destructive)", marginTop: "12px" }}>{erro}</p>
+                <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--destructive)", marginTop: "12px" }}>{erro}</p>
               )}
 
               <button
@@ -105,7 +105,7 @@ export function NovoLeadForm() {
                 disabled={aGuardar || !nome.trim()}
                 style={{
                   marginTop: "20px", width: "100%", height: "40px",
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700,
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
                   letterSpacing: "0.16em", textTransform: "uppercase",
                   color: "var(--nuit-midnight)", backgroundColor: GOLD, border: "none",
                   opacity: aGuardar || !nome.trim() ? 0.5 : 1,
@@ -125,6 +125,6 @@ export function NovoLeadForm() {
 const inputStyle: React.CSSProperties = {
   marginTop: "6px", backgroundColor: "var(--nuit-deep)",
   border: "1px solid rgba(212,184,134,0.20)", color: "var(--nuit-bone)",
-  fontSize: "13px", fontFamily: "var(--font-body, sans-serif)",
+  fontSize: "calc(13px * var(--ui-font-scale))", fontFamily: "var(--font-body, sans-serif)",
   borderRadius: "0px", height: "38px", boxShadow: "none",
 }

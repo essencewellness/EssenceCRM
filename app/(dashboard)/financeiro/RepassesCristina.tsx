@@ -27,10 +27,10 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
       padding: "11px 16px", borderBottom: `1px solid ${BORDER}`, gap: "12px",
     }}>
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "13px", color: CREAM }}>
+        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: CREAM }}>
           {repasse.cliente?.nome ?? "Cliente eliminada"} <span style={{ color: "var(--muted-foreground)" }}>· {repasse.servico ?? "—"}</span>
         </div>
-        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "11px", color: "var(--muted-foreground)", marginTop: "2px" }}>
+        <div style={{ fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)", marginTop: "2px" }}>
           {new Date(repasse.data).toLocaleDateString("pt-PT")}
           {repasse.metodoPagamento ? ` · ${METODO_LABEL[repasse.metodoPagamento] ?? repasse.metodoPagamento}` : ""}
           {repasse.valorRepasse !== null && repasse.valorPago
@@ -39,7 +39,7 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
-        <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "#d48c45" }}>
+        <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", color: "#d48c45" }}>
           {`€${valorDevido(repasse).toFixed(2)}`}
         </span>
         <button
@@ -50,7 +50,7 @@ function LinhaRepasse({ repasse }: { repasse: RepasseRow }) {
             toast(`Repasse a ${repasse.cliente?.nome ?? "cliente eliminada"} marcado como feito`, "success")
           })}
           style={{
-            padding: "6px 12px", borderRadius: "6px", fontSize: "11px", fontWeight: 700,
+            padding: "6px 12px", borderRadius: "6px", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
             border: "none", backgroundColor: GOLD, color: "var(--primary-foreground)",
             cursor: pending ? "wait" : "pointer", opacity: pending ? 0.7 : 1,
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
@@ -71,16 +71,16 @@ export function RepassesCristina({ repasses, total }: { repasses: RepasseRow[]; 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
         <h2 style={{
           fontFamily: "var(--font-sans, 'Manrope', sans-serif)", color: "rgba(212,184,134,0.55)",
-          fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase",
+          fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase",
         }}>
           A repassar à Cristina
         </h2>
-        <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "16px", color: "#d48c45" }}>
+        <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(16px * var(--ui-font-scale))", color: "#d48c45" }}>
           €{total.toFixed(2)}
         </span>
       </div>
       <p style={{
-        fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "12px",
+        fontFamily: "var(--font-sans, 'Manrope', sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))",
         color: "var(--muted-foreground)", marginBottom: "12px", lineHeight: 1.6,
       }}>
 Estas sessões e vouchers foram pagos por MBWay — que cai sempre na conta da Bea. Marca &ldquo;Repassado&rdquo; só depois de entregares o dinheiro à Cristina em mão.

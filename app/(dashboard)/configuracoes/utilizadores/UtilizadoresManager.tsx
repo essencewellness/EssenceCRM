@@ -16,7 +16,7 @@ type UtilizadorRow = {
 
 const labelStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "10px", fontWeight: 600,
+  fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
   letterSpacing: "0.22em", textTransform: "uppercase",
   color: "var(--nuit-bone-soft)", display: "block", marginBottom: "5px",
 };
@@ -27,7 +27,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #e0d8cc",
   borderRadius: "3px",
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "13px", color: "var(--nuit-midnight)", outline: "none",
+  fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-midnight)", outline: "none",
 };
 
 export function UtilizadoresManager({ utilizadores }: { utilizadores: UtilizadorRow[] }) {
@@ -110,13 +110,13 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
 
   return (
     <div style={{ maxWidth: "680px" }}>
-      {mensagem && <p style={{ color: "#7a9e7e", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{mensagem}</p>}
-      {erro && <p style={{ color: "var(--destructive)", fontSize: "13px", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
+      {mensagem && <p style={{ color: "#7a9e7e", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{mensagem}</p>}
+      {erro && <p style={{ color: "var(--destructive)", fontSize: "calc(13px * var(--ui-font-scale))", marginBottom: "14px", fontFamily: "var(--font-sans)" }}>{erro}</p>}
 
       {/* Lista de utilizadores */}
       <div style={secaoStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400 }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-midnight)", fontWeight: 400 }}>
             Utilizadores ({lista.length})
           </h2>
           <button
@@ -125,7 +125,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
               backgroundColor: GOLD, color: "var(--nuit-midnight)",
               border: "none", borderRadius: "3px",
               padding: "8px 16px",
-              fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
+              fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
               letterSpacing: "0.2em", textTransform: "uppercase",
               cursor: "pointer",
             }}
@@ -145,18 +145,18 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
               backgroundColor: "rgba(212,184,134,0.12)",
               border: "1px solid rgba(212,184,134,0.28)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700,
+              fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
               color: GOLD, flexShrink: 0,
             }}>
               {(u.name ?? u.email).slice(0, 2).toUpperCase()}
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: u.ativo ? "var(--nuit-midnight)" : "#9d9d9a" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 500, color: u.ativo ? "var(--nuit-midnight)" : "#9d9d9a" }}>
                 {u.name ?? u.email}
-                {!u.ativo && <span style={{ marginLeft: "8px", fontSize: "10px", color: "#9d9d9a" }}>(inativo)</span>}
+                {!u.ativo && <span style={{ marginLeft: "8px", fontSize: "calc(10px * var(--ui-font-scale))", color: "#9d9d9a" }}>(inativo)</span>}
               </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "#9d9d9a" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#9d9d9a" }}>
                 @{u.username ?? "—"} · {u.role}
               </p>
             </div>
@@ -168,7 +168,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                   backgroundColor: "transparent",
                   border: "1px solid #e0d8cc",
                   borderRadius: "3px", padding: "5px 10px",
-                  fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)",
+                  fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                   cursor: "pointer",
                 }}
               >
@@ -181,7 +181,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                   backgroundColor: "transparent",
                   border: `1px solid ${u.ativo ? "rgba(176,96,80,0.4)" : "rgba(122,158,126,0.4)"}`,
                   borderRadius: "3px", padding: "5px 10px",
-                  fontFamily: "var(--font-sans)", fontSize: "11px",
+                  fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))",
                   color: u.ativo ? "var(--destructive)" : "#7a9e7e",
                   cursor: "pointer",
                 }}
@@ -211,7 +211,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
                 style={{
                   backgroundColor: GOLD, color: "var(--nuit-midnight)",
                   border: "none", borderRadius: "3px", padding: "9px 16px",
-                  fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
+                  fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                   cursor: "pointer",
                 }}
               >
@@ -225,7 +225,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
       {/* Form criar utilizador */}
       {mostrarFormCriar && (
         <form onSubmit={handleCriar} style={secaoStyle}>
-          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "20px" }}>
+          <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-midnight)", fontWeight: 400, marginBottom: "20px" }}>
             Novo Utilizador
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
@@ -256,7 +256,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
           <div style={{ display: "flex", gap: "10px" }}>
             <button type="submit" disabled={loading} style={{
               backgroundColor: GOLD, color: "var(--nuit-midnight)", border: "none", borderRadius: "3px",
-              padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600,
+              padding: "10px 20px", fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
               letterSpacing: "0.22em", textTransform: "uppercase", cursor: "pointer",
             }}>
               {loading ? "A criar…" : "Criar"}
@@ -264,7 +264,7 @@ export function UtilizadoresManager({ utilizadores }: { utilizadores: Utilizador
             <button type="button" onClick={() => setMostrarFormCriar(false)} style={{
               backgroundColor: "transparent", border: "1px solid #e0d8cc",
               borderRadius: "3px", padding: "10px 20px",
-              fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--nuit-bone-soft)",
+              fontFamily: "var(--font-sans)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               cursor: "pointer",
             }}>
               Cancelar

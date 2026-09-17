@@ -69,7 +69,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "1px" }}>
           <span style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            fontSize: "17px",
+            fontSize: "calc(17px * var(--ui-font-scale))",
             lineHeight: 1,
             color: "var(--nuit-bone)",
             letterSpacing: "-0.005em",
@@ -78,7 +78,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
           </span>
           <span style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            fontSize: "10px",
+            fontSize: "calc(10px * var(--ui-font-scale))",
             lineHeight: 1,
             color: "var(--nuit-champagne)",
           }}>
@@ -109,7 +109,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
               href={href}
               style={{
                 fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                fontSize: "11px",
+                fontSize: "calc(11px * var(--ui-font-scale))",
                 fontWeight: 500,
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
@@ -153,7 +153,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
             backgroundColor: "rgba(212,184,134,0.08)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "10px", fontWeight: 600,
+            fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
             letterSpacing: "0.04em",
             color: "var(--nuit-champagne)",
             flexShrink: 0,
@@ -162,7 +162,7 @@ export function TopNav({ userName, logoutAction }: TopNavProps) {
           </div>
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px",
+            fontSize: "calc(12px * var(--ui-font-scale))",
             fontWeight: 500,
             color: "rgba(236,230,214,0.70)",
           }}>

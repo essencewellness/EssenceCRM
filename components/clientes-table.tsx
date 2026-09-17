@@ -81,7 +81,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
             <th key={label} style={{
               padding: "11px 16px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.16em",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em",
               color: "var(--nuit-bone-soft)", textTransform: "uppercase",
               textAlign: align,
               backgroundColor: "rgba(212,184,134,0.06)",
@@ -137,12 +137,12 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                     width: "34px", height: "34px", borderRadius: "50%", flexShrink: 0,
                     backgroundColor: "rgba(185,160,122,0.10)", border: "1px solid rgba(185,160,122,0.25)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700, color: "var(--nuit-champagne-soft)",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-champagne-soft)",
                   }}>
                     {getInitials(cliente.nome)}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {cliente.nome}
                     </p>
                     {tagsSaude.length > 0 && (
@@ -150,7 +150,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                         {tagsSaude.slice(0, 2).map(({ etiqueta }) => (
                           <span key={etiqueta.id} style={{
                             padding: "2px 6px", borderRadius: "0",
-                            fontSize: "8.5px", fontWeight: 500, letterSpacing: "0.18em",
+                            fontSize: "calc(8.5px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.18em",
                             textTransform: "uppercase", fontFamily: "var(--font-sans, sans-serif)",
                             color: etiqueta.cor, border: `1px solid ${etiqueta.cor}55`, backgroundColor: "transparent",
                           }}>
@@ -158,7 +158,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                           </span>
                         ))}
                         {tagsSaude.length > 2 && (
-                          <span style={{ fontSize: "8.5px", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", padding: "2px 4px" }}>
+                          <span style={{ fontSize: "calc(8.5px * var(--ui-font-scale))", color: "#9d9d9a", fontFamily: "var(--font-sans, sans-serif)", padding: "2px 4px" }}>
                             +{tagsSaude.length - 2}
                           </span>
                         )}
@@ -168,29 +168,29 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                 </Link>
               </td>
               <td style={{ padding: "14px 16px" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", textDecoration: "none" }}>
                   {formatPhone(cliente.telefone)}
                 </Link>
               </td>
               <td style={{ padding: "14px 16px" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "#6d6d6d", textDecoration: "none", display: "block", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "#6d6d6d", textDecoration: "none", display: "block", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {cliente.email ?? "—"}
                 </Link>
               </td>
               <td style={{ padding: "14px 16px" }}>
                 <Link href={`/clientes/${cliente.id}`} style={{ textDecoration: "none" }}>
-                  <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600, color: actividade.cor, letterSpacing: "0.02em" }}>
+                  <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: actividade.cor, letterSpacing: "0.02em" }}>
                     {actividade.label}
                   </span>
                 </Link>
               </td>
               <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "var(--nuit-bone)", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)", textDecoration: "none" }}>
                   {cliente.totalSessoes}
                 </Link>
               </td>
               <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "14px", fontWeight: 600, color: "var(--nuit-champagne-soft)", textDecoration: "none" }}>
+                <Link href={`/clientes/${cliente.id}`} style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne-soft)", textDecoration: "none" }}>
                   {formatCurrency(cliente.totalGasto)}
                 </Link>
               </td>
@@ -199,7 +199,7 @@ function ClientesTableFragment({ clientes, selecionados, onToggle, onToggleTodos
                   <span style={{
                     display: "inline-flex", alignItems: "center",
                     padding: "4px 9px", borderRadius: "0",
-                    fontSize: "9.5px", fontWeight: 500, letterSpacing: "0.32em",
+                    fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.32em",
                     textTransform: "uppercase", fontFamily: "var(--font-sans, sans-serif)",
                     color: cfg.color, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`,
                   }}>

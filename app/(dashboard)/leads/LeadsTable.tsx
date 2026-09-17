@@ -99,7 +99,7 @@ export function LeadsTable({
             onClick={() => { setFiltroOrigem(null); setSelecionados([]) }}
             style={{
               padding: "6px 13px", borderRadius: "100px", cursor: "pointer",
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600,
               border: `1px solid ${filtroOrigem === null ? "var(--nuit-champagne)" : "rgba(185,160,122,0.3)"}`,
               backgroundColor: filtroOrigem === null ? "rgba(212,184,134,0.14)" : "transparent",
               color: filtroOrigem === null ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
@@ -114,7 +114,7 @@ export function LeadsTable({
               onClick={() => onFiltrarOrigem(chave)}
               style={{
                 padding: "6px 13px", borderRadius: "100px", cursor: "pointer",
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600,
                 border: `1px solid ${filtroOrigem === chave ? "var(--nuit-champagne)" : "rgba(185,160,122,0.3)"}`,
                 backgroundColor: filtroOrigem === chave ? "rgba(212,184,134,0.14)" : "transparent",
                 color: filtroOrigem === chave ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
@@ -143,7 +143,7 @@ export function LeadsTable({
               {["Nome", "Telefone", "Email", "Origem", "Desde"].map((h) => (
                 <th key={h} style={{
                   padding: "11px 16px", textAlign: "left",
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700,
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700,
                   letterSpacing: "0.16em", textTransform: "uppercase",
                   color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)",
                 }}>
@@ -175,20 +175,20 @@ export function LeadsTable({
                     </td>
                   )}
                   <td style={{ padding: "13px 16px" }}>
-                    <Link href={`/clientes/${lead.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
+                    <Link href={`/clientes/${lead.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
                       {lead.nome}
                     </Link>
                   </td>
-                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                     {formatPhone(lead.telefone)}
                   </td>
-                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                     {lead.email ?? "—"}
                   </td>
                   <td style={{ padding: "13px 16px" }}>
                     {lead.comoNosConheceu ? (
                       <span style={{
-                        padding: "3px 9px", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.08em",
+                        padding: "3px 9px", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.08em",
                         textTransform: "uppercase", fontFamily: "var(--font-sans, sans-serif)",
                         color: "var(--nuit-champagne-soft)", border: "1px solid rgba(185,160,122,0.35)",
                       }}>
@@ -196,7 +196,7 @@ export function LeadsTable({
                       </span>
                     ) : "—"}
                   </td>
-                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+                  <td style={{ padding: "13px 16px", fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                     {formatDate(lead.criadoEm)}
                   </td>
                 </tr>

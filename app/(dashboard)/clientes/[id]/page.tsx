@@ -45,7 +45,7 @@ function MensagemEstadoBadge({ estado }: { estado: string }) {
     <span style={{
       display: "inline-flex", alignItems: "center",
       padding: "3px 9px", borderRadius: "100px",
-      fontSize: "10px", fontWeight: 600,
+      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
       fontFamily: "var(--font-sans, sans-serif)",
       color: cfg.color, backgroundColor: cfg.bg,
       border: `1px solid ${cfg.color}30`,
@@ -60,14 +60,14 @@ function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
       <span style={{
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+        fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
         color: "var(--nuit-bone-soft)", textTransform: "uppercase",
       }}>
         {label}
       </span>
       <span style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "13px", color: "var(--nuit-bone)",
+        fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
       }}>
         {value || "—"}
       </span>
@@ -189,7 +189,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
         <Link href="/clientes" style={{
           display: "inline-flex", alignItems: "center", gap: "6px",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "12px", color: "var(--nuit-bone-soft)", textDecoration: "none",
+          fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", textDecoration: "none",
           transition: "color 150ms",
         }}
           className="hover:text-[var(--nuit-champagne-soft)]"
@@ -216,7 +216,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
             border: "2px solid rgba(185,160,122,0.3)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "24px", fontWeight: 400, color: "var(--nuit-champagne-soft)",
+            fontSize: "calc(24px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-champagne-soft)",
           }}>
             {getInitials(cliente.nome)}
           </div>
@@ -230,7 +230,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 value={cliente.nome}
                 valueStyle={{
                   fontFamily: "var(--font-heading, Georgia, serif)",
-                  fontSize: "26px", fontWeight: 400, color: "var(--nuit-bone)",
+                  fontSize: "calc(26px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
                   // Nomes longos cortavam a meio sem aviso em ecrãs estreitos
                   // (whiteSpace:nowrap+overflow:hidden por omissão no
                   // InlineEditField) — isto sobrepõe-se a essas regras
@@ -251,7 +251,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 <div style={{
                   display: "inline-flex", alignItems: "center", gap: "6px",
                   padding: "6px 12px", borderRadius: "100px",
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                   backgroundColor: cliente.aceitaGravacaoRedesSociais ? "rgba(160,169,150,0.15)" : "rgba(180,117,106,0.12)",
                   border: `1px solid ${cliente.aceitaGravacaoRedesSociais ? "var(--nuit-sage)" : "var(--nuit-terra, #B4756A)"}`,
                   color: cliente.aceitaGravacaoRedesSociais ? "var(--nuit-sage)" : "var(--nuit-terra, #B4756A)",
@@ -301,7 +301,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   type="tel"
                   value={cliente.telefone}
                   placeholder="+351 911 150 025"
-                  valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
+                  valueStyle={{ fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}
                   onSave={atualizarCampoCliente.bind(null, cliente.id, "telefone")}
                 />
               </span>
@@ -313,7 +313,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   type="email"
                   value={cliente.email}
                   placeholder="Adicionar email"
-                  valueStyle={{ fontSize: "13px", color: "var(--nuit-bone-soft)" }}
+                  valueStyle={{ fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}
                   onSave={atualizarCampoCliente.bind(null, cliente.id, "email")}
                 />
               </span>
@@ -353,14 +353,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       </div>
                       <p style={{
                         fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em",
+                        fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em",
                         color: "var(--nuit-bone-soft)", textTransform: "uppercase", marginBottom: "4px",
                       }}>
                         {label}
                       </p>
                       <p style={{
                         fontFamily: "var(--font-heading, Georgia, serif)",
-                        fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
+                        fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
                       }}>
                         {value}
                       </p>
@@ -381,7 +381,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     }} />
                     <h2 style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+                      fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
                       color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                     }}>
                       Informações Gerais
@@ -450,26 +450,26 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
                     <h2 style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+                      fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
                       color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                     }}>
                       Ficha Clínica
                     </h2>
                     {cliente.consentimentoSaudeEm && (
-                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>
+                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                         Atualizada {formatDate(cliente.consentimentoSaudeEm)}
                       </span>
                     )}
                   </div>
                   {cliente.fichaClinica ? (
                     <p style={{
-                      fontFamily: "var(--font-body)", fontSize: "14px", color: "var(--nuit-bone-soft)",
+                      fontFamily: "var(--font-body)", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                       lineHeight: 1.8, whiteSpace: "pre-wrap",
                     }}>
                       {cliente.fichaClinica}
                     </p>
                   ) : (
-                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                       A ficha clínica é gerada automaticamente após a cliente preencher o formulário de onboarding.
                     </p>
                   )}
@@ -489,7 +489,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         <div style={{ height: "1px", flex: 0, width: "16px", backgroundColor: "rgba(185,160,122,0.4)" }} />
                         <h2 style={{
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+                          fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
                           color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                         }}>
                           {isProxima ? "Próxima Sessão" : "Última Sessão"}
@@ -507,7 +507,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                             return (
                               <span style={{
                                 padding: "3px 10px", borderRadius: "100px",
-                                fontSize: "10px", fontWeight: 600,
+                                fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                                 fontFamily: "var(--font-sans, sans-serif)",
                                 color: cfg.color, backgroundColor: cfg.bg,
                                 border: `1px solid ${cfg.color}30`,
@@ -522,13 +522,13 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       <div style={{ display: "flex", alignItems: "baseline", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
                         <span style={{
                           fontFamily: "var(--font-heading, Georgia, serif)",
-                          fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
+                          fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
                         }}>
                           {s.servico ? <NomeServico nome={s.servico} /> : "Sessão"}
                         </span>
                         <span style={{
                           fontFamily: "var(--font-body, sans-serif)",
-                          fontSize: "13px", color: "var(--nuit-bone-soft)",
+                          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         }}>
                           {formatDate(s.data)}
                           {s.hora ? ` · ${s.hora}` : ""}
@@ -537,7 +537,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         {s.preco !== null && (
                           <span style={{
                             fontFamily: "var(--font-sans, sans-serif)",
-                            fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
+                            fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                             marginLeft: "auto",
                           }}>
                             {formatCurrency(Number(s.preco))}
@@ -548,26 +548,26 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: "12px" }}>
                         {s.estadoEmocional && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(176,96,80,0.05)", border: "1px solid rgba(176,96,80,0.15)" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--destructive)", textTransform: "uppercase", marginBottom: "4px" }}>Estado Emocional</p>
-                            <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone)", lineHeight: 1.5 }}>{s.estadoEmocional}</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", color: "var(--destructive)", textTransform: "uppercase", marginBottom: "4px" }}>Estado Emocional</p>
+                            <p style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)", lineHeight: 1.5 }}>{s.estadoEmocional}</p>
                           </div>
                         )}
                         {s.resumoSessao && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(160,169,150,0.05)", border: "1px solid rgba(160,169,150,0.2)", gridColumn: "1/-1" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-sage)", textTransform: "uppercase", marginBottom: "4px" }}>Observações</p>
-                            <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.resumoSessao}</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-sage)", textTransform: "uppercase", marginBottom: "4px" }}>Observações</p>
+                            <p style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.resumoSessao}</p>
                           </div>
                         )}
                         {s.notasPosSessao && (
                           <div style={{ padding: "12px 14px", borderRadius: "8px", backgroundColor: "rgba(185,160,122,0.04)", border: "1px solid rgba(185,160,122,0.15)", gridColumn: "1/-1" }}>
-                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "4px" }}>Notas para a Próxima Sessão</p>
-                            <p style={{ fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.notasPosSessao}</p>
+                            <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "4px" }}>Notas para a Próxima Sessão</p>
+                            <p style={{ fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{s.notasPosSessao}</p>
                           </div>
                         )}
                         {!s.estadoEmocional && !s.resumoSessao && !s.notasPosSessao && (
                           <p style={{
                             fontFamily: "var(--font-heading, Georgia, serif)",
-                            fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)",
+                            fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                             gridColumn: "1/-1",
                           }}>
                             Sessão ainda não realizada — notas clínicas disponíveis após a sessão
@@ -633,7 +633,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                 <MessageSquare size={32} color="rgba(212,184,134,0.16)" style={{ marginBottom: "12px" }} />
                 <p style={{
                   fontFamily: "var(--font-heading, Georgia, serif)",
-                  fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
+                  fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                 }}>
                   Nenhuma mensagem gerada para este cliente
                 </p>
@@ -650,15 +650,15 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   }}>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
                       <MensagemEstadoBadge estado={msg.estado} />
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)", textTransform: "capitalize" }}>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", textTransform: "capitalize" }}>
                         {msg.canal}
                       </span>
                       {msg.motivoGeracao && (
-                        <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>
+                        <span style={{ fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                           Motivo: <span style={{ color: "var(--nuit-bone-soft)" }}>{msg.motivoGeracao}</span>
                         </span>
                       )}
-                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>
+                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                         {formatDate(msg.geradaEm)}
                       </span>
                     </div>
@@ -670,14 +670,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
                       marginBottom: "8px",
                     }}>
                       <p style={{
-                        fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                        fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                         letterSpacing: "0.16em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                         marginBottom: "8px",
                       }}>
                         Mensagem gerada
                       </p>
                       <p style={{
-                        fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
+                        fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         lineHeight: 1.7, whiteSpace: "pre-wrap",
                       }}>
                         {msg.mensagemGerada}
@@ -691,14 +691,14 @@ export default async function ClientePage({ params }: ClientePageProps) {
                         border: "1px solid rgba(160,169,150,0.3)",
                       }}>
                         <p style={{
-                          fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+                          fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                           letterSpacing: "0.16em", color: "var(--nuit-sage)", textTransform: "uppercase",
                           marginBottom: "8px",
                         }}>
                           Mensagem final (editada)
                         </p>
                         <p style={{
-                          fontFamily: "var(--font-body)", fontSize: "13px", color: "var(--nuit-bone-soft)",
+                          fontFamily: "var(--font-body)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                           lineHeight: 1.7, whiteSpace: "pre-wrap",
                         }}>
                           {msg.mensagemFinal}
@@ -709,7 +709,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                     <div style={{
                       display: "flex", flexWrap: "wrap", gap: "16px",
                       marginTop: "12px",
-                      fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)",
+                      fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                     }}>
                       {msg.aprovadaEm && <span>Aprovada em {formatDate(msg.aprovadaEm)}</span>}
                       {msg.enviadaEm && <span>Enviada em {formatDate(msg.enviadaEm)}</span>}

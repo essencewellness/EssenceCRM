@@ -81,7 +81,7 @@ export function TopBar() {
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "16px", fontWeight: 400,
+            fontSize: "calc(16px * var(--ui-font-scale))", fontWeight: 400,
             color: "var(--nuit-midnight)", letterSpacing: "0.01em",
           }}
         >
@@ -104,7 +104,7 @@ export function TopBar() {
           dateTime={hoje?.iso ?? ""}
           style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", color: "#9d9d9a",
+            fontSize: "calc(11px * var(--ui-font-scale))", color: "#9d9d9a",
             letterSpacing: "0.04em", fontStyle: "italic",
           }}
         >

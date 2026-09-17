@@ -34,7 +34,7 @@ export default function DashboardErrorBoundary({
         <p
           style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            fontSize: "9px",
+            fontSize: "calc(9px * var(--ui-font-scale))",
             letterSpacing: "0.32em",
             textTransform: "uppercase",
             color: "var(--nuit-champagne-soft)",
@@ -49,7 +49,7 @@ export default function DashboardErrorBoundary({
           style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
             color: "var(--nuit-bone)",
-            fontSize: "22px",
+            fontSize: "calc(22px * var(--ui-font-scale))",
             marginBottom: "10px",
             letterSpacing: "-0.005em",
           }}
@@ -61,7 +61,7 @@ export default function DashboardErrorBoundary({
           style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
             color: "var(--nuit-bone-soft)",
-            fontSize: "13px",
+            fontSize: "calc(13px * var(--ui-font-scale))",
             lineHeight: 1.6,
             marginBottom: "28px",
           }}
@@ -75,7 +75,7 @@ export default function DashboardErrorBoundary({
             style={{
               fontFamily: "var(--font-sans, monospace)",
               color: "var(--nuit-bone-soft)",
-              fontSize: "10px",
+              fontSize: "calc(10px * var(--ui-font-scale))",
               marginBottom: "24px",
               wordBreak: "break-all",
             }}
@@ -90,7 +90,7 @@ export default function DashboardErrorBoundary({
             className="cursor-pointer"
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px",
+              fontSize: "calc(11px * var(--ui-font-scale))",
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 500,
@@ -109,7 +109,7 @@ export default function DashboardErrorBoundary({
             className="link-action"
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px",
+              fontSize: "calc(11px * var(--ui-font-scale))",
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               fontWeight: 500,

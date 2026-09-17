@@ -34,7 +34,7 @@ export function FiltroTerapeuta({ terapeutas }: { terapeutas: Terapeuta[] }) {
       style={{
         display: "inline-flex", alignItems: "center", gap: "6px",
         height: "30px", padding: "0 12px", borderRadius: "100px",
-        fontSize: "11px", fontWeight: 600,
+        fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
         fontFamily: "var(--font-sans, sans-serif)",
         color: isActive ? GOLD : "var(--nuit-bone-soft)",
         backgroundColor: isActive ? "rgba(185,160,122,0.10)" : "transparent",
@@ -51,7 +51,7 @@ export function FiltroTerapeuta({ terapeutas }: { terapeutas: Terapeuta[] }) {
       <span style={{
         display: "inline-flex", alignItems: "center", gap: "5px",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+        fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
         color: "#9d9d9a", textTransform: "uppercase", marginRight: "2px",
       }}>
         <UserRound size={12} /> Terapeuta

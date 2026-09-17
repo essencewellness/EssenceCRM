@@ -26,7 +26,7 @@ export function PageHeader({ titulo, subtitulo, badge }: PageHeaderProps) {
               transition={{ duration: 0.35, delay: 0.08 }}
               style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9px", fontWeight: 500,
+                fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500,
                 letterSpacing: "0.32em", textTransform: "uppercase",
                 color: "var(--nuit-champagne-soft)", marginBottom: "7px",
               }}

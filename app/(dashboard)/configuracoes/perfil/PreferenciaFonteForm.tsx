@@ -42,7 +42,7 @@ export function PreferenciaFonteForm({ nivelInicial }: PreferenciaFonteFormProps
 
   const tituloSecao: React.CSSProperties = {
     fontFamily: "var(--font-heading, Georgia, serif)",
-    fontSize: "15px", color: "var(--nuit-midnight)",
+    fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-midnight)",
     fontWeight: 400, marginBottom: "8px",
   };
 
@@ -50,7 +50,7 @@ export function PreferenciaFonteForm({ nivelInicial }: PreferenciaFonteFormProps
     <div style={secaoStyle}>
       <h2 style={tituloSecao}>Tamanho do Texto</h2>
       <p style={{
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12.5px",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12.5px * var(--ui-font-scale))",
         color: "#7a7266", lineHeight: 1.6, marginBottom: "18px",
       }}>
         Ajusta o tamanho de todo o CRM — texto, ícones e espaçamento. Útil no iPad, onde o ecrã é maior mas mais longe dos olhos.
@@ -85,7 +85,7 @@ export function PreferenciaFonteForm({ nivelInicial }: PreferenciaFonteFormProps
                 {amostra}
               </span>
               <span style={{
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700,
                 letterSpacing: "0.14em", textTransform: "uppercase",
                 color: ativo ? "var(--nuit-midnight)" : "#8a8478",
               }}>
@@ -97,7 +97,7 @@ export function PreferenciaFonteForm({ nivelInicial }: PreferenciaFonteFormProps
       </div>
 
       {isPending && (
-        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#a08a66", marginTop: "12px" }}>
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#a08a66", marginTop: "12px" }}>
           A aplicar…
         </p>
       )}

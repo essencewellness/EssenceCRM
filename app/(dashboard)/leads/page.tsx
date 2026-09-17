@@ -50,7 +50,7 @@ export default async function LeadsPage() {
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <UserPlus size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               Nenhuma lead por agora
             </p>
           </div>

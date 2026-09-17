@@ -19,21 +19,21 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       <div style={{ width: "52px", height: "52px", borderRadius: "50%", backgroundColor: "rgba(185,160,122,0.08)", border: "1px solid rgba(185,160,122,0.20)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
         <Icon style={{ width: "26px", height: "26px", color: "var(--nuit-champagne-soft)" }} />
       </div>
-      <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", fontWeight: 400, color: "var(--nuit-bone)", marginBottom: "6px" }}>{title}</h3>
-      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", maxWidth: "280px" }}>{description}</p>
+      <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)", marginBottom: "6px" }}>{title}</h3>
+      <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", maxWidth: "280px" }}>{description}</p>
       {action && (
         <div style={{ marginTop: "16px" }}>
           {action.href ? (
             <Link
               href={action.href}
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "var(--nuit-champagne-soft)", textDecoration: "none" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "var(--nuit-champagne-soft)", textDecoration: "none" }}
             >
               {action.label}
             </Link>
           ) : (
             <button
               onClick={action.onClick}
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "var(--nuit-champagne-soft)", background: "none", border: "none", cursor: "pointer" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600, color: "var(--nuit-champagne-soft)", background: "none", border: "none", cursor: "pointer" }}
             >
               {action.label}
             </button>

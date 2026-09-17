@@ -76,10 +76,10 @@ export default async function FeedbackPage() {
       {/* Explicação do NPS */}
       <AnimatedSection delay={0.2}>
         <details style={{ border: "1px solid rgba(212,184,134,0.16)", background: "rgba(212,184,134,0.03)", padding: "14px 16px", marginBottom: "20px" }}>
-          <summary style={{ cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: GOLD }}>
+          <summary style={{ cursor: "pointer", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: GOLD }}>
             O que é o NPS?
           </summary>
-          <div style={{ marginTop: "12px", fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", lineHeight: 1.7, color: "var(--nuit-bone-soft)" }}>
+          <div style={{ marginTop: "12px", fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", lineHeight: 1.7, color: "var(--nuit-bone-soft)" }}>
             <p style={{ marginBottom: "10px" }}>
               É a pergunta &ldquo;de 0 a 10, quanto gostavas que uma amiga vivesse isto também?&rdquo; que fazemos no
               formulário de feedback. A resposta divide as clientes em 3 grupos:
@@ -109,13 +109,13 @@ export default async function FeedbackPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px", marginBottom: "20px" }}>
           {stats.map(s => (
             <div key={s.label} style={{ border: "1px solid rgba(212,184,134,0.16)", padding: "16px", background: "rgba(212,184,134,0.03)" }}>
-              <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px", color: s.cor, marginBottom: "4px" }}>{s.valor}</div>
-              <div style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>{s.label}</div>
+              <div style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))", color: s.cor, marginBottom: "4px" }}>{s.valor}</div>
+              <div style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>{s.label}</div>
             </div>
           ))}
         </div>
         {picoMaisComum && (
-          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)", marginBottom: "24px" }}>
+          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginBottom: "24px" }}>
             Momento de mais alívio mais escolhido: <strong style={{ color: "var(--nuit-bone)" }}>{MOMENTO_PICO_LABELS[picoMaisComum[0]] ?? picoMaisComum[0]}</strong> ({picoMaisComum[1]}×)
           </p>
         )}
@@ -128,7 +128,7 @@ export default async function FeedbackPage() {
             <div style={{ marginBottom: "16px", color: "rgba(185,160,122,0.45)", display: "flex" }}>
               <MessageSquareHeart size={22} />
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)" }}>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               Ainda sem feedback recebido
             </p>
           </div>
@@ -142,33 +142,33 @@ export default async function FeedbackPage() {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px", flexWrap: "wrap", gap: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       {f.cliente ? (
-                        <Link href={`/clientes/${f.cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
+                        <Link href={`/clientes/${f.cliente.id}`} style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)", textDecoration: "none" }}>
                           {f.cliente.nome}
                         </Link>
                       ) : (
-                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "14px", fontWeight: 700, color: "var(--nuit-smoke)" }}>
+                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-smoke)" }}>
                           {f.clienteNomeArquivado ?? "Cliente eliminada"}
                         </span>
                       )}
-                      <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: seg.cor, border: `1px solid ${seg.cor}55`, padding: "2px 8px" }}>
+                      <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: seg.cor, border: `1px solid ${seg.cor}55`, padding: "2px 8px" }}>
                         {seg.label}{f.npsScore !== null ? ` · ${f.npsScore}/10` : ""}
                       </span>
                       {f.pedidoContactoMarcacao && (
-                        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: SAGE, background: "rgba(122,158,126,0.12)", padding: "2px 8px" }}>
+                        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: SAGE, background: "rgba(122,158,126,0.12)", padding: "2px 8px" }}>
                           ✦ Pediu contacto
                         </span>
                       )}
                     </div>
-                    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>{formatDate(f.criadoEm)}</span>
+                    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{formatDate(f.criadoEm)}</span>
                   </div>
 
                   {textoPrincipal && (
-                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone)", marginBottom: "8px", lineHeight: 1.5 }}>
+                    <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "8px", lineHeight: 1.5 }}>
                       &ldquo;{textoPrincipal}&rdquo;
                     </p>
                   )}
 
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", color: "var(--nuit-bone-soft)" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                     {f.quandoVoltar && <span>Quer voltar: {QUANDO_VOLTAR_LABELS[f.quandoVoltar] ?? f.quandoVoltar}</span>}
                     {f.interesseServico && <span>Interesse: {f.interesseServico}</span>}
                     {f.pedidoContactoMarcacao && (f.diaPreferido || f.horaPreferida) && (

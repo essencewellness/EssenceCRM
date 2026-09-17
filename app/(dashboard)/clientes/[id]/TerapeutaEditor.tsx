@@ -17,7 +17,7 @@ export function TerapeutaEditor({ terapeutaNome }: Props) {
       style={{
         display: "inline-flex", alignItems: "center", gap: "6px",
         padding: "5px 12px", borderRadius: "100px",
-        fontSize: "11px", fontWeight: 600,
+        fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
         fontFamily: "var(--font-sans, sans-serif)",
         color: GOLD, backgroundColor: "rgba(185,160,122,0.10)",
         border: "1px solid rgba(185,160,122,0.28)",

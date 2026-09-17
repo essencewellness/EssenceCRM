@@ -207,7 +207,7 @@ export default async function AgendaPage({
               href={linkBase(v, dataRef)}
               style={{
                 padding: "7px 16px", borderRadius: "100px",
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                 letterSpacing: "0.04em", textTransform: "capitalize", textDecoration: "none",
                 backgroundColor: vista === v ? GOLD : "transparent",
                 color: vista === v ? "var(--nuit-midnight)" : SOFT,
@@ -230,7 +230,7 @@ export default async function AgendaPage({
               display: "flex", alignItems: "center", gap: "6px", padding: "7px 12px",
               backgroundColor: modo === "calendario" ? "rgba(212,184,134,0.14)" : "transparent",
               color: modo === "calendario" ? GOLD : SOFT, textDecoration: "none",
-              fontFamily: "var(--font-sans)", fontSize: "10.5px", fontWeight: 600,
+              fontFamily: "var(--font-sans)", fontSize: "calc(10.5px * var(--ui-font-scale))", fontWeight: 600,
             }}
           >
             <LayoutGrid size={13} /> Calendário
@@ -243,7 +243,7 @@ export default async function AgendaPage({
               display: "flex", alignItems: "center", gap: "6px", padding: "7px 12px",
               backgroundColor: modo === "lista" ? "rgba(212,184,134,0.14)" : "transparent",
               color: modo === "lista" ? GOLD : SOFT, textDecoration: "none",
-              fontFamily: "var(--font-sans)", fontSize: "10.5px", fontWeight: 600,
+              fontFamily: "var(--font-sans)", fontSize: "calc(10.5px * var(--ui-font-scale))", fontWeight: 600,
               borderLeft: "1px solid rgba(212,184,134,0.22)",
             }}
           >
@@ -258,7 +258,7 @@ export default async function AgendaPage({
           <ChevronLeft size={20} />
         </Link>
         <Link href={linkBase(vista, inicioDoDia(new Date()))} style={{
-          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "17px",
+          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(17px * var(--ui-font-scale))",
           color: CREAM, textTransform: "capitalize", textAlign: "center", textDecoration: "none",
         }}>
           {label}
@@ -274,10 +274,10 @@ export default async function AgendaPage({
           backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px 18px",
           borderLeft: `3px solid ${GOLD}`,
         }}>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
             Previsto
           </p>
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: GOLD }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(24px * var(--ui-font-scale))", color: GOLD }}>
             {formatCurrency(previsto)}
           </p>
         </div>
@@ -285,15 +285,15 @@ export default async function AgendaPage({
           backgroundColor: "var(--nuit-overlay)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "16px 18px",
           borderLeft: "3px solid var(--nuit-sage)",
         }}>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: SOFT, marginBottom: "6px" }}>
             Já realizado
           </p>
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: "var(--nuit-sage)" }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(24px * var(--ui-font-scale))", color: "var(--nuit-sage)" }}>
             {formatCurrency(realizado)}
           </p>
         </div>
       </div>
-      <p style={{ fontFamily: "var(--font-sans)", fontSize: "10.5px", color: SOFT, opacity: 0.7, marginTop: "-10px" }}>
+      <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(10.5px * var(--ui-font-scale))", color: SOFT, opacity: 0.7, marginTop: "-10px" }}>
         &ldquo;Previsto&rdquo; soma sessões agendadas/confirmadas ainda por acontecer neste período — não é dinheiro recebido, é o que está marcado.
       </p>
 
@@ -308,7 +308,7 @@ export default async function AgendaPage({
           padding: "48px 20px", color: SOFT, textAlign: "center", gap: "10px",
         }}>
           <CalendarIcon size={26} style={{ opacity: 0.3 }} />
-          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px" }}>
+          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))" }}>
             Nada marcado neste período
           </p>
         </div>
@@ -317,7 +317,7 @@ export default async function AgendaPage({
           {dias.map(([chave, sessoesDia]) => (
             <div key={chave}>
               <p style={{
-                fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700,
+                fontFamily: "var(--font-sans)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700,
                 letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-champagne-soft)",
                 marginBottom: "8px",
               }}>
@@ -329,25 +329,25 @@ export default async function AgendaPage({
                   // histórico financeiro) — sem contacto para onde abrir.
                   const conteudo = (
                     <>
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: CREAM, minWidth: "44px" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: CREAM, minWidth: "44px" }}>
                         {s.hora ?? "—"}
                       </span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: CREAM, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {s.cliente?.nome ?? s.clienteNomeArquivado ?? "Cliente eliminada"}
                         </p>
-                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "11.5px", color: SOFT }}>
+                        <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", color: SOFT }}>
                           {s.servico ?? "Serviço por confirmar"}
                         </p>
                       </div>
                       <span style={{
-                        fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 600,
+                        fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 600,
                         letterSpacing: "0.04em", textTransform: "uppercase",
                         color: ESTADO_COR[s.estado] ?? SOFT, flexShrink: 0,
                       }}>
                         {ESTADO_LABEL[s.estado] ?? s.estado}
                       </span>
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "12.5px", fontWeight: 600, color: GOLD, flexShrink: 0, minWidth: "48px", textAlign: "right" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "calc(12.5px * var(--ui-font-scale))", fontWeight: 600, color: GOLD, flexShrink: 0, minWidth: "48px", textAlign: "right" }}>
                         {formatCurrency(Number(s.preco ?? 0))}
                       </span>
                     </>

@@ -33,7 +33,7 @@ function Chip({ s, compacto = false }: { s: SessaoGrade; compacto?: boolean }) {
       title={`${s.hora ?? ""} · ${s.clienteNome} · ${s.servico ?? ""}`}
       className="agenda-chip"
       style={{
-        display: "block", fontSize: compacto ? "10px" : "9px", fontFamily: "var(--font-sans)",
+        display: "block", fontSize: compacto ? "calc(10px * var(--ui-font-scale))" : "calc(9px * var(--ui-font-scale))", fontFamily: "var(--font-sans)",
         color: "var(--nuit-bone-soft)", textDecoration: "none",
         borderLeft: `2px solid ${ESTADO_BORDA[s.estado] ?? "var(--nuit-bone-soft)"}`,
         padding: compacto ? "3px 6px" : "1px 4px 1px 6px",
@@ -91,7 +91,7 @@ export function GradeMensal({ mesRef, dias }: {
         {DIAS_SEMANA.map((d, i) => (
           <div key={d} style={{
             textAlign: "center", padding: "9px 0",
-            fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700,
+            fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
             letterSpacing: "0.14em", color: "var(--nuit-bone-soft)",
             backgroundColor: "var(--nuit-overlay)",
             opacity: i >= 5 ? 0.65 : 1,
@@ -133,7 +133,7 @@ export function GradeMensal({ mesRef, dias }: {
                   <span style={{
                     display: "inline-flex", alignItems: "center", justifyContent: "center",
                     width: "22px", height: "22px", borderRadius: "50%",
-                    fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "12.5px",
+                    fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(12.5px * var(--ui-font-scale))",
                     color: ehHoje ? "var(--nuit-midnight)" : "var(--nuit-bone)",
                     backgroundColor: ehHoje ? "var(--nuit-champagne)" : "transparent",
                     boxShadow: ehHoje ? "0 0 0 3px rgba(212,184,134,0.18)" : "none",
@@ -142,7 +142,7 @@ export function GradeMensal({ mesRef, dias }: {
                   </span>
                   {sessoes.length > 0 && (
                     <span style={{
-                      fontFamily: "var(--font-sans)", fontSize: "8px", fontWeight: 700,
+                      fontFamily: "var(--font-sans)", fontSize: "calc(8px * var(--ui-font-scale))", fontWeight: 700,
                       color: "var(--nuit-champagne-soft)", opacity: 0.75,
                     }}>
                       {sessoes.length}
@@ -154,7 +154,7 @@ export function GradeMensal({ mesRef, dias }: {
                   {visiveis.map(s => <Chip key={s.id} s={s} />)}
                   {resto > 0 && (
                     <span style={{
-                      fontSize: "8.5px", fontFamily: "var(--font-sans)", fontWeight: 600,
+                      fontSize: "calc(8.5px * var(--ui-font-scale))", fontFamily: "var(--font-sans)", fontWeight: 600,
                       color: "var(--nuit-champagne-soft)", paddingLeft: "6px",
                       textDecoration: "underline", textUnderlineOffset: "2px",
                     }}>
@@ -184,7 +184,7 @@ export function GradeMensal({ mesRef, dias }: {
                       }}
                     >
                       <p style={{
-                        fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "13px",
+                        fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                         color: "var(--nuit-bone)", marginBottom: "2px",
                         fontStyle: "italic",
                       }}>

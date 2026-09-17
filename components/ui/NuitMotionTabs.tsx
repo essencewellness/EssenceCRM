@@ -57,7 +57,7 @@ export function NuitMotionTabs({ tabs, defaultValue, className }: NuitMotionTabs
                 alignItems: "center",
                 gap: "6px",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "12px",
+                fontSize: "calc(12px * var(--ui-font-scale))",
                 fontWeight: isActive ? 600 : 400,
                 color: isActive ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                 letterSpacing: "0.01em",
@@ -72,7 +72,7 @@ export function NuitMotionTabs({ tabs, defaultValue, className }: NuitMotionTabs
                 <span style={{
                   display: "flex", alignItems: "center", justifyContent: "center",
                   minWidth: "16px", height: "16px", padding: "0 4px",
-                  fontSize: "9px", fontWeight: 700,
+                  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                   backgroundColor: "var(--nuit-champagne)",
                   color: "var(--nuit-midnight)",
                   borderRadius: "100px",

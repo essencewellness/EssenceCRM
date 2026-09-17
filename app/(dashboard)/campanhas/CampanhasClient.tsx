@@ -62,7 +62,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
       >
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          color: "var(--nuit-bone-soft)", fontSize: "13px",
+          color: "var(--nuit-bone-soft)", fontSize: "calc(13px * var(--ui-font-scale))",
         }}>
           Nenhuma campanha criada ainda.
         </p>
@@ -104,13 +104,13 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
               <div>
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontWeight: 600, fontSize: "14px", color: "var(--nuit-bone)", marginBottom: "4px",
+                  fontWeight: 600, fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "4px",
                 }}>
                   {c.nome}
                 </p>
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "12px", color: "var(--nuit-bone-soft)",
+                  fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                 }}>
                   {c.templateNome} · {c.segmento.tipo}
                   {c.segmento.valor ? ` (${c.segmento.valor})` : ""}
@@ -127,7 +127,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
                   backgroundColor: estadoEstilo.bg,
                   color: estadoEstilo.color,
                   border: `1px solid ${estadoEstilo.border}`,
-                  fontSize: "10px", fontWeight: 600,
+                  fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                   fontFamily: "var(--font-sans, sans-serif)",
                   letterSpacing: "0.12em", textTransform: "uppercase",
                 }}
@@ -140,7 +140,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
               <div style={{ marginBottom: "12px" }}>
                 {cancelandoId === c.id ? (
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
+                    <span style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)" }}>
                       Cancelar esta campanha? As mensagens ainda por enviar são rejeitadas.
                     </span>
                     <button
@@ -149,7 +149,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
                       style={{
                         padding: "5px 12px", borderRadius: "6px", border: "none",
                         backgroundColor: "#e07070", color: "#1a0e0e",
-                        fontSize: "11.5px", fontWeight: 700, cursor: isPending ? "default" : "pointer",
+                        fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 700, cursor: isPending ? "default" : "pointer",
                         fontFamily: "var(--font-sans, sans-serif)",
                       }}
                     >
@@ -157,7 +157,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
                     </button>
                     <button
                       onClick={() => setCancelandoId(null)}
-                      style={{ background: "none", border: "none", color: "var(--nuit-bone-soft)", fontSize: "11.5px", cursor: "pointer" }}
+                      style={{ background: "none", border: "none", color: "var(--nuit-bone-soft)", fontSize: "calc(11.5px * var(--ui-font-scale))", cursor: "pointer" }}
                     >
                       Voltar
                     </button>
@@ -167,7 +167,7 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
                     onClick={() => setCancelandoId(c.id)}
                     style={{
                       background: "none", border: "1px solid rgba(220,60,60,0.3)", borderRadius: "6px",
-                      padding: "4px 10px", color: "#e07070", fontSize: "11.5px", cursor: "pointer",
+                      padding: "4px 10px", color: "#e07070", fontSize: "calc(11.5px * var(--ui-font-scale))", cursor: "pointer",
                       fontFamily: "var(--font-sans, sans-serif)",
                     }}
                   >
@@ -177,14 +177,14 @@ export function CampanhasClient({ campanhas, podeGerir }: Props) {
               </div>
             )}
             {erro && cancelandoId === null && (
-              <p style={{ fontSize: "11.5px", color: "#e07070", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}>{erro}</p>
+              <p style={{ fontSize: "calc(11.5px * var(--ui-font-scale))", color: "#e07070", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}>{erro}</p>
             )}
 
             {/* Stats */}
             <div style={{
               display: "flex", alignItems: "center", gap: "20px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-bone-soft)",
+              fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               marginBottom: c.totalMensagens > 0 ? "12px" : "0",
             }}>
               <span>Total: <strong style={{ color: "var(--nuit-bone)" }}>{c.totalMensagens}</strong></span>

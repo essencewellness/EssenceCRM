@@ -45,12 +45,12 @@ function formatarExibicao(v: Valor, type: TipoCampo, options?: Opcao[]): string 
 
 const rotuloStyle: React.CSSProperties = {
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
   color: "var(--nuit-bone-soft)", textTransform: "uppercase",
 }
 
 const inputBaseStyle: React.CSSProperties = {
-  fontFamily: "var(--font-body, sans-serif)", fontSize: "16px",
+  fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(16px * var(--ui-font-scale))",
   color: "var(--nuit-bone)", backgroundColor: "var(--nuit-deep, #0E1119)",
   border: "1px solid var(--nuit-champagne-soft)", borderRadius: "5px",
   padding: "5px 8px", outline: "none", width: "100%",
@@ -169,7 +169,7 @@ export function InlineEditField({
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
           {!hideLabel && <span style={rotuloStyle}>{label}</span>}
-          <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)", ...valueStyle }}>
+          <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", ...valueStyle }}>
             {valorLocal ? "Sim" : "Não"}
           </span>
         </div>
@@ -186,7 +186,7 @@ export function InlineEditField({
             display: "inline-flex", alignItems: "center", gap: "7px",
             background: "none", border: "none", padding: 0,
             cursor: readOnly ? "default" : "pointer",
-            fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
+            fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
             color: valorLocal ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
             opacity: isPending ? 0.6 : 1,
           }}
@@ -282,7 +282,7 @@ export function InlineEditField({
       <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
         {!hideLabel && <span style={rotuloStyle}>{label}</span>}
         <span className={salvo ? "field-saved-flash" : undefined} style={{
-          fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
+          fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
           color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
           fontStyle: textoExibido ? "normal" : "italic",
           borderRadius: "3px",
@@ -312,7 +312,7 @@ export function InlineEditField({
           background: "none", border: "none", padding: "2px 5px", margin: "-2px -5px",
           borderRadius: "4px", cursor: readOnly ? "default" : "pointer",
           textAlign: "left", width: semTruncar ? "100%" : "fit-content", maxWidth: "100%",
-          fontFamily: "var(--font-body, sans-serif)", fontSize: "13px",
+          fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
           color: textoExibido ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
           fontStyle: textoExibido ? "normal" : "italic",
           transition: "background-color 0.15s",

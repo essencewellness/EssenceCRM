@@ -26,13 +26,13 @@ export default async function BlacklistPage() {
           <div>
             <h1 style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "20px", fontWeight: 400, color: "var(--nuit-bone)",
+              fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
             }}>
               Acessos Bloqueados
             </h1>
             <p style={{
               fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "11px", color: "#9d9d9a",
+              fontSize: "calc(11px * var(--ui-font-scale))", color: "#9d9d9a",
             }}>
               {bloqueados.length} registo{bloqueados.length !== 1 ? "s" : ""}
             </p>
@@ -55,7 +55,7 @@ export default async function BlacklistPage() {
       }}>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           color: "rgba(176,96,80,0.7)", textTransform: "uppercase",
           marginBottom: "16px",
         }}>
@@ -85,7 +85,7 @@ export default async function BlacklistPage() {
               border: "1px solid rgba(176,96,80,0.30)",
               borderRadius: "8px", cursor: "pointer",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "11px", fontWeight: 600,
+              fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
               letterSpacing: "0.06em", color: "var(--destructive)",
               whiteSpace: "nowrap",
               transition: "all 150ms",
@@ -111,7 +111,7 @@ export default async function BlacklistPage() {
             <ShieldAlert size={28} color="var(--destructive)" opacity={0.18} style={{ marginBottom: "12px" }} />
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontStyle: "italic", fontSize: "14px", color: "#9d9d9a",
+              fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "#9d9d9a",
             }}>
               Nenhum registo bloqueado
             </p>
@@ -131,7 +131,7 @@ export default async function BlacklistPage() {
                   <th key={key} style={{
                     padding: "10px 16px",
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+                    fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
                     color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                     textAlign: i === 5 ? "center" : "left",
                     backgroundColor: "rgba(212,184,134,0.06)",
@@ -160,26 +160,26 @@ export default async function BlacklistPage() {
                           border: "1px solid rgba(176,96,80,0.22)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "10px", fontWeight: 700, color: "var(--destructive)",
+                          fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, color: "var(--destructive)",
                         }}>
                           {c.nome.slice(0, 1).toUpperCase()}
                         </div>
                         <span style={{
                           fontFamily: "var(--font-body, sans-serif)",
-                          fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)",
+                          fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)",
                         }}>
                           {c.nome}
                         </span>
                       </div>
                     </td>
                     <td style={{ padding: "13px 16px" }}>
-                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                         {formatPhone(c.telefone)}
                       </span>
                     </td>
                     <td style={{ padding: "13px 16px" }}>
                       <span style={{
-                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "#9d9d9a",
+                        fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "#9d9d9a",
                         display: "block", maxWidth: "180px",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>
@@ -188,7 +188,7 @@ export default async function BlacklistPage() {
                     </td>
                     <td style={{ padding: "13px 16px" }}>
                       <span style={{
-                        fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
+                        fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         fontStyle: motivo === "—" ? "italic" : "normal",
                         display: "block", maxWidth: "160px",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -197,7 +197,7 @@ export default async function BlacklistPage() {
                       </span>
                     </td>
                     <td style={{ padding: "13px 16px" }}>
-                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "12px", color: "#9d9d9a" }}>
+                      <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "#9d9d9a" }}>
                         {formatDate(c.atualizadoEm)}
                       </span>
                     </td>
@@ -211,7 +211,7 @@ export default async function BlacklistPage() {
                             background: "none", border: "none", cursor: "pointer",
                             padding: "4px 8px", borderRadius: "6px",
                             fontFamily: "var(--font-sans, sans-serif)",
-                            fontSize: "10px", fontWeight: 500,
+                            fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 500,
                             color: "var(--nuit-bone-soft)",
                             letterSpacing: "0.06em",
                             transition: "all 150ms",
@@ -233,7 +233,7 @@ export default async function BlacklistPage() {
       {/* Disclaimer */}
       <p style={{
         fontFamily: "var(--font-body, sans-serif)",
-        fontSize: "10px", color: "var(--nuit-bone-soft)",
+        fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
         textAlign: "center", marginTop: "20px",
         fontStyle: "italic",
       }}>
@@ -246,7 +246,7 @@ export default async function BlacklistPage() {
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontFamily: "var(--font-sans, sans-serif)",
-  fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.14em",
+  fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em",
   color: "#9d9d9a", textTransform: "uppercase",
   marginBottom: "5px",
 };
@@ -257,7 +257,7 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid rgba(212,184,134,0.22)",
   borderRadius: "8px",
   fontFamily: "var(--font-body, sans-serif)",
-  fontSize: "13px", color: "var(--nuit-bone)",
+  fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
   outline: "none",
   boxSizing: "border-box",
 };

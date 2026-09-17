@@ -39,7 +39,7 @@ export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 0" }}>
         <Clock style={{ width: "32px", height: "32px", color: "rgba(212,184,134,0.20)", marginBottom: "10px" }} />
-        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)" }}>
+        <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
           Nenhuma atividade registada
         </p>
       </div>
@@ -83,20 +83,20 @@ export function ClienteTimeline({ eventos }: ClienteTimelineProps) {
                 className={temDetalhe ? "hover:bg-[rgba(212,184,134,0.04)]" : ""}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" }}>
-                  <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "13px", color: cfg.cor, lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: cfg.cor, lineHeight: 1.5 }}>
                     {evento.descricao}
                   </p>
-                  <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", flexShrink: 0, marginTop: "2px" }}>
+                  <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", flexShrink: 0, marginTop: "2px" }}>
                     {formatDistanceToNow(new Date(evento.criadoEm), { addSuffix: true, locale: ptBR })}
                   </span>
                 </div>
                 {evento.autor && evento.autor !== "sistema" && (
-                  <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", marginTop: "2px" }}>
+                  <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "2px" }}>
                     {evento.autor}
                   </p>
                 )}
                 {aberto && evento.detalhe && (
-                  <div className="anim-fade-down" style={{ marginTop: "8px", fontSize: "11px", fontFamily: "var(--font-body, sans-serif)", color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)", borderRadius: "4px", padding: "8px 10px", display: "flex", flexDirection: "column", gap: "3px" }}>
+                  <div className="anim-fade-down" style={{ marginTop: "8px", fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-body, sans-serif)", color: "var(--nuit-bone-soft)", backgroundColor: "rgba(212,184,134,0.06)", borderRadius: "4px", padding: "8px 10px", display: "flex", flexDirection: "column", gap: "3px" }}>
                     {!!evento.detalhe.preview && <p style={{ fontStyle: "italic" }}>&ldquo;{String(evento.detalhe.preview)}&rdquo;</p>}
                     {!!evento.detalhe.hora && <p>Hora: {String(evento.detalhe.hora)}</p>}
                     {!!evento.detalhe.terapeuta && <p>Terapeuta: {String(evento.detalhe.terapeuta)}</p>}

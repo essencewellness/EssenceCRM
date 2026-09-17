@@ -108,7 +108,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             border: "1px solid rgba(185,160,122,0.4)",
             color: "var(--nuit-champagne-soft)", cursor: "pointer",
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", fontWeight: 600, letterSpacing: "0.06em",
+            fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.06em",
             marginBottom: "28px",
             transition: "all 150ms",
           }}
@@ -121,7 +121,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             ;(e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(185,160,122,0.4)"
           }}
         >
-          <span style={{ fontSize: "16px", lineHeight: 1 }}>✦</span>
+          <span style={{ fontSize: "calc(16px * var(--ui-font-scale))", lineHeight: 1 }}>✦</span>
           Nova observação
         </button>
       )}
@@ -145,7 +145,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 700, letterSpacing: "0.18em",
+            fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
             color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "12px",
           }}>
             Nova observação
@@ -164,14 +164,14 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
               width: "100%", padding: "12px",
               borderRadius: "7px", border: "1px solid rgba(212,184,134,0.2)",
               backgroundColor: "var(--nuit-midnight)",
-              fontFamily: "var(--font-body, sans-serif)", fontSize: "14px",
+              fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(14px * var(--ui-font-scale))",
               color: "var(--nuit-bone)", lineHeight: 1.7,
               resize: "vertical", outline: "none", boxSizing: "border-box",
             }}
           />
           {erro && (
             <p style={{
-              fontFamily: "var(--font-body)", fontSize: "12px",
+              fontFamily: "var(--font-body)", fontSize: "calc(12px * var(--ui-font-scale))",
               color: "var(--destructive)", marginTop: "6px",
             }}>{erro}</p>
           )}
@@ -182,7 +182,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
               style={{
                 padding: "8px 18px", borderRadius: "7px",
                 backgroundColor: "var(--nuit-champagne-soft)", color: "#ffffff", border: "none",
-                fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600,
+                fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
                 cursor: isPending ? "default" : "pointer",
                 opacity: isPending ? 0.7 : 1,
                 transition: "opacity 150ms",
@@ -196,7 +196,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                 padding: "8px 14px", borderRadius: "7px",
                 backgroundColor: "transparent", color: "var(--nuit-bone-soft)",
                 border: "1px solid rgba(212,184,134,0.2)",
-                fontFamily: "var(--font-sans)", fontSize: "12px",
+                fontFamily: "var(--font-sans)", fontSize: "calc(12px * var(--ui-font-scale))",
                 cursor: "pointer",
               }}
             >
@@ -204,7 +204,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
             </button>
             <span style={{
               marginLeft: "auto",
-              fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--nuit-bone-soft)",
+              fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               ⌘↵ para guardar · Esc para cancelar
             </span>
@@ -225,12 +225,12 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
           }} />
           <p style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontStyle: "italic", fontSize: "15px", color: "var(--nuit-bone-soft)",
+            fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>
             Ainda nenhuma observação registada.
           </p>
           <p style={{
-            fontFamily: "var(--font-body)", fontSize: "12px",
+            fontFamily: "var(--font-body)", fontSize: "calc(12px * var(--ui-font-scale))",
             color: "var(--nuit-bone-soft)", marginTop: "6px",
           }}>
             A primeira nota ficará aqui, com data e hora.
@@ -275,20 +275,20 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                   }}>
                     <div style={{
                       fontFamily: "var(--font-heading, Georgia, serif)",
-                      fontSize: "28px", fontWeight: 400, color: "var(--nuit-bone)",
+                      fontSize: "calc(28px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
                       lineHeight: 1,
                     }}>
                       {d.dia}
                     </div>
                     <div style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em",
+                      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em",
                       color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginTop: "3px",
                     }}>
                       {d.mes} {d.ano}
                     </div>
                     <div style={{
-                      fontFamily: "var(--font-body)", fontSize: "10px",
+                      fontFamily: "var(--font-body)", fontSize: "calc(10px * var(--ui-font-scale))",
                       color: "var(--nuit-bone-soft)", marginTop: "2px",
                     }}>
                       {d.hora}
@@ -317,7 +317,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                   }}>
                     <p style={{
                       fontFamily: "var(--font-body, sans-serif)",
-                      fontSize: "14px", color: "var(--nuit-bone-soft)", lineHeight: 1.75,
+                      fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.75,
                       whiteSpace: "pre-wrap", margin: 0,
                     }}>
                       {o.texto}
@@ -331,12 +331,12 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                         width: "18px", height: "18px", borderRadius: "50%",
                         backgroundColor: "rgba(185,160,122,0.12)",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontFamily: "var(--font-heading)", fontSize: "9px", color: "var(--nuit-champagne-soft)",
+                        fontFamily: "var(--font-heading)", fontSize: "calc(9px * var(--ui-font-scale))", color: "var(--nuit-champagne-soft)",
                       }}>
                         {o.autor[0].toUpperCase()}
                       </div>
                       <span style={{
-                        fontFamily: "var(--font-sans)", fontSize: "10px",
+                        fontFamily: "var(--font-sans)", fontSize: "calc(10px * var(--ui-font-scale))",
                         color: "var(--nuit-bone-soft)", textTransform: "capitalize",
                       }}>
                         {o.autor}
@@ -345,7 +345,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                       {confirmar === o.id ? (
                         <span style={{
                           marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px",
-                          fontFamily: "var(--font-body)", fontSize: "11px",
+                          fontFamily: "var(--font-body)", fontSize: "calc(11px * var(--ui-font-scale))",
                         }}>
                           <span style={{ color: erroApagar === o.id ? "var(--destructive)" : "var(--nuit-bone-soft)" }}>
                             {erroApagar === o.id ? "Não deu. Tentar de novo?" : "Apagar esta nota?"}
@@ -357,7 +357,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                               padding: "3px 10px", borderRadius: "5px",
                               backgroundColor: "transparent", color: "var(--destructive)",
                               border: "1px solid rgba(176,96,80,0.45)",
-                              fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600,
+                              fontFamily: "var(--font-sans)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600,
                               cursor: apagando === o.id ? "default" : "pointer",
                               opacity: apagando === o.id ? 0.6 : 1,
                             }}
@@ -370,7 +370,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                               padding: "3px 8px", borderRadius: "5px",
                               backgroundColor: "transparent", color: "var(--nuit-bone-soft)",
                               border: "1px solid rgba(212,184,134,0.2)",
-                              fontFamily: "var(--font-sans)", fontSize: "10px",
+                              fontFamily: "var(--font-sans)", fontSize: "calc(10px * var(--ui-font-scale))",
                               cursor: "pointer",
                             }}
                           >
@@ -386,7 +386,7 @@ export function ObservacoesTimeline({ clienteId, inicial }: Props) {
                             marginLeft: "auto", padding: "2px 6px", borderRadius: "5px",
                             backgroundColor: "transparent", border: "none",
                             color: "var(--nuit-bone-soft)", cursor: "pointer",
-                            fontSize: "13px", lineHeight: 1, transition: "color 150ms",
+                            fontSize: "calc(13px * var(--ui-font-scale))", lineHeight: 1, transition: "color 150ms",
                           }}
                           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--destructive)" }}
                           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = "var(--nuit-bone-soft)" }}

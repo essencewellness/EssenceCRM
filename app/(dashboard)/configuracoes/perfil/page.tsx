@@ -25,7 +25,7 @@ export default async function PerfilPage({ searchParams }: PerfilPageProps) {
             border: "1px solid rgba(185,160,122,0.35)",
             borderRadius: "4px",
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "13px",
+            fontSize: "calc(13px * var(--ui-font-scale))",
             color: "var(--nuit-champagne-soft)",
             lineHeight: 1.6,
           }}

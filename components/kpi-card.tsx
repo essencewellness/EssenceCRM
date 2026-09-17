@@ -74,7 +74,7 @@ export function KpiCardPremium({
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
+          fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.30em",
           color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
         }}>
           {titulo}
@@ -89,12 +89,12 @@ export function KpiCardPremium({
         {prefix && (
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "14px", fontWeight: 400, color: "var(--nuit-bone-soft)",
+            fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone-soft)",
           }}>{prefix}</span>
         )}
         <span style={{
           fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-          fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
+          fontSize: "calc(34px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
           lineHeight: 1, letterSpacing: "-0.02em",
         }}>
           {count.toLocaleString("pt-PT")}
@@ -102,7 +102,7 @@ export function KpiCardPremium({
         {suffix && (
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "16px", fontWeight: 400, color: "var(--nuit-bone-soft)",
+            fontSize: "calc(16px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone-soft)",
           }}>{suffix}</span>
         )}
       </div>
@@ -111,7 +111,7 @@ export function KpiCardPremium({
       {descricao && (
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", color: "var(--nuit-bone-soft)",
+          fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           lineHeight: 1.4,
         }}>
           {descricao}

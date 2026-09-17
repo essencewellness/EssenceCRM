@@ -11,7 +11,7 @@ export default async function ConfiguracoesLayout({ children }: { children: Reac
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "22px",
+          fontSize: "calc(22px * var(--ui-font-scale))",
           color: "var(--nuit-bone)",
           fontWeight: 400,
           letterSpacing: "-0.01em",
@@ -21,7 +21,7 @@ export default async function ConfiguracoesLayout({ children }: { children: Reac
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px",
+          fontSize: "calc(13px * var(--ui-font-scale))",
           color: "#9d9d9a",
         }}>
           Gere as preferências e definições do CRM

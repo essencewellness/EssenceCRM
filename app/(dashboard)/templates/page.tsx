@@ -31,13 +31,13 @@ export default async function TemplatesPage() {
       <div>
         <h1 style={{
           fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-          color: CREAM, fontSize: "26px", fontWeight: 400, letterSpacing: "0.02em",
+          color: CREAM, fontSize: "calc(26px * var(--ui-font-scale))", fontWeight: 400, letterSpacing: "0.02em",
         }}>
           Templates de Mensagem
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-          color: `rgba(212,184,134,0.55)`, fontSize: "13px", marginTop: "4px",
+          color: `rgba(212,184,134,0.55)`, fontSize: "calc(13px * var(--ui-font-scale))", marginTop: "4px",
         }}>
           {templates.length} template{templates.length !== 1 ? "s" : ""} configurados
         </p>
@@ -53,7 +53,7 @@ export default async function TemplatesPage() {
         }}>
           <p style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            color: `var(--muted-foreground)`, fontSize: "13px",
+            color: `var(--muted-foreground)`, fontSize: "calc(13px * var(--ui-font-scale))",
           }}>
             Nenhum template criado. Use a API para criar templates.
           </p>
@@ -64,7 +64,7 @@ export default async function TemplatesPage() {
         <section key={tipo}>
           <h2 style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            color: `rgba(212,184,134,0.55)`, fontSize: "10px",
+            color: `rgba(212,184,134,0.55)`, fontSize: "calc(10px * var(--ui-font-scale))",
             fontWeight: 700, letterSpacing: "0.22em",
             textTransform: "uppercase", marginBottom: "12px",
           }}>
@@ -84,7 +84,7 @@ export default async function TemplatesPage() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
                   <span style={{
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                    fontWeight: 600, fontSize: "14px", color: CREAM,
+                    fontWeight: 600, fontSize: "calc(14px * var(--ui-font-scale))", color: CREAM,
                   }}>
                     {t.nome}
                   </span>
@@ -93,7 +93,7 @@ export default async function TemplatesPage() {
                     padding: "2px 8px", borderRadius: "4px",
                     backgroundColor: t.ativo ? "rgba(80,200,120,0.12)" : "rgba(237,231,227,0.06)",
                     color: t.ativo ? "#6fcf97" : "var(--muted-foreground)",
-                    fontSize: "11px", fontWeight: 600,
+                    fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                     fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
                     letterSpacing: "0.04em",
                   }}>
@@ -102,7 +102,7 @@ export default async function TemplatesPage() {
                 </div>
                 <p style={{
                   fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-                  fontSize: "13px", color: `var(--muted-foreground)`,
+                  fontSize: "calc(13px * var(--ui-font-scale))", color: `var(--muted-foreground)`,
                   whiteSpace: "pre-wrap", lineHeight: 1.6,
                 }}>
                   {t.texto}
@@ -114,7 +114,7 @@ export default async function TemplatesPage() {
                         key={v}
                         style={{
                           fontFamily: "monospace",
-                          fontSize: "11px",
+                          fontSize: "calc(11px * var(--ui-font-scale))",
                           backgroundColor: "rgba(212,184,134,0.08)",
                           color: GOLD,
                           padding: "2px 8px",

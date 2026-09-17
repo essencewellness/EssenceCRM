@@ -70,11 +70,11 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
             const ehHoje = data.getTime() === hoje.getTime()
             return (
               <div key={data.toISOString()} style={{ textAlign: "center", paddingBottom: "8px" }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--nuit-bone-soft)" }}>
                   {data.toLocaleDateString("pt-PT", { weekday: "short", timeZone: "Europe/Lisbon" }).replace(".", "")}
                 </p>
                 <p style={{
-                  fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px",
+                  fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(18px * var(--ui-font-scale))",
                   color: ehHoje ? "var(--nuit-midnight)" : "var(--nuit-bone)",
                   backgroundColor: ehHoje ? "var(--nuit-champagne)" : "transparent",
                   width: "30px", height: "30px", borderRadius: "50%",
@@ -99,7 +99,7 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
               {horas.map(h => (
                 <span key={h} style={{
                   position: "absolute", top: `${(h - HORA_INICIO) * PX_HORA - 6}px`, right: "6px",
-                  fontFamily: "var(--font-sans)", fontSize: "9.5px", color: "var(--nuit-bone-soft)", opacity: 0.6,
+                  fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", opacity: 0.6,
                 }}>
                   {String(h).padStart(2, "0")}h
                 </span>
@@ -161,11 +161,11 @@ export function GradeHoraria({ dias }: { dias: { data: Date; sessoes: SessaoGrad
                         display: "flex", flexDirection: "column", gap: "1px",
                       }}
                     >
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, color: "var(--nuit-bone)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-bone)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {s.hora} {s.clienteNome}
                       </span>
                       {altura > 28 && (
-                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "9px", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <span style={{ fontFamily: "var(--font-body, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                           {s.servico ?? "—"}
                         </span>
                       )}

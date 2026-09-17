@@ -274,15 +274,15 @@ export default async function MensagensPage({ searchParams }: PageProps) {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
               <span style={{
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 600,
                 letterSpacing: "0.22em", color: SMOKE, textTransform: "uppercase",
               }}>
                 {label}
               </span>
               {icon}
             </div>
-            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "28px", color: INK }}>{value}</p>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE, marginTop: "3px" }}>{desc}</p>
+            <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(28px * var(--ui-font-scale))", color: INK }}>{value}</p>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: SMOKE, marginTop: "3px" }}>{desc}</p>
           </div>
         ))}
       </div>
@@ -304,7 +304,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               padding: "10px 12px", borderRadius: "0px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
               color: tab === key ? CHAMPAGNE : SMOKE,
               backgroundColor: tab === key ? "rgba(185,160,122,0.07)" : "transparent",
               borderBottom: tab === key ? `1px solid ${CHAMPAGNE}` : "1px solid transparent",
@@ -315,7 +315,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
             {label}
             {count !== null && (
               <span style={{
-                padding: "1px 6px", borderRadius: "0px", fontSize: "9px", fontWeight: 600,
+                padding: "1px 6px", borderRadius: "0px", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                 fontFamily: "var(--font-sans, sans-serif)",
                 color: tab === key ? CHAMPAGNE : "#b5b5b2",
                 backgroundColor: tab === key ? "rgba(185,160,122,0.15)" : "rgba(221,214,196,0.4)",
@@ -345,10 +345,10 @@ export default async function MensagensPage({ searchParams }: PageProps) {
               padding: "52px 24px", backgroundColor: CARD,
               border: "1px dashed rgba(185,160,122,0.35)", borderRadius: "6px",
             }}>
-              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "15px", color: "#6d6d6d" }}>
+              <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontStyle: "italic", fontSize: "calc(15px * var(--ui-font-scale))", color: "#6d6d6d" }}>
                 Fila vazia
               </p>
-              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: SMOKE, marginTop: "6px" }}>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: SMOKE, marginTop: "6px" }}>
                 Aprova mensagens em &quot;Pendentes&quot; e elas entram aqui com hora marcada.
               </p>
             </div>
@@ -374,12 +374,12 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
                       <a href={`/clientes/${cliente.id}`} style={{
-                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                         fontWeight: 700, color: INK, textDecoration: "none",
                       }}>
                         {cliente.nome}
                       </a>
-                      <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE }}>
+                      <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: SMOKE }}>
                         {falhou
                           ? `Falhou: ${m.erroEnvio ?? "erro desconhecido"}`
                           : madura
@@ -388,7 +388,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                       </span>
                     </div>
                     <p style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#6d6d6d",
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "#6d6d6d",
                       marginTop: "4px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>
                       {m.mensagemFinal ?? m.mensagemGerada}
@@ -404,7 +404,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                         style={{
                           display: "inline-flex", alignItems: "center", gap: "6px",
                           padding: "7px 14px", borderRadius: "3px",
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 600,
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                           color: CHAMPAGNE, backgroundColor: "rgba(185,160,122,0.08)",
                           border: "1px solid rgba(185,160,122,0.30)",
                         }}
@@ -451,28 +451,28 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                     <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
                       {m.cliente ? (
                         <a href={`/clientes/${m.cliente.id}`} style={{
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                           fontWeight: 700, color: INK, textDecoration: "none",
                         }}>
                           {m.cliente.nome}
                         </a>
                       ) : (
                         <span style={{
-                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px",
+                          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))",
                           fontWeight: 700, color: SMOKE,
                         }}>
                           {m.clienteNomeArquivado ?? "Cliente eliminada"}
                         </span>
                       )}
                       <span style={{
-                        fontSize: "10px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
+                        fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
                         color: cfg.color, textTransform: "uppercase", letterSpacing: "0.08em",
                       }}>
                         {cfg.label}
                       </span>
                       {m.converteu && (
                         <span style={{
-                          fontSize: "10px", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 600, fontFamily: "var(--font-sans, sans-serif)",
                           color: SAGE, backgroundColor: "rgba(95,122,95,0.10)",
                           padding: "1px 8px", borderRadius: "100px",
                           border: "1px solid rgba(95,122,95,0.25)",
@@ -480,12 +480,12 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                           Converteu
                         </span>
                       )}
-                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "#b5b5b2" }}>
+                      <span style={{ marginLeft: "auto", fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "#b5b5b2" }}>
                         {formatDateTime(m.geradaEm)}
                       </span>
                     </div>
                     <p style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "#6d6d6d",
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "#6d6d6d",
                       marginTop: "5px", lineHeight: 1.55,
                       display: "-webkit-box", WebkitLineClamp: 2,
                       WebkitBoxOrient: "vertical" as const, overflow: "hidden",
@@ -508,19 +508,19 @@ export default async function MensagensPage({ searchParams }: PageProps) {
             padding: "16px 20px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap",
           }}>
             <div>
-              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px", fontWeight: 600, letterSpacing: "0.22em", color: SMOKE, textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 600, letterSpacing: "0.22em", color: SMOKE, textTransform: "uppercase" }}>
                 No-Show Rate
               </span>
-              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE, marginTop: "3px" }}>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: SMOKE, marginTop: "3px" }}>
                 Sessões marcadas em que a cliente faltou sem aviso
               </p>
             </div>
             {noShow ? (
-              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "24px", color: noShow.taxa > 10 ? TERRA : INK }}>
-                {noShow.taxa}% <span style={{ fontSize: "12px", color: SMOKE, fontFamily: "var(--font-sans, sans-serif)" }}>({noShow.faltas}/{noShow.total})</span>
+              <span style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(24px * var(--ui-font-scale))", color: noShow.taxa > 10 ? TERRA : INK }}>
+                {noShow.taxa}% <span style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: SMOKE, fontFamily: "var(--font-sans, sans-serif)" }}>({noShow.faltas}/{noShow.total})</span>
               </span>
             ) : (
-              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: SMOKE, fontStyle: "italic" }}>
+              <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: SMOKE, fontStyle: "italic" }}>
                 Ainda sem dados suficientes (mínimo {15} sessões)
               </span>
             )}
@@ -528,7 +528,7 @@ export default async function MensagensPage({ searchParams }: PageProps) {
           {funilPorTipo.length === 0 ? (
             <div style={{ textAlign: "center", padding: "48px 0" }}>
               <TrendingUp size={32} color={SMOKE} style={{ margin: "0 auto 12px" }} />
-              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: SMOKE }}>
+              <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: SMOKE }}>
                 Ainda não há mensagens geradas para medir.
               </p>
             </div>
@@ -538,12 +538,12 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                 <div key={f.tipo} style={{ backgroundColor: CARD, border: `1px solid ${BORDER}`, borderRadius: "2px", padding: "16px 20px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
                     <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 700,
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 700,
                       color: INK, textTransform: "uppercase", letterSpacing: "0.08em",
                     }}>
                       {f.tipo}
                     </span>
-                    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: SMOKE }}>
+                    <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: SMOKE }}>
                       {f.enviadas > 0
                         ? `${f.taxaConversao}% de conversão${f.tempoMedioDiasConversao !== null ? ` · ~${f.tempoMedioDiasConversao}d até converter` : ""}`
                         : "sem envios ainda"}
@@ -559,12 +559,12 @@ export default async function MensagensPage({ searchParams }: PageProps) {
                     ].map((etapa, i, arr) => (
                       <div key={etapa.label} style={{ flex: 1, display: "flex", alignItems: "center", gap: "6px" }}>
                         <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px", color: etapa.cor }}>{etapa.valor}</p>
-                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", color: SMOKE, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                          <p style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(20px * var(--ui-font-scale))", color: etapa.cor }}>{etapa.valor}</p>
+                          <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", color: SMOKE, textTransform: "uppercase", letterSpacing: "0.1em" }}>
                             {etapa.label}
                           </p>
                         </div>
-                        {i < arr.length - 1 && <span style={{ color: BORDER, fontSize: "14px" }}>→</span>}
+                        {i < arr.length - 1 && <span style={{ color: BORDER, fontSize: "calc(14px * var(--ui-font-scale))" }}>→</span>}
                       </div>
                     ))}
                   </div>

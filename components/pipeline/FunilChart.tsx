@@ -112,13 +112,13 @@ export function FunilChart({ estagios, terapeuta }: FunilChartProps) {
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                 <span style={{
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                   letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-bone-soft)",
                 }}>
                   {estagio.label}
                 </span>
                 <span style={{
-                  fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
+                  fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))",
                   fontWeight: 400, color: "var(--nuit-bone)", lineHeight: 1.1,
                 }}>
                   <NumeroContagem valor={estagio.count} />
@@ -126,7 +126,7 @@ export function FunilChart({ estagios, terapeuta }: FunilChartProps) {
               </div>
               {pctConversao !== null && (
                 <span style={{
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", fontWeight: 700,
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700,
                   padding: "4px 9px", borderRadius: "100px", whiteSpace: "nowrap",
                   color: pctConversao < 50 ? "var(--destructive)" : "var(--nuit-champagne-soft)",
                   backgroundColor: pctConversao < 50 ? "rgba(176,96,80,0.12)" : "rgba(212,184,134,0.10)",

@@ -134,7 +134,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
       >
         <Zap size={11} color={tagActivity.cor} />
         <span style={{
-          fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
+          fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
           fontWeight: 600, color: tagActivity.cor, letterSpacing: "0.04em",
         }}>
           {tagActivity.label}
@@ -143,7 +143,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
             sessões" seria redundante ("Sem sessões · última sessão"). */}
         {tagActivity.dias !== null && (
           <span style={{
-            fontSize: "10px", fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "calc(10px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
             color: "var(--nuit-bone-soft)", opacity: 0.5,
           }}>
             · última sessão
@@ -158,7 +158,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
         return (
           <div key={tipo} style={{ marginBottom: "10px" }}>
             <p style={{
-              fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em",
+              fontSize: "calc(8.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
               textTransform: "uppercase", color: "#9d9d9a",
               fontFamily: "var(--font-sans, sans-serif)", marginBottom: "6px",
             }}>
@@ -177,7 +177,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     style={{
                       display: "inline-flex", alignItems: "center", gap: "5px",
                       padding: "4px 8px 4px 10px", borderRadius: "100px",
-                      fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
+                      fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                       fontWeight: 500,
                       color: tag.cor,
                       backgroundColor: `${tag.cor}15`,
@@ -185,7 +185,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     }}
                   >
                     {tipo === "saude" && tag.bloqueiaAutomacoes && (
-                      <span title="Bloqueia automações" style={{ fontSize: "8px", opacity: 0.7 }}>⚕</span>
+                      <span title="Bloqueia automações" style={{ fontSize: "calc(8px * var(--ui-font-scale))", opacity: 0.7 }}>⚕</span>
                     )}
                     {tag.nome}
                     {tipo !== "automatica" && (
@@ -207,7 +207,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                       </motion.button>
                     )}
                     {tipo === "automatica" && (
-                      <span style={{ fontSize: "9px", opacity: 0.5 }}><Tag size={9} /></span>
+                      <span style={{ fontSize: "calc(9px * var(--ui-font-scale))", opacity: 0.5 }}><Tag size={9} /></span>
                     )}
                   </motion.span>
                 ))}
@@ -236,7 +236,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
           style={{
             display: "inline-flex", alignItems: "center", gap: "5px",
             padding: "5px 10px", borderRadius: "100px",
-            fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)",
+            fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
             fontWeight: 500, color: "var(--nuit-bone-soft)",
             backgroundColor: "transparent", border: "1px dashed rgba(212,184,134,0.28)",
             cursor: "pointer",
@@ -300,7 +300,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           placeholder="Pesquisar etiquetas…"
                           style={{
                             border: "none", background: "none", outline: "none",
-                            fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
+                            fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                             color: "var(--nuit-bone)", width: "100%",
                           }}
                         />
@@ -310,7 +310,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     {/* Lista */}
                     <div style={{ maxHeight: "200px", overflowY: "auto" }}>
                       {filtradas.length === 0 && !pesquisa && (
-                        <p style={{ padding: "12px", fontSize: "12px", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
+                        <p style={{ padding: "12px", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", fontFamily: "var(--font-sans, sans-serif)", textAlign: "center" }}>
                           Todas as etiquetas já atribuídas
                         </p>
                       )}
@@ -325,14 +325,14 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           style={{
                             display: "flex", alignItems: "center", gap: "8px",
                             width: "100%", padding: "8px 12px",
-                            fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
+                            fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                             color: "var(--nuit-bone)", backgroundColor: "transparent",
                             border: "none", cursor: "pointer", textAlign: "left",
                           }}
                         >
                           <span style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: tag.cor, flexShrink: 0 }} />
                           {tag.nome}
-                          <span style={{ marginLeft: "auto", fontSize: "10px", color: "var(--nuit-bone-soft)" }}>
+                          <span style={{ marginLeft: "auto", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
                             {TIPO_ETIQUETA_LABELS[tag.tipo]}
                           </span>
                         </motion.button>
@@ -347,7 +347,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         style={{
                           display: "flex", alignItems: "center", gap: "8px",
                           width: "100%", padding: "10px 12px",
-                          fontSize: "12px", fontFamily: "var(--font-sans, sans-serif)",
+                          fontSize: "calc(12px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)",
                           color: "var(--nuit-champagne-soft)", backgroundColor: "transparent",
                           border: "none", cursor: "pointer",
                         }}
@@ -367,7 +367,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                     style={{ padding: "14px 14px" }}
                   >
                     <p style={{
-                      fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em",
+                      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em",
                       textTransform: "uppercase", color: "#9d9d9a",
                       fontFamily: "var(--font-sans, sans-serif)", marginBottom: "12px",
                     }}>
@@ -381,7 +381,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                       placeholder="Nome da etiqueta"
                       style={{
                         width: "100%", padding: "7px 10px", borderRadius: "4px",
-                        border: "1px solid rgba(212,184,134,0.22)", fontSize: "13px",
+                        border: "1px solid rgba(212,184,134,0.22)", fontSize: "calc(13px * var(--ui-font-scale))",
                         fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone)",
                         backgroundColor: "var(--nuit-midnight)",
                         outline: "none", boxSizing: "border-box", marginBottom: "10px",
@@ -395,7 +395,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           onClick={() => setNovoTipo(t)}
                           whileTap={{ scale: 0.95 }}
                           style={{
-                            flex: 1, padding: "5px 0", borderRadius: "4px", fontSize: "10px",
+                            flex: 1, padding: "5px 0", borderRadius: "4px", fontSize: "calc(10px * var(--ui-font-scale))",
                             fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                             letterSpacing: "0.08em", textTransform: "uppercase",
                             border: "1px solid", cursor: "pointer",
@@ -417,7 +417,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           checked={novoBloqueio}
                           onChange={e => setNovoBloqueio(e.target.checked)}
                         />
-                        <span style={{ fontSize: "11px", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)" }}>
+                        <span style={{ fontSize: "calc(11px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", color: "var(--nuit-bone-soft)" }}>
                           Bloquear automações
                         </span>
                       </label>
@@ -449,7 +449,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
-                          style={{ fontSize: "11px", color: "var(--destructive)", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}
+                          style={{ fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--destructive)", marginBottom: "8px", fontFamily: "var(--font-sans, sans-serif)" }}
                         >
                           {erro}
                         </motion.p>
@@ -462,7 +462,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         whileHover={{ opacity: 0.8 }}
                         whileTap={{ scale: 0.97 }}
                         style={{
-                          flex: 1, padding: "7px", borderRadius: "4px", fontSize: "12px",
+                          flex: 1, padding: "7px", borderRadius: "4px", fontSize: "calc(12px * var(--ui-font-scale))",
                           fontFamily: "var(--font-sans, sans-serif)", fontWeight: 500,
                           border: "1px solid rgba(212,184,134,0.22)", color: "var(--nuit-bone-soft)", backgroundColor: "transparent", cursor: "pointer",
                         }}
@@ -476,7 +476,7 @@ export function TagsSection({ clienteId, etiquetasCliente, todasEtiquetas, ultim
                         whileTap={novoNome.trim() ? { scale: 0.97 } : {}}
                         transition={{ type: "spring", stiffness: 400, damping: 20 }}
                         style={{
-                          flex: 1, padding: "7px", borderRadius: "4px", fontSize: "12px",
+                          flex: 1, padding: "7px", borderRadius: "4px", fontSize: "calc(12px * var(--ui-font-scale))",
                           fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                           border: "none", color: "#fff", backgroundColor: "var(--nuit-champagne-soft)",
                           cursor: novoNome.trim() ? "pointer" : "not-allowed",

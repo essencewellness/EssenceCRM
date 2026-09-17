@@ -109,14 +109,14 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       {/* Cabeçalho */}
       <div style={{ marginBottom: "28px" }}>
         <p style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))",
           fontWeight: 500, letterSpacing: "0.32em", textTransform: "uppercase",
           color: "var(--nuit-champagne-soft)", marginBottom: "6px",
         }}>
           Essence Wellness · CRM
         </p>
         <h1 style={{
-          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
+          fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))",
           fontWeight: 400, color: "var(--nuit-bone)", letterSpacing: "-0.005em",
         }}>
           Pipeline
@@ -136,7 +136,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               style={{
                 display: "flex", alignItems: "center", gap: "6px",
                 padding: "7px 13px", textDecoration: "none",
-                fontFamily: "var(--font-sans, sans-serif)", fontSize: "11.5px", fontWeight: 600,
+                fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11.5px * var(--ui-font-scale))", fontWeight: 600,
                 backgroundColor: vista === v ? "rgba(185,160,122,0.10)" : "transparent",
                 color: vista === v ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
               }}
@@ -162,13 +162,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))",
                   fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
               <p style={{
-                fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
+                fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))",
                 fontWeight: 400, color: "var(--nuit-bone)",
               }}>{value}</p>
             </div>
@@ -187,13 +187,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
             }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                 <span style={{
-                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px",
+                  fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))",
                   fontWeight: 700, letterSpacing: "0.18em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
                 }}>{label}</span>
                 {icon}
               </div>
               <p style={{
-                fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "26px",
+                fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(26px * var(--ui-font-scale))",
                 fontWeight: 400, color: "var(--nuit-bone)",
               }}>{value}</p>
             </div>
@@ -209,7 +209,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
               taxa de conversão real entre cada par. */}
           <div style={{ marginBottom: "8px" }}>
             <span style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))",
               fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Funil de Crescimento
@@ -229,7 +229,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
           {/* Fora do funil — desvios/saídas, não fazem parte da progressão */}
           <div style={{ marginBottom: "8px" }}>
             <span style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))",
               fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Fora do Funil — Risco &amp; Saída
@@ -247,13 +247,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                     borderRadius: "2px", padding: "14px",
                   }}>
                     <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 700,
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
                       letterSpacing: "0.14em", textTransform: "uppercase", color: estado.color, display: "block", marginBottom: "6px",
                     }}>
                       {estado.label}
                     </span>
                     <span style={{
-                      fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "20px",
+                      fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(20px * var(--ui-font-scale))",
                       fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke)",
                     }}>
                       {count}
@@ -269,7 +269,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       {/* Estados CRM */}
       <div style={{ marginBottom: "8px" }}>
         <span style={{
-          fontFamily: "var(--font-sans, sans-serif)", fontSize: "9.5px",
+          fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9.5px * var(--ui-font-scale))",
           fontWeight: 700, letterSpacing: "0.22em", color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>
           Distribuição por Estado
@@ -302,7 +302,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   {/* Badge estado */}
                   <span style={{
                     padding: "3px 10px", borderRadius: "0px", flexShrink: 0, width: "148px",
-                    fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+                    fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
                     fontFamily: "var(--font-sans, sans-serif)",
                     color: estado.color, backgroundColor: estado.bg,
                     border: `1px solid ${estado.color}44`,
@@ -325,7 +325,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                       }} />
                     </div>
                     <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))",
                       color: "var(--nuit-bone-soft)", marginTop: "4px", display: "block",
                     }}>
                       {estado.desc}
@@ -335,13 +335,13 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   {/* Contagem */}
                   <div style={{ flexShrink: 0, textAlign: "right", minWidth: "60px" }}>
                     <span style={{
-                      fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "22px",
+                      fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(22px * var(--ui-font-scale))",
                       fontWeight: 400, color: count > 0 ? "var(--nuit-bone)" : "var(--nuit-smoke)",
                     }}>
                       {count}
                     </span>
                     <span style={{
-                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px",
+                      fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))",
                       color: "var(--nuit-bone-soft)", marginLeft: "4px",
                     }}>
                       {count === 1 ? "cliente" : "clientes"}
@@ -349,7 +349,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
                   </div>
 
                   <span style={{
-                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px",
+                    fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))",
                     color: "var(--nuit-champagne-soft)", flexShrink: 0,
                   }}>
                     Ver →
@@ -367,7 +367,7 @@ export default async function PipelinePage({ searchParams }: PageProps) {
       <div style={{
         display: "flex", justifyContent: "flex-end", alignItems: "center",
         gap: "6px", marginTop: "12px",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
       }}>
         <BarChart2 size={13} />
         {totalClientes} clientes no total · atualizado a cada 60 s

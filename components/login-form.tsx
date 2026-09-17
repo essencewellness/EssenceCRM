@@ -79,7 +79,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
             className="block"
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "10px",
+              fontSize: "calc(10px * var(--ui-font-scale))",
               fontWeight: 500,
               letterSpacing: "0.32em",
               textTransform: "uppercase",
@@ -108,7 +108,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
             className="block"
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "10px",
+              fontSize: "calc(10px * var(--ui-font-scale))",
               fontWeight: 500,
               letterSpacing: "0.32em",
               textTransform: "uppercase",
@@ -141,7 +141,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
             border: "none",
             borderRadius: "3px",
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px",
+            fontSize: "calc(11px * var(--ui-font-scale))",
             fontWeight: 600,
             letterSpacing: "0.32em",
             textTransform: "uppercase",
@@ -153,7 +153,7 @@ export function LoginForm({ hasError, callbackUrl = "/" }: { hasError: boolean; 
         <p
           style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px",
+            fontSize: "calc(11px * var(--ui-font-scale))",
             color: SMOKE,
             textAlign: "center",
             lineHeight: 1.6,

@@ -38,7 +38,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "3px" }}>
               <span style={{
                 fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-                fontSize: "28px",
+                fontSize: "calc(28px * var(--ui-font-scale))",
                 lineHeight: 1,
                 color: "var(--nuit-bone)",
                 letterSpacing: "-0.005em",
@@ -47,7 +47,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </span>
               <span style={{
                 fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-                fontSize: "14px",
+                fontSize: "calc(14px * var(--ui-font-scale))",
                 lineHeight: 1,
                 color: "var(--nuit-champagne)",
               }}>
@@ -60,7 +60,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
           <p style={{
             fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
-            fontSize: "9px",
+            fontSize: "calc(9px * var(--ui-font-scale))",
             letterSpacing: "0.52em",
             textTransform: "uppercase",
             color: "var(--nuit-champagne)",
@@ -85,7 +85,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             style={{
               fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
               color: "var(--nuit-bone)",
-              fontSize: "22px",
+              fontSize: "calc(22px * var(--ui-font-scale))",
               marginBottom: "4px",
               letterSpacing: "-0.005em",
             }}
@@ -96,7 +96,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             style={{
               fontFamily: "var(--font-sans, 'Manrope', sans-serif)",
               color: "var(--nuit-bone-soft)",
-              fontSize: "13px",
+              fontSize: "calc(13px * var(--ui-font-scale))",
               marginBottom: "28px",
               lineHeight: 1.6,
             }}
@@ -111,7 +111,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           className="mt-8 text-center"
           style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "10px",
+            fontSize: "calc(10px * var(--ui-font-scale))",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: "var(--nuit-bone-soft)",

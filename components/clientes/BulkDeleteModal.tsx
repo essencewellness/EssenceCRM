@@ -93,7 +93,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
 
         <h2 id="bulk-apagar-titulo" style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "18px", fontWeight: 400, color: "var(--nuit-bone)",
+          fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
           marginBottom: "8px",
         }}>
           Apagar {clienteIds.length} {clienteIds.length === 1 ? "contacto" : "contactos"}
@@ -101,7 +101,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
 
         <p style={{
           fontFamily: "var(--font-body, sans-serif)",
-          fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
+          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
           marginBottom: "20px",
         }}>
           Esta ação é <strong>irreversível</strong> — os contactos selecionados são apagados definitivamente da base de dados.
@@ -111,7 +111,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
         <div style={{ marginBottom: "20px" }}>
           <label htmlFor="bulk-confirm-input" style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "10px", fontWeight: 700, letterSpacing: "0.14em",
+            fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.14em",
             color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             display: "block", marginBottom: "8px",
           }}>
@@ -130,7 +130,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
               border: `1px solid ${textoOk ? "rgba(160,169,150,0.6)" : "rgba(212,184,134,0.22)"}`,
               backgroundColor: textoOk ? "rgba(160,169,150,0.05)" : "var(--nuit-midnight)",
               fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "14px", color: "var(--nuit-bone)",
+              fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone)",
               outline: "none", boxSizing: "border-box",
               transition: "border-color 150ms",
             }}
@@ -146,7 +146,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
         }}>
           <p style={{
             fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+            fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
           }}>
             Se algum destes contactos tiver sessões ou packs, ficam preservados no histórico
             financeiro como &ldquo;Cliente eliminada&rdquo; — deixam de estar ligados a um
@@ -174,7 +174,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
           />
           <span style={{
             fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "12.5px", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
+            fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--nuit-bone-soft, #c9c3b4)", lineHeight: 1.5,
           }}>
             Apagar também as sessões e packs <strong>de vez</strong> — não fica nenhum registo,
             nem no financeiro. Só faz sentido para dados de teste, sem valor financeiro real.
@@ -185,7 +185,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
         {erro && (
           <p style={{
             fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "12.5px", color: "var(--destructive)", lineHeight: 1.5, marginBottom: "16px",
+            fontSize: "calc(12.5px * var(--ui-font-scale))", color: "var(--destructive)", lineHeight: 1.5, marginBottom: "16px",
           }}>
             {erro}
           </p>
@@ -200,7 +200,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
               backgroundColor: "transparent",
               border: "1px solid rgba(212,184,134,0.20)",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", fontWeight: 600, color: "var(--nuit-bone-soft)",
+              fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone-soft)",
               cursor: "pointer",
             }}
           >
@@ -214,7 +214,7 @@ export function BulkDeleteModal({ clienteIds, onClose, onSuccess }: Props) {
               backgroundColor: confirmado ? "var(--destructive)" : "rgba(176,96,80,0.12)",
               border: "none",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", fontWeight: 600,
+              fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
               color: confirmado ? "#ffffff" : "rgba(176,96,80,0.4)",
               cursor: confirmado ? "pointer" : "not-allowed",
               transition: "all 150ms",

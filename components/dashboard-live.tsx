@@ -51,7 +51,7 @@ function BadgeEstado({ estado }: { estado: string }) {
     <span style={{
       display: "inline-flex", alignItems: "center",
       padding: "3px 8px",
-      fontSize: "9px", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
+      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase",
       fontFamily: "var(--font-sans, sans-serif)",
       color: cfg.color, backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`,
     }}>
@@ -101,7 +101,7 @@ export function DashboardHeader({
             transition={{ duration: 0.8, delay: 0.1 }}
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", fontWeight: 700,
+              fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 700,
               color: "var(--nuit-champagne-soft)", textTransform: "uppercase", marginBottom: "8px",
             }}
           >
@@ -114,7 +114,7 @@ export function DashboardHeader({
             transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontSize: "28px", fontWeight: 400, color: "var(--nuit-bone)",
+              fontSize: "calc(28px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
               lineHeight: 1.15, fontStyle: "italic",
             }}
           >
@@ -149,7 +149,7 @@ export function DashboardHeader({
             </span>
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", fontWeight: 600, color: "var(--nuit-sage)",
+              fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-sage)",
             }}>
               {totalHoje} sessão{totalHoje !== 1 ? "ões" : ""} hoje
             </span>
@@ -221,7 +221,7 @@ export function SessoesHojeKpi({ sessoes, index = 0 }: { sessoes: SessaoRow[]; i
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
+            fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.30em",
             color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
           }}>
             Sessões Hoje
@@ -232,7 +232,7 @@ export function SessoesHojeKpi({ sessoes, index = 0 }: { sessoes: SessaoRow[]; i
         <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginBottom: "8px" }}>
           <span style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
+            fontSize: "calc(34px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
             lineHeight: 1, letterSpacing: "-0.02em",
           }}>
             {count.toLocaleString("pt-PT")}
@@ -241,7 +241,7 @@ export function SessoesHojeKpi({ sessoes, index = 0 }: { sessoes: SessaoRow[]; i
 
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", color: "var(--nuit-bone-soft)",
+          fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           lineHeight: 1.4,
         }}>
           {sessoes.length === 0 ? "Dia livre" : `${confirmadas.length} confirmada(s) · toca para ver`}
@@ -289,7 +289,7 @@ export function SessoesHojeKpi({ sessoes, index = 0 }: { sessoes: SessaoRow[]; i
                 }}>
                   <h3 style={{
                     fontFamily: "var(--font-heading, Georgia, serif)",
-                    fontSize: "18px", color: "var(--nuit-bone)",
+                    fontSize: "calc(18px * var(--ui-font-scale))", color: "var(--nuit-bone)",
                   }}>
                     Sessões de hoje
                   </h3>
@@ -340,7 +340,7 @@ function SessoesListaBox({ titulo, sessoes, borderRight }: { titulo: string; ses
     }}>
       <p style={{
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+        fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
         color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
         marginBottom: "12px",
       }}>
@@ -350,7 +350,7 @@ function SessoesListaBox({ titulo, sessoes, borderRight }: { titulo: string; ses
       {sessoes.length === 0 ? (
         <p style={{
           fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-          fontSize: "13px", color: "var(--nuit-bone-soft)",
+          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
         }}>
           Nenhuma sessão.
         </p>
@@ -361,14 +361,14 @@ function SessoesListaBox({ titulo, sessoes, borderRight }: { titulo: string; ses
               <span style={{
                 flexShrink: 0, width: "38px",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "12px", fontWeight: 600, color: "var(--nuit-champagne)",
+                fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne)",
               }}>
                 {s.hora ? s.hora.slice(0, 5) : "—"}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "13px", color: "var(--nuit-bone)",
+                  fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
                   {s.clienteNome}
@@ -444,7 +444,7 @@ export function KpiClicavel({
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 500, letterSpacing: "0.30em",
+            fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.30em",
             color: "var(--nuit-champagne-soft)", textTransform: "uppercase",
           }}>
             {titulo}
@@ -455,19 +455,19 @@ export function KpiClicavel({
         <div style={{ display: "flex", alignItems: "baseline", gap: "3px", marginBottom: "8px" }}>
           <span style={{
             fontFamily: "var(--font-heading, 'DM Serif Display', Georgia, serif)",
-            fontSize: "34px", fontWeight: 400, color: "var(--nuit-bone)",
+            fontSize: "calc(34px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
             lineHeight: 1, letterSpacing: "-0.02em",
           }}>
             {count.toLocaleString("pt-PT")}
           </span>
           {suffix && (
-            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "16px", color: "var(--nuit-bone-soft)" }}>
+            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(16px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               {suffix}
             </span>
           )}
         </div>
 
-        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)", lineHeight: 1.4 }}>
+        <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.4 }}>
           {temDados ? `${descricao} · toca para ver` : descricao}
         </p>
       </motion.div>
@@ -509,7 +509,7 @@ export function KpiClicavel({
                   padding: "18px 20px 14px", borderBottom: "1px solid rgba(212,184,134,0.10)",
                   flexShrink: 0,
                 }}>
-                  <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "18px", color: "var(--nuit-bone)" }}>
+                  <h3 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(18px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
                     {tituloModal}
                   </h3>
                   <button
@@ -556,25 +556,25 @@ export function ReceitaDetalhe({
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)",
         }}>
-          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>
+          <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
             {l.label}
           </span>
-          <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "16px", color: "var(--nuit-bone)" }}>
+          <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "calc(16px * var(--ui-font-scale))", color: "var(--nuit-bone)" }}>
             {formatCurrency(l.valor)}
           </span>
         </div>
       ))}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0 4px" }}>
-        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-champagne-soft)" }}>
+        <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--nuit-champagne-soft)" }}>
           Total
         </span>
-        <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "20px", color: "var(--nuit-champagne)" }}>
+        <span style={{ fontFamily: "var(--font-heading, serif)", fontSize: "calc(20px * var(--ui-font-scale))", color: "var(--nuit-champagne)" }}>
           {formatCurrency(total)}
         </span>
       </div>
       <Link href="/financeiro" style={{
         display: "block", marginTop: "14px", textAlign: "center",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
         color: "var(--nuit-champagne-soft)", textDecoration: "none",
       }}>
         Ver detalhe completo em Financeiro →
@@ -595,7 +595,7 @@ const ESTADO_LABELS: Record<string, string> = {
 
 export function ClientesActivasDetalhe({ clientes }: { clientes: ClienteAtivoRow[] }) {
   if (clientes.length === 0) {
-    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Nenhuma cliente activa.</p>
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>Nenhuma cliente activa.</p>
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -603,18 +603,18 @@ export function ClientesActivasDetalhe({ clientes }: { clientes: ClienteAtivoRow
         <Link key={c.id} href={`/clientes/${c.id}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", textDecoration: "none" }}>
           <div style={{ minWidth: 0 }}>
             <p style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone)",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {c.nome}
             </p>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "11px", color: "var(--nuit-bone-soft)" }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>
               {formatPhone(c.telefone)}
             </p>
           </div>
           <span style={{
             flexShrink: 0, padding: "3px 8px",
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.12em", textTransform: "uppercase",
             backgroundColor: "rgba(160,169,150,0.08)", border: "1px solid rgba(160,169,150,0.20)", color: "var(--nuit-sage)",
           }}>
             {ESTADO_LABELS[c.estado] ?? c.estado}
@@ -631,25 +631,25 @@ export interface MensagemPendenteRow { id: string; clienteNome: string; tipo: st
 
 export function MensagensPendentesDetalhe({ mensagens }: { mensagens: MensagemPendenteRow[] }) {
   if (mensagens.length === 0) {
-    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Nada à espera de aprovação.</p>
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>Nada à espera de aprovação.</p>
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       {mensagens.map((m) => (
         <div key={m.id} style={{ paddingBottom: "10px", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "3px" }}>
-            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)" }}>
+            <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)" }}>
               {m.clienteNome}
             </span>
             <span style={{
-              fontFamily: "var(--font-sans, sans-serif)", fontSize: "9px", fontWeight: 500, letterSpacing: "0.10em", textTransform: "uppercase",
+              fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.10em", textTransform: "uppercase",
               color: "var(--nuit-champagne-soft)",
             }}>
               {m.tipo}
             </span>
           </div>
           <p style={{
-            fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", color: "var(--nuit-bone-soft)",
+            fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {m.preview}
@@ -658,7 +658,7 @@ export function MensagensPendentesDetalhe({ mensagens }: { mensagens: MensagemPe
       ))}
       <Link href="/mensagens" style={{
         display: "block", marginTop: "4px", textAlign: "center",
-        fontFamily: "var(--font-sans, sans-serif)", fontSize: "12px", fontWeight: 600,
+        fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", fontWeight: 600,
         color: "var(--nuit-champagne-soft)", textDecoration: "none",
       }}>
         Ir para Mensagens →
@@ -673,18 +673,18 @@ export interface SessaoSemanaRow extends SessaoRow { dataLabel: string }
 
 export function EstaSemanaDetalhe({ sessoes }: { sessoes: SessaoSemanaRow[] }) {
   if (sessoes.length === 0) {
-    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>Sem sessões nos próximos 7 dias.</p>
+    return <p style={{ fontFamily: "var(--font-heading, serif)", fontStyle: "italic", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>Sem sessões nos próximos 7 dias.</p>
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
       {sessoes.map((s) => (
         <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{ flexShrink: 0, width: "60px" }}>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "10px", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>{s.dataLabel}</p>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-champagne)" }}>{s.hora ? s.hora.slice(0, 5) : "—"}</p>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", textTransform: "uppercase" }}>{s.dataLabel}</p>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne)" }}>{s.hora ? s.hora.slice(0, 5) : "—"}</p>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "13px", color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {s.clienteNome}
             </p>
           </div>
@@ -722,7 +722,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
             </div>
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
               color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Sessões de Hoje
@@ -731,7 +731,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               minWidth: "18px", height: "18px",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9px", fontWeight: 600,
+              fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
               backgroundColor: "rgba(185,160,122,0.14)", color: "var(--nuit-champagne)",
             }}>
               {sessoes.length}
@@ -739,7 +739,7 @@ export function SessoesHojeCard({ sessoes }: { sessoes: SessaoRow[] }) {
           </div>
           <span style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", color: "var(--nuit-bone-soft)",
+            fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>
             {sessoes.filter(s => s.estado === "confirmada").length} confirmada(s)
           </span>
@@ -776,7 +776,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
         <div style={{ flexShrink: 0, width: "48px", textAlign: "center" }}>
           <span style={{
             fontFamily: "var(--font-heading, Georgia, serif)",
-            fontSize: "18px", fontWeight: 400, color: "var(--nuit-champagne)", letterSpacing: "0.01em",
+            fontSize: "calc(18px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-champagne)", letterSpacing: "0.01em",
           }}>
             {sessao.hora ? sessao.hora.slice(0, 5) : "—"}
           </span>
@@ -788,7 +788,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           border: "1.5px solid rgba(185,160,122,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", fontWeight: 700, color: "var(--nuit-champagne)",
+          fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-champagne)",
         }}>
           {sessao.clienteIniciais}
         </div>
@@ -798,7 +798,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
             href={`/clientes/${sessao.clienteId}`}
             style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "14px", fontWeight: 600, color: "var(--nuit-bone)",
+              fontSize: "calc(14px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)",
               textDecoration: "none", display: "block",
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}
@@ -808,7 +808,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           </Link>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "2px",
+            fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "2px",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
           }}>
             {sessao.servico ?? "Sessão"}
@@ -820,7 +820,7 @@ function SessaoHojeRow({ sessao, isLast }: { sessao: SessaoRow; isLast: boolean 
           display: "inline-flex", alignItems: "center",
           padding: "3px 8px",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9px", fontWeight: 500, letterSpacing: "0.18em", textTransform: "uppercase",
+          fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.18em", textTransform: "uppercase",
           backgroundColor: "rgba(160,169,150,0.08)",
           border: "1px solid rgba(160,169,150,0.20)", color: "var(--nuit-sage)",
         }}>
@@ -865,7 +865,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
             </div>
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
               color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               Para Enviar Hoje
@@ -875,7 +875,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 minWidth: "18px", height: "18px",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9px", fontWeight: 600,
+                fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                 backgroundColor: "rgba(160,169,150,0.12)", color: "var(--nuit-sage)",
               }}>
                 {mensagens.length}
@@ -887,7 +887,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
               href="/mensagens"
               style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", fontWeight: 600,
+                fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                 color: "var(--nuit-champagne-soft)", textDecoration: "none",
               }}
             >
@@ -908,7 +908,7 @@ export function MensagensCard({ mensagens }: { mensagens: MensagemRow[] }) {
           >
             <p style={{
               fontFamily: "var(--font-heading, Georgia, serif)",
-              fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
+              fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               Sem mensagens aprovadas por enviar.
             </p>
@@ -955,7 +955,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         border: "1px solid rgba(160,169,150,0.22)",
         display: "flex", alignItems: "center", justifyContent: "center",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "11px", fontWeight: 700, color: "var(--nuit-sage)",
+        fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 700, color: "var(--nuit-sage)",
       }}>
         {mensagem.clienteIniciais}
       </div>
@@ -964,14 +964,14 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "13px", fontWeight: 600, color: "var(--nuit-bone)",
+            fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone)",
           }}>
             {mensagem.clienteNome}
           </p>
         </div>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "12px", color: "var(--nuit-bone-soft)", marginTop: "2px",
+          fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", marginTop: "2px",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {mensagem.preview}
@@ -983,7 +983,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
         display: "inline-flex", alignItems: "center", gap: "4px",
         padding: "3px 8px",
         fontFamily: "var(--font-sans, sans-serif)",
-        fontSize: "9px", fontWeight: 500, letterSpacing: "0.20em", textTransform: "uppercase",
+        fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.20em", textTransform: "uppercase",
         backgroundColor: "rgba(185,160,122,0.08)",
         border: "1px solid rgba(185,160,122,0.22)",
         color: "var(--nuit-champagne)",
@@ -998,7 +998,7 @@ function MensagemRow({ mensagem }: { mensagem: MensagemRow }) {
           display: "inline-flex", alignItems: "center",
           padding: "5px 12px",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9px", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
+          fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase",
           backgroundColor: "rgba(185,160,122,0.08)",
           border: "1px solid rgba(185,160,122,0.20)",
           color: "var(--nuit-champagne)", textDecoration: "none",
@@ -1045,7 +1045,7 @@ export function ProximosDiasCard({
             </div>
             <h2 style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+              fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
               color: "var(--nuit-bone-soft)", textTransform: "uppercase",
             }}>
               {isHero ? "Próximas Sessões" : "Próximos 7 Dias"}
@@ -1055,7 +1055,7 @@ export function ProximosDiasCard({
                 display: "inline-flex", alignItems: "center", justifyContent: "center",
                 minWidth: "18px", height: "18px",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "9px", fontWeight: 600,
+                fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                 backgroundColor: "rgba(185,160,122,0.12)", color: "var(--nuit-champagne)",
               }}>
                 {totalSessoes}
@@ -1065,7 +1065,7 @@ export function ProximosDiasCard({
           {totalSessoes > 0 && (
             <span style={{
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-bone-soft)",
+              fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
             }}>
               {totalSessoes} sessão{totalSessoes !== 1 ? "ões" : ""} agendada{totalSessoes !== 1 ? "s" : ""}
             </span>
@@ -1077,7 +1077,7 @@ export function ProximosDiasCard({
             <div style={{ padding: "32px 20px", textAlign: "center" }}>
               <p style={{
                 fontFamily: "var(--font-heading, Georgia, serif)",
-                fontStyle: "italic", fontSize: "14px", color: "var(--nuit-bone-soft)",
+                fontStyle: "italic", fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               }}>
                 Sem sessões nos próximos 7 dias.
               </p>
@@ -1101,21 +1101,21 @@ export function ProximosDiasCard({
                     }} />
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "9.5px", fontWeight: 700,
+                      fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700,
                       letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--nuit-bone-soft)",
                     }}>
                       {dia.diaSemana}
                     </span>
                     <span style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "10px", color: "var(--nuit-bone-soft)",
+                      fontSize: "calc(10px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                     }}>
                       {dia.dataCurta}
                     </span>
                     <span style={{
                       display: "flex", alignItems: "center", justifyContent: "center",
                       minWidth: "16px", height: "16px",
-                      fontSize: "9px", fontWeight: 600,
+                      fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
                       backgroundColor: "rgba(212,184,134,0.10)", color: "var(--nuit-bone-soft)",
                       fontFamily: "var(--font-sans, sans-serif)",
                     }}>
@@ -1141,7 +1141,7 @@ export function ProximosDiasCard({
                         <span style={{
                           width: "44px", flexShrink: 0,
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", fontWeight: 600,
+                          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600,
                           color: "var(--nuit-champagne)", letterSpacing: "0.03em",
                         }}>
                           {s.hora ?? "—"}
@@ -1150,14 +1150,14 @@ export function ProximosDiasCard({
                           flex: 1, minWidth: 0,
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "13px", color: "var(--nuit-bone)",
+                          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone)",
                         }}>
                           {s.clienteNome}
                         </span>
                         <span style={{
                           flexShrink: 0,
                           fontFamily: "var(--font-sans, sans-serif)",
-                          fontSize: "11px", color: "var(--nuit-bone-soft)",
+                          fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         }}>
                           {s.terapeuta}
                         </span>
@@ -1206,7 +1206,7 @@ export function TarefasWidget({
         <h3 style={{
           display: "flex", alignItems: "center", gap: "8px",
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>
           <CheckSquare size={13} style={{ color: "var(--nuit-champagne-soft)" }} />
@@ -1214,7 +1214,7 @@ export function TarefasWidget({
         </h3>
         <Link href="/tarefas" style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", fontWeight: 500,
+          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 500,
           color: "var(--nuit-champagne-soft)", textDecoration: "none",
         }}>
           Ver todas →
@@ -1225,7 +1225,7 @@ export function TarefasWidget({
         <div style={{ marginBottom: "12px" }}>
           <p className="value-pulse" style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 600,
+            fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
             color: "var(--destructive)", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
           }}>
             Vencidas ({tarefasVencidas.length})
@@ -1234,17 +1234,17 @@ export function TarefasWidget({
             {tarefasVencidas.map((t) => (
               <motion.div key={t.id} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
                 <Link href="/tarefas" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textDecoration: "none" }}>
-                  <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--destructive)", flexShrink: 0 }}>●</span>
+                  <span style={{ fontSize: "calc(10px * var(--ui-font-scale))", marginTop: "2px", color: "var(--destructive)", flexShrink: 0 }}>●</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "13px", color: "var(--nuit-bone-soft)",
+                      fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>{t.titulo}</p>
                     {t.cliente && (
                       <p style={{
                         fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "11px", color: "var(--nuit-bone-soft)",
+                        fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{t.cliente.nome}</p>
                     )}
@@ -1260,7 +1260,7 @@ export function TarefasWidget({
         <div>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "9px", fontWeight: 600,
+            fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 600,
             color: "var(--nuit-champagne-soft)", textTransform: "uppercase", letterSpacing: "0.20em", marginBottom: "8px",
           }}>
             Hoje ({tarefasHoje.length})
@@ -1269,17 +1269,17 @@ export function TarefasWidget({
             {tarefasHoje.map((t) => (
               <motion.div key={t.id} whileHover={{ x: 3 }} transition={{ duration: 0.15 }}>
                 <Link href="/tarefas" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textDecoration: "none" }}>
-                  <span style={{ fontSize: "10px", marginTop: "2px", color: "var(--nuit-champagne-soft)", flexShrink: 0 }}>●</span>
+                  <span style={{ fontSize: "calc(10px * var(--ui-font-scale))", marginTop: "2px", color: "var(--nuit-champagne-soft)", flexShrink: 0 }}>●</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                       fontFamily: "var(--font-sans, sans-serif)",
-                      fontSize: "13px", color: "var(--nuit-bone-soft)",
+                      fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     }}>{t.titulo}</p>
                     {t.cliente && (
                       <p style={{
                         fontFamily: "var(--font-sans, sans-serif)",
-                        fontSize: "11px", color: "var(--nuit-bone-soft)",
+                        fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                       }}>{t.cliente.nome}</p>
                     )}
@@ -1299,11 +1299,11 @@ export function TarefasWidget({
           <CheckSquare size={28} style={{ color: "var(--nuit-smoke-deep)", marginBottom: "8px" }} />
           <p style={{
             fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-            fontSize: "14px", color: "var(--nuit-bone-soft)",
+            fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>Nenhuma tarefa para hoje</p>
           <Link href="/tarefas" style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", color: "var(--nuit-champagne-soft)",
+            fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-champagne-soft)",
             marginTop: "6px", textDecoration: "none",
           }}>
             Ver todas as tarefas
@@ -1354,7 +1354,7 @@ export function AlertasWidget({
         <AlertTriangle size={13} style={{ color: "var(--destructive)" }} />
         <h3 style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>Alertas</h3>
       </div>
@@ -1370,16 +1370,16 @@ export function AlertasWidget({
             <div>
               <p style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "13px", fontWeight: 500, color: "var(--nuit-bone-soft)",
+                fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 500, color: "var(--nuit-bone-soft)",
               }}>Clientes em risco</p>
               <p style={{
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "11px", color: "var(--nuit-bone-soft)",
+                fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               }}>VIP em risco + reativação</p>
             </div>
             <span style={{
               fontFamily: "var(--font-heading, serif)",
-              fontSize: "20px", fontWeight: 400, color: "var(--destructive)",
+              fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400, color: "var(--destructive)",
             }}>{clientesEmRisco}</span>
           </Link>
         </motion.div>
@@ -1389,14 +1389,14 @@ export function AlertasWidget({
         <div style={{ padding: "10px 0", borderBottom: "1px solid rgba(212,184,134,0.08)" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 600, color: "var(--destructive)",
+            fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: "var(--destructive)",
             marginBottom: "6px",
           }}>Avaliações baixas</p>
           {alertas.slice(0, 3).map((s) => (
             <p key={s.id} style={{
               display: "flex", justifyContent: "space-between",
               fontFamily: "var(--font-sans, sans-serif)",
-              fontSize: "12px", color: "var(--nuit-bone-soft)",
+              fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               padding: "2px 0",
             }}>
               <span>{s.cliente?.nome ?? "Cliente eliminada"}</span>
@@ -1410,7 +1410,7 @@ export function AlertasWidget({
         <div style={{ padding: "10px 0" }}>
           <p style={{
             fontFamily: "var(--font-sans, sans-serif)",
-            fontSize: "11px", fontWeight: 600, color: "var(--nuit-bone-soft)",
+            fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-bone-soft)",
             marginBottom: "6px",
           }}>Inativas +90 dias</p>
           {inativas.slice(0, 3).map((c) => (
@@ -1419,7 +1419,7 @@ export function AlertasWidget({
                 display: "flex", justifyContent: "space-between",
                 padding: "3px 0", textDecoration: "none",
                 fontFamily: "var(--font-sans, sans-serif)",
-                fontSize: "12px", color: "var(--nuit-bone-soft)",
+                fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
               }}>
                 <span>{c.nome}</span>
               </Link>
@@ -1432,7 +1432,7 @@ export function AlertasWidget({
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 0" }}>
           <p style={{
             fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-            fontSize: "14px", color: "var(--nuit-bone-soft)",
+            fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           }}>Nenhum alerta activo</p>
         </div>
       )}
@@ -1464,12 +1464,12 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
         <h3 style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em",
+          fontSize: "calc(9.5px * var(--ui-font-scale))", fontWeight: 700, letterSpacing: "0.18em",
           color: "var(--nuit-bone-soft)", textTransform: "uppercase",
         }}>Clientes a reativar</h3>
         <Link href="/clientes?estado=reativacao" style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "11px", fontWeight: 500,
+          fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 500,
           color: "var(--nuit-champagne-soft)", textDecoration: "none",
         }}>Ver todas →</Link>
       </div>
@@ -1477,7 +1477,7 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
       {clientes.length === 0 ? (
         <p style={{
           fontFamily: "var(--font-heading, serif)", fontStyle: "italic",
-          fontSize: "14px", color: "var(--nuit-bone-soft)",
+          fontSize: "calc(14px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
           textAlign: "center", padding: "24px 0",
         }}>Nenhuma cliente inativa</p>
       ) : (
@@ -1492,12 +1492,12 @@ export function ClientesReativarWidget({ clientes }: { clientes: ClienteReativar
               }}>
                 <p style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "13px", color: "var(--nuit-bone-soft)",
+                  fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)",
                 }}>{c.nome}</p>
                 {c.diasInativa !== null && (
                   <span style={{
                     fontFamily: "var(--font-sans, sans-serif)",
-                    fontSize: "11px", fontWeight: 600, color: "var(--nuit-champagne-soft)",
+                    fontSize: "calc(11px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-champagne-soft)",
                   }}>{c.diasInativa}d</span>
                 )}
               </Link>

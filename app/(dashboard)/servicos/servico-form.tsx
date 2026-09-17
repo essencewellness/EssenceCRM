@@ -30,44 +30,44 @@ export default function ServicoForm() {
     border: "1px solid rgba(212,184,134,0.22)",
     backgroundColor: "var(--nuit-midnight)",
     color: "var(--nuit-bone)",
-    fontSize: "16px", width: "100%", boxSizing: "border-box",
+    fontSize: "calc(16px * var(--ui-font-scale))", width: "100%", boxSizing: "border-box",
     outline: "none",
   }
 
   return (
     <div style={{ background: "rgba(185,160,122,0.06)", borderRadius: "12px", padding: "20px 24px", border: "1px solid rgba(185,160,122,0.2)" }}>
-      <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "15px", color: "var(--nuit-bone)", marginBottom: "16px" }}>Novo Serviço</h2>
+      <h2 style={{ fontFamily: "var(--font-heading, Georgia, serif)", fontSize: "calc(15px * var(--ui-font-scale))", color: "var(--nuit-bone)", marginBottom: "16px" }}>Novo Serviço</h2>
       <form ref={formRef} onSubmit={handleSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Nome *</label>
+          <label style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Nome *</label>
           <input name="nome" style={inputStyle} required placeholder="Ex: Drenagem Linfática" />
         </div>
         <div>
-          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Preço Base (€) *</label>
+          <label style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Preço Base (€) *</label>
           <input name="precoBase" style={inputStyle} type="number" step="0.01" min="0" required placeholder="40" />
         </div>
         <div>
-          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Duração (min)</label>
+          <label style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Duração (min)</label>
           <input name="duracaoMinutos" style={inputStyle} type="number" min="5" max="480" defaultValue="60" />
         </div>
         <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Descrição</label>
+          <label style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Descrição</label>
           <input name="descricao" style={inputStyle} placeholder="Breve descrição (opcional)" />
         </div>
         <div style={{ gridColumn: "1 / -1" }}>
-          <label style={{ fontSize: "12px", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Texto no voucher</label>
+          <label style={{ fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", display: "block", marginBottom: "4px" }}>Texto no voucher</label>
           <textarea
             name="descricaoVoucher"
             style={{ ...inputStyle, minHeight: "84px", resize: "vertical", lineHeight: 1.6 }}
             placeholder="O que a cliente lê no voucher. Escreve para ela: &quot;Recebeste uma…&quot;"
           />
         </div>
-        {erro && <p style={{ gridColumn: "1 / -1", color: "#b44", fontSize: "13px", margin: 0 }}>{erro}</p>}
+        {erro && <p style={{ gridColumn: "1 / -1", color: "#b44", fontSize: "calc(13px * var(--ui-font-scale))", margin: 0 }}>{erro}</p>}
         <div style={{ gridColumn: "1 / -1" }}>
           <button type="submit" disabled={aGuardar} style={{
             padding: "8px 16px", borderRadius: "8px", border: "none",
             background: "rgba(185,160,122,0.85)", color: "#fff", fontWeight: 600,
-            fontSize: "13px", cursor: aGuardar ? "default" : "pointer", opacity: aGuardar ? 0.7 : 1,
+            fontSize: "calc(13px * var(--ui-font-scale))", cursor: aGuardar ? "default" : "pointer", opacity: aGuardar ? 0.7 : 1,
           }}>
             {aGuardar ? "A guardar…" : "Criar Serviço"}
           </button>

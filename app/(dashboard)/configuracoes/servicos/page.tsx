@@ -25,14 +25,14 @@ export default async function ConfigServicosPage() {
       <div style={{ marginBottom: "28px" }}>
         <h1 style={{
           fontFamily: "var(--font-heading, Georgia, serif)",
-          fontSize: "20px", fontWeight: 400, color: "var(--nuit-bone)",
+          fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
           marginBottom: "6px",
         }}>
           Catálogo de Serviços
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",
-          fontSize: "13px", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
+          fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)", lineHeight: 1.6,
         }}>
           Gerir serviços, preços base e disponibilidade.
         </p>
@@ -52,7 +52,7 @@ export default async function ConfigServicosPage() {
                 {["Serviço", "Duração", "Preço", "Estado", ""].map(h => (
                   <th key={h} style={{
                     textAlign: "left", padding: "10px 16px",
-                    fontSize: "9px", color: "#9d9d9a",
+                    fontSize: "calc(9px * var(--ui-font-scale))", color: "#9d9d9a",
                     textTransform: "uppercase", letterSpacing: "0.2em",
                     fontFamily: "var(--font-sans, sans-serif)", fontWeight: 600,
                   }}>{h}</th>
@@ -62,12 +62,12 @@ export default async function ConfigServicosPage() {
             <tbody>
               {servicos.map(s => (
                 <tr key={s.id} style={{ borderBottom: "1px solid #f2ede6", opacity: s.ativo ? 1 : 0.5 }}>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: "var(--nuit-midnight)" }}><NomeServico nome={s.nome} /></td>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
-                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "var(--nuit-midnight)" }}>€{Number(s.precoBase).toFixed(0)}</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 500, color: "var(--nuit-midnight)" }}><NomeServico nome={s.nome} /></td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "calc(13px * var(--ui-font-scale))", color: "var(--nuit-bone-soft)" }}>{s.duracaoMinutos} min</td>
+                  <td style={{ padding: "12px 16px", fontFamily: "var(--font-sans)", fontSize: "calc(13px * var(--ui-font-scale))", fontWeight: 600, color: "var(--nuit-midnight)" }}>€{Number(s.precoBase).toFixed(0)}</td>
                   <td style={{ padding: "12px 16px" }}>
                     <span style={{
-                      fontSize: "10px", fontWeight: 700, padding: "3px 8px", borderRadius: "20px",
+                      fontSize: "calc(10px * var(--ui-font-scale))", fontWeight: 700, padding: "3px 8px", borderRadius: "20px",
                       fontFamily: "var(--font-sans)", letterSpacing: "0.06em",
                       background: s.ativo ? "rgba(122,158,126,0.12)" : "rgba(176,96,80,0.10)",
                       color: s.ativo ? "#7a9e7e" : "var(--destructive)",
@@ -80,7 +80,7 @@ export default async function ConfigServicosPage() {
                       <button type="submit" style={{
                         padding: "4px 10px", borderRadius: "3px", border: "none",
                         fontFamily: "var(--font-sans)", fontWeight: 600,
-                        fontSize: "11px", cursor: "pointer",
+                        fontSize: "calc(11px * var(--ui-font-scale))", cursor: "pointer",
                         background: s.ativo ? "rgba(176,96,80,0.10)" : "rgba(122,158,126,0.12)",
                         color: s.ativo ? "var(--destructive)" : "#7a9e7e",
                       }}>
@@ -92,7 +92,7 @@ export default async function ConfigServicosPage() {
               ))}
               {servicos.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ padding: "28px 16px", textAlign: "center", fontFamily: "var(--font-sans)", color: "#9d9d9a", fontSize: "13px" }}>
+                  <td colSpan={5} style={{ padding: "28px 16px", textAlign: "center", fontFamily: "var(--font-sans)", color: "#9d9d9a", fontSize: "calc(13px * var(--ui-font-scale))" }}>
                     Nenhum serviço registado.
                   </td>
                 </tr>
