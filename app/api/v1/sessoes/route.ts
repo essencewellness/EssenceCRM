@@ -189,12 +189,11 @@ export async function POST(request: NextRequest) {
       return sessao
     })
 
-    // Igual ao PATCH: uma sessão que já nasce "realizada" (ex: migração de
-    // histórico) não pode ficar à espera do cron das 7h para o cliente sair
-    // de "lead" — sem isto, o motor de estados só corrige até 24h depois.
-    if ((estado ?? "agendada") === "realizada") {
-      await recalcularEstadoCliente(cliente.id)
-    }
+    // Uma sessão nova nunca pode ficar à espera do cron das 7h para o
+    // cliente sair de "lead" — nem uma que já nasce "realizada" (ex:
+    // migração de histórico), nem uma "agendada" comum (marcar já chega
+    // para sair de Leads, ver calcularEstado em lib/crm-estados.ts).
+    await recalcularEstadoCliente(cliente.id)
 
     auditar({
       quem: "api:n8n",

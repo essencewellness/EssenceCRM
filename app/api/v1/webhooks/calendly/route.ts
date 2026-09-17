@@ -11,6 +11,7 @@ import { normalizarTelefone } from "@/lib/validations"
 import { auditar } from "@/lib/audit"
 import { gerarLinkToken } from "@/lib/link-token"
 import { getTerapeutaPrincipalPadraoId } from "@/lib/terapeuta-padrao"
+import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { webhooks } from "@/lib/webhooks"
 import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 
@@ -209,6 +210,12 @@ export async function POST(request: NextRequest) {
         ...(packValido ? { packId: packValido.id } : {}),
       },
     })
+
+    // Um lead que já era cliente (não criado agora) marcou uma sessão — sai
+    // de "lead" já, sem esperar pelo cron das 7h (ver calcularEstado em
+    // lib/crm-estados.ts, decisão do Nuno 2026-09-17). Cliente novo já nasce
+    // "novo" acima; chamar aqui na mesma é inofensivo (idempotente).
+    await recalcularEstadoCliente(cliente.id)
 
     if (packValido) {
       const novasSessoesUsadas = packValido.sessoesUsadas + 1

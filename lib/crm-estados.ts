@@ -41,6 +41,10 @@ export interface DadosClienteEstado {
   // uma cifra financeira exacta, uma pequena sobrecontagem nesse caso raro
   // não é grave.
   gastoUltimos30Dias: number
+  // Tem uma sessão marcada (agendada/confirmada/aguarda_terapeuta) ainda por
+  // acontecer — decisão do Nuno (2026-09-17): marcar sessão já chega para
+  // sair de Leads, não é preciso esperar a sessão acontecer de facto.
+  temSessaoAtiva: boolean
 }
 
 export function calcularEstado(
@@ -51,8 +55,11 @@ export function calcularEstado(
   // Estados intocáveis pelo motor
   if (c.estado === "blacklist") return "blacklist"
 
-  // Sem sessões realizadas → continua lead
-  if (c.totalSessoes === 0 || !c.ultimaSessao) return "lead"
+  // Sem sessões realizadas ainda: continua lead — a não ser que já tenha
+  // uma sessão marcada, caso em que passa a "novo" (à espera de acontecer).
+  if (c.totalSessoes === 0 || !c.ultimaSessao) {
+    return c.temSessaoAtiva ? "novo" : "lead"
+  }
 
   const dias = diasDesdeUltimaSessao(c.ultimaSessao, hoje)!
   const ehVip = c.totalSessoes >= VIP_MIN_SESSOES
@@ -86,6 +93,28 @@ interface ClienteParaTransicao {
   totalSessoes: number
   totalGasto: number
   gastoUltimos30Dias: number
+  temSessaoAtiva: boolean
+}
+
+/**
+ * Ids de clientes com pelo menos uma sessão marcada por acontecer
+ * (agendada/confirmada/aguarda_terapeuta) — usado só para tirar um lead de
+ * "lead" assim que marca, sem esperar a sessão acontecer (ver calcularEstado).
+ * Uma única query para todos os clientes de uma vez, nunca N+1.
+ */
+async function idsComSessaoAtiva(clienteIds: string[]): Promise<Set<string>> {
+  if (clienteIds.length === 0) return new Set();
+
+  const linhas = await prisma.sessao.findMany({
+    where: {
+      clienteId: { in: clienteIds },
+      apagadoEm: null,
+      estado: { in: ["agendada", "confirmada", "aguarda_terapeuta"] },
+    },
+    select: { clienteId: true },
+    distinct: ["clienteId"],
+  })
+  return new Set(linhas.map(l => l.clienteId!))
 }
 
 /**
@@ -239,10 +268,18 @@ export async function recalcularEstadoCliente(clienteId: string): Promise<void> 
     if (!c || c.apagadoEm || c.anonimizadoEm || c.estado === "blacklist") return
 
     const hoje = new Date()
-    const gastoRecente = await calcularGastoRecentePorCliente([c.id], hoje)
+    const [gastoRecente, comSessaoAtiva] = await Promise.all([
+      calcularGastoRecentePorCliente([c.id], hoje),
+      idsComSessaoAtiva([c.id]),
+    ])
 
     await aplicarTransicaoEstado(
-      { ...c, totalGasto: Number(c.totalGasto), gastoUltimos30Dias: gastoRecente.get(c.id) ?? 0 },
+      {
+        ...c,
+        totalGasto: Number(c.totalGasto),
+        gastoUltimos30Dias: gastoRecente.get(c.id) ?? 0,
+        temSessaoAtiva: comSessaoAtiva.has(c.id),
+      },
       hoje,
       config.diasReativacao
     )
@@ -272,13 +309,22 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
 
   const resultado: ResultadoMotor = { analisados: clientes.length, alterados: 0, falhas: 0, transicoes: [] }
   const hoje = new Date()
-  const gastoRecentePorCliente = await calcularGastoRecentePorCliente(clientes.map(c => c.id), hoje)
+  const clienteIds = clientes.map(c => c.id)
+  const [gastoRecentePorCliente, idsSessaoAtiva] = await Promise.all([
+    calcularGastoRecentePorCliente(clienteIds, hoje),
+    idsComSessaoAtiva(clienteIds),
+  ])
 
   for (const c of clientes) {
     // Isolamento por cliente: uma falha (constraint, blip de ligação) não pode
     // abortar o lote inteiro e deixar os clientes seguintes sem recálculo.
     try {
-      const dados = { ...c, totalGasto: Number(c.totalGasto), gastoUltimos30Dias: gastoRecentePorCliente.get(c.id) ?? 0 }
+      const dados = {
+        ...c,
+        totalGasto: Number(c.totalGasto),
+        gastoUltimos30Dias: gastoRecentePorCliente.get(c.id) ?? 0,
+        temSessaoAtiva: idsSessaoAtiva.has(c.id),
+      }
       const r = await aplicarTransicaoEstado(dados, hoje, diasReativacao)
       if (r.alterado) {
         resultado.alterados++
