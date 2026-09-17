@@ -75,8 +75,12 @@ export const clienteUpdateSchema = z.object({
   aceitaMarketing: z.boolean().optional(),
   melhorDiaContacto: z.string().trim().max(60).optional().nullable(),
   ultimaSessao: dataISO.optional().nullable(),
-  totalSessoes: z.coerce.number().int().min(0).max(100_000).optional(),
-  totalGasto: precoSchema.optional(),
+  // totalSessoes/totalGasto NUNCA aceites aqui de propósito — são campos
+  // calculados (ver lib/metricas.ts), recalculados a partir de Sessao/
+  // GiftCard reais. Expô-los como PATCH-áveis deixava qualquer chamador com
+  // a API_KEY_N8N partilhada sobrescrever o valor que alimenta o estado VIP
+  // (lib/crm-estados.ts) e a etiqueta "LTV alto" (lib/etiquetas-automaticas.ts)
+  // sem tocar em nenhuma sessão real — auditoria de segurança 2026-09-17.
   consentimentoMarketingEm: dataISO.optional().nullable(),
   consentimentoSaudeEm: dataISO.optional().nullable(),
   // Não é campo do Cliente — metadado só lido quando "fichaClinica" vem
