@@ -205,3 +205,33 @@ nível de código/arquitectura:
 | ✅ | XSS via `?n=` em `onboarding.html` | `textContent + createElement` |
 | ✅ | Calendly webhook sem idempotência | `calendlyEventId @unique` no schema |
 | ✅ | Sem blacklist guard nos webhooks | Guard em Calendly, WhatsApp, onboarding |
+
+## Resolvido nesta fase (2026-09-17 e 2026-09-18)
+
+Sessão disparada por um bug reportado ("packs da Cristina não entravam em
+repasse"), seguida de uma lista de pequenos pedidos de backlog, e fechada
+com uma auditoria de segurança completa (3 agentes em paralelo) que
+encontrou e corrigiu uma fuga real de credencial.
+
+| ✅ | Problema resolvido | Como |
+|---|---|---|
+| ✅ | Packs pagos por MBWay nunca entravam no repasse à Cristina nem no financeiro | `PackPagamento` ganhou `repasseNecessario`/`repasseFeito`/`repasseFeitoEm` (campos que `Sessao`/`GiftCard` já tinham); `registarPagamentoPack` calcula o repasse com a mesma regra de `lib/repasses.ts`; `/financeiro` deixa de esconder packs do repasse |
+| ✅ | Sem forma de cancelar uma mensagem já aprovada e em fila | Botão "Cancelar" em `/mensagens` (fila de envio), reaproveita o estado `rejeitada` — o motor de envio N8N só consulta `em_fila`, por isso sair desse estado já chega |
+| ✅ | Tabela principal de `/clientes` causava scroll horizontal na página toda em ecrãs de portátil (~1366px) | `components/clientes-table.tsx` — a única tabela do CRM sem wrapper `overflow-x: auto` (todas as outras já tinham); scroll fica preso à tabela agora |
+| ✅ | Mass-assignment: `PATCH /api/v1/clientes/[id]` aceitava `totalGasto`/`totalSessoes` (campos calculados, contradizia regra já documentada acima) | Removidos do `clienteUpdateSchema` (`lib/validations.ts`) |
+| ✅ | `GiftCard.clienteId` (relação beneficiária) sem índice — scan sequencial em cada perfil de cliente | `@@index([clienteId])` adicionado, aplicado à produção |
+| ✅ | 🔴 Chave real da Evolution API (`essence_api_key_2026`) commitada em texto simples num workflow N8N exportado (`n8n-workflows/07-feedback-notificacoes`) | Ficheiro corrigido para `{{EVOLUTION_API_KEY}}`; chave **rodada no servidor** (container `evolution`, `89.167.25.245`) + **13 workflows N8N ativos** actualizados via API (bem mais que os 5 que usavam o placeholder errado no repo — a fuga real ao vivo era maior); testado com envio WhatsApp real, confirmado entregue. Chave nova em `CREDENCIAIS-PRIVADAS.local.md`. Só um workflow arquivado/obsoleto ficou com a chave antiga (sem risco, já desligado) |
+| ✅ | `prisma/fix-mojibake.ts` era o único script de manutenção sem o guard `assertNaoProducao()` | Guard adicionado; `$executeRawUnsafe` trocado por `$executeRaw` + `Prisma.raw()` (identificadores continuam literais fixos no ficheiro) |
+| ✅ | `prisma/migrar-terapeutas.ts` tinha uma password por omissão hardcoded ("essence2026") para a conta da Cristina | Passa a exigir `SETUP_PASSWORD`, mesmo padrão de `create-bea.ts` |
+| ✅ | Password antiga ("essence2026") em texto simples em dois documentos (`specs/006.../quickstart.md`, `CHECKLIST-IDA-PARA-PRODUCAO.md`) | Removida/substituída por referência genérica |
+| ✅ | Config do Claude Code (`.claude/settings.local.json`) com `enableAllProjectMcpServers: true` e um wildcard `Bash(powershell -Command '*)` (crítico, achado por AgentShield/`/ecc-security-scan`) | `enableAllProjectMcpServers: false`; wildcard removido |
+
+**Auditoria de segurança completa (2026-09-17/18)** — cobriu os 45 endpoints
+de `app/api/v1/*`, auth (`lib/auth.ts`, `lib/api-auth.ts`), CSP/CORS, SQL
+raw, formulários públicos, scripts de manutenção da BD, `npm audit`, e
+uma caça dedicada a falhas silenciosas de auth/validação. Confirmado
+limpo em tudo o resto: sem IDOR, sem SQL injection, sem XSS, rate
+limiting presente em todos os endpoints públicos, cookies seguros, sem
+outra mass-assignment, sem escalada de privilégio (Cristina não alcança
+acções admin-only mesmo por fora da UI), sem SSRF, `npm audit` a zero,
+sem outros segredos hardcoded, erros nunca vazam detalhes internos.
