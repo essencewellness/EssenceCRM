@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 async function main() {
   console.log("🔄 Migração de terapeutas — início");
 
+  // Mesma exigência de create-bea.ts/create-users.ts — nunca uma password
+  // por omissão hardcoded no código (fica em git para sempre). Só pedida
+  // aqui em baixo, no momento em que a Cris ainda não existe.
+
   // 1. Criar ConfiguracaoNegocio singleton se não existir
   const config = await prisma.configuracaoNegocio.upsert({
     where: { id: "singleton" },
@@ -49,7 +53,13 @@ async function main() {
   });
 
   if (!crisExistente) {
-    const hash = await bcrypt.hash("essence2026", 10);
+    const password = process.env.SETUP_PASSWORD;
+    if (!password) {
+      console.error("❌ Define SETUP_PASSWORD antes de correr este script.");
+      console.error("Exemplo: $env:SETUP_PASSWORD='...'; npx tsx prisma/migrar-terapeutas.ts");
+      process.exit(1);
+    }
+    const hash = await bcrypt.hash(password, 10);
     await prisma.user.create({
       data: {
         username: "cris",

@@ -51,7 +51,7 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "essence_api_key_2026"
+              "value": "{{EVOLUTION_API_KEY}}"
             }
           ]
         },

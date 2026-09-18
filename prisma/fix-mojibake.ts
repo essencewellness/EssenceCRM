@@ -1,7 +1,9 @@
 ﻿// Corrige mojibake (UTF-8 lido como latin-1) nas sessoes e clientes.
 // Usa Buffer.from para evitar caracteres nao-ASCII no source code.
 // npx tsx prisma/fix-mojibake.ts
+import { Prisma } from "@/lib/prisma-client";
 import { prisma } from "@/lib/prisma";
+import { assertNaoProducao } from "./assert-nao-producao";
 
 // Constroi string mojibake a partir dos bytes UTF-8 originais, lidos como latin-1
 function moji(bytes: number[]): string {
@@ -31,15 +33,18 @@ const SUBS: [string, string][] = [
   [moji([0xe2, 0x80, 0x9d]), uni(0x201d)], // aspas duplas direitas
 ]
 
+// Tabela/campo vêm sempre de TABELAS/CAMPOS abaixo (literais fixos neste
+// ficheiro, nunca de input externo) — Prisma.raw() é seguro aqui porque não
+// há nada vindo de fora a compor o identificador. Os valores (from/to/pattern)
+// continuam parametrizados via $executeRaw normal, não a variante Unsafe.
 async function fix(table: string, field: string, from: string, to: string) {
   const pattern = `%${from}%`
-  await prisma.$executeRawUnsafe(
-    `UPDATE "${table}" SET "${field}" = replace("${field}", $1::text, $2::text) WHERE "${field}" LIKE $3`,
-    from, to, pattern
-  )
+  await prisma.$executeRaw`UPDATE ${Prisma.raw(`"${table}"`)} SET ${Prisma.raw(`"${field}"`)} = replace(${Prisma.raw(`"${field}"`)}, ${from}::text, ${to}::text) WHERE ${Prisma.raw(`"${field}"`)} LIKE ${pattern}`
 }
 
 async function main() {
+  assertNaoProducao("fix-mojibake.ts")
+
   const camposSessao  = ["servico", "terapeuta", "resumoSessao", "notasPosSessao", "aromaSessao"]
   const camposCliente = ["nome", "notasPessoais", "historicoCondicoesAlergias", "historicoEstadoEmocional"]
 
