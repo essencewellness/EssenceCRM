@@ -37,17 +37,17 @@ async function dispararWebhook(evento: string, payload: object): Promise<void> {
         signal: AbortSignal.timeout(5000),
       })
       if (res.ok) {
-        console.log(`[webhooks] ${evento} enviado com sucesso (tentativa ${tentativa + 1})`)
+        console.log("[webhooks] %s enviado com sucesso (tentativa %s)", evento, tentativa + 1)
         return
       }
-      console.error(`[webhooks] ${evento} HTTP ${res.status} (tentativa ${tentativa + 1})`)
+      console.error("[webhooks] %s HTTP %s (tentativa %s)", evento, res.status, tentativa + 1)
     } catch (err) {
-      console.error(`[webhooks] ${evento} erro tentativa ${tentativa + 1}:`, (err as Error).message)
+      console.error("[webhooks] %s erro tentativa %s:", evento, tentativa + 1, (err as Error).message)
     }
     // backoff simples entre tentativas (1s, 2s)
     if (tentativa < 2) await new Promise((r) => setTimeout(r, (tentativa + 1) * 1000))
   }
-  console.error(`[webhooks] falharam 3 tentativas para ${evento}`)
+  console.error("[webhooks] falharam 3 tentativas para %s", evento)
 }
 
 export const webhooks = {

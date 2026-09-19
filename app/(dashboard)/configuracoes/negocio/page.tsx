@@ -17,7 +17,7 @@ export default async function ConfigNegocioPage() {
           fontSize: "calc(20px * var(--ui-font-scale))", fontWeight: 400, color: "var(--nuit-bone)",
           marginBottom: "6px",
         }}>
-          Negócio & Automações
+          Negócio &amp; Automações
         </h1>
         <p style={{
           fontFamily: "var(--font-sans, sans-serif)",

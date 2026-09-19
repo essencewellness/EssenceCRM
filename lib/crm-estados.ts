@@ -241,7 +241,7 @@ async function aplicarTransicaoEstado(
       }
     } catch (e) {
       // Não bloquear a transição se a criação de tarefa falhar
-      console.error(`[estados] falha ao criar tarefa automática para ${c.id}:`, (e as Error).message)
+      console.error("[estados] falha ao criar tarefa automática para %s:", c.id, (e as Error).message)
     }
   }
 
@@ -286,7 +286,7 @@ export async function recalcularEstadoCliente(clienteId: string): Promise<void> 
   } catch (e) {
     // Nunca bloquear o fluxo da sessão por causa disto — o cron diário
     // continua a apanhar este cliente como rede de segurança.
-    console.error(`[estados] falha ao recalcular estado inline do cliente ${clienteId}:`, (e as Error).message)
+    console.error("[estados] falha ao recalcular estado inline do cliente %s:", clienteId, (e as Error).message)
   }
 }
 
@@ -334,7 +334,7 @@ export async function executarMotorEstados(): Promise<ResultadoMotor> {
       // Isola a falha a este cliente; o motor continua para os restantes e
       // reporta a contagem de falhas para ficar visível nos logs do Vercel.
       resultado.falhas++
-      console.error(`[motor] falha ao recalcular estado do cliente ${c.id}:`, e)
+      console.error("[motor] falha ao recalcular estado do cliente %s:", c.id, e)
     }
   }
 
