@@ -767,6 +767,7 @@ export default async function ClientePage({ params }: ClientePageProps) {
                   id: p.id,
                   servico: p.servico ? { nome: p.servico.nome } : null,
                   totalSessoes: p.totalSessoes,
+                  sessoesOferecidas: p.sessoesOferecidas,
                   sessoesUsadas: p.sessoesUsadas,
                   valorTotal: Number(p.valorTotal),
                   valorPago: Number(p.valorPago),

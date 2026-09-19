@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
         where: {
           data: { gte: inicioMes, lt: fimMes },
           apagadoEm: null,
+          // Sessão ligada a um pack não é receita própria: o dinheiro é o do pagamento do pack.
+          packId: null,
         },
         select: {
           estadoPagamento: true,
@@ -40,6 +42,7 @@ export async function GET(request: NextRequest) {
           data: { gte: inicioMes, lt: fimMes },
           estadoPagamento: "pendente",
           apagadoEm: null,
+          packId: null,
           estado: "realizada",
         },
         select: {

@@ -29,6 +29,7 @@ export async function GET(
             valorPago: true,
             metodoPagamento: true,
             pagamentoEm: true,
+            packId: true,
           },
           orderBy: { data: "desc" },
         },
@@ -41,6 +42,8 @@ export async function GET(
     let totalRecebido = 0
 
     for (const s of cliente.sessoes) {
+      // Sessão ligada a um pack não conta: o dinheiro é o do pagamento do pack.
+      if (s.packId) continue
       if (s.preco) totalFaturado += Number(s.preco)
       if (s.estadoPagamento === "pago" && s.valorPago) totalRecebido += Number(s.valorPago)
     }

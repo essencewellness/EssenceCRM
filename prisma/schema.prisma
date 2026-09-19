@@ -574,7 +574,11 @@ model Pack {
   // só é preenchido nos packs de Drenagem, onde a duração (60/90 min) É o
   // serviço real do catálogo. Ver site/packs-massagens vs packs-drenagem.
   servicoId     String?
+  // Total de sessões utilizáveis: as compradas MAIS as oferecidas. O valor do
+  // pack (valorTotal) não muda com as oferecidas — são uma oferta de campanha.
   totalSessoes  Int
+  // Quantas das totalSessoes foram oferecidas (ex: campanha "1 sessão grátis").
+  sessoesOferecidas Int  @default(0)
   sessoesUsadas Int      @default(0)
   valorTotal    Decimal  @db.Decimal(10, 2)
   descricao     String?

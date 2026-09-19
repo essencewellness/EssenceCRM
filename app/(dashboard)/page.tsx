@@ -168,7 +168,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     // pagas directamente — ver comentário grande acima e o mesmo fix em
     // app/(dashboard)/financeiro/page.tsx.
     prisma.sessao.findMany({
-      where: { data: { gte: inicioMes }, estadoPagamento: "pago", ...filtroReceitaSessao },
+      // packId: null — sessão de pack não conta; o dinheiro é o do PackPagamento (abaixo).
+      where: { data: { gte: inicioMes }, estadoPagamento: "pago", packId: null, ...filtroReceitaSessao },
       select: { valorPago: true, terapeuta2Id: true },
     }),
     prisma.giftCard.findMany({

@@ -226,6 +226,16 @@ encontrou e corrigiu uma fuga real de credencial.
 | ✅ | Password antiga ("essence2026") em texto simples em dois documentos (`specs/006.../quickstart.md`, `CHECKLIST-IDA-PARA-PRODUCAO.md`) | Removida/substituída por referência genérica |
 | ✅ | Config do Claude Code (`.claude/settings.local.json`) com `enableAllProjectMcpServers: true` e um wildcard `Bash(powershell -Command '*)` (crítico, achado por AgentShield/`/ecc-security-scan`) | `enableAllProjectMcpServers: false`; wildcard removido |
 
+## Resolvido nesta fase (2026-09-19) — packs: data, sessões oferecidas, sem dinheiro a dobrar
+
+| ✅ | O quê | Como |
+|---|---|---|
+| ✅ | Sem forma de registar a data de compra de um pack (o dinheiro caía no mês em que se registava) | `criarPack`/`registarPagamentoPack` e `POST /clientes/[id]/packs` aceitam `dataCompra`/`data` (`lib/pack-datas.ts`, guardada a meio-dia UTC, sem futuro); `PacksTab` ganhou os campos |
+| ✅ | Campanhas tipo "compra o pack e ganha 1 sessão" | `Pack.sessoesOferecidas` (novo, default 0): `totalSessoes` = pagas + oferecidas, o valor não muda. **Aplicar `ALTER TABLE "Pack" ADD COLUMN "sessoesOferecidas" INTEGER NOT NULL DEFAULT 0` na Neon ANTES do deploy** |
+| ✅ | Uma sessão ligada a um pack já paga contava o dinheiro duas vezes (o `ligarSessaoAoPack` só define o `packId`, não mexe no pagamento) | **Regra: sessão com `packId` nunca soma dinheiro** — o dinheiro é o `PackPagamento`. Excluída (`packId: null`) em `/financeiro` (lista, receita total, repasses), dashboard, badge de repasses, `kpis`, `financeiro/resumo`, `financeiro/cliente/[id]`, webhook `sessaoReceitaBea` (`lib/sessoes.ts`) e no gasto do cliente (`lib/metricas.ts` soma agora o `valorPago` dos packs; `lib/crm-estados.ts` idem para o gasto recente do VIP) |
+
+Sessões de pack pendentes deixam de aparecer como "por cobrar". O valor de um pack continua sem edição à mão (decisão de 22/08).
+
 **Auditoria de segurança completa (2026-09-17/18)** — cobriu os 45 endpoints
 de `app/api/v1/*`, auth (`lib/auth.ts`, `lib/api-auth.ts`), CSP/CORS, SQL
 raw, formulários públicos, scripts de manutenção da BD, `npm audit`, e

@@ -16,6 +16,7 @@ import { assinalarSessaoCanceladaNaFichaClinica } from "@/lib/ficha-clinica"
 import { dispararEfeitosSessaoRealizada } from "@/lib/sessoes"
 import { recalcularEstadoCliente } from "@/lib/crm-estados"
 import { calcularRepasse } from "@/lib/repasses"
+import { interpretarDataPack } from "@/lib/pack-datas"
 
 // Apagamento DEFINITIVO do cliente (hard delete). Mensagens, etiquetas,
 // observações, preços e portal token continuam em cascata — mas SESSÕES e
@@ -456,19 +457,33 @@ export async function criarPack(
   clienteId: string,
   dados: {
     servicoId?: string | null
+    // Total utilizável: as compradas MAIS as oferecidas.
     totalSessoes: number
+    // Quantas das totalSessoes são oferecidas (campanha); não mudam o valor.
+    sessoesOferecidas?: number
     valorTotal: number
     descricao?: string | null
     terapeutaId: string
+    // YYYY-MM-DD — sem ela, é o momento do registo.
+    dataCompra?: string | null
   }
 ): Promise<{ ok: true; packId: string } | { ok: false; erro: string }> {
   try {
     const session = await auth()
     if (!session?.user) throw new Error("Não autorizado")
 
-    if (dados.totalSessoes < 1 || dados.totalSessoes > 100) {
+    if (!Number.isInteger(dados.totalSessoes) || dados.totalSessoes < 1 || dados.totalSessoes > 100) {
       return { ok: false, erro: "Número de sessões inválido" }
     }
+    const oferecidas = dados.sessoesOferecidas ?? 0
+    if (!Number.isInteger(oferecidas) || oferecidas < 0 || oferecidas > 20) {
+      return { ok: false, erro: "Número de sessões oferecidas inválido" }
+    }
+    if (oferecidas >= dados.totalSessoes) {
+      return { ok: false, erro: "As sessões oferecidas têm de ser menos do que o total do pack" }
+    }
+    const dataCompra = interpretarDataPack(dados.dataCompra)
+    if (!dataCompra.ok) return { ok: false, erro: dataCompra.erro }
     if (dados.valorTotal <= 0) {
       return { ok: false, erro: "O valor total tem de ser maior que zero" }
     }
@@ -487,9 +502,11 @@ export async function criarPack(
         clienteId,
         servicoId: dados.servicoId ?? null,
         totalSessoes: dados.totalSessoes,
+        sessoesOferecidas: oferecidas,
         valorTotal: dados.valorTotal,
         descricao: dados.descricao ?? null,
         terapeutaId: dados.terapeutaId,
+        ...(dataCompra.data ? { criadoEm: dataCompra.data } : {}),
       },
     })
 
@@ -498,7 +515,7 @@ export async function criarPack(
       acao: "pack.criado",
       entidade: "Pack",
       entidadeId: pack.id,
-      detalhe: { clienteId, totalSessoes: dados.totalSessoes, valorTotal: dados.valorTotal, terapeutaId: dados.terapeutaId ?? null },
+      detalhe: { clienteId, totalSessoes: dados.totalSessoes, sessoesOferecidas: oferecidas, valorTotal: dados.valorTotal, terapeutaId: dados.terapeutaId ?? null, dataCompra: dados.dataCompra ?? null },
     })
 
     revalidatePath(`/clientes/${clienteId}`)
@@ -512,11 +529,14 @@ export async function criarPack(
 export async function registarPagamentoPack(
   packId: string,
   clienteId: string,
-  dados: { valor: number; metodoPagamento?: string | null; notas?: string | null }
+  dados: { valor: number; metodoPagamento?: string | null; notas?: string | null; data?: string | null }
 ): Promise<{ ok: true } | { ok: false; erro: string }> {
   try {
     const session = await auth()
     if (!session?.user) throw new Error("Não autorizado")
+
+    const dataPagamento = interpretarDataPack(dados.data)
+    if (!dataPagamento.ok) return { ok: false, erro: dataPagamento.erro }
 
     if (dados.valor <= 0) return { ok: false, erro: "O valor tem de ser maior que zero" }
 
@@ -553,6 +573,7 @@ export async function registarPagamentoPack(
           metodoPagamento: dados.metodoPagamento ?? null,
           notas: dados.notas ?? null,
           repasseNecessario,
+          ...(dataPagamento.data ? { criadoEm: dataPagamento.data } : {}),
         },
       }),
       prisma.pack.update({
@@ -571,7 +592,7 @@ export async function registarPagamentoPack(
       clienteNome: pack.cliente?.nome ?? "Cliente eliminada",
       servicoNome: pack.servico?.nome ?? "Massagens",
       valor: dados.valor,
-      data: new Date().toISOString(),
+      data: (dataPagamento.data ?? new Date()).toISOString(),
       metodoPagamento: dados.metodoPagamento ?? null,
       terapeutaId: pack.terapeutaId,
     })

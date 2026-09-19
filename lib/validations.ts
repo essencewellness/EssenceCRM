@@ -531,13 +531,21 @@ export const precoPersonalizadoCreateSchema = z.object({
 export const packCreateSchema = z.object({
   // Opcional: pack de massagens não está preso a um ritual (ver schema.prisma).
   servicoId: z.string().trim().max(64).optional().nullable(),
+  // Total utilizável: inclui as sessões oferecidas.
   totalSessoes: z.coerce.number().int().min(1).max(100),
+  // Quantas das totalSessoes foram oferecidas (campanha). Não muda o valor.
+  sessoesOferecidas: z.coerce.number().int().min(0).max(20).optional().default(0),
   valorTotal: precoSchema,
   descricao: z.string().trim().max(200).optional().nullable(),
   // Packs são individuais (nunca "a dois") — null = Bea, mesma convenção de
   // Sessao.terapeutaId/GiftCard.terapeutaId.
   terapeutaId: z.string().trim().max(64).optional().nullable(),
-}).strict()
+  // Data da compra (YYYY-MM-DD). Sem ela, é o momento do registo.
+  dataCompra: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida (use AAAA-MM-DD)").optional().nullable(),
+}).strict().refine((d) => d.sessoesOferecidas <= d.totalSessoes, {
+  message: "As sessões oferecidas não podem ser mais do que o total do pack",
+  path: ["sessoesOferecidas"],
+})
 
 export const packUpdateSchema = z.object({
   sessoesUsadas: z.coerce.number().int().min(0).max(100).optional(),

@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       // Sessões do mês com dados financeiros
       prisma.sessao.findMany({
         where: { data: { gte: inicioMes, lt: fimMes }, apagadoEm: null },
-        select: { estado: true, valorPago: true, estadoPagamento: true },
+        select: { estado: true, valorPago: true, estadoPagamento: true, packId: true },
       }),
       // Clientes inativas 30-60 dias
       prisma.cliente.findMany({
@@ -149,11 +149,19 @@ export async function GET(request: NextRequest) {
     let sessoesFalta = 0
 
     for (const s of sessoesDoMes) {
-      if (s.estado === "realizada") { sessoesRealizadas++; if (s.valorPago) receitaMes += Number(s.valorPago) }
+      // Sessão ligada a um pack não soma valorPago: o dinheiro é o dos pagamentos do pack (abaixo).
+      if (s.estado === "realizada") { sessoesRealizadas++; if (s.valorPago && !s.packId) receitaMes += Number(s.valorPago) }
       if (s.estado === "confirmada") sessoesConfirmadas++
       if (s.estado === "cancelada") sessoesCanceladas++
       if (s.estado === "falta") sessoesFalta++
     }
+
+    // Pagamentos de pack do mês: a receita do pack é esta (as sessões ligadas ao pack não somam valorPago).
+    const packsDoMes = await prisma.packPagamento.aggregate({
+      where: { criadoEm: { gte: inicioMes, lt: fimMes } },
+      _sum: { valor: true },
+    })
+    receitaMes += Number(packsDoMes._sum.valor ?? 0)
 
     // Ocupação semanal — agrupar por dia
     const diasSemana = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"]

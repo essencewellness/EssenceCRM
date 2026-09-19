@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { validarApiKey, respostaSucesso, respostaErro } from "@/lib/api-auth"
 import { packCreateSchema, validarBody, validarQuery } from "@/lib/validations"
 import { serializarDecimais } from "@/lib/serialize"
+import { interpretarDataPack } from "@/lib/pack-datas"
 import { Prisma } from "@/lib/prisma-client"
 import { z } from "zod"
 
@@ -56,7 +57,9 @@ export async function POST(
   const { id } = await params
   const v = await validarBody(request, packCreateSchema)
   if (!v.ok) return v.resposta
-  const { servicoId, totalSessoes, valorTotal, descricao, terapeutaId } = v.data
+  const { servicoId, totalSessoes, sessoesOferecidas, valorTotal, descricao, terapeutaId, dataCompra } = v.data
+  const data = interpretarDataPack(dataCompra)
+  if (!data.ok) return respostaErro(data.erro, "VALIDACAO_FALHOU", 400)
 
   try {
     const [cliente, servico] = await Promise.all([
@@ -81,10 +84,12 @@ export async function POST(
         clienteId: id,
         servicoId,
         totalSessoes,
+        sessoesOferecidas,
         valorTotal: new Prisma.Decimal(valorTotal),
         descricao: descricao ?? null,
         terapeutaId: terapeutaId ?? null,
         ativo: true,
+        ...(data.data ? { criadoEm: data.data } : {}),
       },
       include: { servico: { select: { nome: true } } },
     })

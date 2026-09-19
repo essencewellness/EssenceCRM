@@ -58,6 +58,8 @@ export interface PagamentoPack { id: string; valor: number; metodoPagamento: str
 // com o pack já ligado, ex: 1ª sessão marcada antes de a cliente decidir
 // comprar o pack) ou já ligada a um pack (mostrada no cartão, com opção
 // de desligar caso tenha sido um engano).
+// Hoje no formato do <input type="date"> (dia local, não UTC).
+const hojeISO = () => new Date().toLocaleDateString("en-CA")
 export interface SessaoLigavel { id: string; data: string; servico: string | null; preco: number | null }
 export interface PackDoCliente {
   id: string
@@ -65,6 +67,8 @@ export interface PackDoCliente {
   // Puro Aroma ou Cera Quente) em cada marcação, não é fixo no pack.
   servico: { nome: string } | null
   totalSessoes: number
+  // Quantas das totalSessoes foram oferecidas (campanha) — já contam no total.
+  sessoesOferecidas: number
   sessoesUsadas: number
   valorTotal: number
   valorPago: number
@@ -149,6 +153,7 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
   const [valor, setValor] = useState(valorSugerido.toFixed(2))
   const [metodo, setMetodo] = useState("mbway_essence")
   const [notas, setNotas] = useState(notaSugerida ?? "")
+  const [dataPagamento, setDataPagamento] = useState(hojeISO())
   const [erro, setErro] = useState("")
   const primeiroCampoRef = useRef<HTMLInputElement>(null)
   const focoAnteriorRef = useRef<HTMLElement | null>(null)
@@ -171,7 +176,7 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
     const v = Number(valor)
     if (!v || v <= 0) { setErro("Indica um valor válido."); return }
     startTransition(async () => {
-      const res = await registarPagamentoPack(pack.id, clienteId, { valor: v, metodoPagamento: metodo, notas: notas.trim() || undefined })
+      const res = await registarPagamentoPack(pack.id, clienteId, { valor: v, metodoPagamento: metodo, notas: notas.trim() || undefined, data: dataPagamento || undefined })
       if (!res.ok) { setErro(res.erro); return }
       onFechar()
     })
@@ -218,6 +223,11 @@ function PagamentoModal({ pack, clienteId, valorSugerido, notaSugerida, onFechar
               style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }}>
               {Object.entries(METODO_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Data do pagamento</label>
+            <input type="date" value={dataPagamento} max={hojeISO()} onChange={e => setDataPagamento(e.target.value)}
+              style={{ width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)", borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))", fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box" }} />
           </div>
           <div>
             <label style={{ display: "block", fontSize: "calc(10.5px * var(--ui-font-scale))", color: "rgba(212,184,134,0.55)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "5px" }}>Nota (opcional)</label>
@@ -375,6 +385,10 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
   // Nuno, 2026-08-22). "null" = ainda por escolher, bloqueia o submeter.
   const [pagamento, setPagamento] = useState<"integral" | "2x" | null>(null)
   const [metodo, setMetodo] = useState("mbway_essence")
+  const [dataCompra, setDataCompra] = useState(hojeISO())
+  // Campanhas tipo "compra o pack e ganha 1 sessão": entram no total do pack,
+  // mas não mudam o valor.
+  const [oferecidas, setOferecidas] = useState("0")
   const [erro, setErro] = useState("")
   const focoAnteriorRef = useRef<HTMLElement | null>(null)
   const primeiroCampoRef = useRef<HTMLButtonElement>(null)
@@ -393,6 +407,8 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
   }, [onFechar])
 
   const preset = presetAtivo !== null ? PRESETS[presetAtivo] : null
+  const oferecidasNum = oferecidas.trim() === "" ? 0 : Number(oferecidas)
+  const oferecidasValidas = Number.isInteger(oferecidasNum) && oferecidasNum >= 0 && oferecidasNum <= 20
 
   function escolherPreset(i: number) {
     setPresetAtivo(i)
@@ -405,15 +421,20 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
     if (!preset) { setErro("Escolhe um pack."); return }
     if (!terapeutaId) { setErro("Escolhe a terapeuta."); return }
     if (preset.permite2x && !pagamento) { setErro("Escolhe como vai ser pago."); return }
+    if (!oferecidasValidas) { setErro("As sessões oferecidas têm de ser um número inteiro entre 0 e 20."); return }
+    if (!dataCompra) { setErro("Indica a data da compra."); return }
 
     startTransition(async () => {
       const servico = preset.servicoNome ? servicos.find(s => s.nome === preset.servicoNome) : null
       const res = await criarPack(clienteId, {
         servicoId: servico?.id ?? null,
-        totalSessoes: preset.totalSessoes,
+        // total utilizável = as do pack + as oferecidas; o valor não muda
+        totalSessoes: preset.totalSessoes + oferecidasNum,
+        sessoesOferecidas: oferecidasNum,
         valorTotal: preset.valorTotal,
         descricao: preset.descricao,
         terapeutaId,
+        dataCompra,
       })
       if (!res.ok) { setErro(res.erro); return }
 
@@ -423,7 +444,7 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
       if (pagamento) {
         const valor = pagamento === "integral" ? preset.valorTotal : Math.round((preset.valorTotal / 2) * 100) / 100
         const notas = pagamento === "2x" ? "1ª parcela" : undefined
-        const resPag = await registarPagamentoPack(res.packId, clienteId, { valor, metodoPagamento: metodo, notas })
+        const resPag = await registarPagamentoPack(res.packId, clienteId, { valor, metodoPagamento: metodo, notas, data: dataCompra })
         if (!resPag.ok) { setErro(`Pack criado, mas o pagamento falhou: ${resPag.erro}`); return }
       }
       onCriado()
@@ -494,6 +515,31 @@ function CriarPackModal({ clienteId, servicos, terapeutas, onFechar, onCriado }:
               {terapeutas.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
             </select>
           </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <div>
+              <label style={labelStyle}>Data da compra</label>
+              <input type="date" value={dataCompra} max={hojeISO()} onChange={e => setDataCompra(e.target.value)} style={{
+                width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))",
+                fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
+              }} />
+            </div>
+            <div>
+              <label style={labelStyle}>Sessões oferecidas</label>
+              <input type="number" min={0} max={20} step={1} inputMode="numeric" value={oferecidas}
+                onChange={e => setOferecidas(e.target.value)} style={{
+                width: "100%", backgroundColor: "var(--nuit-deep)", border: "1px solid rgba(212,184,134,0.22)",
+                borderRadius: "7px", color: CREAM, padding: "9px 10px", fontSize: "calc(16px * var(--ui-font-scale))",
+                fontFamily: "var(--font-sans, sans-serif)", outline: "none", boxSizing: "border-box",
+              }} />
+            </div>
+          </div>
+          <p style={{ marginTop: "-6px", fontSize: "calc(11px * var(--ui-font-scale))", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+            {preset && oferecidasValidas && oferecidasNum > 0
+              ? `O pack fica com ${preset.totalSessoes + oferecidasNum} sessões (${preset.totalSessoes} pagas + ${oferecidasNum} oferecida${oferecidasNum > 1 ? "s" : ""}). O valor não muda.`
+              : "Sessões oferecidas: só para campanhas (ex.: 1 sessão grátis). Contam no pack, mas não mudam o valor."}
+          </p>
 
           {preset?.permite2x && (
             <div>
@@ -657,6 +703,7 @@ function PackCard({ pack, clienteId, clienteNome, clienteEmail, sessoesDisponive
           </div>
           <span style={{ fontFamily: "var(--font-sans, sans-serif)", fontSize: "calc(12px * var(--ui-font-scale))", color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>
             {pack.sessoesUsadas}/{pack.totalSessoes} sessões · {restantes} restantes
+            {pack.sessoesOferecidas > 0 && <> · inclui {pack.sessoesOferecidas} oferecida{pack.sessoesOferecidas > 1 ? "s" : ""}</>}
           </span>
         </div>
 

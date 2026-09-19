@@ -134,16 +134,21 @@ async function calcularGastoRecentePorCliente(
   const desde = new Date(hoje)
   desde.setDate(desde.getDate() - VIP_GASTO_RAPIDO_DIAS)
 
-  const [sessoes, vouchers] = await Promise.all([
+  const [sessoes, vouchers, packs] = await Promise.all([
     prisma.sessao.groupBy({
       by: ["clienteId"],
-      where: { clienteId: { in: clienteIds }, estado: "realizada", apagadoEm: null, data: { gte: desde } },
+      // packId: null — sessão de pack não soma o preço; o dinheiro é o do pagamento do pack (abaixo).
+      where: { clienteId: { in: clienteIds }, estado: "realizada", apagadoEm: null, packId: null, data: { gte: desde } },
       _sum: { preco: true },
     }),
     prisma.giftCard.groupBy({
       by: ["compradorClienteId"],
       where: { compradorClienteId: { in: clienteIds }, dataCompra: { gte: desde } },
       _sum: { valorPago: true },
+    }),
+    prisma.packPagamento.findMany({
+      where: { pack: { clienteId: { in: clienteIds } }, criadoEm: { gte: desde } },
+      select: { valor: true, pack: { select: { clienteId: true } } },
     }),
   ])
 
@@ -157,6 +162,11 @@ async function calcularGastoRecentePorCliente(
   for (const v of vouchers) {
     if (!v.compradorClienteId) continue
     mapa.set(v.compradorClienteId, (mapa.get(v.compradorClienteId) ?? 0) + Number(v._sum.valorPago ?? 0))
+  }
+  for (const pg of packs) {
+    const clienteId = pg.pack.clienteId
+    if (!clienteId) continue
+    mapa.set(clienteId, (mapa.get(clienteId) ?? 0) + Number(pg.valor))
   }
   return mapa
 }

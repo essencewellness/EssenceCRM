@@ -15,7 +15,7 @@
 import type { PrismaClient } from "@/lib/prisma-client"
 import { paraNumero } from "./serialize"
 
-type DbCliente = Pick<PrismaClient, "sessao" | "cliente" | "giftCard">
+type DbCliente = Pick<PrismaClient, "sessao" | "cliente" | "giftCard" | "pack">
 
 export interface MetricasCliente {
   totalSessoes: number
@@ -28,26 +28,35 @@ export interface MetricasCliente {
  * realizadas mais os vouchers que comprou. `totalGasto` = Σ do preço
  * faturado das sessões (não do valorPago — a receita efetivamente cobrada
  * vive no Financeiro, via `valorPago`) + Σ do valor pago pelos vouchers
- * comprados por este cliente.
+ * comprados por este cliente + Σ do valor pago pelos packs.
+ *
+ * Sessões ligadas a um pack NÃO somam o seu preço: o dinheiro dessas sessões
+ * é o do pack (já somado em gastoPacks) — senão contava duas vezes.
  */
 export async function recalcularMetricasCliente(
   db: DbCliente,
   clienteId: string
 ): Promise<MetricasCliente> {
-  const [sessoesRealizadas, vouchersComprados] = await Promise.all([
+  const [sessoesRealizadas, vouchersComprados, packsDoCliente] = await Promise.all([
     db.sessao.findMany({
       where: { clienteId, estado: "realizada", apagadoEm: null },
-      select: { preco: true, data: true },
+      select: { preco: true, data: true, packId: true },
       orderBy: { data: "desc" },
     }),
     db.giftCard.findMany({
       where: { compradorClienteId: clienteId },
       select: { valorPago: true, sessaoId: true },
     }),
+    db.pack.findMany({
+      where: { clienteId },
+      select: { valorPago: true },
+    }),
   ])
 
+  // totalSessoes conta todas as realizadas (incluindo as de pack); o preço só as que não são de pack.
   const totalSessoes = sessoesRealizadas.length
-  const gastoSessoes = sessoesRealizadas.reduce((soma, s) => soma + paraNumero(s.preco), 0)
+  const gastoSessoes = sessoesRealizadas.reduce((soma, s) => (s.packId ? soma : soma + paraNumero(s.preco)), 0)
+  const gastoPacks = packsDoCliente.reduce((soma, p) => soma + paraNumero(p.valorPago), 0)
   const ultimaSessao = sessoesRealizadas[0]?.data ?? null
 
   // Um voucher comprado para si própria e já usada numa sessão SUA já entra
@@ -66,7 +75,7 @@ export async function recalcularMetricasCliente(
     return soma + paraNumero(v.valorPago)
   }, 0)
 
-  const totalGasto = gastoSessoes + gastoVouchers
+  const totalGasto = gastoSessoes + gastoVouchers + gastoPacks
 
   await db.cliente.update({
     where: { id: clienteId },

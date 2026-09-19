@@ -51,13 +51,15 @@ export async function dispararEfeitosSessaoRealizada(
   const [sessaoCompleta, voucherLigadoAEstaSessao, idBea] = await Promise.all([
     prisma.sessao.findUnique({
       where: { id: sessaoAntes.id },
-      select: { valorPago: true, metodoPagamento: true, estadoPagamento: true, data: true, cliente: { select: { nome: true } } },
+      select: { valorPago: true, metodoPagamento: true, estadoPagamento: true, data: true, packId: true, cliente: { select: { nome: true } } },
     }),
     prisma.giftCard.findFirst({ where: { sessaoId: sessaoAntes.id }, select: { id: true } }),
     getTerapeutaPrincipalPadraoId(),
   ])
   const envolveABea = sessaoAntes.terapeutaId === idBea || sessaoAntes.terapeutaId === null || sessaoAntes.terapeuta2Id === idBea
-  if (!voucherLigadoAEstaSessao && envolveABea && sessaoCompleta?.estadoPagamento === "pago" && sessaoCompleta.valorPago !== null) {
+  // Sessão ligada a um pack não gera receita própria (o dinheiro é o do pagamento do pack) — sem isto
+  // escreveria uma linha a mais na folha financeira da Beatriz.
+  if (!voucherLigadoAEstaSessao && !sessaoCompleta?.packId && envolveABea && sessaoCompleta?.estadoPagamento === "pago" && sessaoCompleta.valorPago !== null) {
     const ehADois = sessaoAntes.terapeuta2Id !== null
     void webhooks.sessaoReceitaBea({
       sessaoId: sessaoAntes.id,

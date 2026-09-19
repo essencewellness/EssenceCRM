@@ -84,6 +84,9 @@ export default async function FinanceiroPage({
       where: {
         data: { gte: inicio, lt: fim },
         apagadoEm: null,
+        // Sessão ligada a um pack não é um evento financeiro: o dinheiro é o do
+        // PackPagamento — se contasse aqui, o pack contava duas vezes.
+        packId: null,
         AND: [
           { OR: [{ estado: "realizada" }, { estadoPagamento: { not: "pendente" } }] },
           ...(Object.keys(filtroSessao).length ? [filtroSessao] : []),
@@ -107,7 +110,7 @@ export default async function FinanceiroPage({
     prisma.sessao.findMany({
       // clienteId incluído: esta mesma lista também alimenta "Top clientes
       // por receita" (era uma query duplicada antes, só diferente no select).
-      where: { estadoPagamento: "pago", apagadoEm: null, ...filtroSessao },
+      where: { estadoPagamento: "pago", apagadoEm: null, packId: null, ...filtroSessao },
       select: { clienteId: true, valorPago: true, terapeuta2Id: true },
     }),
     // Mesmo bug que existia na "Receita do mês" (ver dashboard principal,
@@ -172,7 +175,7 @@ export default async function FinanceiroPage({
     // Repasses à Cristina — não filtrados por mês nem por terapeuta: é
     // dinheiro em aberto independentemente de quando a sessão foi
     prisma.sessao.findMany({
-      where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null },
+      where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null, packId: null },
       select: {
         id: true, data: true, servico: true, valorPago: true, valorRepasse: true, metodoPagamento: true,
         cliente: { select: { id: true, nome: true } },

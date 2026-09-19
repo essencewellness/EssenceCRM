@@ -50,7 +50,7 @@ export default async function DashboardLayout({
       ctxPromise,
       mensagensPromise,
       prisma.tarefa.count({ where: { estado: { in: ["pendente", "em_progresso"] } } }),
-      prisma.sessao.count({ where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null } }),
+      prisma.sessao.count({ where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null, packId: null } }),
       prisma.giftCard.count({ where: { repasseNecessario: true, repasseFeito: false } }),
     ])
   const repassesPendentes = sessoesPorRepassar + vouchersPorRepassar
