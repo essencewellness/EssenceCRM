@@ -1,7 +1,8 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
 import {
   LayoutDashboard, Users, UserPlus, CheckSquare,
   MessageSquare, MessageSquareHeart, Menu, X,
@@ -54,6 +55,13 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
     "/financeiro": repassesPendentes,
   }
 
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false) }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [menuOpen])
+
   function isActive(href: string) {
     if (href === "/") return pathname === "/"
     return pathname.startsWith(href)
@@ -61,18 +69,31 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
 
   return (
     <>
+      <AnimatePresence>
       {/* Overlay do menu */}
       {menuOpen && (
-        <div
+        <motion.div
+          key="menu-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.65)", zIndex: 40 }}
           className="lg:hidden"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
-      {/* Menu lateral deslizante */}
+      {/* Menu lateral deslizante — entra devagar, sai mais depressa */}
       {menuOpen && (
-        <div
+        <motion.div
+          key="menu-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu de navegação"
+          initial={{ x: "-100%" }}
+          animate={{ x: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } }}
+          exit={{ x: "-100%", transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
           className="lg:hidden"
           style={{
             position: "fixed", top: 0, bottom: 0, left: 0,
@@ -117,6 +138,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
               <ThemeToggle compact />
               <button
                 onClick={() => setMenuOpen(false)}
+                aria-label="Fechar menu"
                 style={{
                   color: "var(--nuit-smoke)", background: "none", border: "none",
                   cursor: "pointer", padding: "4px",
@@ -139,6 +161,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   data-active={active}
+                  aria-current={active ? "page" : undefined}
                   style={{
                     display: "flex", alignItems: "center", gap: "12px",
                     margin: "0 8px 2px", padding: "10px 12px",
@@ -160,7 +183,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                     flex: 1,
                     fontFamily: "var(--font-sans, sans-serif)",
                     fontSize: "calc(13px * var(--ui-font-scale))",
-                    fontWeight: active ? 500 : 400,
+                    fontWeight: 460,
                     color: active ? "var(--nuit-bone)" : "var(--nuit-bone-soft)",
                   }}>
                     {item.label}
@@ -210,8 +233,9 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
               </button>
             </form>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Barra inferior */}
       <nav
@@ -238,12 +262,26 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 style={{
                   display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
-                  padding: "6px 12px", textDecoration: "none",
+                  padding: "6px 12px", textDecoration: "none", position: "relative",
+                  alignSelf: "stretch", justifyContent: "center",
                   color: active ? "var(--nuit-champagne)" : "var(--nuit-bone-soft)",
+                  transition: "color var(--dur-med) var(--ease-out)",
                 }}
               >
+                {active && (
+                  <motion.span
+                    layoutId="bottomnav-active"
+                    aria-hidden
+                    transition={{ type: "spring", stiffness: 520, damping: 42 }}
+                    style={{
+                      position: "absolute", top: 0, left: "18%", right: "18%",
+                      height: "2px", backgroundColor: "var(--nuit-champagne)",
+                    }}
+                  />
+                )}
                 <div style={{ position: "relative" }}>
                   <Icon size={20} style={{ strokeWidth: 1.5 }} />
                   {badge > 0 && (
@@ -262,7 +300,7 @@ export function BottomNav({ mensagensPendentes = 0, podeAprovarMensagens = true,
                 </div>
                 <span style={{
                   fontFamily: "var(--font-sans, sans-serif)",
-                  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: active ? 500 : 400,
+                  fontSize: "calc(9px * var(--ui-font-scale))", fontWeight: 460,
                   letterSpacing: "0.04em",
                 }}>
                   {item.label}

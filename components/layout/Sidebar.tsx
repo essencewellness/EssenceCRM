@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion } from "motion/react"
 import {
   LayoutDashboard, Users, UserPlus, Calendar, CalendarDays, CheckSquare,
   MessageSquare, MessageSquareHeart, Megaphone, FileText,
@@ -169,6 +170,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                   key={item.href}
                   href={item.href}
                   data-active={active}
+                  aria-current={active ? "page" : undefined}
                   style={{
                     display: "flex", alignItems: "center", gap: "10px",
                     margin: "0 8px 2px",
@@ -181,15 +183,30 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
                     // pelo Nuno 2026-08-29.
                     padding: "8px 12px",
                     textDecoration: "none",
-                    transition: "background-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out)",
+                    position: "relative",
+                    isolation: "isolate",
+                    transition: "background-color var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out)",
                     transform: active ? "translateX(1px)" : "translateX(0)",
-                    boxShadow: active
-                      ? "inset 2px 0 0 0 var(--nuit-champagne)"
-                      : "inset 2px 0 0 0 transparent",
-                    ...(active ? { backgroundColor: "rgba(212,184,134,0.08)" } : {}),
                   }}
                   className={`crm-nav-link ${!active ? "hover:bg-[rgba(212,184,134,0.05)]" : ""}`}
                 >
+                  {/* Marcador activo partilhado (layoutId): desliza de um item
+                      para o seguinte em vez de apagar num e acender noutro.
+                      Continua sem consumir espaço de layout (inset box-shadow),
+                      por isso o texto nunca salta — ver nota de 2026-08-29. */}
+                  {active && (
+                    <motion.span
+                      layoutId="sidebar-active"
+                      aria-hidden
+                      transition={{ type: "spring", stiffness: 520, damping: 42 }}
+                      style={{
+                        position: "absolute", inset: 0, zIndex: -1,
+                        backgroundColor: "rgba(212,184,134,0.08)",
+                        boxShadow: "inset 2px 0 0 0 var(--nuit-champagne)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
                   <Icon
                     size={14}
                     style={{
@@ -250,7 +267,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
             onClick={toggleTheme}
             title={claro ? "Mudar para modo escuro" : "Mudar para modo claro"}
             style={{
-              display: "flex", alignItems: "center", gap: "10px", width: "100%",
+              display: "flex", alignItems: "center", gap: "10px", width: "calc(100% - 16px)",
               margin: "0 8px 2px", padding: "8px 12px",
               background: "none", border: "none", borderLeft: "2px solid transparent",
               cursor: "pointer", textAlign: "left",
@@ -273,7 +290,7 @@ export function Sidebar({ mensagensPendentes = 0, podeAprovarMensagens = true, t
               type="submit"
               title="Terminar sessão"
               style={{
-                display: "flex", alignItems: "center", gap: "10px", width: "100%",
+                display: "flex", alignItems: "center", gap: "10px", width: "calc(100% - 16px)",
                 margin: "0 8px 2px", padding: "8px 12px",
                 background: "none", border: "none", borderLeft: "2px solid transparent",
                 cursor: "pointer", textAlign: "left",

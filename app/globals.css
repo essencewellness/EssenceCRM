@@ -404,13 +404,12 @@
 
 /* ── Link de ação (Ver perfil →) ── */
 .link-action {
-  transition: color 150ms ease, transform 150ms ease, letter-spacing 150ms ease;
+  transition: color 150ms ease, transform 150ms ease;
   display: inline-flex; align-items: center; gap: 4px;
 }
 .link-action:hover {
   color: #a08a66 !important;
   transform: translateX(2px);
-  letter-spacing: 0.02em;
 }
 
 /* ── Piso de tamanho de letra em campos de formulário ── */
@@ -476,7 +475,12 @@ button:focus-visible,
 
 /* ── Skeleton loader ── */
 .skeleton {
-  background: linear-gradient(90deg, rgba(31,36,51,0.8) 25%, rgba(42,48,64,0.9) 50%, rgba(31,36,51,0.8) 75%);
+  /* Champagne translúcido: lê-se bem sobre paper (claro) e sobre midnight
+     (escuro). Antes eram azuis-marinho fixos — barras escuras no modo claro. */
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--nuit-champagne) 12%, transparent) 25%,
+    color-mix(in srgb, var(--nuit-champagne) 26%, transparent) 50%,
+    color-mix(in srgb, var(--nuit-champagne) 12%, transparent) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 2px;
@@ -512,6 +516,17 @@ button:focus-visible,
   }
   .crm-main {
     scroll-behavior: auto;
+  }
+  /* Loops infinitos param; o feedback de cor/estado continua. O
+     MotionConfig só cobre a biblioteca motion, não estas classes CSS. */
+  .skeleton, .value-pulse, .badge-pulse, .animate-pulse,
+  [style*="pulse 1.5s"] {
+    animation: none !important;
+  }
+  /* Sem deslocamento espacial no hover/clique — a cor e a sombra ficam. */
+  .btn-approve:hover, .btn-reject:hover, .btn-lift:hover, .link-action:hover,
+  .btn-approve:active, .btn-reject:active, .btn-lift:active {
+    transform: none !important;
   }
 }
 
