@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/prisma"
 import { TabelaSessoesPagamento, type SessaoRow } from "./TabelaSessoesPagamento"
+import { SeletorMes } from "./SeletorMes"
 import { RepassesCristina, type RepasseRow } from "./RepassesCristina"
 import { valorDevido } from "@/lib/repasses"
 import { getFiltrosTerapeuta } from "@/lib/contexto-utilizador"
@@ -60,7 +61,7 @@ export default async function FinanceiroPage({
     ? { OR: [{ terapeutaId: alvo }, { terapeuta2Id: alvo }] }
     : {}
 
-  const { inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
+  const { ref, inicio, fim, label, prevMes, nextMes, ehMesAtual } = parseMes(mes)
 
   // Quem é a "Bea" para efeitos de atribuição: os vouchers sem terapeuta
   // pertencem a ela por omissão.
@@ -424,6 +425,7 @@ export default async function FinanceiroPage({
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <SeletorMes mesRef={ref} />
           <MesLink href={`/financeiro?mes=${prevMes}`} aria-label="Mês anterior"><ChevronLeft size={16} /></MesLink>
           {!ehMesAtual && (
             <Link href="/financeiro" style={{
