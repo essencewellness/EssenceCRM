@@ -1,0 +1,371 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-19T10:24:51.598354+00:00",
+  "title": "Design System: Essence Wellness CRM",
+  "extensions": {
+    "colorMeta": {
+      "midnight": {
+        "role": "neutral",
+        "displayName": "Meia-Noite",
+        "canonical": "#161a26",
+        "tonalRamp": [
+          "#0a0c14",
+          "#0e111a",
+          "#121520",
+          "#161a26",
+          "#44464e",
+          "#717277",
+          "#a3a3a3",
+          "#d1cfcc"
+        ]
+      },
+      "deep-night": {
+        "role": "neutral",
+        "displayName": "Noite Profunda",
+        "canonical": "#0e1119",
+        "tonalRamp": [
+          "#0a0c14",
+          "#0b0e16",
+          "#0d0f17",
+          "#0e1119",
+          "#3d3f44",
+          "#6c6d6f",
+          "#a0a09e",
+          "#d0cec9"
+        ]
+      },
+      "overlay": {
+        "role": "neutral",
+        "displayName": "Sobreposição",
+        "canonical": "#1f2433",
+        "tonalRamp": [
+          "#0a0c14",
+          "#11141e",
+          "#181c28",
+          "#1f2433",
+          "#4b4e59",
+          "#77787f",
+          "#a7a7a8",
+          "#d3d1ce"
+        ]
+      },
+      "bone": {
+        "role": "neutral",
+        "displayName": "Osso",
+        "canonical": "#ece6d6",
+        "tonalRamp": [
+          "#0a0c14",
+          "#555454",
+          "#9f9c94",
+          "#ece6d6",
+          "#efe9db",
+          "#f2ede0",
+          "#f5f1e6",
+          "#f7f4eb"
+        ]
+      },
+      "bone-soft": {
+        "role": "neutral",
+        "displayName": "Osso Suave",
+        "canonical": "#d8d2c2",
+        "tonalRamp": [
+          "#0a0c14",
+          "#4e4d4d",
+          "#928f87",
+          "#d8d2c2",
+          "#dfd9cb",
+          "#e6e1d4",
+          "#ede9df",
+          "#f4f0e8"
+        ]
+      },
+      "champanhe-velado": {
+        "role": "primary",
+        "displayName": "Champanhe Velado",
+        "canonical": "#d4b886",
+        "tonalRamp": [
+          "#0a0c14",
+          "#4d453a",
+          "#8f7e5f",
+          "#d4b886",
+          "#dcc59b",
+          "#e3d1b0",
+          "#ecdfc8",
+          "#f3ecdd"
+        ]
+      },
+      "champanhe-velado-soft": {
+        "role": "primary",
+        "displayName": "Champanhe Velado Suave",
+        "canonical": "#b9a07a",
+        "tonalRamp": [
+          "#0a0c14",
+          "#443d36",
+          "#7e6e57",
+          "#b9a07a",
+          "#c6b192",
+          "#d3c3a9",
+          "#e1d6c3",
+          "#eee7db"
+        ]
+      },
+      "smoke": {
+        "role": "neutral",
+        "displayName": "Fumo",
+        "canonical": "#7a7e8a",
+        "tonalRamp": [
+          "#0a0c14",
+          "#2f323b",
+          "#545762",
+          "#7a7e8a",
+          "#94969e",
+          "#adaeb3",
+          "#c9c9c9",
+          "#e3e1de"
+        ]
+      },
+      "smoke-deep": {
+        "role": "neutral",
+        "displayName": "Fumo Profundo",
+        "canonical": "#4d5260",
+        "tonalRamp": [
+          "#0a0c14",
+          "#20232d",
+          "#363a46",
+          "#4d5260",
+          "#70737d",
+          "#92949a",
+          "#b8b8b9",
+          "#dbd9d6"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "canonical": "#f6f1e5",
+        "tonalRamp": [
+          "#0a0c14",
+          "#585859",
+          "#a6a39e",
+          "#f6f1e5",
+          "#f7f2e7",
+          "#f8f3e9",
+          "#f8f5ec",
+          "#f9f6ee"
+        ]
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Papel Fundo",
+        "canonical": "#ebe5d4",
+        "tonalRamp": [
+          "#0a0c14",
+          "#545453",
+          "#9e9b93",
+          "#ebe5d4",
+          "#eee9da",
+          "#f1ecdf",
+          "#f4f0e5",
+          "#f7f4eb"
+        ]
+      },
+      "sage": {
+        "role": "success",
+        "displayName": "Salva",
+        "canonical": "#a0a996",
+        "tonalRamp": [
+          "#0a0c14",
+          "#3c403f",
+          "#6d746a",
+          "#a0a996",
+          "#b2b9a8",
+          "#c4c8ba",
+          "#d8d9ce",
+          "#eae9e0"
+        ]
+      },
+      "destructive": {
+        "role": "danger",
+        "displayName": "Destrutivo",
+        "canonical": "#b06050",
+        "tonalRamp": [
+          "#0a0c14",
+          "#412828",
+          "#78433c",
+          "#b06050",
+          "#bf7e70",
+          "#ce9c90",
+          "#debeb3",
+          "#eddcd3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Título de página",
+        "purpose": "Título de cada página, em DM Serif Display."
+      },
+      "figure": {
+        "displayName": "Número grande",
+        "purpose": "Indicadores dos cartões, com tracking -0.02em."
+      },
+      "body": {
+        "displayName": "Corpo",
+        "purpose": "Texto corrido e campos; campos nunca abaixo de 16px."
+      },
+      "nav": {
+        "displayName": "Navegação",
+        "purpose": "Itens da barra lateral, peso fixo 460 para o texto não saltar."
+      },
+      "label": {
+        "displayName": "Rótulo",
+        "purpose": "Rótulos de secção em maiúsculas espaçadas, cor champanhe suave."
+      }
+    },
+    "shadows": [
+      {
+        "name": "repouso",
+        "value": "0 1px 2px rgba(0,0,0,0.30), 0 1px 1px rgba(0,0,0,0.20)",
+        "purpose": "Cartões em repouso."
+      },
+      {
+        "name": "elevado",
+        "value": "0 8px 24px rgba(0,0,0,0.40), 0 2px 6px rgba(0,0,0,0.25)",
+        "purpose": "Hover de cartões e menus."
+      },
+      {
+        "name": "sobreposicao",
+        "value": "0 30px 60px rgba(0,0,0,0.55), 0 10px 20px rgba(0,0,0,0.30)",
+        "purpose": "Janelas modais e gaveta."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.22, 0.61, 0.36, 1)",
+        "purpose": "Transições de estado (hover, cor, fundo)."
+      },
+      {
+        "name": "ease-entrada",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Entradas de elementos, desaceleração exponencial."
+      },
+      {
+        "name": "dur-fast",
+        "value": "160ms",
+        "purpose": "Feedback imediato."
+      },
+      {
+        "name": "dur-med",
+        "value": "280ms",
+        "purpose": "Mudança de estado."
+      },
+      {
+        "name": "dur-slow",
+        "value": "520ms",
+        "purpose": "Entrada deliberada, uma por ecrã."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botão primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acção principal; champanhe velado com texto meia-noite.",
+      "html": "<button class=\"ds-btn-primary\">Aprovar</button>",
+      "css": ".ds-btn-primary{background:#d4b886;color:#161a26;border:1px solid transparent;border-radius:2px;height:32px;padding:0 14px;font-family:Manrope,system-ui,sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:transform 150ms cubic-bezier(0.22,0.61,0.36,1),box-shadow 150ms ease}.ds-btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,0.30)}.ds-btn-primary:active{transform:scale(0.97)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(185,160,122,0.35)}"
+    },
+    {
+      "name": "Cartão de indicador",
+      "kind": "card",
+      "refersTo": "card-kpi",
+      "description": "Número em serifa sobre sobreposição, com fio no topo.",
+      "html": "<div class=\"ds-kpi\"><p class=\"ds-kpi-label\">SESSÕES HOJE</p><p class=\"ds-kpi-value\">6</p><p class=\"ds-kpi-note\">2 por confirmar</p></div>",
+      "css": ".ds-kpi{position:relative;background:#1f2433;border:1px solid rgba(212,184,134,0.16);border-radius:2px;padding:22px 24px 20px;box-shadow:0 1px 2px rgba(0,0,0,0.30),0 1px 1px rgba(0,0,0,0.20);width:220px}.ds-kpi::before{content:\"\";position:absolute;top:0;left:0;right:0;height:1px;background:#b9a07a;opacity:.45}.ds-kpi-label{margin:0 0 14px;font-family:Manrope,system-ui,sans-serif;font-size:9px;font-weight:500;letter-spacing:.30em;color:#b9a07a}.ds-kpi-value{margin:0 0 8px;font-family:'DM Serif Display',Georgia,serif;font-size:34px;line-height:1;letter-spacing:-.02em;color:#ece6d6}.ds-kpi-note{margin:0;font-family:Manrope,system-ui,sans-serif;font-size:11px;color:#d8d2c2}"
+    },
+    {
+      "name": "Item de navegação activo",
+      "kind": "nav",
+      "refersTo": "nav-link-active",
+      "description": "Marcador champanhe que não ocupa espaço de layout.",
+      "html": "<a class=\"ds-nav\" href=\"#\">Clientes</a>",
+      "css": ".ds-nav{display:flex;align-items:center;margin:0 8px 2px;padding:8px 12px;text-decoration:none;font-family:Manrope,system-ui,sans-serif;font-size:12.5px;font-weight:460;letter-spacing:.01em;color:#ece6d6;background:rgba(212,184,134,0.08);box-shadow:inset 2px 0 0 0 #d4b886;width:184px;box-sizing:border-box}.ds-nav:hover{background:rgba(212,184,134,0.12)}.ds-nav:focus-visible{outline:none;box-shadow:inset 2px 0 0 0 #d4b886,0 0 0 3px rgba(185,160,122,0.35)}"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Fundo sobreposição, halo champanhe no foco, 16px mínimo.",
+      "html": "<input class=\"ds-input\" placeholder=\"Nome do cliente\">",
+      "css": ".ds-input{background:#1f2433;color:#ece6d6;border:1px solid rgba(212,184,134,0.16);border-radius:2px;padding:10px 12px;font-family:Manrope,system-ui,sans-serif;font-size:16px;width:220px;box-sizing:border-box;transition:border-color 150ms ease,box-shadow 150ms ease}.ds-input::placeholder{color:#7a7e8a}.ds-input:focus{outline:none;border-color:rgba(185,160,122,0.6);box-shadow:0 0 0 3px rgba(185,160,122,0.12)}"
+    },
+    {
+      "name": "Contador",
+      "kind": "chip",
+      "refersTo": "badge-count",
+      "description": "Contagem de pendentes; champanhe com texto meia-noite.",
+      "html": "<span class=\"ds-badge\">12</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;background:#d4b886;color:#161a26;font-family:Manrope,system-ui,sans-serif;font-size:9px;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A Sala Silenciosa",
+    "overview": "O CRM é uma sala de tratamento de noite: baixa, quente, sem ruído. A interface desaparece e fica a tarefa da Bea, que usa o iPad entre sessões. O escuro é o padrão, com midnight e osso e o champanhe velado como único metal; o modo claro em papel é uma escolha da utilizadora.",
+    "keyCharacteristics": [
+      "Um só metal: o champanhe velado, raro e nunca decorativo.",
+      "Cantos quase rectos (2px) e fios finos em vez de sombras pesadas.",
+      "Títulos e números em serifa (DM Serif Display); tudo o resto em Manrope.",
+      "Movimento de feedback e continuidade; nunca coreografia de carregamento.",
+      "Escuro por omissão, claro (paper) por escolha, ambos com os mesmos tokens semânticos."
+    ],
+    "rules": [
+      {
+        "name": "A Regra do Metal Único",
+        "body": "O champanhe velado aparece em poucos elementos por ecrã (acção principal, item activo, foco). A raridade é a marca.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Fumo",
+        "body": "O smoke (#7a7e8a) só serve texto a partir de 18px (ou 14px com peso 600). Texto pequeno usa bone-soft.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Peso Fixo",
+        "body": "O peso da letra nunca muda com o estado activo; a distinção faz-se pela cor.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra da Sombra Funda",
+        "body": "As sombras são profundas e neutras, nunca coloridas.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar o champanhe velado só para a acção principal, o item activo e o foco.",
+      "Do dar aos alvos de toque das acções frequentes pelo menos 44px.",
+      "Do ligar todo o texto pequeno a bone-soft (ou bone); o smoke só a partir de 18px.",
+      "Do manter o peso da letra fixo entre estados e mudar só a cor.",
+      "Do usar os mesmos nomes de token nos dois modos e trocar só os valores.",
+      "Do dar sempre uma alternativa de movimento reduzido: cor, opacidade e estado ficam, o deslocamento sai."
+    ],
+    "donts": [
+      "Don't usar gradientes, brilhos ou efeitos que evoquem tecnologia ou neon.",
+      "Don't usar branco frio, ícones médicos ou qualquer tom de consultório.",
+      "Don't deixar animação ou cor competir com a tarefa.",
+      "Don't usar border-left colorido grosso, nem cartões dentro de cartões.",
+      "Don't introduzir sombras coloridas novas nem sombras duras deslocadas.",
+      "Don't usar a palavra \"você\" nem tom corporativo em texto de interface."
+    ]
+  }
+}
