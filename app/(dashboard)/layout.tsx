@@ -29,24 +29,30 @@ export default async function DashboardLayout({
   // Mensagens IA nunca aparece para a Cristina — só Bea/admin (decisão de
   // negócio 2026-09-04, ver lib/contexto-utilizador.ts). Sem permissão, nem
   // sequer se conta o badge — evita qualquer fuga de "há X pendentes".
-  const ctx = await getContextoUtilizador()
-  const mensagensPendentes = ctx.podeAprovarMensagens
-    ? await prisma.mensagemIA.count({ where: { estado: "pendente" } })
-    : 0
+  //
+  // Corre em paralelo (esta layout re-executa a cada navegação, force-dynamic):
+  // só a contagem de mensagens depende do contexto, as restantes não — antes
+  // eram 4 idas à Neon em série, agora 2 em profundidade (pool max = 5).
+  const ctxPromise = getContextoUtilizador()
+  const mensagensPromise = ctxPromise.then((c) =>
+    c.podeAprovarMensagens
+      ? prisma.mensagemIA.count({ where: { estado: "pendente" } })
+      : 0
+  )
 
   // Sem isolamento entre terapeutas (decisão do Nuno, 2026-09-16) — o badge
   // conta todas as tarefas abertas, tal como a página /tarefas já as mostra
   // todas a qualquer sessão autenticada.
-  const tarefasAbertas = await prisma.tarefa.count({
-    where: { estado: { in: ["pendente", "em_progresso"] } },
-  })
-
   // Dinheiro da Bea (MBWay) por repassar à Cristina — sessões e vouchers,
   // mesma regra de lib/repasses.ts já usada em /financeiro.
-  const [sessoesPorRepassar, vouchersPorRepassar] = await Promise.all([
-    prisma.sessao.count({ where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null } }),
-    prisma.giftCard.count({ where: { repasseNecessario: true, repasseFeito: false } }),
-  ])
+  const [ctx, mensagensPendentes, tarefasAbertas, sessoesPorRepassar, vouchersPorRepassar] =
+    await Promise.all([
+      ctxPromise,
+      mensagensPromise,
+      prisma.tarefa.count({ where: { estado: { in: ["pendente", "em_progresso"] } } }),
+      prisma.sessao.count({ where: { repasseNecessario: true, repasseFeito: false, apagadoEm: null } }),
+      prisma.giftCard.count({ where: { repasseNecessario: true, repasseFeito: false } }),
+    ])
   const repassesPendentes = sessoesPorRepassar + vouchersPorRepassar
 
   // Tamanho de texto já é aplicado no <html> (app/layout.tsx) — chega por
